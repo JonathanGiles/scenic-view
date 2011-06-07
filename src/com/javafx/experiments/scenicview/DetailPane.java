@@ -125,6 +125,8 @@ public abstract class DetailPane extends TitledPane {
                         if (ObservableValue.class.isAssignableFrom(returnType)) {
                             // we've got a winner
                             final String propertyName = method.getName().substring(0, method.getName().lastIndexOf("Property"));
+                            // Request access
+                            method.setAccessible(true);
                             final ObservableValue property = (ObservableValue) method.invoke(target);
                             // System.out.println("propertyName="+propertyName+".");
                             properties.put(property, propertyName);
