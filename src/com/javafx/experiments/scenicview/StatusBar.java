@@ -83,11 +83,11 @@ public class StatusBar extends HBox {
     void updateWindowDetails(final Window targetWindow) {
         if (targetWindow != null) {
             windowTypeLabel.setText(targetWindow.getClass().getSimpleName() + ":");
+            if (!targetWindow.isFocused()) {
+                updateMousePosition("---");
+            }
         }
         stageBoundsText.setText(targetWindow != null ? DisplayUtils.boundsToString(targetWindow.getX(), targetWindow.getY(), targetWindow.getWidth(), targetWindow.getHeight()) : "");
-        if (!targetWindow.isFocused()) {
-            updateMousePosition("---");
-        }
     }
 
     void updateNodeCount(final Scene targetScene) {
