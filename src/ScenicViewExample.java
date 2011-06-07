@@ -5,7 +5,8 @@
 
 import javafx.application.Application;
 import javafx.beans.property.*;
-import javafx.event.EventHandler;
+import javafx.collections.*;
+import javafx.event.*;
 import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
@@ -125,19 +126,29 @@ public class ScenicViewExample extends Application {
         b2.translateXProperty().bind(pos);
         b2.setFont(f);
         b2.setMouseTransparent(true);
+        final ObservableList<String> items = FXCollections.observableArrayList();
         b2.setEffect(shadow);
-        final Button b3 = new Button("Third");
-        b3.setFont(f);
-        b3.setRotate(45);
+        for (int i = 0; i < 1000; i++) {
+            items.add("List View content:"+i);
+        }
+        
+        final ListView<String> listViewTest = new ListView<String>(items);
+        listViewTest.setPrefHeight(40);
         final Button b4 = new Button("Fourth");
         b4.setRotate(45);
         b4.setFont(f);
+        b4.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override public void handle(final ActionEvent arg0) {
+                b4.setVisible(false);
+            }
+        });
 
         final Group invisible = createGroup();
         invisible.setId("InvisibleGroup");
         invisible.setVisible(false);
-
-        tilepane.getChildren().addAll(rect1, rect2, rect3, new Group(rect4), b1, b2, b3, new Group(b4), g1, g2, g3, new Group(g4), invisible);
+        
+        tilepane.getChildren().addAll(rect1, rect2, rect3, new Group(rect4), b1, b2, listViewTest, new Group(b4), g1, g2, g3, new Group(g4), invisible);
 
         final Scene scene = new Scene(tilepane);
         scene.getStylesheets().add(getClass().getResource("scenicviewtest.css").toString());
