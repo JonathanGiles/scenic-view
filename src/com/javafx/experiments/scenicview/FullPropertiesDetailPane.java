@@ -50,7 +50,7 @@ public class FullPropertiesDetailPane extends DetailPane {
     }
 
     @Override public void setTarget(final Object value) {
-        if (doSetTarget(value) && getTarget() != null) {
+        if (doSetTarget(value)) {
             createPropertiesPanel();
         }
 
