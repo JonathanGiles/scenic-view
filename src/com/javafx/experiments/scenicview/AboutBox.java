@@ -66,7 +66,7 @@ public class AboutBox {
     }
 
     private static String getAboutText() {
-        final String text = "JavaFX Scenic View 1.0"
+        final String text = "JavaFX Scenic View 1.0.1"
                 + "\n"
                 + "\n"
                 + "JavaFX Build Information:"
