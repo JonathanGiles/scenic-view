@@ -1,0 +1,307 @@
+.root {
+    -fx-base: #e0e0e0;
+    -fx-background: derive(-fx-base, 3.7%);    
+    
+/*    -fx-text-base-color: #111111;
+    -fx-focus-color: rgb(23,134,248);*/
+    
+/*    -fx-control-inner-background: white;*/
+/*    -fx-text-inner-color: -fx-text-base-color;*/
+    
+/*    -fx-box-border: derive(-fx-background, -0.291);*/
+    
+/*    -fx-shadow-highlight-color: derive(-fx-color, -0.022);*/
+/*    -fx-outer-border: derive(-fx-color, -0.291);
+    -fx-inner-border: linear-gradient(
+        to bottom,
+        derive(-fx-color, 0.579) 0%,
+        derive(-fx-color, 0.022) 100%
+    );*/
+    -fx-body-color: linear-gradient(
+        to bottom,
+        derive(-fx-color, 0.353) 0%,
+        derive(-fx-color, -0.058) 100%
+    );
+    
+/*    -fx-mark-color: derive(-fx-base, -60%);*/
+/*    -fx-mark-highlight-color: derive(-fx-color, 90%);*/
+    
+    SB_scrollbar-track: derive(-fx-color, 27.5%);
+    SB_scrollbar-thumb: derive(-fx-color, -26.3%);
+    SB_scrollbar-corner-border: derive(SB_scrollbar-track, -10%);
+}
+
+.split-pane {
+    -fx-background-insets: 0, 1 0 1 0;
+    -fx-padding: 1 0 1 0;
+}
+.split-pane *.split-pane-divider{
+    -fx-padding: 0 1 0 0;
+    -fx-background-color: transparent, -fx-box-border;
+    -fx-background-insets: 0 -3 0 -3, 0;
+    -fx-border-color: null;
+}
+.split-pane *.horizontal-grabber {
+    -fx-padding: 0;
+    -fx-shape: "";
+}
+
+.tree-view {
+    -fx-background-insets: 0, 0 0 -1 0;
+    -fx-background-radius: 0;
+    -fx-padding: 0;
+}
+
+.scroll-pane {
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+}
+
+.structure-trace-pane > .trace-text-area {
+	-fx-font: 10pt "Monospace";
+}
+
+.detail-pane #title-label {
+    -fx-font: bold 12pt "Amble Cn";
+}
+
+.detail-grid {
+    -fx-background-color: white;
+    -fx-background-insets: 0,1,2;
+    -fx-background-radius: 0,0,0;
+    -fx-padding: 4 6 6 6;
+    -fx-hgap: 4;
+    -fx-vgap: 1;
+}
+
+.titled-pane > .title {
+    -fx-background-insets: 0, 0 0 0 0, 1 1 1 1;
+    -fx-background-radius: 0, 0, 0;
+}
+.titled-pane > *.content {
+    -fx-background-color: -fx-box-border, white;
+    -fx-background-insets: 0, 1 0 1 0;
+    -fx-padding: 1 0 1 0;
+}
+
+.detail-pane .detail-label {
+    -fx-font: bold 12pt "Amble Cn";
+    -fx-text-fill: #0082dd;
+}
+
+.detail-pane .updated-detail-label {
+	-fx-font: bold 12pt "Amble Cn";
+    -fx-text-fill: #FF0000;
+}
+
+.detail-pane .detail-value {
+    -fx-font: 12pt "Amble Cn";
+    -fx-text-fill: black;
+}
+
+.detail-pane .detail-field {
+    -fx-font: 12pt "Amble Cn";
+    -fx-text-fill: black;
+}
+
+.constraints-display {
+    -fx-padding: 2 2 2 2;
+    -fx-font: 11pt "Amble Cn";
+}
+
+.constraints-display .label {
+    -fx-text-fill: #0082dd;
+}
+
+.gridpane-constraint-display {
+    -fx-padding: 2 2 2 2;
+    -fx-background-color: #eeeeee;
+    -fx-font: 11pt "Amble Cn";
+}
+
+.gridpane-constraint-display .label {
+    -fx-text-fill: #0082dd;
+}
+
+.menu-bar {
+    -fx-base: #e0e0e0;
+    -fx-background: derive(-fx-base, 3.7%);
+    -fx-body-color: linear-gradient(
+        to bottom,
+        derive(-fx-color, 0.353) 0%,
+        derive(-fx-color, -0.058) 100%
+    );
+    -fx-background-color: -fx-body-color;
+}
+.menu-bar .menu .arrow {
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+    -fx-shape: null;
+}
+.menu-bar .menu .arrow-button {
+    -fx-padding: 0;
+}
+/* Show nothing for background of normal menu button in a menu bar */
+.menu-bar .menu-button {
+    -fx-background-radius: 0;
+    -fx-background-color: transparent;
+    -fx-background-insets: 0; 
+}
+/* Change padding of menu buttons when in menu bar */
+.menu-bar .menu-button .label {
+    -fx-padding: 0.333em 0.5em 0.333em 0.5em;
+    -fx-effect: dropshadow( one-pass-box , derive(-fx-color, 90%), 0, 0.0 , 0 , 1 );
+}
+.menu-bar .menu-button:hover, .menu-bar .menu-button:focused, .menu-bar .menu-button:showing {
+    -fx-background: -fx-accent;
+    -fx-background-color: -fx-selection-bar;
+}
+.menu-bar .menu-button:hover .label, .menu-bar .menu-button:focused .label, .menu-bar .menu-button:showing .label {
+    -fx-text-fill: white;
+    -fx-effect: null;
+}
+
+#main-statusbar {
+    -fx-padding: 3 4 3 4;
+    -fx-spacing: 4;
+}
+#main-statusbar .value-name {
+    -fx-font: bold 12pt "Amble Cn";
+    -fx-font-weight: bold;
+}
+#main-statusbar .value-label {
+    -fx-font: 11pt "Amble Cn"; 
+}
+
+#aboutDialogDetails:focused {
+    -fx-background-color: -fx-shadow-highlight-color, -fx-text-box-border, -fx-control-inner-background;
+    -fx-background-insets: 0, 1, 2;
+    -fx-background-radius: 3, 2, 2;
+}
+
+
+/* ============ SCROLL BARS ================================================= */
+.scroll-bar {
+    -fx-background-color:
+        -fx-outer-border,
+        SB_scrollbar-track;
+    -fx-background-insets: 0,1;
+}
+.scroll-bar .track {
+    -fx-background-color: null;
+}
+.scroll-bar .thumb {
+    -fx-background-color: SB_scrollbar-thumb;
+    -fx-background-insets: 3;
+    -fx-background-radius: 5px;
+}
+.scroll-bar:horizontal .increment-button , .scroll-bar:horizontal .decrement-button{
+    -fx-background-color: null;
+    -fx-padding: 6 0 6 0;
+}
+.scroll-bar:vertical .increment-button , .scroll-bar:vertical .decrement-button{
+    -fx-background-color: null;
+    -fx-padding: 0 6 0 6;
+}
+.scroll-bar .increment-arrow, .scroll-bar .decrement-arrow {
+    -fx-background-color: null;
+    -fx-padding: 0;
+}
+.corner {
+    -fx-background-color:
+        SB_scrollbar-corner-border,
+        SB_scrollbar-track;
+    -fx-background-insets: 0,1 0 0 1;
+}
+/* Scrolbars in ScrollPane */
+.scroll-pane > * > .scroll-bar:horizontal {
+    -fx-background-insets: 0,1 0 0 0;
+    -fx-padding: 0;
+}
+.scroll-pane > * > .scroll-bar:horizontal .increment-button ,.scroll-pane > * > .scroll-bar:horizontal .decrement-button{
+    -fx-background-color: null;
+    -fx-padding: 6 0 5 0;
+}
+.scroll-pane > * > .scroll-bar:horizontal .thumb {
+    -fx-background-insets: 3 3 2 3;
+}
+.scroll-pane > * > .scroll-bar:vertical {
+    -fx-background-insets: 0, 0 0 0 1;
+    -fx-padding: 0;
+}
+.scroll-pane > * > .scroll-bar:vertical .increment-button ,.scroll-pane > * > .scroll-bar:vertical .decrement-button{
+    -fx-background-color: null;
+    -fx-padding: 0 5 0 6;
+}
+.scroll-pane > * > .scroll-bar:vertical .thumb {
+    -fx-background-insets: 3 2 3 3;
+}
+/* Scrolbars in TextArea */
+.text-area > * > .scroll-bar:horizontal {
+    -fx-background-insets: 0,1 0 0 0;
+    -fx-padding: 0;
+}
+.text-area > * > .scroll-bar:horizontal .increment-button ,.text-area > * > .scroll-bar:horizontal .decrement-button{
+    -fx-background-color: null;
+    -fx-padding: 6 0 5 0;
+}
+.text-area > * > .scroll-bar:horizontal .thumb {
+    -fx-background-insets: 3 3 2 3;
+}
+.text-area > * > .scroll-bar:vertical {
+    -fx-background-insets: 0, 0 0 0 1;
+    -fx-padding: 0;
+}
+.text-area > * > .scroll-bar:vertical .increment-button ,.text-area > * > .scroll-bar:vertical .decrement-button{
+    -fx-background-color: null;
+    -fx-padding: 0 5 0 6;
+}
+.text-area > * > .scroll-bar:vertical .thumb {
+    -fx-background-insets: 3 2 3 3;
+}
+/* Scrolbars in ListView */
+.list-view .scroll-bar:horizontal {
+    -fx-background-insets: 0,1 0 0 0;
+    -fx-padding: 0;
+}
+.list-view .scroll-bar:horizontal .increment-button ,.list-view .scroll-bar:horizontal .decrement-button{
+    -fx-background-color: null;
+    -fx-padding: 6 0 5 0;
+}
+.list-view .scroll-bar:horizontal .thumb {
+    -fx-background-insets: 3 3 2 3;
+}
+.list-view .scroll-bar:vertical {
+    -fx-background-insets: 0, 0 0 0 1;
+    -fx-padding: 0;
+}
+.list-view .scroll-bar:vertical .increment-button ,.list-view .scroll-bar:vertical .decrement-button{
+    -fx-background-color: null;
+    -fx-padding: 0 5 0 6;
+}
+.list-view .scroll-bar:vertical .thumb {
+    -fx-background-insets: 3 2 3 3;
+}
+/* Scrolbars in TreeView */
+.tree-view .scroll-bar:horizontal {
+    -fx-background-insets: 0,1 0 0 0;
+    -fx-padding: 0;
+}
+.tree-view .scroll-bar:horizontal .increment-button ,.tree-view .scroll-bar:horizontal .decrement-button{
+    -fx-background-color: null;
+    -fx-padding: 6 0 5 0;
+}
+.tree-view .scroll-bar:horizontal .thumb {
+    -fx-background-insets: 3 3 2 3;
+}
+.tree-view .scroll-bar:vertical {
+    -fx-background-insets: 0, 0 0 0 1;
+    -fx-padding: 0;
+}
+.tree-view .scroll-bar:vertical .increment-button ,.tree-view .scroll-bar:vertical .decrement-button{
+    -fx-background-color: null;
+    -fx-padding: 0 5 0 6;
+}
+.tree-view .scroll-bar:vertical .thumb {
+    -fx-background-insets: 3 2 3 3;
+}
