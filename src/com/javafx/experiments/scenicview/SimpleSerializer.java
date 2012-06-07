@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 
 import javafx.beans.property.*;
 import javafx.beans.value.WritableValue;
+import javafx.scene.paint.Color;
 
 @SuppressWarnings("rawtypes")
 public class SimpleSerializer implements WritableValue<String> {
@@ -100,7 +101,11 @@ public class SimpleSerializer implements WritableValue<String> {
                 if (enumClass != null) {
                     final Method m = enumClass.getMethod("valueOf", String.class);
                     property.setValue(m.invoke(null, value));
-                } else {
+                }
+                else if(property.getValue() instanceof Color) {
+                    property.setValue(Color.valueOf(value));
+                }
+                else {
                     ScenicView.setStatusText(DetailPane.STATUS_NOT_SUPPORTED, 10000);
                 }
             }

@@ -8,6 +8,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.paint.Color;
 
 import com.sun.javafx.css.StyleableProperty;
 
@@ -119,7 +120,11 @@ public class FullPropertiesDetailPane extends DetailPane {
                 detail.setEnumProperty((Property) observable, (Class<? extends Enum>) observable.getValue().getClass());
             } else if (!(observable instanceof ObjectProperty)) {
                 detail.setSimpleProperty((Property) observable);
-            } else {
+            }
+            else if(observable.getValue() instanceof Color) {
+                detail.setSimpleProperty((Property) observable);
+            }
+            else {
                 detail.setSimpleProperty(null);
                 detail.unavailableEdition(STATUS_NOT_SUPPORTED);
             }
