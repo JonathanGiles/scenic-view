@@ -1,0 +1,7 @@
+syntax: glob
+*.orig
+build/*
+nbproject/private/*
+CVS/*
+dist/*
+scenicView.properties
