@@ -141,6 +141,14 @@ public class ScenicView extends Region {
 
     VBox leftPane;
     
+    private final EventHandler<? super MouseEvent> sceneHoverListener = new EventHandler<MouseEvent>() {
+
+        @Override public void handle(final MouseEvent ev) {
+            highlightHovered(ev.getX(), ev.getY());
+        }
+
+    };
+    
     private static final Map<String, Image> loadedImages = new HashMap<String, Image>();
     private static final String CUSTOM_NODE_IMAGE = ScenicView.class.getResource("images/nodeicons/CustomNode.png").toString();
 
@@ -272,7 +280,7 @@ public class ScenicView extends Region {
             }
 
             @Override public boolean accept(final Node node) {
-                return showInvisibleNodes.isSelected() || node.isVisible();
+                return showInvisibleNodes.isSelected() || DisplayUtils.isNodeVisible(node);
             }
 
             @Override public boolean ignoreShowFilteredNodesInTree() {
@@ -294,13 +302,6 @@ public class ScenicView extends Region {
 
         final CheckMenuItem componentSelectOnClick = buildCheckMenuItem("Component select on click", "Click on the scene to select a component", "", null, null);
         componentSelectOnClick.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            private final EventHandler<? super MouseEvent> sceneHoverListener = new EventHandler<MouseEvent>() {
-
-                @Override public void handle(final MouseEvent ev) {
-                    highlightHovered(ev.getX(), ev.getY());
-                }
-
-            };
 
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean oldValue, final Boolean newValue) {
                 if (newValue) {
@@ -1197,6 +1198,9 @@ public class ScenicView extends Region {
 
     public void close() {
         removeScenicViewComponents(target);
+        if(targetScene != null) {
+            targetScene.removeEventHandler(MouseEvent.MOUSE_MOVED, sceneHoverListener);
+        }
         if (refresher != null)
             refresher.finish();
         if (windowChecker != null)
@@ -1309,11 +1313,7 @@ public class ScenicView extends Region {
         }
 
         private boolean isNodeVisible(final Node node) {
-            if (node == null) {
-                return true;
-            } else {
-                return node.isVisible() && isNodeVisible(node.getParent());
-            }
+            return DisplayUtils.isNodeVisible(node);
         }
 
         @Override public boolean isMouseTransparent() {

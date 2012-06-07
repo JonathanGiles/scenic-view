@@ -32,6 +32,14 @@ public class DisplayUtils {
         }
         return name;
     }
+    
+    public static boolean isNodeVisible(final Node node) {
+        if (node == null) {
+            return true;
+        } else {
+            return node.isVisible() && isNodeVisible(node.getParent());
+        }
+    }
 
     public static String boundsToString(final Bounds b) {
         return boundsToString(b.getMinX(), b.getMinY(), b.getWidth(), b.getHeight());
