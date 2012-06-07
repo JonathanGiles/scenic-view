@@ -453,6 +453,9 @@ is divided into following sections:
         <presetdef name="jar" uri="http://www.netbeans.org/ns/j2se-project/1">
             <jar compress="${jar.compress}" index="${jar.index}" jarfile="${dist.jar}">
                 <j2seproject1:fileset dir="${build.classes.dir}"/>
+                <manifest>
+                    <attribute name="Premain-Class" value="com.javafx.experiments.scenicview.SVInstrumentationAgent"/>
+                </manifest>
             </jar>
         </presetdef>
     </target>
