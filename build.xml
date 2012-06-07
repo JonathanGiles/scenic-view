@@ -8,8 +8,7 @@
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
 <project name="ScenicView" default="default" basedir=".">
-    <description>Builds, tests, and runs the project BouncingBalls.</description>
-    <import file="../../build-tasks.xml"/>
+    <description>Builds, tests, and runs the project Scenic View.</description>
     <import file="nbproject/build-impl.xml"/>
 
     <!--
