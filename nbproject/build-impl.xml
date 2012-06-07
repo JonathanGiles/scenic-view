@@ -454,7 +454,7 @@ is divided into following sections:
             <jar compress="${jar.compress}" index="${jar.index}" jarfile="${dist.jar}">
                 <j2seproject1:fileset dir="${build.classes.dir}"/>
                 <manifest>
-                    <attribute name="Premain-Class" value="com.javafx.experiments.scenicview.SVInstrumentationAgent"/>
+                    <attribute name="Premain-Class" value="com.javafx.experiments.scenicview.agent.SVInstrumentationAgent"/>
                 </manifest>
             </jar>
         </presetdef>
