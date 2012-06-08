@@ -33,7 +33,7 @@ public class AboutBox {
         });
         VBox.setMargin(this.footer, new Insets(SPACER_Y / 2, LEFT_AND_RIGHT_MARGIN, SPACER_Y / 2, LEFT_AND_RIGHT_MARGIN));
 
-        this.header = ((ImageViewBuilder.create().id("AboutHeader")).image(new Image(AboutBox.class.getResource("images/ui/about-header.png").toString()))).build();
+        this.header = ((ImageViewBuilder.create().id("AboutHeader")).image(DisplayUtils.getUIImage("about-header.png"))).build();
 
         VBox.setMargin(this.header, new Insets(42.0D, LEFT_AND_RIGHT_MARGIN, 0.0D, LEFT_AND_RIGHT_MARGIN));
 

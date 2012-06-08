@@ -42,7 +42,7 @@ public class ScenicView extends Region {
     private static final String HELP_URL = "http://fxexperience.com/scenic-view/help";
     private static final String SCENIC_VIEW_BASE_ID = "ScenicView.";
 
-    static final Image APP_ICON = new Image(ScenicView.class.getResource("images/ui/mglass.gif").toString());
+    static final Image APP_ICON = DisplayUtils.getUIImage("mglass.gif");
 
     public static void show(final Scene target) {
         show(target.getRoot());

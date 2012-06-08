@@ -9,7 +9,6 @@ import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.util.*;
 
-
 import javafx.beans.*;
 import javafx.beans.Observable;
 import javafx.beans.value.ObservableValue;
@@ -20,6 +19,8 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+
+import com.javafx.experiments.scenicview.DisplayUtils;
 
 /**
  * 
@@ -43,7 +44,7 @@ public abstract class DetailPane extends TitledPane {
     private final InvalidationListener propListener;
     @SuppressWarnings("rawtypes") Map<ObservableValue, String> properties = new HashMap<ObservableValue, String>();
 
-    static final Image EDIT_IMAGE = new Image(Detail.class.getResource("images/ui/editclear.png").toString());
+    static final Image EDIT_IMAGE = DisplayUtils.getUIImage("editclear.png");
 
     static final String DETAIL_LABEL_STYLE = "detail-label";
     static Detail activeDetail;

@@ -21,7 +21,7 @@ import javafx.scene.transform.*;
 public class DisplayUtils {
     public static DecimalFormat DFMT = new DecimalFormat("0.0#");
 
-    static final Image CLEAR_IMAGE = new Image(ScenicView.class.getResource("images/ui/clear.gif").toString());
+    static final Image CLEAR_IMAGE = getUIImage("clear.gif");
 
     public static String nodeClass(final Node node) {
         @SuppressWarnings("rawtypes") Class cls = node.getClass();
@@ -31,6 +31,10 @@ public class DisplayUtils {
             name = cls.getSimpleName();
         }
         return name;
+    }
+    
+    public static Image getUIImage(final String image) {
+        return new Image(ScenicView.class.getResource("images/ui/"+image).toString());
     }
     
     public static boolean isNodeVisible(final Node node) {

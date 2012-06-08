@@ -11,7 +11,7 @@ public class HelpNode {
     private static final int SCENE_WIDTH = 1024;
     private static final int SCENE_HEIGHT = 768;
 
-    static final Image HELP_ICON = new Image(HelpNode.class.getResource("images/ui/help.png").toString());
+    static final Image HELP_ICON = DisplayUtils.getUIImage("help.png");
 
     final Stage stage;
 
