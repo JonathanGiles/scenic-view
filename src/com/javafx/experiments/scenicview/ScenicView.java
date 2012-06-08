@@ -103,6 +103,7 @@ public class ScenicView extends Region {
     private CheckMenuItem showBoundsCheckbox;
     private CheckMenuItem showBaselineCheckbox;
     private CheckMenuItem showDefaultProperties;
+    private CheckMenuItem collapseControls;
 
     private CheckMenuItem showFilteredNodesInTree;
     private CheckMenuItem showNodesIdInTree;
@@ -239,6 +240,13 @@ public class ScenicView extends Region {
                 setShowDefaultProperties(showDefaultProperties.isSelected());
             }
         });
+        final InvalidationListener menuTreeChecksListener = new InvalidationListener() {
+            @Override public void invalidated(final Observable arg0) {
+                storeTarget(target);
+            }
+        };
+        collapseControls = buildCheckMenuItem("Collapse controls In Tree", "Controls will be collapsed", "Controls will be expanded", "collapseControls", Boolean.TRUE);
+        collapseControls.selectedProperty().addListener(menuTreeChecksListener);
 
         final CheckMenuItem showCSSProperties = buildCheckMenuItem("Show CSS Properties", "Show CSS properties", "Hide CSS properties", "showCSSProperties", Boolean.FALSE);
         showCSSProperties.selectedProperty().addListener(new InvalidationListener() {
@@ -254,11 +262,7 @@ public class ScenicView extends Region {
                 updateBaseline();
             }
         });
-        final InvalidationListener menuTreeChecksListener = new InvalidationListener() {
-            @Override public void invalidated(final Observable arg0) {
-                storeTarget(target);
-            }
-        };
+
         final CheckMenuItem automaticScenegraphStructureRefreshing = buildCheckMenuItem("Auto-Refresh Scenegraph", "Scenegraph structure will be automatically updated on change", "Scenegraph structure will NOT be automatically updated on change", "automaticScenegraphStructureRefreshing", Boolean.TRUE);
         final CheckMenuItem showInvisibleNodes = buildCheckMenuItem("Show Invisible Nodes In Tree", "Invisible nodes will be faded in the scenegraph tree", "Invisible nodes will not be shown in the scenegraph tree", "showInvisibleNodes", Boolean.FALSE);
         showInvisibleNodes.selectedProperty().addListener(menuTreeChecksListener);
@@ -403,7 +407,7 @@ public class ScenicView extends Region {
 
         ruler.getItems().addAll(showRuler, rulerSlider);
 
-        displayOptionsMenu.getItems().addAll(showDefaultProperties, showCSSProperties, new SeparatorMenuItem(), showBoundsCheckbox, showBaselineCheckbox, new SeparatorMenuItem(), ruler, new SeparatorMenuItem(), showFilteredNodesInTree, showInvisibleNodes, showNodesIdInTree);
+        displayOptionsMenu.getItems().addAll(showDefaultProperties, showCSSProperties, new SeparatorMenuItem(), showBoundsCheckbox, showBaselineCheckbox, new SeparatorMenuItem(), ruler, new SeparatorMenuItem(), showFilteredNodesInTree, showInvisibleNodes, showNodesIdInTree, collapseControls);
 
         final Menu aboutMenu = new Menu("Help");
 
@@ -828,7 +832,7 @@ public class ScenicView extends Region {
                     treeItem.getChildren().add(childItem);
                 }
             }
-            treeItem.setExpanded(!(node instanceof Control));
+            treeItem.setExpanded(!(node instanceof Control) || !collapseControls.isSelected());
         }
         if(updateCount)
             statusBar.updateNodeCount(targetScene);
