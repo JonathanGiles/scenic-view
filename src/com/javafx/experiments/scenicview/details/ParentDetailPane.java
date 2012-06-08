@@ -6,9 +6,6 @@
 package com.javafx.experiments.scenicview.details;
 
 import static com.javafx.experiments.scenicview.DisplayUtils.getBranchCount;
-
-import com.javafx.experiments.scenicview.details.*;
-
 import javafx.scene.*;
 
 /**

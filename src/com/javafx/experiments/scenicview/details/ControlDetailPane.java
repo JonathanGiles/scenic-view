@@ -6,9 +6,6 @@
 package com.javafx.experiments.scenicview.details;
 
 import static com.javafx.experiments.scenicview.DisplayUtils.formatSize;
-
-import com.javafx.experiments.scenicview.details.*;
-
 import javafx.scene.Node;
 import javafx.scene.control.Control;
 

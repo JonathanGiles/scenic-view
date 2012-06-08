@@ -5,8 +5,6 @@
 
 package com.javafx.experiments.scenicview.details;
 
-import com.javafx.experiments.scenicview.details.*;
-
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
