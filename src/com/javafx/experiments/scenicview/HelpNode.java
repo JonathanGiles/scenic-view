@@ -1,5 +1,8 @@
 package com.javafx.experiments.scenicview;
 
+import java.util.logging.*;
+
+import javafx.event.EventHandler;
 import javafx.scene.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
@@ -28,12 +31,32 @@ public class HelpNode {
         stage = StageBuilder.create().title(title).build();
         stage.setScene(scene);
         stage.getIcons().add(HELP_ICON);
-//        stage.setX(x);
-//        stage.setY(y);
+        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            
+            @Override public void handle(final WindowEvent arg0) {
+                Logger.getLogger("com.sun.webpane").setLevel(wLevel);
+                Logger.getLogger("webcore.platform.api.SharedBufferInputStream").setLevel(wpLevel);
+            }
+        });
         stage.show();
     }
+    
+    static Level wLevel;
+    static Level wpLevel;
 
     public static HelpNode make(final String title, final String url, final Stage stage) {
-        return new HelpNode(title, url, stage.getX() + (stage.getWidth() / 2) - (SCENE_WIDTH / 2), stage.getY() + (stage.getHeight() / 2) - (SCENE_HEIGHT / 2));
+        /**
+         * Ugly patch to remove the visual trace of the WebPane
+         */
+        final Logger webLogger = java.util.logging.Logger.getLogger("com.sun.webpane");
+        final Logger webPltLogger = java.util.logging.Logger.getLogger("webcore.platform.api.SharedBufferInputStream");
+        wLevel = webLogger.getLevel();
+        wpLevel = webPltLogger.getLevel();
+        webLogger.setLevel(Level.SEVERE);
+        webPltLogger.setLevel(Level.SEVERE);
+        
+        final HelpNode node = new HelpNode(title, url, stage.getX() + (stage.getWidth() / 2) - (SCENE_WIDTH / 2), stage.getY() + (stage.getHeight() / 2) - (SCENE_HEIGHT / 2));
+
+        return node;
     }
 }
