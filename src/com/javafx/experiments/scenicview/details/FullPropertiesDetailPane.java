@@ -1,4 +1,4 @@
-package com.javafx.experiments.scenicview;
+package com.javafx.experiments.scenicview.details;
 
 import java.util.*;
 
@@ -10,6 +10,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.paint.Color;
 
+import com.javafx.experiments.scenicview.*;
 import com.sun.javafx.css.StyleableProperty;
 
 @SuppressWarnings("rawtypes")

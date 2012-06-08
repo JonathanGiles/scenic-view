@@ -3,9 +3,12 @@
  * and open the template in the editor.
  */
 
-package com.javafx.experiments.scenicview;
+package com.javafx.experiments.scenicview.details;
 
 import static com.javafx.experiments.scenicview.DisplayUtils.getBranchCount;
+
+import com.javafx.experiments.scenicview.details.*;
+
 import javafx.scene.*;
 
 /**

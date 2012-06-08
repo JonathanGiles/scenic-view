@@ -3,11 +3,12 @@
  * and open the template in the editor.
  */
 
-package com.javafx.experiments.scenicview;
+package com.javafx.experiments.scenicview.details;
 
 import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.util.*;
+
 
 import javafx.beans.*;
 import javafx.beans.Observable;

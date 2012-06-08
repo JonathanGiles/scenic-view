@@ -30,6 +30,8 @@ import javafx.scene.shape.*;
 import javafx.stage.*;
 import javafx.util.Callback;
 
+import com.javafx.experiments.scenicview.details.AllDetailsPane;
+
 /**
  * 
  * @author aim
@@ -1135,7 +1137,7 @@ public class ScenicView extends Region {
                 removeFromNode(target, componentHighLighter);
             }
             if (nodeData != null && nodeData.getValue().getNode() != null) {
-                final Bounds bounds = nodeData.getValue().getNode().getBoundsInLocal();
+                final Bounds bounds = nodeData.getValue().getNode().getBoundsInParent();
                 final Point2D start = nodeData.getValue().getNode().localToScene(new Point2D(0, 0));
                 final Rectangle rect = new Rectangle();
                 rect.setFill(Color.TRANSPARENT);
@@ -1258,15 +1260,15 @@ public class ScenicView extends Region {
         }
     }
 
-    static void setStatusText(final String text) {
+    public static void setStatusText(final String text) {
         statusBar.setStatusText(text);
     }
 
-    static void setStatusText(final String text, final long timeout) {
+    public static void setStatusText(final String text, final long timeout) {
         statusBar.setStatusText(text, timeout);
     }
 
-    static void clearStatusText() {
+    public static void clearStatusText() {
         statusBar.clearStatusText();
     }
 

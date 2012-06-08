@@ -1,6 +1,8 @@
-package com.javafx.experiments.scenicview;
+package com.javafx.experiments.scenicview.details;
 
 import java.lang.reflect.Method;
+
+import com.javafx.experiments.scenicview.ScenicView;
 
 import javafx.beans.property.*;
 import javafx.beans.value.WritableValue;

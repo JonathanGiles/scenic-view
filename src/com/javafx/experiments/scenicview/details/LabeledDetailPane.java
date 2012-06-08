@@ -3,7 +3,9 @@
  * and open the template in the editor.
  */
 
-package com.javafx.experiments.scenicview;
+package com.javafx.experiments.scenicview.details;
+
+import com.javafx.experiments.scenicview.details.*;
 
 import javafx.geometry.Pos;
 import javafx.scene.Node;

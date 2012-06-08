@@ -1,4 +1,4 @@
-package com.javafx.experiments.scenicview;
+package com.javafx.experiments.scenicview.details;
 
 import javafx.animation.*;
 import javafx.beans.property.*;
@@ -11,7 +11,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Duration;
 
-import com.javafx.experiments.scenicview.SimpleSerializer.EditionType;
+import com.javafx.experiments.scenicview.*;
+import com.javafx.experiments.scenicview.details.SimpleSerializer.EditionType;
 
 public class Detail {
     public Label label;

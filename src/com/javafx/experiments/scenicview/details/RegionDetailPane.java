@@ -3,9 +3,12 @@
  * and open the template in the editor.
  */
 
-package com.javafx.experiments.scenicview;
+package com.javafx.experiments.scenicview.details;
 
 import static com.javafx.experiments.scenicview.DisplayUtils.formatSize;
+
+import com.javafx.experiments.scenicview.details.*;
+
 import javafx.scene.Node;
 import javafx.scene.layout.Region;
 import javafx.scene.text.TextAlignment;

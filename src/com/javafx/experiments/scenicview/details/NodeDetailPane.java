@@ -3,9 +3,13 @@
  * and open the template in the editor.
  */
 
-package com.javafx.experiments.scenicview;
+package com.javafx.experiments.scenicview.details;
 
 import static com.javafx.experiments.scenicview.DisplayUtils.boundsToString;
+
+import com.javafx.experiments.scenicview.*;
+import com.javafx.experiments.scenicview.details.*;
+
 import javafx.beans.value.WritableValue;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Orientation;

@@ -3,9 +3,10 @@
  * and open the template in the editor.
  */
 
-package com.javafx.experiments.scenicview;
+package com.javafx.experiments.scenicview.details;
 
 import java.util.Map;
+
 
 import javafx.collections.ObservableMap;
 import javafx.geometry.*;

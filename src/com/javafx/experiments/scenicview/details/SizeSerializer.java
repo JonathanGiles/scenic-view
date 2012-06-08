@@ -1,4 +1,6 @@
-package com.javafx.experiments.scenicview;
+package com.javafx.experiments.scenicview.details;
+
+import com.javafx.experiments.scenicview.ScenicView;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.value.WritableValue;
