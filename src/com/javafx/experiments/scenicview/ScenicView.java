@@ -9,7 +9,6 @@ import static com.javafx.experiments.scenicview.DisplayUtils.nodeClass;
 
 import java.io.*;
 import java.net.URL;
-import java.text.DecimalFormat;
 import java.util.*;
 
 import javafx.application.Platform;
@@ -40,7 +39,7 @@ public class ScenicView extends Region {
 
     private static final String SCENIC_VIEW_PROPERTIES_FILE = "scenicView.properties";
     private static final String HELP_URL = "http://fxexperience.com/scenic-view/help";
-    private static final String SCENIC_VIEW_BASE_ID = "ScenicView.";
+    static final String SCENIC_VIEW_BASE_ID = "ScenicView.";
 
     static final Image APP_ICON = DisplayUtils.getUIImage("mglass.gif");
 
@@ -119,7 +118,7 @@ public class ScenicView extends Region {
     private Rectangle layoutBoundsRect;
     private Line baselineLine;
     private Rectangle componentSelector;
-    private Rectangle componentHighLighter;
+    private Node componentHighLighter;
     private RuleGrid grid;
 
     private Parent target;
@@ -306,7 +305,7 @@ public class ScenicView extends Region {
          */
         showInvisibleNodes.disableProperty().bind(showFilteredNodesInTree.selectedProperty());
 
-        final CheckMenuItem componentSelectOnClick = buildCheckMenuItem("Component select on click", "Click on the scene to select a component", "", null, null);
+        final CheckMenuItem componentSelectOnClick = buildCheckMenuItem("Component highlight/select on click", "Click on the scene to select a component", "", null, null);
         componentSelectOnClick.selectedProperty().addListener(new ChangeListener<Boolean>() {
 
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean oldValue, final Boolean newValue) {
@@ -373,17 +372,16 @@ public class ScenicView extends Region {
         final Menu ruler = new Menu("Ruler");
         final Slider slider = new Slider(5, 50, 10);
         final Label sliderValue = new Label();
-        final DecimalFormat df = new DecimalFormat("0.0");
         slider.valueProperty().addListener(new ChangeListener<Number>() {
 
             @Override public void changed(final ObservableValue<? extends Number> arg0, final Number arg1, final Number newValue) {
                 grid.updateSeparation(newValue.doubleValue());
-                sliderValue.setText(df.format(newValue.doubleValue()));
+                sliderValue.setText(DisplayUtils.format(newValue.doubleValue()));
             }
         });
         final HBox box = new HBox();
         sliderValue.setPrefWidth(40);
-        sliderValue.setText(df.format(slider.getValue()));
+        sliderValue.setText(DisplayUtils.format(slider.getValue()));
         box.getChildren().addAll(sliderValue, slider);
         final CustomMenuItem rulerSlider = new CustomMenuItem(box);
 
@@ -1141,20 +1139,10 @@ public class ScenicView extends Region {
                 removeFromNode(target, componentHighLighter);
             }
             if (nodeData != null && nodeData.getValue().getNode() != null) {
-                final Bounds bounds = nodeData.getValue().getNode().getBoundsInParent();
-                final Point2D start = nodeData.getValue().getNode().localToScene(new Point2D(0, 0));
-                final Rectangle rect = new Rectangle();
-                rect.setFill(Color.TRANSPARENT);
-                rect.setStroke(Color.ORANGE);
-                rect.setMouseTransparent(true);
-                rect.setLayoutX(start.getX());
-                rect.setLayoutY(start.getY());
-                rect.setStrokeWidth(3);
-                rect.setWidth(bounds.getMaxX() - bounds.getMinX());
-                rect.setHeight(bounds.getMaxY() - bounds.getMinY());
-                rect.setId(SCENIC_VIEW_BASE_ID + "componentHighLighter");
-                rect.setManaged(false);
-                componentHighLighter = rect;
+                final Node node = nodeData.getValue().getNode();
+                final Bounds bounds = node.getBoundsInParent();
+                final Point2D start = node.localToScene(new Point2D(0, 0));
+                componentHighLighter = new ComponentHighLighter(nodeData.getValue(), targetWindow != null ? targetWindow.getWidth() : -1, targetWindow != null ? targetWindow.getHeight() : -1, bounds, start);
                 addToNode(target, componentHighLighter);
             }
         }
