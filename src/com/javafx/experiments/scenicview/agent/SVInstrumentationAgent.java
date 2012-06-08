@@ -1,17 +1,13 @@
 package com.javafx.experiments.scenicview.agent;
 
-import com.javafx.experiments.scenicview.ScenicView;
 import java.lang.instrument.Instrumentation;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.application.Application;
+import java.util.*;
+
 import javafx.application.Platform;
 import javafx.scene.Scene;
-import javafx.stage.Stage;
-import javafx.stage.Window;
+import javafx.stage.*;
+
+import com.javafx.experiments.scenicview.ScenicView;
 
 /**
  *
@@ -21,7 +17,7 @@ public class SVInstrumentationAgent implements Runnable {
     private static final int WAIT_TIME = 1000 * 1;                  // 1 second
     private static final int MAX_WAIT_TIME = WAIT_TIME * 60 * 5;    // 5 minutes
     
-    public static void premain(String agentArgs, Instrumentation inst) {
+    public static void premain(final String agentArgs, final Instrumentation inst) {
         new SVInstrumentationAgent();
     }
     
@@ -32,6 +28,7 @@ public class SVInstrumentationAgent implements Runnable {
         agentThread.start();
     }
 
+    @Override
     public void run() {
         // Keep iterating until we have a any windows.
         // If we past the maximum wait time, we'll exit
@@ -46,7 +43,7 @@ public class SVInstrumentationAgent implements Runnable {
                 if (currentWait >= MAX_WAIT_TIME) {
                     break;
                 }
-            } catch (InterruptedException ex) {
+            } catch (final InterruptedException ex) {
                 ex.printStackTrace();
             }
 
@@ -60,13 +57,33 @@ public class SVInstrumentationAgent implements Runnable {
         }
 
         // we will build up a more useful List of Windows from the iterator
-        List<Stage> windowList = new ArrayList<Stage>();
+        final List<Stage> windowList = new ArrayList<Stage>();
         while (windows.hasNext()) {
-            Window window = windows.next();
+            final Window window = windows.next();
+            System.out.println("Adding window: "+window);
             if (window instanceof Stage) {
                 windowList.add((Stage)window);
             } else {
                 System.out.println("Scenic View only supports Stages right now, but found a " + window.getClass());
+            }
+        }
+        
+        /**
+         * Wait till we have the scene and the root node
+         */
+        boolean initialized = false;
+        while(!initialized) {
+            initialized = true;
+            try {
+                Thread.sleep(WAIT_TIME);
+            } catch (final InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            for (int i = 0; i < windowList.size(); i++) {
+                if(windowList.get(i).getScene() == null || windowList.get(i).getScene().getRoot() == null) {
+                    initialized = false;
+                }
             }
         }
 
@@ -81,7 +98,7 @@ public class SVInstrumentationAgent implements Runnable {
         }
     }
     
-    private void loadScenicView(Stage stage) {
+    private void loadScenicView(final Stage stage) {
         loadScenicView(stage.getScene());
     }
     
