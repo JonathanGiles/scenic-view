@@ -81,6 +81,7 @@ public class ScenicView extends Region {
         }
         stage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, new EventHandler<WindowEvent>() {
             @Override public void handle(final WindowEvent arg0) {
+                Runtime.getRuntime().removeShutdownHook(scenicview.shutdownHook);
                 scenicview.close();
             }
         });
@@ -152,8 +153,17 @@ public class ScenicView extends Region {
     private static final Map<String, Image> loadedImages = new HashMap<String, Image>();
     private static final String CUSTOM_NODE_IMAGE = ScenicView.class.getResource("images/nodeicons/CustomNode.png").toString();
 
+    Thread shutdownHook = new Thread(){
+        @Override
+        public void run() {
+            // We can't use close() because we are not in FXThread
+            saveProperties();
+        }
+    };
+    
     public ScenicView() {
         Persistence.loadProperties();
+        Runtime.getRuntime().addShutdownHook(shutdownHook);
         setId("scenic-view");
         windowChecker = new SubWindowChecker();
         windowChecker.start();
@@ -200,6 +210,7 @@ public class ScenicView extends Region {
         exitItem.setAccelerator(KeyCombination.keyCombination("CTRL+Q"));
         exitItem.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(final ActionEvent arg0) {
+                Runtime.getRuntime().removeShutdownHook(shutdownHook);
                 close();
                 // TODO Why closing the Stage does not dispatch
                 // WINDOW_CLOSE_REQUEST??
