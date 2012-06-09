@@ -592,7 +592,7 @@ public class ScenicView extends Region {
         VBox.setVgrow(treeViewPane, Priority.ALWAYS);
 
         splitPane.getItems().addAll(leftPane, scrollPane);
-        splitPane.setDividerPosition(0, 0.3);
+        Persistence.loadProperty("splitPaneDividerPosition", splitPane, 0.3);
 
         borderPane.setCenter(splitPane);
 

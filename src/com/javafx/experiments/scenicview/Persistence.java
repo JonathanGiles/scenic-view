@@ -19,14 +19,18 @@ class Persistence {
         if (component instanceof CheckMenuItem) {
             ((CheckMenuItem) component).setSelected(Boolean.parseBoolean(property));
         }
-        else if(component instanceof Control) {
-            if(propertyName.toLowerCase().indexOf("width")!=-1) {
-                ((Control) component).setPrefWidth(Double.parseDouble(property));
-            }
-            else {
-                ((Control) component).setPrefHeight(Double.parseDouble(property)); 
-            }
+        // We should think of a better way of doing this
+        else if(component instanceof SplitPane) {
+            ((SplitPane) component).setDividerPosition(0, Double.parseDouble(property));
         }
+//        else if(component instanceof Control) {
+//            if(propertyName.toLowerCase().indexOf("width")!=-1) {
+//                ((Control) component).setPrefWidth(Double.parseDouble(property));
+//            }
+//            else {
+//                ((Control) component).setPrefHeight(Double.parseDouble(property)); 
+//            }
+//        }
         else if(component instanceof Stage) {
             if(propertyName.toLowerCase().indexOf("width")!=-1) {
                 ((Stage) component).setWidth(Double.parseDouble(property));
@@ -63,14 +67,17 @@ class Persistence {
             if (component instanceof CheckMenuItem) {
                 properties.put(propertyName, Boolean.toString(((CheckMenuItem) component).isSelected()));
             }
-            else if(component instanceof Control) {
-                if(propertyName.toLowerCase().indexOf("width") != -1) {
-                    properties.put(propertyName, Double.toString(((Control) component).getWidth()));
-                }
-                else {
-                    properties.put(propertyName, Double.toString(((Control) component).getHeight()));
-                }
+            else if(component instanceof SplitPane) {
+                properties.put(propertyName, Double.toString(((SplitPane) component).getDividerPositions()[0]));
             }
+//            else if(component instanceof Control) {
+//                if(propertyName.toLowerCase().indexOf("width") != -1) {
+//                    properties.put(propertyName, Double.toString(((Control) component).getWidth()));
+//                }
+//                else {
+//                    properties.put(propertyName, Double.toString(((Control) component).getHeight()));
+//                }
+//            }
             else if(component instanceof Stage) {
                 if(propertyName.toLowerCase().indexOf("width") != -1) {
                     properties.put(propertyName, Double.toString(((Stage) component).getWidth()));
