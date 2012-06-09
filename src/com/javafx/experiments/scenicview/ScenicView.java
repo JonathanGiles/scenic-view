@@ -29,6 +29,7 @@ import javafx.stage.*;
 import javafx.util.Callback;
 
 import com.javafx.experiments.scenicview.details.AllDetailsPane;
+import com.javafx.experiments.scenicview.helper.*;
 
 /**
  * 
@@ -1051,7 +1052,7 @@ public class ScenicView extends Region {
             });
             autoRefreshStyleSheets.setDisable(!StyleSheetRefresher.canStylesBeRefreshed(targetScene));
 
-            if (refresher == null || refresher.scene != value) {
+            if (refresher == null || refresher.getScene() != value) {
                 if (refresher != null)
                     refresher.finish();
                 if (!autoRefreshStyleSheets.isDisable() && autoRefreshStyleSheets.isSelected())
@@ -1396,59 +1397,56 @@ public class ScenicView extends Region {
     }
 
     @SuppressWarnings("rawtypes")
-    class SubWindowChecker extends Thread {
+    class SubWindowChecker extends WindowChecker {
 
-        boolean finish = false;
+        public SubWindowChecker() {
+            super(new WindowFilter() {
+                
+                @Override public boolean accept(final Window window) {
+                    return window instanceof PopupWindow;
+                }
+            });
+        }
+        
         Map<PopupWindow, Map> previousTree = new HashMap<PopupWindow, Map>();
         List<PopupWindow> windows = new ArrayList<PopupWindow>();
+        List<PopupWindow> tempPopups = new ArrayList<PopupWindow>();
+        final Map<PopupWindow, Map> tree = new HashMap<PopupWindow, Map>();
 
-        @Override public void run() {
-            final List<PopupWindow> tempPopups = new ArrayList<PopupWindow>();
-            final Map<PopupWindow, Map> tree = new HashMap<PopupWindow, Map>();
-            while (!finish) {
-                try {
-                    Thread.sleep(1000);
-                } catch (final Exception e) {
-                    // TODO: handle exception
+        @Override protected void onWindowsFound(final Iterator<Window> it) {
+            tempPopups.clear();
+            tree.clear();
+            windows.clear();
+            while (it.hasNext()) {
+                final Window window = it.next();
+                if (window instanceof PopupWindow) {
+                    tempPopups.add((PopupWindow) window);
                 }
-                tempPopups.clear();
-                tree.clear();
-                windows.clear();
-                @SuppressWarnings("deprecation") final Iterator<Window> it = Window.impl_getWindows();
-                while (it.hasNext()) {
-                    final Window window = it.next();
-                    if (window instanceof PopupWindow) {
-                        tempPopups.add((PopupWindow) window);
-                    }
 
-                }
-                for (final PopupWindow popupWindow : tempPopups) {
-                    final Map<PopupWindow, Map> pos = valid(popupWindow, tree);
-                    if (pos != null) {
-                        pos.put(popupWindow, new HashMap<PopupWindow, Map>());
-                        windows.add(popupWindow);
-                    }
-                }
-                if (!tree.equals(previousTree)) {
-                    previousTree.clear();
-                    previousTree.putAll(tree);
-                    final List<PopupWindow> actualWindows = new ArrayList<PopupWindow>(windows);
-                    Platform.runLater(new Runnable() {
-
-                        @Override public void run() {
-                            // No need for synchronization here
-                            ScenicView.this.popupWindows.clear();
-                            ScenicView.this.popupWindows.addAll(actualWindows);
-                            ScenicView.this.storeTarget(target);
-                        }
-                    });
-
+            }
+            for (final PopupWindow popupWindow : tempPopups) {
+                final Map<PopupWindow, Map> pos = valid(popupWindow, tree);
+                if (pos != null) {
+                    pos.put(popupWindow, new HashMap<PopupWindow, Map>());
+                    windows.add(popupWindow);
                 }
             }
-        }
+            if (!tree.equals(previousTree)) {
+                previousTree.clear();
+                previousTree.putAll(tree);
+                final List<PopupWindow> actualWindows = new ArrayList<PopupWindow>(windows);
+                Platform.runLater(new Runnable() {
 
-        public void finish() {
-            this.finish = true;
+                    @Override public void run() {
+                        // No need for synchronization here
+                        ScenicView.this.popupWindows.clear();
+                        ScenicView.this.popupWindows.addAll(actualWindows);
+                        ScenicView.this.storeTarget(target);
+                    }
+                });
+
+            }
+
         }
 
         @SuppressWarnings("unchecked") Map<PopupWindow, Map> valid(final PopupWindow window, final Map<PopupWindow, Map> tree) {
@@ -1466,6 +1464,7 @@ public class ScenicView extends Region {
             }
             return null;
         }
+
     }
 
     /**
