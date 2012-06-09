@@ -7,7 +7,6 @@ package com.javafx.experiments.scenicview;
 
 import static com.javafx.experiments.scenicview.DisplayUtils.nodeClass;
 
-import java.io.*;
 import java.net.URL;
 import java.util.*;
 
@@ -37,7 +36,6 @@ import com.javafx.experiments.scenicview.details.AllDetailsPane;
  */
 public class ScenicView extends Region {
 
-    private static final String SCENIC_VIEW_PROPERTIES_FILE = "scenicView.properties";
     private static final String HELP_URL = "http://fxexperience.com/scenic-view/help";
     static final String SCENIC_VIEW_BASE_ID = "ScenicView.";
 
@@ -155,7 +153,7 @@ public class ScenicView extends Region {
     private static final String CUSTOM_NODE_IMAGE = ScenicView.class.getResource("images/nodeicons/CustomNode.png").toString();
 
     public ScenicView() {
-        loadProperties();
+        Persistence.loadProperties();
         setId("scenic-view");
         windowChecker = new SubWindowChecker();
         windowChecker.start();
@@ -177,6 +175,10 @@ public class ScenicView extends Region {
 
             @Override public boolean ignoreShowFilteredNodesInTree() {
                 return true;
+            }
+
+            @Override public boolean expandAllNodes() {
+                return false;
             }
         });
 
@@ -289,6 +291,10 @@ public class ScenicView extends Region {
             }
 
             @Override public boolean ignoreShowFilteredNodesInTree() {
+                return false;
+            }
+
+            @Override public boolean expandAllNodes() {
                 return false;
             }
         });
@@ -486,6 +492,10 @@ public class ScenicView extends Region {
             @Override public boolean ignoreShowFilteredNodesInTree() {
                 return false;
             }
+
+            @Override public boolean expandAllNodes() {
+                return !idFilterField.getText().equals("");
+            }
         });
         final TextField classNameFilterField = createFilterField("Node className");
         activeNodeFilters.add(new NodeFilter() {
@@ -503,6 +513,10 @@ public class ScenicView extends Region {
 
             @Override public boolean ignoreShowFilteredNodesInTree() {
                 return false;
+            }
+
+            @Override public boolean expandAllNodes() {
+                return !classNameFilterField.getText().equals("");
             }
         });
         final Button b1 = new Button();
@@ -681,8 +695,6 @@ public class ScenicView extends Region {
 
     // the Stage used to show Scenic View
     private Stage stage;
-    private Properties properties;
-    private final Map<String, Object> persistentComponents = new HashMap<String, Object>();
     private TreeItem<NodeInfo> previousHightLightedData;
 
     private Stage getStage() {
@@ -691,6 +703,8 @@ public class ScenicView extends Region {
 
     private void setStage(final Stage stage) {
         this.stage = stage;
+        Persistence.loadProperty("stageWidth", stage, 640);
+        Persistence.loadProperty("stageHeight", stage, 800);
     }
 
     public Parent getTarget() {
@@ -792,6 +806,7 @@ public class ScenicView extends Region {
         boolean nodeAccepted = true;
         boolean childrenAccepted = true;
         boolean ignoreShowFiltered = false;
+        boolean expand = false;
 
         for (final NodeFilter filter : activeNodeFilters) {
             if (!filter.accept(node)) {
@@ -799,6 +814,7 @@ public class ScenicView extends Region {
                 ignoreShowFiltered |= filter.ignoreShowFilteredNodesInTree();
                 childrenAccepted &= filter.allowChildrenOnRejection();
             }
+            expand |= filter.expandAllNodes();
         }
         /**
          * Incredibly ugly workaround for the cursor in the TextField that
@@ -830,7 +846,7 @@ public class ScenicView extends Region {
                     treeItem.getChildren().add(childItem);
                 }
             }
-            treeItem.setExpanded(!(node instanceof Control) || !collapseControls.isSelected());
+            treeItem.setExpanded(expand || !(node instanceof Control) || !collapseControls.isSelected());
         }
         if(updateCount)
             statusBar.updateNodeCount(targetScene);
@@ -1065,7 +1081,7 @@ public class ScenicView extends Region {
     private CheckMenuItem buildCheckMenuItem(final String text, final String toolTipSelected, final String toolTipNotSelected, final String property, final Boolean value) {
         final CheckMenuItem menuItem = new CheckMenuItem(text);
         if (property != null)
-            loadProperty(property, menuItem, value);
+            Persistence.loadProperty(property, menuItem, value);
         menuItem.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
                 setStatusText(newValue ? toolTipSelected : toolTipNotSelected, 4000);
@@ -1166,30 +1182,6 @@ public class ScenicView extends Region {
         return null;
     }
 
-    private void loadProperty(final String propertyName, final Object component, final Object defaultValue) {
-        if (component instanceof CheckMenuItem) {
-            ((CheckMenuItem) component).setSelected(Boolean.parseBoolean(properties.getProperty(propertyName, defaultValue.toString())));
-        }
-        persistentComponents.put(propertyName, component);
-    }
-
-    private void loadProperties() {
-        properties = new Properties();
-        try {
-            final File propertiesFile = new File(SCENIC_VIEW_PROPERTIES_FILE);
-            if (propertiesFile.exists()) {
-                final FileInputStream in = new FileInputStream(propertiesFile);
-                try {
-                    properties.load(in);
-                } finally {
-                    in.close();
-                }
-            }
-        } catch (final Exception e) {
-            System.out.println("Error while loading preferences");
-        }
-    }
-
     public void close() {
         removeScenicViewComponents(target);
         if(targetScene != null) {
@@ -1230,26 +1222,8 @@ public class ScenicView extends Region {
 
     private void saveProperties() {
         final Properties properties = new Properties();
-        for (final Iterator<String> iterator = persistentComponents.keySet().iterator(); iterator.hasNext();) {
-            final String propertyName = iterator.next();
-            final Object component = persistentComponents.get(propertyName);
-            if (component instanceof CheckMenuItem) {
-                properties.put(propertyName, Boolean.toString(((CheckMenuItem) component).isSelected()));
-            }
-        }
         properties.put("ignoreMouseTransparentNodes", Boolean.toString(ignoreMouseTransparentNodes.isSelected()));
-        try {
-            final File propertiesFile = new File(SCENIC_VIEW_PROPERTIES_FILE);
-            final FileOutputStream out = new FileOutputStream(propertiesFile);
-            try {
-                properties.store(out, "ScenicView properties");
-            } finally {
-                out.close();
-            }
-        } catch (final Exception e) {
-            e.printStackTrace();
-            System.out.println("Error while saving preferences");
-        }
+        Persistence.saveProperties(properties);
     }
 
     public static void setStatusText(final String text) {
@@ -1370,6 +1344,12 @@ public class ScenicView extends Region {
          * @return
          */
         public boolean ignoreShowFilteredNodesInTree();
+        
+        /**
+         * Flag to indicate if all the nodes must be expanded on filtering
+         * @return
+         */
+        public boolean expandAllNodes();
 
     }
 
