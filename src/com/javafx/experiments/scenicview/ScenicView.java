@@ -644,12 +644,12 @@ public class ScenicView extends Region {
                         /**
                          * Remove the bean
                          */
-                    	structureTracePane.trace(DisplayUtils.nodeDetail(bean, true), "PropertyChangeEvent", "visibility=false");
+                    	structureTracePane.trace(DisplayUtils.nodeDetail(bean, true), "PROPERTY_CHANGED", "visibility=false");
                        
                         removeTreeItem(bean, false, false);
                         statusBar.updateNodeCount(targetScene);
                     } else if (filteringActive && newValue) {
-                    	structureTracePane.trace(DisplayUtils.nodeDetail(bean, true), "PropertyChangeEvent", "visibility=true");
+                    	structureTracePane.trace(DisplayUtils.nodeDetail(bean, true), "PROPERTY_CHANGED", "visibility=true");
                         
                         addNewNode(bean);
                         statusBar.updateNodeCount(targetScene);
@@ -670,12 +670,12 @@ public class ScenicView extends Region {
                 if (automaticScenegraphStructureRefreshing.isSelected()) {
                     while (c.next()) {
                         for (final Node dead : c.getRemoved()) {
-                        	structureTracePane.trace(DisplayUtils.nodeDetail(dead, true), "SGChangeEvent", "removed");
+                        	structureTracePane.trace(DisplayUtils.nodeDetail(dead, true), "NODE_REMOVED", "removed");
                             
                             removeTreeItem(dead, true, false);
                         }
                         for (final Node alive : c.getAddedSubList()) {
-                        	structureTracePane.trace(DisplayUtils.nodeDetail(alive, true), "SGChangeEvent", "added");
+                        	structureTracePane.trace(DisplayUtils.nodeDetail(alive, true), "NODE_ADDED", "added");
                             
                             addNewNode(alive);
                         }
