@@ -5,20 +5,15 @@
 
 package com.javafx.experiments.scenicview;
 
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.List;
 
 import javafx.geometry.Bounds;
-import javafx.scene.Node;
-import javafx.scene.Parent;
+import javafx.scene.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Region;
-import javafx.scene.transform.Affine;
-import javafx.scene.transform.Rotate;
-import javafx.scene.transform.Scale;
-import javafx.scene.transform.Shear;
-import javafx.scene.transform.Transform;
-import javafx.scene.transform.Translate;
+import javafx.scene.transform.*;
 
 /**
  * 
@@ -45,12 +40,16 @@ public class DisplayUtils {
         return name;
     }
     
-    public static String nodeDetail(Node node, boolean showId) {
+    public static String nodeDetail(final Node node, final boolean showId) {
         return nodeClass(node) + ((showId && node.getId() != null) ? " \"" + node.getId() + "\"" : "");
     }
     
     public static Image getUIImage(final String image) {
         return new Image(ScenicView.class.getResource("images/ui/"+image).toString());
+    }
+    
+    public static URL getNodeIcon(final String node) {
+        return ScenicView.class.getResource("images/nodeicons/"+node+".png");
     }
     
     public static boolean isNodeVisible(final Node node) {
