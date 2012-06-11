@@ -57,10 +57,6 @@
     -fx-background-insets: 0;
 }
 
-.structure-trace-pane > .trace-text-area {
-	-fx-font: 10pt "Monospace";
-}
-
 .detail-pane #title-label {
     -fx-font: bold 12pt "Amble Cn";
 }

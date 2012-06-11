@@ -8,79 +8,28 @@ package com.javafx.experiments.scenicview;
 import static com.javafx.experiments.scenicview.DisplayUtils.nodeClass;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
+import javafx.beans.*;
 import javafx.beans.Observable;
 import javafx.beans.property.Property;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.geometry.Bounds;
-import javafx.geometry.HPos;
-import javafx.geometry.Insets;
-import javafx.geometry.Point2D;
-import javafx.geometry.Rectangle2D;
-import javafx.geometry.VPos;
-import javafx.scene.Group;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Accordion;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.Control;
-import javafx.scene.control.CustomMenuItem;
-import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.Slider;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TitledPane;
-import javafx.scene.control.TreeCell;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.beans.value.*;
+import javafx.collections.*;
+import javafx.event.*;
+import javafx.geometry.*;
+import javafx.scene.*;
+import javafx.scene.control.*;
+import javafx.scene.image.*;
+import javafx.scene.input.*;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.StrokeType;
-import javafx.stage.PopupWindow;
-import javafx.stage.Screen;
-import javafx.stage.Stage;
-import javafx.stage.Window;
-import javafx.stage.WindowEvent;
+import javafx.scene.shape.*;
+import javafx.stage.*;
 import javafx.util.Callback;
 
 import com.javafx.experiments.scenicview.details.AllDetailsPane;
-import com.javafx.experiments.scenicview.helper.StyleSheetRefresher;
-import com.javafx.experiments.scenicview.helper.WindowChecker;
+import com.javafx.experiments.scenicview.helper.*;
 
 /**
  * 
@@ -341,19 +290,6 @@ public class ScenicView extends Region {
         final CheckMenuItem automaticScenegraphStructureRefreshing = buildCheckMenuItem("Auto-Refresh Scenegraph", "Scenegraph structure will be automatically updated on change", "Scenegraph structure will NOT be automatically updated on change", "automaticScenegraphStructureRefreshing", Boolean.TRUE);
         final CheckMenuItem showInvisibleNodes = buildCheckMenuItem("Show Invisible Nodes In Tree", "Invisible nodes will be faded in the scenegraph tree", "Invisible nodes will not be shown in the scenegraph tree", "showInvisibleNodes", Boolean.FALSE);
         showInvisibleNodes.selectedProperty().addListener(menuTreeChecksListener);
-        final CheckMenuItem showScenegraphTrace = buildCheckMenuItem("Show scenegraph trace", "Nodes included or removed from the scenegraph will be shown", "Scenegraph trace disabled", null, Boolean.FALSE);
-        showScenegraphTrace.selectedProperty().addListener(new ChangeListener<Boolean>() {
-
-            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
-
-                if (newValue) {
-                    scrollPane.setContent(structureTracePane);
-                } else {
-                    scrollPane.setContent(allDetailsPane);
-                }
-                structureTracePane.activate(newValue);
-            }
-        });
 
         activeNodeFilters.add(new NodeFilter() {
             @Override public boolean allowChildrenOnRejection() {
@@ -654,10 +590,10 @@ public class ScenicView extends Region {
         leftPane.getChildren().addAll(filtersPane, treeViewPane);
         VBox.setVgrow(treeViewPane, Priority.ALWAYS);
         
-        TabPane tabPane = new TabPane();
-        Tab detailsTab = new Tab("Details");
+        final TabPane tabPane = new TabPane();
+        final Tab detailsTab = new Tab("Details");
         detailsTab.setContent(scrollPane);
-        Tab eventsTab = new Tab("Events");
+        final Tab eventsTab = new Tab("Events");
         eventsTab.setContent(structureTracePane);
         tabPane.getTabs().addAll(detailsTab, eventsTab);
 
@@ -690,6 +626,14 @@ public class ScenicView extends Region {
             }
         };
 
+        traceEventHandler = new EventHandler<Event>() {
+
+            @Override public void handle(final Event event) {
+                if(structureTracePane.isActive()) {
+                    structureTracePane.trace(event.getSource().toString(), event.getEventType().toString(), "");
+                }
+            }
+        };
         visibilityInvalidationListener = new ChangeListener<Boolean>() {
 
             @Override public void changed(final ObservableValue<? extends Boolean> observable, final Boolean arg1, final Boolean newValue) {
@@ -781,6 +725,7 @@ public class ScenicView extends Region {
     // the Stage used to show Scenic View
     private Stage stage;
     private TreeItem<NodeInfo> previousHightLightedData;
+    private EventHandler<? super Event> traceEventHandler;
 
     private Stage getStage() {
         return stage;
@@ -908,6 +853,8 @@ public class ScenicView extends Region {
         if (node.getId() == null || !node.getId().startsWith(SCENIC_VIEW_BASE_ID)) {
             node.visibleProperty().removeListener(visibilityInvalidationListener);
             node.visibleProperty().addListener(visibilityInvalidationListener);
+            node.removeEventFilter(Event.ANY, traceEventHandler);
+            node.addEventFilter(Event.ANY, traceEventHandler);
         }
         final NodeData nodeData = new NodeData(node);
         final TreeItem<NodeInfo> treeItem = new TreeItem<NodeInfo>(nodeData, new ImageView(nodeData.getIcon()));
@@ -992,6 +939,7 @@ public class ScenicView extends Region {
         }
         if (nodeData.getNode() != null && removeVisibilityListener) {
             node.visibleProperty().removeListener(visibilityInvalidationListener);
+            node.removeEventFilter(Event.ANY, traceEventHandler);
         }
         // This does not seem to delete the TreeItem from the tree -- only moves
         // it up a level visually

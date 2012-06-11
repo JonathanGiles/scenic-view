@@ -1,44 +1,56 @@
 package com.javafx.experiments.scenicview;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import javafx.beans.value.*;
+import javafx.collections.*;
+import javafx.event.*;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.stage.Stage;
 
 public class StructureTracePane extends VBox {
 
     TableView<ScenicViewEvent> table = new TableView<ScenicViewEvent>();
     ChoiceBox<String> showStack = new ChoiceBox<String>();
+    ChoiceBox<String> activateTrace = new ChoiceBox<String>();
     ObservableList<ScenicViewEvent> events = FXCollections.observableArrayList();
-    boolean activate = true;
+    SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss.SSS");
     TextField idFilterField;
 
+    @SuppressWarnings("unchecked")
     public StructureTracePane() {
         table.setEditable(false);
         table.getStyleClass().add("trace-text-area");
-        TableColumn firstNameCol = new TableColumn("source");
-        TableColumn lastNameCol = new TableColumn("eventType");
-        TableColumn emailCol = new TableColumn("eventValue");
-        TableColumn momentCol = new TableColumn("moment");
+        final TableColumn<ScenicViewEvent,String> sourceCol = new TableColumn<ScenicViewEvent,String>("source");
+        sourceCol.setCellValueFactory(new PropertyValueFactory<ScenicViewEvent,String>("source"));
+        final TableColumn<ScenicViewEvent,String> lastNameCol = new TableColumn<ScenicViewEvent,String>("eventType");
+        lastNameCol.setCellValueFactory(new PropertyValueFactory<ScenicViewEvent,String>("eventType"));
+        final TableColumn<ScenicViewEvent,String> emailCol = new TableColumn<ScenicViewEvent,String>("eventValue");
+        emailCol.setCellValueFactory(new PropertyValueFactory<ScenicViewEvent,String>("eventValue"));
+        final TableColumn<ScenicViewEvent,String> momentCol = new TableColumn<ScenicViewEvent,String>("moment");
+        momentCol.setCellValueFactory(new PropertyValueFactory<ScenicViewEvent,String>("moment"));
           
-        table.getColumns().addAll(firstNameCol, lastNameCol, emailCol, momentCol);
+        table.getColumns().addAll(sourceCol, lastNameCol, emailCol, momentCol);
         table.setItems(events);
-        final Button clear = new Button("Clear TextArea");
+        table.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ScenicViewEvent>() {
+
+            @Override public void changed(final ObservableValue<? extends ScenicViewEvent> arg0, final ScenicViewEvent arg1, final ScenicViewEvent newValue) {
+                final StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < newValue.stackTrace.length; i++) {
+                    sb.append(newValue.stackTrace[i]).append('\n');
+                }
+                final Stage stage = new Stage();
+                stage.setScene(new Scene(new Label(sb.toString())));
+                stage.show();
+            }
+        });
+        final Button clear = new Button("Clear");
         clear.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override public void handle(final ActionEvent arg0) {
@@ -76,22 +88,28 @@ public class StructureTracePane extends VBox {
             }
         });
 
-        final Label show = new Label("Show stackTraces:");
-        showStack.setItems(FXCollections.observableArrayList("Do not show stackTraces", "Show complete stackTrace"));
-        showStack.getSelectionModel().select(0);
-        showStack.setMaxWidth(Integer.MAX_VALUE);
+//        final Label show = new Label("Show stackTraces:");
+//        showStack.setItems(FXCollections.observableArrayList("Do not show stackTraces", "Show complete stackTrace"));
+//        showStack.getSelectionModel().select(0);
+//        showStack.setMaxWidth(Integer.MAX_VALUE);
 
         GridPane.setHgrow(idFilterField, Priority.ALWAYS);
         GridPane.setHgrow(b1, Priority.NEVER);
-        GridPane.setHgrow(show, Priority.ALWAYS);
+//        GridPane.setHgrow(show, Priority.ALWAYS);
         GridPane.setHgrow(showStack, Priority.ALWAYS);
         GridPane.setHgrow(clear, Priority.ALWAYS);
+        
+        activateTrace.setItems(FXCollections.observableArrayList("false", "true"));
+        activateTrace.getSelectionModel().select(0);
+        activateTrace.setMaxWidth(Integer.MAX_VALUE);
 
-        filtersGridPane.add(new Label("Text Filter:"), 1, 1);
-        filtersGridPane.add(idFilterField, 2, 1);
-        filtersGridPane.add(b1, 3, 1);
-        filtersGridPane.add(show, 1, 2);
-        filtersGridPane.add(showStack, 2, 2, 2, 1);
+        filtersGridPane.add(new Label("Activate trace"), 1, 1);
+        filtersGridPane.add(activateTrace, 2, 1, 2, 1);
+        filtersGridPane.add(new Label("Text Filter:"), 1, 2);
+        filtersGridPane.add(idFilterField, 2, 2);
+        filtersGridPane.add(b1, 3, 2);
+//        filtersGridPane.add(show, 1, 3);
+//        filtersGridPane.add(showStack, 2, 3, 2, 1);
         filtersGridPane.add(clear, 1, 3, 3, 1);
         filtersGridPane.setPrefHeight(60);
 
@@ -99,77 +117,76 @@ public class StructureTracePane extends VBox {
         VBox.setVgrow(table, Priority.ALWAYS);
     }
 
-    public void activate(final boolean activate) {
-        this.activate = activate;
-        if (activate) {
-            setPrefHeight(getParent().getBoundsInLocal().getHeight());
-            events.clear();
-        }
-    }
-
-    public void trace(final String source, String eventType, String eventValue) {
-        if (activate) {
+    public void trace(final String source, final String eventType, final String eventValue) {
+        if (isActive()) {
             if (idFilterField.getText().equals("") || (eventType.indexOf(idFilterField.getText()) != -1)  || (eventValue.indexOf(idFilterField.getText()) != -1) || source.indexOf(idFilterField.getText()) != -1) {
             	events.add(new ScenicViewEvent(source, eventType, eventValue));
-            	table.setItems(events);
             }
         }
     }
     
-    class ScenicViewEvent {
+    public boolean isActive() {
+        return activateTrace.getSelectionModel().getSelectedIndex()!=0;
+    }
+    
+    public class ScenicViewEvent {
     	
     	public String source;
-    	public String getSource() {
-			return source;
-		}
-
-		public void setSource(String source) {
-			this.source = source;
-		}
-
-		public String getEventType() {
-			return eventType;
-		}
-
-		public void setEventType(String eventType) {
-			this.eventType = eventType;
-		}
-
-		public String getEventValue() {
-			return eventValue;
-		}
-
-		public void setEventValue(String eventValue) {
-			this.eventValue = eventValue;
-		}
-
-		public String getMoment() {
-			return moment;
-		}
-
-		public void setMoment(String moment) {
-			this.moment = moment;
-		}
-
-		public String getRelative() {
-			return relative;
-		}
-
-		public void setRelative(String relative) {
-			this.relative = relative;
-		}
-
 		public String eventType;
     	public String eventValue;
     	public String moment;
     	String relative;
+    	StackTraceElement [] stackTrace;
     	
-    	public ScenicViewEvent(String source, String eventType, String eventValue) {
-			this.source = source;
-			this.eventType = eventType;
-			this.eventValue = eventValue;
-			this.moment = new Date().toString();
+    	
+    	public ScenicViewEvent(final String source, final String eventType, final String eventValue) {
+			this.source=source;
+			this.eventType=eventType;
+			this.eventValue=eventValue;
+			this.moment=format.format(new Date());
+			this.stackTrace = Thread.currentThread().getStackTrace();
 		}
+
+        public String getSource() {
+            return source;
+        }
+
+        public void setSource(final String source) {
+            this.source = source;
+        }
+
+        public String getEventType() {
+            return eventType;
+        }
+
+        public void setEventType(final String eventType) {
+            this.eventType = eventType;
+        }
+
+        public String getEventValue() {
+            return eventValue;
+        }
+
+        public void setEventValue(final String eventValue) {
+            this.eventValue = eventValue;
+        }
+
+        public String getMoment() {
+            return moment;
+        }
+
+        public void setMoment(final String moment) {
+            this.moment = moment;
+        }
+
+        public String getRelative() {
+            return relative;
+        }
+
+        public void setRelative(final String relative) {
+            this.relative = relative;
+        }
+
     }
 
 }
