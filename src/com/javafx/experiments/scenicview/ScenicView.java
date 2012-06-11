@@ -48,6 +48,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.Slider;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
@@ -646,8 +647,15 @@ public class ScenicView extends Region {
         treeViewPane.setPrefHeight(50);
         leftPane.getChildren().addAll(filtersPane, treeViewPane);
         VBox.setVgrow(treeViewPane, Priority.ALWAYS);
+        
+        TabPane tabPane = new TabPane();
+        Tab detailsTab = new Tab("Details");
+        detailsTab.setContent(scrollPane);
+        Tab eventsTab = new Tab("Events");
+        eventsTab.setContent(structureTracePane);
+        tabPane.getTabs().addAll(detailsTab, eventsTab);
 
-        splitPane.getItems().addAll(leftPane, scrollPane);
+        splitPane.getItems().addAll(leftPane, tabPane);
         Persistence.loadProperty("splitPaneDividerPosition", splitPane, 0.3);
 
         borderPane.setCenter(splitPane);
@@ -686,11 +694,13 @@ public class ScenicView extends Region {
                         /**
                          * Remove the bean
                          */
-                        structureTracePane.trace("DEL VISIB:", bean);
+                    	structureTracePane.trace(DisplayUtils.nodeDetail(bean, true), "PropertyChangeEvent", "visibility=false");
+                       
                         removeTreeItem(bean, false, false);
                         statusBar.updateNodeCount(targetScene);
                     } else if (filteringActive && newValue) {
-                        structureTracePane.trace("ADD VISIB:", bean);
+                    	structureTracePane.trace(DisplayUtils.nodeDetail(bean, true), "PropertyChangeEvent", "visibility=true");
+                        
                         addNewNode(bean);
                         statusBar.updateNodeCount(targetScene);
                     } else {
@@ -710,11 +720,13 @@ public class ScenicView extends Region {
                 if (automaticScenegraphStructureRefreshing.isSelected()) {
                     while (c.next()) {
                         for (final Node dead : c.getRemoved()) {
-                            structureTracePane.trace("DEL SCENE:", dead);
+                        	structureTracePane.trace(DisplayUtils.nodeDetail(dead, true), "SGChangeEvent", "removed");
+                            
                             removeTreeItem(dead, true, false);
                         }
                         for (final Node alive : c.getAddedSubList()) {
-                            structureTracePane.trace("ADD SCENE:", alive);
+                        	structureTracePane.trace(DisplayUtils.nodeDetail(alive, true), "SGChangeEvent", "added");
+                            
                             addNewNode(alive);
                         }
                     }
@@ -1345,7 +1357,7 @@ public class ScenicView extends Region {
         }
 
         @Override public String toString() {
-            return nodeClass(node) + ((showNodesIdInTree.isSelected() && node.getId() != null) ? " \"" + node.getId() + "\"" : "");
+            return DisplayUtils.nodeDetail(node, showNodesIdInTree.isSelected());
         }
 
         @Override public boolean isVisible() {

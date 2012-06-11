@@ -1,31 +1,48 @@
 package com.javafx.experiments.scenicview;
 
-import java.io.*;
+import java.util.Date;
 
-import javafx.beans.value.*;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.event.*;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 
 public class StructureTracePane extends VBox {
 
-    TextArea text = new TextArea();
+    TableView<ScenicViewEvent> table = new TableView<ScenicViewEvent>();
     ChoiceBox<String> showStack = new ChoiceBox<String>();
-    boolean activate;
+    ObservableList<ScenicViewEvent> events = FXCollections.observableArrayList();
+    boolean activate = true;
     TextField idFilterField;
 
     public StructureTracePane() {
-        text.setEditable(false);
-        text.getStyleClass().add("trace-text-area");
+        table.setEditable(false);
+        table.getStyleClass().add("trace-text-area");
+        TableColumn firstNameCol = new TableColumn("source");
+        TableColumn lastNameCol = new TableColumn("eventType");
+        TableColumn emailCol = new TableColumn("eventValue");
+        TableColumn momentCol = new TableColumn("moment");
+          
+        table.getColumns().addAll(firstNameCol, lastNameCol, emailCol, momentCol);
+        table.setItems(events);
         final Button clear = new Button("Clear TextArea");
         clear.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override public void handle(final ActionEvent arg0) {
-                text.clear();
+            	events.clear();
             }
         });
         clear.setMaxWidth(Integer.MAX_VALUE);
@@ -78,34 +95,81 @@ public class StructureTracePane extends VBox {
         filtersGridPane.add(clear, 1, 3, 3, 1);
         filtersGridPane.setPrefHeight(60);
 
-        getChildren().addAll(filtersGridPane, text);
-        VBox.setVgrow(text, Priority.ALWAYS);
+        getChildren().addAll(filtersGridPane, table);
+        VBox.setVgrow(table, Priority.ALWAYS);
     }
 
     public void activate(final boolean activate) {
         this.activate = activate;
         if (activate) {
             setPrefHeight(getParent().getBoundsInLocal().getHeight());
-            text.clear();
+            events.clear();
         }
     }
 
-    private void append(final String data) {
-        text.setText(text.getText() + "\n" + data);
-    }
-
-    public void trace(final String action, final Node node) {
+    public void trace(final String source, String eventType, String eventValue) {
         if (activate) {
-            if (idFilterField.getText().equals("") || (action.indexOf(idFilterField.getText()) != -1) || node.toString().indexOf(idFilterField.getText()) != -1) {
-                append(action + " " + node);
-                if (showStack.getSelectionModel().getSelectedIndex() > 0) {
-                    final ByteArrayOutputStream bout = new ByteArrayOutputStream();
-                    final PrintStream out = new PrintStream(bout);
-                    new Exception(action + "Node:" + node).printStackTrace(out);
-                    append(new String(bout.toByteArray()));
-                }
+            if (idFilterField.getText().equals("") || (eventType.indexOf(idFilterField.getText()) != -1)  || (eventValue.indexOf(idFilterField.getText()) != -1) || source.indexOf(idFilterField.getText()) != -1) {
+            	events.add(new ScenicViewEvent(source, eventType, eventValue));
+            	table.setItems(events);
             }
         }
+    }
+    
+    class ScenicViewEvent {
+    	
+    	public String source;
+    	public String getSource() {
+			return source;
+		}
+
+		public void setSource(String source) {
+			this.source = source;
+		}
+
+		public String getEventType() {
+			return eventType;
+		}
+
+		public void setEventType(String eventType) {
+			this.eventType = eventType;
+		}
+
+		public String getEventValue() {
+			return eventValue;
+		}
+
+		public void setEventValue(String eventValue) {
+			this.eventValue = eventValue;
+		}
+
+		public String getMoment() {
+			return moment;
+		}
+
+		public void setMoment(String moment) {
+			this.moment = moment;
+		}
+
+		public String getRelative() {
+			return relative;
+		}
+
+		public void setRelative(String relative) {
+			this.relative = relative;
+		}
+
+		public String eventType;
+    	public String eventValue;
+    	public String moment;
+    	String relative;
+    	
+    	public ScenicViewEvent(String source, String eventType, String eventValue) {
+			this.source = source;
+			this.eventType = eventType;
+			this.eventValue = eventValue;
+			this.moment = new Date().toString();
+		}
     }
 
 }

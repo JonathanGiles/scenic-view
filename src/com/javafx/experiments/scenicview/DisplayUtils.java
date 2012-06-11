@@ -9,10 +9,16 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 import javafx.geometry.Bounds;
-import javafx.scene.*;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Region;
-import javafx.scene.transform.*;
+import javafx.scene.transform.Affine;
+import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Scale;
+import javafx.scene.transform.Shear;
+import javafx.scene.transform.Transform;
+import javafx.scene.transform.Translate;
 
 /**
  * 
@@ -37,6 +43,10 @@ public class DisplayUtils {
             name = cls.getSimpleName();
         }
         return name;
+    }
+    
+    public static String nodeDetail(Node node, boolean showId) {
+        return nodeClass(node) + ((showId && node.getId() != null) ? " \"" + node.getId() + "\"" : "");
     }
     
     public static Image getUIImage(final String image) {
