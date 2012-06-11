@@ -14,7 +14,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-public class StructureTracePane extends VBox {
+public class EventLogPane extends VBox {
 
     TableView<ScenicViewEvent> table = new TableView<ScenicViewEvent>();
     ChoiceBox<String> showStack = new ChoiceBox<String>();
@@ -24,19 +24,23 @@ public class StructureTracePane extends VBox {
     TextField idFilterField;
 
     @SuppressWarnings("unchecked")
-    public StructureTracePane() {
+    public EventLogPane() {
         table.setEditable(false);
         table.getStyleClass().add("trace-text-area");
         final TableColumn<ScenicViewEvent,String> sourceCol = new TableColumn<ScenicViewEvent,String>("source");
         sourceCol.setCellValueFactory(new PropertyValueFactory<ScenicViewEvent,String>("source"));
-        final TableColumn<ScenicViewEvent,String> lastNameCol = new TableColumn<ScenicViewEvent,String>("eventType");
-        lastNameCol.setCellValueFactory(new PropertyValueFactory<ScenicViewEvent,String>("eventType"));
-        final TableColumn<ScenicViewEvent,String> emailCol = new TableColumn<ScenicViewEvent,String>("eventValue");
-        emailCol.setCellValueFactory(new PropertyValueFactory<ScenicViewEvent,String>("eventValue"));
+        sourceCol.prefWidthProperty().bind(widthProperty().divide(4));
+        final TableColumn<ScenicViewEvent,String> eventTypeCol = new TableColumn<ScenicViewEvent,String>("eventType");
+        eventTypeCol.setCellValueFactory(new PropertyValueFactory<ScenicViewEvent,String>("eventType"));
+        eventTypeCol.prefWidthProperty().bind(widthProperty().divide(4));
+        final TableColumn<ScenicViewEvent,String> eventValueCol = new TableColumn<ScenicViewEvent,String>("eventValue");
+        eventValueCol.prefWidthProperty().bind(widthProperty().divide(4));
+        eventValueCol.setCellValueFactory(new PropertyValueFactory<ScenicViewEvent,String>("eventValue"));
         final TableColumn<ScenicViewEvent,String> momentCol = new TableColumn<ScenicViewEvent,String>("moment");
         momentCol.setCellValueFactory(new PropertyValueFactory<ScenicViewEvent,String>("moment"));
+        momentCol.prefWidthProperty().bind(widthProperty().divide(4));
           
-        table.getColumns().addAll(sourceCol, lastNameCol, emailCol, momentCol);
+        table.getColumns().addAll(sourceCol, eventTypeCol, eventValueCol, momentCol);
         table.setItems(events);
         table.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ScenicViewEvent>() {
 

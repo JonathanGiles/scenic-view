@@ -96,7 +96,7 @@ public class ScenicView extends Region {
     private final List<TreeItem<NodeInfo>> treeViewData = new ArrayList<TreeItem<NodeInfo>>();
     private final ScrollPane scrollPane;
     private final AllDetailsPane allDetailsPane;
-    private final StructureTracePane structureTracePane;
+    private final EventLogPane structureTracePane;
     private static StatusBar statusBar;
 
     private final CheckMenuItem showBoundsCheckbox;
@@ -202,7 +202,7 @@ public class ScenicView extends Region {
         });
         propertyFilterField.setDisable(true);
 
-        structureTracePane = new StructureTracePane();
+        structureTracePane = new EventLogPane();
 
         menuBar = new MenuBar();
         // menuBar.setId("main-menubar");
