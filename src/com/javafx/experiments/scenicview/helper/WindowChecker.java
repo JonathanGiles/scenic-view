@@ -32,9 +32,11 @@ public abstract class WindowChecker extends Thread {
         // Keep iterating until we have a any windows.
         // If we past the maximum wait time, we'll exit
         long currentWait = -1;
-        Iterator<Window> windows = getValidWindows();
+        List<Window> windows = getValidWindows(filter);
         while (running) {
-            if(windows.hasNext()) onWindowsFound(windows);
+            if(!windows.isEmpty()) {
+                onWindowsFound(windows);
+            }
             try {
                 if(verbose) {
                     System.out.println("No JavaFX window found - sleeping for " + sleepTime / 1000 + " seconds");
@@ -51,17 +53,17 @@ public abstract class WindowChecker extends Thread {
                 ex.printStackTrace();
             }
 
-            windows = getValidWindows();
+            windows = getValidWindows(filter);
         }
 
     }
     
-    protected abstract void onWindowsFound(Iterator<Window> windows);
+    protected abstract void onWindowsFound(List<Window> windows);
     
-    private Iterator<Window> getValidWindows() {
+    public static List<Window> getValidWindows(final WindowFilter filter) {
         @SuppressWarnings("deprecation")
         final Iterator<Window> windows = Window.impl_getWindows();
-        if(! windows.hasNext()) return Collections.emptyIterator();
+        if(! windows.hasNext()) return Collections.emptyList();
         final List<Window> list = new ArrayList<Window>();
         while (windows.hasNext()) {
             final Window window = windows.next();
@@ -69,7 +71,7 @@ public abstract class WindowChecker extends Thread {
                 list.add(window);
             }
         }
-        return list.iterator();
+        return list;
     }
 
     public void setMaxWaitTime(final long maxWaitTime) {

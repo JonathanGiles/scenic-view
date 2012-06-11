@@ -270,9 +270,15 @@ public class ScenicView extends Region {
                 getStage().close();
             }
         });
+        final MenuItem findStageItem = new MenuItem("Find Stages");
+        findStageItem.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(final ActionEvent arg0) {
+                StageSelectionBox.make("Find Stages", stage);
+            }
+        });
 
         final Menu fileMenu = new Menu("File");
-        fileMenu.getItems().addAll(exitItem);
+        fileMenu.getItems().addAll(findStageItem, exitItem);
 
         // ---- Options Menu
         showBoundsCheckbox = buildCheckMenuItem("Show Bounds Overlays", "Show the bound overlays on selected", "Do not show bound overlays on selected", "showBounds", Boolean.TRUE);
@@ -1482,25 +1488,17 @@ public class ScenicView extends Region {
         
         Map<PopupWindow, Map> previousTree = new HashMap<PopupWindow, Map>();
         List<PopupWindow> windows = new ArrayList<PopupWindow>();
-        List<PopupWindow> tempPopups = new ArrayList<PopupWindow>();
         final Map<PopupWindow, Map> tree = new HashMap<PopupWindow, Map>();
 
-        @Override protected void onWindowsFound(final Iterator<Window> it) {
-            tempPopups.clear();
+        @Override protected void onWindowsFound(final List<Window> tempPopups) {
             tree.clear();
             windows.clear();
-            while (it.hasNext()) {
-                final Window window = it.next();
-                if (window instanceof PopupWindow) {
-                    tempPopups.add((PopupWindow) window);
-                }
-
-            }
-            for (final PopupWindow popupWindow : tempPopups) {
-                final Map<PopupWindow, Map> pos = valid(popupWindow, tree);
+            
+            for (final Window popupWindow : tempPopups) {
+                final Map<PopupWindow, Map> pos = valid((PopupWindow)popupWindow, tree);
                 if (pos != null) {
-                    pos.put(popupWindow, new HashMap<PopupWindow, Map>());
-                    windows.add(popupWindow);
+                    pos.put((PopupWindow)popupWindow, new HashMap<PopupWindow, Map>());
+                    windows.add((PopupWindow)popupWindow);
                 }
             }
             if (!tree.equals(previousTree)) {

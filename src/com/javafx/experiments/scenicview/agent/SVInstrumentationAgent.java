@@ -1,13 +1,13 @@
 package com.javafx.experiments.scenicview.agent;
 
 import java.lang.instrument.Instrumentation;
-import java.util.*;
+import java.util.List;
 
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.stage.*;
 
-import com.javafx.experiments.scenicview.ScenicView;
+import com.javafx.experiments.scenicview.*;
 import com.javafx.experiments.scenicview.helper.*;
 import com.javafx.experiments.scenicview.helper.WindowChecker.WindowFilter;
 
@@ -28,14 +28,9 @@ public class SVInstrumentationAgent implements WindowFilter {
         
         final WindowChecker agentThread = new WindowChecker(this) {
             
-            @Override protected void onWindowsFound(final Iterator<Window> windows) {
+            @Override protected void onWindowsFound(final List<Window> windowList) {
 
                 finish();
-                // we will build up a more useful List of Windows from the iterator
-                final List<Stage> windowList = new ArrayList<Stage>();
-                while (windows.hasNext()) {
-                    windowList.add((Stage)windows.next());
-                }
                 
                 /**
                  * Wait till we have the scene and the root node
@@ -61,9 +56,10 @@ public class SVInstrumentationAgent implements WindowFilter {
                     return;
                 } else if (windowList.size() == 1) {
                     // go straight into scenic view with this window
-                    loadScenicView(windowList.get(0));
+                    loadScenicView((Stage)windowList.get(0));
                 } else {
                     // show the Scenic View stage selection dialog
+                    StageSelectionBox.make("Stage selection", null);
                 }
 
             }
