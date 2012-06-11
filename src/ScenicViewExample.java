@@ -154,8 +154,15 @@ public class ScenicViewExample extends Application {
         scene.getStylesheets().add(getClass().getResource("scenicviewtest.css").toString());
         stage.setScene(scene);
         stage.show();
+        
+        
 
         ScenicView.show(scene);
+        
+        final Stage stage2 = new Stage();
+        stage2.setTitle("Second example");
+        stage2.setScene(new Scene(new Group()));
+        stage2.show();
     }
 
     public static void main(final String[] args) {
