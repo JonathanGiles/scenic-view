@@ -8,28 +8,78 @@ package com.javafx.experiments.scenicview;
 import static com.javafx.experiments.scenicview.DisplayUtils.nodeClass;
 
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import javafx.application.Platform;
-import javafx.beans.*;
+import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.property.Property;
-import javafx.beans.value.*;
-import javafx.collections.*;
-import javafx.event.*;
-import javafx.geometry.*;
-import javafx.scene.*;
-import javafx.scene.control.*;
-import javafx.scene.image.*;
-import javafx.scene.input.*;
-import javafx.scene.layout.*;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
+import javafx.geometry.HPos;
+import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
+import javafx.geometry.Rectangle2D;
+import javafx.geometry.VPos;
+import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Accordion;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.Control;
+import javafx.scene.control.CustomMenuItem;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.Slider;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TitledPane;
+import javafx.scene.control.TreeCell;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.*;
-import javafx.stage.*;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.StrokeType;
+import javafx.stage.PopupWindow;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
+import javafx.stage.Window;
+import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 
 import com.javafx.experiments.scenicview.details.AllDetailsPane;
-import com.javafx.experiments.scenicview.helper.*;
+import com.javafx.experiments.scenicview.helper.StyleSheetRefresher;
+import com.javafx.experiments.scenicview.helper.WindowChecker;
 
 /**
  * 
@@ -91,32 +141,33 @@ public class ScenicView extends Region {
 
     protected BorderPane borderPane;
     protected MenuBar menuBar;
-    private SplitPane splitPane;
-    private TreeView<NodeInfo> treeView;
+    private final SplitPane splitPane;
+    private final TreeView<NodeInfo> treeView;
     private final List<TreeItem<NodeInfo>> treeViewData = new ArrayList<TreeItem<NodeInfo>>();
-    private ScrollPane scrollPane;
-    private AllDetailsPane allDetailsPane;
-    private StructureTracePane structureTracePane;
+    private final ScrollPane scrollPane;
+    private final AllDetailsPane allDetailsPane;
+    private final StructureTracePane structureTracePane;
     private static StatusBar statusBar;
 
-    private CheckMenuItem showBoundsCheckbox;
-    private CheckMenuItem showBaselineCheckbox;
-    private CheckMenuItem showDefaultProperties;
-    private CheckMenuItem collapseControls;
+    private final CheckMenuItem showBoundsCheckbox;
+    private final CheckMenuItem showBaselineCheckbox;
+    private final CheckMenuItem showDefaultProperties;
+    private final CheckMenuItem collapseControls;
+    private final CheckMenuItem collapseContentControls;
 
-    private CheckMenuItem showFilteredNodesInTree;
-    private CheckMenuItem showNodesIdInTree;
-    private CheckMenuItem ignoreMouseTransparentNodes;
-    private CheckMenuItem autoRefreshStyleSheets;
+    private final CheckMenuItem showFilteredNodesInTree;
+    private final CheckMenuItem showNodesIdInTree;
+    private final CheckMenuItem ignoreMouseTransparentNodes;
+    private final CheckMenuItem autoRefreshStyleSheets;
 
     private StyleSheetRefresher refresher;
-    private SubWindowChecker windowChecker;
+    private final SubWindowChecker windowChecker;
 
     private Parent overlayParent;
 
-    private Rectangle boundsInParentRect;
-    private Rectangle layoutBoundsRect;
-    private Line baselineLine;
+    private final Rectangle boundsInParentRect;
+    private final Rectangle layoutBoundsRect;
+    private final Line baselineLine;
     private Rectangle componentSelector;
     private Node componentHighLighter;
     private RuleGrid grid;
@@ -128,18 +179,18 @@ public class ScenicView extends Region {
      * Simplification for now, only a plain structure for now
      */
     private final List<PopupWindow> popupWindows = new ArrayList<PopupWindow>();
-    private InvalidationListener targetScenePropListener;
-    private InvalidationListener targetWindowPropListener;
+    private final InvalidationListener targetScenePropListener;
+    private final InvalidationListener targetWindowPropListener;
 
     private Node selectedNode;
     private TreeItem<NodeInfo> previouslySelectedItem;
 
     List<NodeFilter> activeNodeFilters = new ArrayList<ScenicView.NodeFilter>();
 
-    private InvalidationListener selectedNodePropListener;
+    private final InvalidationListener selectedNodePropListener;
 
-    private ListChangeListener<Node> structureInvalidationListener;
-    private ChangeListener<Boolean> visibilityInvalidationListener;
+    private final ListChangeListener<Node> structureInvalidationListener;
+    private final ChangeListener<Boolean> visibilityInvalidationListener;
 
     VBox leftPane;
     
@@ -261,6 +312,10 @@ public class ScenicView extends Region {
         collapseControls = buildCheckMenuItem("Collapse controls In Tree", "Controls will be collapsed", "Controls will be expanded", "collapseControls", Boolean.TRUE);
         collapseControls.selectedProperty().addListener(menuTreeChecksListener);
 
+        collapseContentControls = buildCheckMenuItem("Collapse container controls In Tree", "Container controls will be collapsed", "Container controls will be expanded", "collapseContainerControls", Boolean.FALSE);
+        collapseContentControls.selectedProperty().addListener(menuTreeChecksListener);
+        collapseContentControls.disableProperty().bind(collapseControls.selectedProperty().not());
+        
         final CheckMenuItem showCSSProperties = buildCheckMenuItem("Show CSS Properties", "Show CSS properties", "Hide CSS properties", "showCSSProperties", Boolean.FALSE);
         showCSSProperties.selectedProperty().addListener(new InvalidationListener() {
             @Override public void invalidated(final Observable arg0) {
@@ -423,7 +478,7 @@ public class ScenicView extends Region {
 
         ruler.getItems().addAll(showRuler, rulerSlider);
 
-        displayOptionsMenu.getItems().addAll(showDefaultProperties, showCSSProperties, new SeparatorMenuItem(), showBoundsCheckbox, showBaselineCheckbox, new SeparatorMenuItem(), ruler, new SeparatorMenuItem(), showFilteredNodesInTree, showInvisibleNodes, showNodesIdInTree, collapseControls);
+        displayOptionsMenu.getItems().addAll(showDefaultProperties, showCSSProperties, new SeparatorMenuItem(), showBoundsCheckbox, showBaselineCheckbox, new SeparatorMenuItem(), ruler, new SeparatorMenuItem(), showFilteredNodesInTree, showInvisibleNodes, showNodesIdInTree, collapseControls, collapseContentControls);
 
         final Menu aboutMenu = new Menu("Help");
 
@@ -858,7 +913,12 @@ public class ScenicView extends Region {
                     treeItem.getChildren().add(childItem);
                 }
             }
-            treeItem.setExpanded(expand || !(node instanceof Control) || !collapseControls.isSelected());
+            boolean mustBeExpanded = expand  || !(node instanceof Control) || !collapseControls.isSelected();
+            if(!mustBeExpanded && !collapseContentControls.isSelected()) {
+            	mustBeExpanded = node instanceof TabPane || node instanceof SplitPane || node instanceof ScrollPane || node instanceof Accordion || node instanceof TitledPane;
+            }
+            
+            treeItem.setExpanded(mustBeExpanded);
         }
         if(updateCount)
             statusBar.updateNodeCount(targetScene);
