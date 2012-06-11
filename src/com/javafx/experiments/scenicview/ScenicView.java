@@ -153,7 +153,7 @@ public class ScenicView extends Region {
     };
     
     private static final Map<String, Image> loadedImages = new HashMap<String, Image>();
-    private static final String CUSTOM_NODE_IMAGE = ScenicView.class.getResource("images/nodeicons/CustomNode.png").toString();
+    private static final String CUSTOM_NODE_IMAGE = DisplayUtils.getNodeIcon("CustomNode").toString();
 
     Thread shutdownHook = new Thread(){
         @Override
@@ -761,11 +761,11 @@ public class ScenicView extends Region {
          */
         if (targetScene != null && targetScene.getRoot() == value && !popupWindows.isEmpty()) {
 
-            final TreeItem<NodeInfo> app = new TreeItem<NodeInfo>(new DummyNodeInfo("App"), new ImageView(getClass().getResource("images/nodeicons/panel.png").toString()));
-            final TreeItem<NodeInfo> subWindows = new TreeItem<NodeInfo>(new DummyNodeInfo("SubWindows"), new ImageView(getClass().getResource("images/nodeicons/panel.png").toString()));
+            final TreeItem<NodeInfo> app = new TreeItem<NodeInfo>(new DummyNodeInfo("App"), new ImageView(DisplayUtils.getNodeIcon("panel").toString()));
+            final TreeItem<NodeInfo> subWindows = new TreeItem<NodeInfo>(new DummyNodeInfo("SubWindows"), new ImageView(DisplayUtils.getNodeIcon("panel").toString()));
             for (int i = 0; i < popupWindows.size(); i++) {
                 final PopupWindow window = popupWindows.get(i);
-                final TreeItem<NodeInfo> subWindow = new TreeItem<NodeInfo>(new DummyNodeInfo("SubWindow"), new ImageView(getClass().getResource("images/nodeicons/panel.png").toString()));
+                final TreeItem<NodeInfo> subWindow = new TreeItem<NodeInfo>(new DummyNodeInfo("SubWindow"), new ImageView(DisplayUtils.getNodeIcon("panel").toString()));
                 subWindow.getChildren().add(createTreeItem(window.getScene().getRoot(), true));
                 subWindows.getChildren().add(subWindow);
             }
@@ -1335,7 +1335,7 @@ public class ScenicView extends Region {
         }
 
         private Image getIcon() {
-            final URL resource = getClass().getResource("images/nodeicons/" + nodeClass(node) + ".png");
+            final URL resource = DisplayUtils.getNodeIcon(nodeClass(node));
             String url;
             if (resource != null) {
                 url = resource.toString();
