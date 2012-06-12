@@ -41,6 +41,7 @@ public class ScenicView extends Region {
     static final String SCENIC_VIEW_BASE_ID = "ScenicView.";
 
     static final Image APP_ICON = DisplayUtils.getUIImage("mglass.gif");
+    static final Image FX_APP_ICON = DisplayUtils.getUIImage("fx.png");
 
     public static void show(final Scene target) {
         show(target.getRoot());
@@ -154,6 +155,7 @@ public class ScenicView extends Region {
     
     private static final Map<String, Image> loadedImages = new HashMap<String, Image>();
     private static final String CUSTOM_NODE_IMAGE = DisplayUtils.getNodeIcon("CustomNode").toString();
+    private static final Image PANEL_NODE_IMAGE = new Image(DisplayUtils.getNodeIcon("Panel").toString());
 
     Thread shutdownHook = new Thread(){
         @Override
@@ -592,9 +594,13 @@ public class ScenicView extends Region {
         
         final TabPane tabPane = new TabPane();
         final Tab detailsTab = new Tab("Details");
+        detailsTab.setGraphic(new ImageView(DisplayUtils.getUIImage("details.png")));
         detailsTab.setContent(scrollPane);
+        detailsTab.setClosable(false);
         final Tab eventsTab = new Tab("Events");
         eventsTab.setContent(structureTracePane);
+        eventsTab.setGraphic(new ImageView(DisplayUtils.getUIImage("flag_red.png")));
+        eventsTab.setClosable(false);
         tabPane.getTabs().addAll(detailsTab, eventsTab);
 
         splitPane.getItems().addAll(leftPane, tabPane);
@@ -760,12 +766,29 @@ public class ScenicView extends Region {
          * If the target is the root node of the scene include subwindows
          */
         if (targetScene != null && targetScene.getRoot() == value && !popupWindows.isEmpty()) {
-
-            final TreeItem<NodeInfo> app = new TreeItem<NodeInfo>(new DummyNodeInfo("App"), new ImageView(DisplayUtils.getNodeIcon("panel").toString()));
-            final TreeItem<NodeInfo> subWindows = new TreeItem<NodeInfo>(new DummyNodeInfo("SubWindows"), new ImageView(DisplayUtils.getNodeIcon("panel").toString()));
+            String title = "App";
+            Image targetStageImage = null;
+            if(targetScene.getWindow() instanceof Stage) {
+                final Stage s = ((Stage)targetScene.getWindow());
+                if(!s.getIcons().isEmpty()) {
+                    targetStageImage = ((Stage)targetScene.getWindow()).getIcons().get(0);
+                }
+                title = s.getTitle()!=null?s.getTitle():"App";
+            }
+            if(targetStageImage==null) {
+                targetStageImage = FX_APP_ICON;
+            }
+            final TreeItem<NodeInfo> app = new TreeItem<NodeInfo>(new DummyNodeInfo(title), new ImageView(targetStageImage));
+            app.setExpanded(true);
+            final TreeItem<NodeInfo> subWindows = new TreeItem<NodeInfo>(new DummyNodeInfo("SubWindows"), new ImageView(DisplayUtils.getNodeIcon("Panel").toString()));
             for (int i = 0; i < popupWindows.size(); i++) {
                 final PopupWindow window = popupWindows.get(i);
-                final TreeItem<NodeInfo> subWindow = new TreeItem<NodeInfo>(new DummyNodeInfo("SubWindow"), new ImageView(DisplayUtils.getNodeIcon("panel").toString()));
+                final URL windowIcon = DisplayUtils.getNodeIcon(nodeClass(window));
+                Image targetWindowImage = PANEL_NODE_IMAGE;
+                if(windowIcon != null) {
+                    targetWindowImage = new Image(windowIcon.toString());
+                }
+                final TreeItem<NodeInfo> subWindow = new TreeItem<NodeInfo>(new DummyNodeInfo("SubWindow -"+nodeClass(window)), new ImageView(targetWindowImage));
                 subWindow.getChildren().add(createTreeItem(window.getScene().getRoot(), true));
                 subWindows.getChildren().add(subWindow);
             }

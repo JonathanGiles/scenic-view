@@ -30,7 +30,7 @@ public class DisplayUtils {
         return df.format(value);
     }
 
-    public static String nodeClass(final Node node) {
+    public static String nodeClass(final Object node) {
         @SuppressWarnings("rawtypes") Class cls = node.getClass();
         String name = cls.getSimpleName();
         while (name.isEmpty()) {
