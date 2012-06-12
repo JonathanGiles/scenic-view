@@ -6,7 +6,7 @@ import java.util.Date;
 import javafx.beans.value.*;
 import javafx.collections.*;
 import javafx.event.*;
-import javafx.geometry.Insets;
+import javafx.geometry.*;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -50,8 +50,26 @@ public class EventLogPane extends VBox {
                 for (int i = 0; i < newValue.stackTrace.length; i++) {
                     sb.append(newValue.stackTrace[i]).append('\n');
                 }
+                final int width = 600;
+                final int height = 400;
                 final Stage stage = new Stage();
-                stage.setScene(new Scene(new Label(sb.toString())));
+                stage.getIcons().add(ScenicView.APP_ICON);
+                stage.setResizable(false);
+                stage.setTitle("Event StackTrace");
+                stage.setWidth(width);
+                stage.setHeight(height);
+                final TextArea area = new TextArea(sb.toString());
+                area.setFocusTraversable(false);
+                area.setEditable(false);
+                area.setMaxWidth(width-15);
+                area.setMaxHeight(height-35);
+                final StackPane pane = new StackPane();
+                pane.setPrefHeight(height);
+                pane.setPrefWidth(width);
+                pane.setAlignment(Pos.CENTER);
+                pane.getChildren().add(area);
+                
+                stage.setScene(new Scene(pane));
                 stage.show();
             }
         });
