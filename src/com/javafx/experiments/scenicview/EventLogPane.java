@@ -18,7 +18,7 @@ public class EventLogPane extends VBox {
 
     TableView<ScenicViewEvent> table = new TableView<ScenicViewEvent>();
     ChoiceBox<String> showStack = new ChoiceBox<String>();
-    ChoiceBox<String> activateTrace = new ChoiceBox<String>();
+    CheckBox activateTrace = new CheckBox();
     ObservableList<ScenicViewEvent> events = FXCollections.observableArrayList();
     SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss.SSS");
     TextField idFilterField;
@@ -43,6 +43,7 @@ public class EventLogPane extends VBox {
         table.getColumns().addAll(sourceCol, eventTypeCol, eventValueCol, momentCol);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table.setItems(events);
+        table.setFocusTraversable(false);
         table.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ScenicViewEvent>() {
 
             @Override public void changed(final ObservableValue<? extends ScenicViewEvent> arg0, final ScenicViewEvent arg1, final ScenicViewEvent newValue) {
@@ -115,18 +116,14 @@ public class EventLogPane extends VBox {
 //        showStack.setItems(FXCollections.observableArrayList("Do not show stackTraces", "Show complete stackTrace"));
 //        showStack.getSelectionModel().select(0);
 //        showStack.setMaxWidth(Integer.MAX_VALUE);
-
+        
         GridPane.setHgrow(idFilterField, Priority.ALWAYS);
         GridPane.setHgrow(b1, Priority.NEVER);
 //        GridPane.setHgrow(show, Priority.ALWAYS);
         GridPane.setHgrow(showStack, Priority.ALWAYS);
         GridPane.setHgrow(clear, Priority.ALWAYS);
-        
-        activateTrace.setItems(FXCollections.observableArrayList("false", "true"));
-        activateTrace.getSelectionModel().select(0);
-        activateTrace.setMaxWidth(Integer.MAX_VALUE);
 
-        filtersGridPane.add(new Label("Activate trace"), 1, 1);
+        filtersGridPane.add(new Label("Enable"), 1, 1);
         filtersGridPane.add(activateTrace, 2, 1, 2, 1);
         filtersGridPane.add(new Label("Text Filter:"), 1, 2);
         filtersGridPane.add(idFilterField, 2, 2);
@@ -149,7 +146,7 @@ public class EventLogPane extends VBox {
     }
     
     public boolean isActive() {
-        return activateTrace.getSelectionModel().getSelectedIndex()!=0;
+        return activateTrace.isSelected();
     }
     
     public class ScenicViewEvent {
