@@ -4,11 +4,14 @@ import java.util.List;
 
 import javafx.beans.value.*;
 import javafx.collections.*;
+import javafx.event.*;
 import javafx.geometry.*;
 import javafx.scene.*;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
+import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.stage.*;
+import javafx.util.Callback;
 
 import com.javafx.experiments.scenicview.helper.*;
 import com.javafx.experiments.scenicview.helper.WindowChecker.WindowFilter;
@@ -26,12 +29,6 @@ public class StageSelectionBox {
     private StageSelectionBox(final String title, final double x, final double y, final Stage scenicView) {
         this.panel = new VBox();
         this.panel.getStyleClass().add("stageSelection");
-
-        this.windowList = new ListView<String>();
-        this.windowList.setFocusTraversable(false);
-        this.windowList.setEditable(false);
-        this.windowList.setId("stageSelectionList");
-        this.windowList.setPrefHeight(221.0D);
         final List<Window> stages = WindowChecker.getValidWindows(new WindowFilter() {
             
             @Override public boolean accept(final Window window) {
@@ -39,6 +36,42 @@ public class StageSelectionBox {
                 return window instanceof Stage && window != scenicView;
             }
         });
+        this.windowList = new ListView<String>();
+        this.windowList.setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
+            @Override public ListCell<String> call(final ListView<String> list) {
+                final ListCell<String> cell =  new ListCell<String>() {
+
+                    @Override 
+                    public void updateItem(final String item, final boolean empty) {
+                                
+                        super.updateItem(item, empty);
+                                
+                        if (item != null) {
+                            this.setText(item);
+                            
+                            setOnMouseClicked(new EventHandler<MouseEvent>() {
+                                @Override
+                                public void handle(final MouseEvent mouseEvent) {
+                                    if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
+                                        if(mouseEvent.getClickCount() == 2){
+                                            final int index = windowList.getSelectionModel().getSelectedIndex();
+                                            onSelected(scenicView, (Stage)stages.get(index));
+                                        }
+                                    }
+                                }
+                            });
+                        
+                        }
+                    }
+                };
+                return cell;
+            }
+        });
+        this.windowList.setFocusTraversable(false);
+        this.windowList.setEditable(false);
+        this.windowList.setId("stageSelectionList");
+        this.windowList.setPrefHeight(221.0D);
+        
         
         final ObservableList<String> stageNames = FXCollections.observableArrayList();
         for (int i = 0; i < stages.size(); i++) {
@@ -46,10 +79,24 @@ public class StageSelectionBox {
         }
         windowList.setItems(stageNames);
         
-        VBox.setMargin(this.windowList, new Insets(SPACER_Y, LEFT_AND_RIGHT_MARGIN, SPACER_Y, LEFT_AND_RIGHT_MARGIN));
+        final Label select = new Label("Select a stage");
+        final Button ok = new Button("Ok");
+        ok.disableProperty().bind(windowList.getSelectionModel().selectedIndexProperty().isEqualTo(-1));
+        ok.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override public void handle(final ActionEvent arg0) {
+                final int index = windowList.getSelectionModel().getSelectedIndex();
+                onSelected(scenicView, (Stage)stages.get(index));
+
+            }
+        });
+        VBox.setMargin(select, new Insets(SPACER_Y, LEFT_AND_RIGHT_MARGIN, 0, LEFT_AND_RIGHT_MARGIN));
+        VBox.setMargin(this.windowList, new Insets(SPACER_Y, LEFT_AND_RIGHT_MARGIN, 0, LEFT_AND_RIGHT_MARGIN));
+        VBox.setMargin(ok, new Insets(SPACER_Y, LEFT_AND_RIGHT_MARGIN, SPACER_Y, LEFT_AND_RIGHT_MARGIN));
         VBox.setVgrow(this.windowList, Priority.ALWAYS);
         this.panel.setAlignment(Pos.TOP_CENTER);
-        this.panel.getChildren().addAll(this.windowList);
+        
+        this.panel.getChildren().addAll(select, this.windowList, ok);
 
         this.scene = SceneBuilder.create().width(SCENE_WIDTH).height(SCENE_HEIGHT).root(this.panel).stylesheets(new String[] { StageSelectionBox.class.getResource("scenicview.css").toString() }).build();
 
@@ -64,13 +111,21 @@ public class StageSelectionBox {
         windowList.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
 
             @Override public void changed(final ObservableValue<? extends Number> arg0, final Number arg1, final Number newValue) {
-                if(scenicView!=null) {
-                    scenicView.close();
-                }
-                ScenicView.show(stages.get(newValue.intValue()).getScene());
-                stage.close();
+//                if(scenicView!=null) {
+//                    scenicView.close();
+//                }
+//                ScenicView.show(stages.get(newValue.intValue()).getScene());
+//                stage.close();
             }
         });
+    }
+    
+    private void onSelected(final Stage scenicView, final Stage stage) {
+        if (scenicView != null) {
+            scenicView.close();
+        }
+        ScenicView.show(stage.getScene());
+        stage.close();
     }
 
     public static StageSelectionBox make(final String title, final Stage stage) {
