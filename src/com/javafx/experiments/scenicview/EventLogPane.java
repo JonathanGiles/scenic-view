@@ -41,6 +41,7 @@ public class EventLogPane extends VBox {
         momentCol.prefWidthProperty().bind(widthProperty().divide(4));
           
         table.getColumns().addAll(sourceCol, eventTypeCol, eventValueCol, momentCol);
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table.setItems(events);
         table.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ScenicViewEvent>() {
 
