@@ -5,12 +5,9 @@
 
 package com.javafx.experiments.scenicview.details;
 
-import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.util.*;
 
-import javafx.beans.*;
-import javafx.beans.Observable;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.geometry.*;
@@ -20,7 +17,7 @@ import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 
-import com.javafx.experiments.scenicview.DisplayUtils;
+import com.javafx.experiments.scenicview.*;
 
 /**
  * 
@@ -41,9 +38,7 @@ public abstract class DetailPane extends TitledPane {
     public static DecimalFormat f = new DecimalFormat("0.0#");
 
     private Object target;
-    private final InvalidationListener propListener;
-    @SuppressWarnings("rawtypes") Map<ObservableValue, String> properties = new HashMap<ObservableValue, String>();
-
+    
     static final Image EDIT_IMAGE = DisplayUtils.getUIImage("editclear.png");
 
     static final String DETAIL_LABEL_STYLE = "detail-label";
@@ -51,6 +46,13 @@ public abstract class DetailPane extends TitledPane {
 
     GridPane gridpane;
     List<Node> paneNodes = new ArrayList<Node>();
+    PropertyTracker tracker = new PropertyTracker() {
+
+        @Override protected void updateDetail(final String propertyName, final ObservableValue property) {
+            DetailPane.this.updateDetail(propertyName);
+        }
+        
+    };
 
     public DetailPane() {
         getStyleClass().add("detail-pane");
@@ -58,11 +60,6 @@ public abstract class DetailPane extends TitledPane {
         setVisible(false);
         setExpanded(false);
         setMaxWidth(Double.MAX_VALUE);
-        propListener = new InvalidationListener() {
-            @Override public void invalidated(final Observable arg0) {
-                updateDetail(properties.get(arg0));
-            }
-        };
         setId("title-label");
         setAlignment(Pos.CENTER_LEFT);
         setText(getPaneName());
@@ -110,39 +107,11 @@ public abstract class DetailPane extends TitledPane {
 
         final Object old = target;
         if (old != null) {
-            for (final ObservableValue ov : properties.keySet()) {
-                ov.removeListener(propListener);
-            }
-            properties.clear();
+            tracker.clear();
         }
         target = value;
         if (target != null) {
-            properties.clear();
-            // Using reflection, locate all properties and their corresponding
-            // property references
-            for (final Method method : target.getClass().getMethods()) {
-                if (method.getName().endsWith("Property")) {
-                    try {
-                        final Class returnType = method.getReturnType();
-                        if (ObservableValue.class.isAssignableFrom(returnType)) {
-                            // we've got a winner
-                            final String propertyName = method.getName().substring(0, method.getName().lastIndexOf("Property"));
-                            // Request access
-                            method.setAccessible(true);
-                            final ObservableValue property = (ObservableValue) method.invoke(target);
-                            // System.out.println("propertyName="+propertyName+".");
-                            properties.put(property, propertyName);
-                        }
-                    } catch (final Exception e) {
-                        System.err.println("Failed to get property " + method.getName());
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            for (final ObservableValue ov : properties.keySet()) {
-                ov.addListener(propListener);
-            }
+            tracker.setTarget(target);
         }
         return true;
     }

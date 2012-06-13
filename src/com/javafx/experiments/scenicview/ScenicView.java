@@ -97,7 +97,7 @@ public class ScenicView extends Region {
     private final List<TreeItem<NodeInfo>> treeViewData = new ArrayList<TreeItem<NodeInfo>>();
     private final ScrollPane scrollPane;
     private final AllDetailsPane allDetailsPane;
-    private final EventLogPane structureTracePane;
+    private final EventLogPane eventLogPane;
     private static StatusBar statusBar;
 
     private final CheckMenuItem showBoundsCheckbox;
@@ -142,6 +142,7 @@ public class ScenicView extends Region {
 
     private final ListChangeListener<Node> structureInvalidationListener;
     private final ChangeListener<Boolean> visibilityInvalidationListener;
+    private final Map<Node,PropertyTracker> propertyTrackers = new HashMap<Node, PropertyTracker>();
 
     VBox leftPane;
     
@@ -204,7 +205,7 @@ public class ScenicView extends Region {
         });
         propertyFilterField.setDisable(true);
 
-        structureTracePane = new EventLogPane();
+        eventLogPane = new EventLogPane();
 
         menuBar = new MenuBar();
         // menuBar.setId("main-menubar");
@@ -598,7 +599,7 @@ public class ScenicView extends Region {
         detailsTab.setContent(scrollPane);
         detailsTab.setClosable(false);
         final Tab eventsTab = new Tab("Events");
-        eventsTab.setContent(structureTracePane);
+        eventsTab.setContent(eventLogPane);
         eventsTab.setGraphic(new ImageView(DisplayUtils.getUIImage("flag_red.png")));
         eventsTab.setClosable(false);
         tabPane.getTabs().addAll(detailsTab, eventsTab);
@@ -635,8 +636,8 @@ public class ScenicView extends Region {
         traceEventHandler = new EventHandler<Event>() {
 
             @Override public void handle(final Event event) {
-                if(structureTracePane.isActive()) {
-                    structureTracePane.trace(event.getSource().toString(), event.getEventType().toString(), "");
+                if(eventLogPane.isActive()) {
+                    eventLogPane.trace((Node)event.getSource(), event.getEventType().toString(), "");
                 }
             }
         };
@@ -647,17 +648,10 @@ public class ScenicView extends Region {
                     @SuppressWarnings("unchecked") final Node bean = (Node) ((Property<Boolean>) observable).getBean();
                     final boolean filteringActive = !showInvisibleNodes.isSelected() && !showFilteredNodesInTree.isSelected();
                     if (filteringActive && !newValue) {
-                        /**
-                         * Remove the bean
-                         */
-                    	structureTracePane.trace(DisplayUtils.nodeDetail(bean, true), "PROPERTY_CHANGED", "visibility=false");
-                       
                         removeTreeItem(bean, false, false);
                         statusBar.updateNodeCount(targetScene);
                     } else if (filteringActive && newValue) {
-                    	structureTracePane.trace(DisplayUtils.nodeDetail(bean, true), "PROPERTY_CHANGED", "visibility=true");
-                        
-                        addNewNode(bean);
+                    	addNewNode(bean);
                         statusBar.updateNodeCount(targetScene);
                     } else {
                         /**
@@ -676,12 +670,12 @@ public class ScenicView extends Region {
                 if (automaticScenegraphStructureRefreshing.isSelected()) {
                     while (c.next()) {
                         for (final Node dead : c.getRemoved()) {
-                        	structureTracePane.trace(DisplayUtils.nodeDetail(dead, true), "NODE_REMOVED", "removed");
+                        	eventLogPane.trace(dead, "NODE_REMOVED", "removed");
                             
                             removeTreeItem(dead, true, false);
                         }
                         for (final Node alive : c.getAddedSubList()) {
-                        	structureTracePane.trace(DisplayUtils.nodeDetail(alive, true), "NODE_ADDED", "added");
+                        	eventLogPane.trace(alive, "NODE_ADDED", "added");
                             
                             addNewNode(alive);
                         }
@@ -876,6 +870,8 @@ public class ScenicView extends Region {
         if (node.getId() == null || !node.getId().startsWith(SCENIC_VIEW_BASE_ID)) {
             node.visibleProperty().removeListener(visibilityInvalidationListener);
             node.visibleProperty().addListener(visibilityInvalidationListener);
+            propertyTracker(node, true);
+            
             node.removeEventFilter(Event.ANY, traceEventHandler);
             node.addEventFilter(Event.ANY, traceEventHandler);
         }
@@ -884,6 +880,11 @@ public class ScenicView extends Region {
         if (nodeData.node == selectedNode) {
             previouslySelectedItem = treeItem;
         }
+        /**
+         * TODO Improve this calculation THIS IS NOT CORRECT AS NEW NODES ARE INCLUDED ON TOP
+         * a) updateCount=true: We are adding all the nodes
+         * b) updateCount=false: We are adding only one node, find its position
+         */
         treeViewData.add(treeItem);
         node.getProperties().put(SCENIC_VIEW_BASE_ID + "TreeItem", treeItem);
 
@@ -962,6 +963,7 @@ public class ScenicView extends Region {
         }
         if (nodeData.getNode() != null && removeVisibilityListener) {
             node.visibleProperty().removeListener(visibilityInvalidationListener);
+            propertyTracker(node, false);
             node.removeEventFilter(Event.ANY, traceEventHandler);
         }
         // This does not seem to delete the TreeItem from the tree -- only moves
@@ -985,6 +987,7 @@ public class ScenicView extends Region {
     public void setSelectedNode(final Node value) {
         if (value != selectedNode) {
             storeSelectedNode(value);
+            eventLogPane.setSelectedNode(value);
         }
     }
 
@@ -1513,5 +1516,26 @@ public class ScenicView extends Region {
      */
     @Override public ObservableList<Node> getChildren() {
         return super.getChildren();
+    }
+    
+    private void propertyTracker(final Node node, final boolean add) {
+        PropertyTracker tracker = propertyTrackers.get(node);
+        if(tracker != null) {
+            tracker.clear();
+        }
+        if(add) {
+            tracker = new PropertyTracker() {
+                
+                @Override protected void updateDetail(final String propertyName, final ObservableValue property) {
+                    /**
+                     * Remove the bean
+                     */
+                    eventLogPane.trace(node, "PROPERTY_CHANGED", propertyName+"="+property.getValue());
+                   
+                }
+            };
+            tracker.setTarget(node);
+            propertyTrackers.put(node, tracker);
+        }
     }
 }

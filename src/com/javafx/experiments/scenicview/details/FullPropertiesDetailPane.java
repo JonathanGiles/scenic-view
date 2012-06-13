@@ -10,7 +10,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.paint.Color;
 
-import com.javafx.experiments.scenicview.*;
+import com.javafx.experiments.scenicview.ScenicView;
 import com.sun.javafx.css.StyleableProperty;
 
 @SuppressWarnings("rawtypes")
@@ -82,6 +82,7 @@ public class FullPropertiesDetailPane extends DetailPane {
         }
         orderedProperties = new TreeMap<String, ObservableValue>();
         details = new HashMap<String, Detail>();
+        final Map<ObservableValue,String> properties = tracker.getProperties();
         for (final Iterator<ObservableValue> iterator = properties.keySet().iterator(); iterator.hasNext();) {
             final ObservableValue type = iterator.next();
             orderedProperties.put(properties.get(type), type);

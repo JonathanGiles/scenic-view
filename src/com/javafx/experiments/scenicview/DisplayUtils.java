@@ -5,10 +5,12 @@
 
 package com.javafx.experiments.scenicview;
 
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.text.DecimalFormat;
-import java.util.List;
+import java.util.*;
 
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.scene.*;
 import javafx.scene.image.Image;
@@ -108,6 +110,31 @@ public class DisplayUtils {
             }
         }
         return c;
+    }
+    
+    public static void fillProperties(final Node target, final Map<ObservableValue,String> properties) {
+        // Using reflection, locate all properties and their corresponding
+        // property references
+        properties.clear();
+        for (final Method method : target.getClass().getMethods()) {
+            if (method.getName().endsWith("Property")) {
+                try {
+                    final Class returnType = method.getReturnType();
+                    if (ObservableValue.class.isAssignableFrom(returnType)) {
+                        // we've got a winner
+                        final String propertyName = method.getName().substring(0, method.getName().lastIndexOf("Property"));
+                        // Request access
+                        method.setAccessible(true);
+                        final ObservableValue property = (ObservableValue) method.invoke(target);
+                        // System.out.println("propertyName="+propertyName+".");
+                        properties.put(property, propertyName);
+                    }
+                } catch (final Exception e) {
+                    System.err.println("Failed to get property " + method.getName());
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
 }

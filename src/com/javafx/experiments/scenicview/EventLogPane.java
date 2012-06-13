@@ -7,7 +7,7 @@ import javafx.beans.value.*;
 import javafx.collections.*;
 import javafx.event.*;
 import javafx.geometry.*;
-import javafx.scene.Scene;
+import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
@@ -22,6 +22,8 @@ public class EventLogPane extends VBox {
     ObservableList<ScenicViewEvent> events = FXCollections.observableArrayList();
     SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss.SSS");
     TextField idFilterField;
+    Label selectedNodeLabel = new Label("Filtering from current selection: None");
+    Node selectedNode;
 
     @SuppressWarnings("unchecked")
     public EventLogPane() {
@@ -47,31 +49,33 @@ public class EventLogPane extends VBox {
         table.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ScenicViewEvent>() {
 
             @Override public void changed(final ObservableValue<? extends ScenicViewEvent> arg0, final ScenicViewEvent arg1, final ScenicViewEvent newValue) {
-                final StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < newValue.stackTrace.length; i++) {
-                    sb.append(newValue.stackTrace[i]).append('\n');
+                if(newValue != null) {
+                    final StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < newValue.stackTrace.length; i++) {
+                        sb.append(newValue.stackTrace[i]).append('\n');
+                    }
+                    final int width = 600;
+                    final int height = 400;
+                    final Stage stage = new Stage();
+                    stage.getIcons().add(ScenicView.APP_ICON);
+                    stage.setResizable(false);
+                    stage.setTitle("Event StackTrace");
+                    stage.setWidth(width);
+                    stage.setHeight(height);
+                    final TextArea area = new TextArea(sb.toString());
+                    area.setFocusTraversable(false);
+                    area.setEditable(false);
+                    area.setMaxWidth(width-15);
+                    area.setMaxHeight(height-35);
+                    final StackPane pane = new StackPane();
+                    pane.setPrefHeight(height);
+                    pane.setPrefWidth(width);
+                    pane.setAlignment(Pos.CENTER);
+                    pane.getChildren().add(area);
+                    
+                    stage.setScene(new Scene(pane));
+                    stage.show();
                 }
-                final int width = 600;
-                final int height = 400;
-                final Stage stage = new Stage();
-                stage.getIcons().add(ScenicView.APP_ICON);
-                stage.setResizable(false);
-                stage.setTitle("Event StackTrace");
-                stage.setWidth(width);
-                stage.setHeight(height);
-                final TextArea area = new TextArea(sb.toString());
-                area.setFocusTraversable(false);
-                area.setEditable(false);
-                area.setMaxWidth(width-15);
-                area.setMaxHeight(height-35);
-                final StackPane pane = new StackPane();
-                pane.setPrefHeight(height);
-                pane.setPrefWidth(width);
-                pane.setAlignment(Pos.CENTER);
-                pane.getChildren().add(area);
-                
-                stage.setScene(new Scene(pane));
-                stage.show();
             }
         });
         final Button clear = new Button("Clear");
@@ -123,7 +127,7 @@ public class EventLogPane extends VBox {
         GridPane.setHgrow(showStack, Priority.ALWAYS);
         GridPane.setHgrow(clear, Priority.ALWAYS);
 
-        filtersGridPane.add(new Label("Enable"), 1, 1);
+        filtersGridPane.add(new Label("Enable:"), 1, 1);
         filtersGridPane.add(activateTrace, 2, 1, 2, 1);
         filtersGridPane.add(new Label("Text Filter:"), 1, 2);
         filtersGridPane.add(idFilterField, 2, 2);
@@ -131,18 +135,37 @@ public class EventLogPane extends VBox {
 //        filtersGridPane.add(show, 1, 3);
 //        filtersGridPane.add(showStack, 2, 3, 2, 1);
         filtersGridPane.add(clear, 1, 3, 3, 1);
+        filtersGridPane.add(selectedNodeLabel, 1, 4, 3, 1);
         filtersGridPane.setPrefHeight(60);
 
         getChildren().addAll(filtersGridPane, table);
         VBox.setVgrow(table, Priority.ALWAYS);
     }
+    
+    public void setSelectedNode(final Node selectedNode) {
+        this.selectedNode = selectedNode;
+        if(selectedNode != null) {
+            selectedNodeLabel.setText("Filtering from current selection: "+DisplayUtils.nodeDetail(selectedNode, true));
+        }
+        else {
+            selectedNodeLabel.setText("Filtering from current selection: None");
+        }
+    }
 
-    public void trace(final String source, final String eventType, final String eventValue) {
+    public void trace(final Node source, final String eventType, final String eventValue) {
         if (isActive()) {
-            if (idFilterField.getText().equals("") || (eventType.indexOf(idFilterField.getText()) != -1)  || (eventValue.indexOf(idFilterField.getText()) != -1) || source.indexOf(idFilterField.getText()) != -1) {
-            	events.add(new ScenicViewEvent(source, eventType, eventValue));
+            final String sourceId = DisplayUtils.nodeDetail(source, true);
+            if (idFilterField.getText().equals("") || (eventType.indexOf(idFilterField.getText()) != -1)  || (eventValue.indexOf(idFilterField.getText()) != -1) || sourceId.indexOf(idFilterField.getText()) != -1) {
+                if(checkValid(source)) {
+                    events.add(new ScenicViewEvent(sourceId, eventType, eventValue));
+                }
             }
         }
+    }
+    
+    private boolean checkValid(final Node node) {
+        if(node == null) return false;
+        return (selectedNode == null) || selectedNode == node || checkValid(node.getParent());
     }
     
     public boolean isActive() {
