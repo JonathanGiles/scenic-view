@@ -21,6 +21,7 @@ class Persistence {
         }
         // We should think of a better way of doing this
         else if(component instanceof SplitPane) {
+            System.out.println("Loaded divider position position:"+property);
             ((SplitPane) component).setDividerPosition(0, Double.parseDouble(property));
         }
 //        else if(component instanceof Control) {

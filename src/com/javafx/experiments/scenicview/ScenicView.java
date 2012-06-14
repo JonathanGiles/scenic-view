@@ -38,6 +38,7 @@ import com.javafx.experiments.scenicview.helper.*;
 public class ScenicView extends Region {
 
     private static final String HELP_URL = "http://fxexperience.com/scenic-view/help";
+    static final String STYLESHEETS = "com/javafx/experiments/scenicview/scenicview.css";
     static final String SCENIC_VIEW_BASE_ID = "ScenicView.";
 
     static final Image APP_ICON = DisplayUtils.getUIImage("mglass.gif");
@@ -58,7 +59,7 @@ public class ScenicView extends Region {
 
     public static void show(final ScenicView scenicview, final Stage stage) {
         final Scene scene = new Scene(scenicview);
-        scene.getStylesheets().addAll("com/javafx/experiments/scenicview/scenicview.css");
+        scene.getStylesheets().addAll(STYLESHEETS);
         stage.setScene(scene);
         stage.getIcons().add(APP_ICON);
         if (scenicview.target.getScene() != null && scenicview.target.getScene().getWindow() != null) {
@@ -87,12 +88,19 @@ public class ScenicView extends Region {
                 scenicview.close();
             }
         });
+        scenicview.splitPane.getDividers().get(0).positionProperty().addListener(new ChangeListener<Number>() {
+
+            @Override public void changed(final ObservableValue<? extends Number> arg0, final Number oldValue, final Number newValue) {
+                System.out.println("Divider changed from:"+oldValue+" to:"+newValue.doubleValue());
+                new Exception().printStackTrace();
+            }
+        });
         stage.show();
     }
 
     protected BorderPane borderPane;
     protected MenuBar menuBar;
-    private final SplitPane splitPane;
+    private SplitPane splitPane;
     private final TreeView<NodeInfo> treeView;
     private final List<TreeItem<NodeInfo>> treeViewData = new ArrayList<TreeItem<NodeInfo>>();
     private final ScrollPane scrollPane;
@@ -603,9 +611,9 @@ public class ScenicView extends Region {
         eventsTab.setGraphic(new ImageView(DisplayUtils.getUIImage("flag_red.png")));
         eventsTab.setClosable(false);
         tabPane.getTabs().addAll(detailsTab, eventsTab);
-
-        splitPane.getItems().addAll(leftPane, tabPane);
         Persistence.loadProperty("splitPaneDividerPosition", splitPane, 0.3);
+        
+        splitPane.getItems().addAll(leftPane, tabPane);
 
         borderPane.setCenter(splitPane);
 
