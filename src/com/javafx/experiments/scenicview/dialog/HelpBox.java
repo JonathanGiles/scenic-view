@@ -2,14 +2,14 @@ package com.javafx.experiments.scenicview.dialog;
 
 import java.util.logging.*;
 
-import com.javafx.experiments.scenicview.DisplayUtils;
-
 import javafx.event.EventHandler;
 import javafx.scene.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
 import javafx.stage.*;
+
+import com.javafx.experiments.scenicview.*;
 
 public class HelpBox {
 
@@ -29,7 +29,7 @@ public class HelpBox {
         wview.setPrefWidth(SCENE_WIDTH);
         wview.getEngine().load(url);
         pane.setCenter(wview);
-        final Scene scene = SceneBuilder.create().width(SCENE_WIDTH).height(SCENE_HEIGHT).root(pane).stylesheets(new String[] { AboutBox.class.getResource("scenicview.css").toString() }).build();
+        final Scene scene = SceneBuilder.create().width(SCENE_WIDTH).height(SCENE_HEIGHT).root(pane).stylesheets(ScenicView.STYLESHEETS).build();
         stage = StageBuilder.create().title(title).build();
         stage.setScene(scene);
         stage.getIcons().add(HELP_ICON);

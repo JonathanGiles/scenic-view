@@ -51,7 +51,7 @@ public class AboutBox {
         this.panel.setAlignment(Pos.TOP_CENTER);
         this.panel.getChildren().addAll(this.header, this.textArea, this.footer);
 
-        this.scene = SceneBuilder.create().width(SCENE_WIDTH).height(SCENE_HEIGHT).root(this.panel).stylesheets(new String[] { AboutBox.class.getResource("scenicview.css").toString() }).build();
+        this.scene = SceneBuilder.create().width(SCENE_WIDTH).height(SCENE_HEIGHT).root(this.panel).stylesheets(ScenicView.STYLESHEETS).build();
 
         this.stage = StageBuilder.create().style(StageStyle.UTILITY).title(title).build();
         this.stage.initModality(Modality.APPLICATION_MODAL);

@@ -39,7 +39,7 @@ import com.javafx.experiments.scenicview.helper.*;
 public class ScenicView extends Region {
 
     private static final String HELP_URL = "http://fxexperience.com/scenic-view/help";
-    static final String STYLESHEETS = "com/javafx/experiments/scenicview/scenicview.css";
+    public static final String STYLESHEETS = "com/javafx/experiments/scenicview/scenicview.css";
     static final String SCENIC_VIEW_BASE_ID = "ScenicView.";
 
     public static final Image APP_ICON = DisplayUtils.getUIImage("mglass.gif");
@@ -199,7 +199,7 @@ public class ScenicView extends Region {
         final MenuItem findStageItem = new MenuItem("Find Stages");
         findStageItem.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(final ActionEvent arg0) {
-                StageSelectionBox.make("Find Stages", scenicViewStage);
+                StageSelectionBox.make("Find Stages", ScenicView.this);
             }
         });
 
@@ -670,7 +670,8 @@ public class ScenicView extends Region {
         }
     }
 
-    @SuppressWarnings("unchecked") protected void storeTarget(final Parent value) {
+    @SuppressWarnings("unchecked")
+    public void storeTarget(final Parent value) {
         // Parent old = this.target;
 
         this.target = value;
@@ -1375,7 +1376,7 @@ public class ScenicView extends Region {
         // workaround for RT-10714
         stage.setWidth(640);
         stage.setHeight(800);
-        stage.setTitle("Scenic View "+VERSION);
+        stage.setTitle("Scenic View v"+VERSION);
         show(new ScenicView(target, stage), stage);
     }
 

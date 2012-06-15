@@ -26,14 +26,14 @@ public class StageSelectionBox {
     private final Scene scene;
     private final ListView<String> windowList;
 
-    private StageSelectionBox(final String title, final double x, final double y, final Stage scenicView) {
+    private StageSelectionBox(final String title, final double x, final double y, final Stage stageScenic, final ScenicView scenicView) {
         this.panel = new VBox();
         this.panel.getStyleClass().add("stageSelection");
         final List<Window> stages = WindowChecker.getValidWindows(new WindowFilter() {
             
             @Override public boolean accept(final Window window) {
                 // TODO Auto-generated method stub
-                return window instanceof Stage && window != scenicView;
+                return window instanceof Stage && window != stageScenic;
             }
         });
         this.windowList = new ListView<String>();
@@ -98,7 +98,7 @@ public class StageSelectionBox {
         
         this.panel.getChildren().addAll(select, this.windowList, ok);
 
-        this.scene = SceneBuilder.create().width(SCENE_WIDTH).height(SCENE_HEIGHT).root(this.panel).stylesheets(new String[] { StageSelectionBox.class.getResource("scenicview.css").toString() }).build();
+        this.scene = SceneBuilder.create().width(SCENE_WIDTH).height(SCENE_HEIGHT).root(this.panel).stylesheets(ScenicView.STYLESHEETS).build();
 
         this.stage = StageBuilder.create().style(StageStyle.UTILITY).title(title).build();
         this.stage.initModality(Modality.APPLICATION_MODAL);
@@ -110,16 +110,18 @@ public class StageSelectionBox {
         this.stage.show();
     }
     
-    private void onSelected(final Stage scenicView, final Stage stage) {
-        if (scenicView != null) {
-            scenicView.close();
-        }
-        ScenicView.show(stage.getScene());
+    private void onSelected(final ScenicView scenicView, final Stage stage) {
+//        if (scenicView != null) {
+//            scenicView.close();
+//        }
+//        ScenicView.show(stage.getScene());
+        scenicView.storeTarget(stage.getScene().getRoot());
         this.stage.close();
     }
 
-    public static StageSelectionBox make(final String title, final Stage stage) {
-        return new StageSelectionBox(title, stage==null?0:stage.getX() + (stage.getWidth() / 2) - (SCENE_WIDTH / 2), stage==null?0:stage.getY() + (stage.getHeight() / 2) - (SCENE_HEIGHT / 2), stage);
+    public static StageSelectionBox make(final String title, final ScenicView scenicView) {
+        final Stage stage = (Stage)scenicView.getScene().getWindow();
+        return new StageSelectionBox(title, stage==null?0:stage.getX() + (stage.getWidth() / 2) - (SCENE_WIDTH / 2), stage==null?0:stage.getY() + (stage.getHeight() / 2) - (SCENE_HEIGHT / 2), stage, scenicView);
     }
 
 }
