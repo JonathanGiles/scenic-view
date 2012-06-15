@@ -125,7 +125,7 @@ public class StageSelectionBox {
             scenicView.close();
         }
         ScenicView.show(stage.getScene());
-        stage.close();
+        this.stage.close();
     }
 
     public static StageSelectionBox make(final String title, final Stage stage) {
