@@ -1547,7 +1547,7 @@ public class ScenicView extends Region {
         if(add) {
             tracker = new PropertyTracker() {
                 
-                @Override protected void updateDetail(final String propertyName, final ObservableValue property) {
+                @Override protected void updateDetail(final String propertyName, @SuppressWarnings("rawtypes") final ObservableValue property) {
                     /**
                      * Remove the bean
                      */

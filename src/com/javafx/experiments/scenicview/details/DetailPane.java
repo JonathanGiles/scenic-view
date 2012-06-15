@@ -48,7 +48,7 @@ public abstract class DetailPane extends TitledPane {
     List<Node> paneNodes = new ArrayList<Node>();
     PropertyTracker tracker = new PropertyTracker() {
 
-        @Override protected void updateDetail(final String propertyName, final ObservableValue property) {
+        @Override protected void updateDetail(final String propertyName, @SuppressWarnings("rawtypes") final ObservableValue property) {
             DetailPane.this.updateDetail(propertyName);
         }
         
@@ -101,7 +101,7 @@ public abstract class DetailPane extends TitledPane {
         }
     }
 
-    @SuppressWarnings("rawtypes") protected boolean doSetTarget(final Object value) {
+    protected boolean doSetTarget(final Object value) {
         if (target == value)
             return false;
 
