@@ -43,124 +43,14 @@ public class ScenicView extends Region {
     static final String SCENIC_VIEW_BASE_ID = "ScenicView.";
 
     public static final Image APP_ICON = DisplayUtils.getUIImage("mglass.gif");
-    static final Image FX_APP_ICON = DisplayUtils.getUIImage("fx.png");
-    public static final String VERSION = "1.1";
-
-    public static void show(final Scene target) {
-        show(target.getRoot());
-    }
-
-    public static void show(final Parent target) {
-        final Stage stage = new Stage();
-        // workaround for RT-10714
-        stage.setWidth(640);
-        stage.setHeight(800);
-        stage.setTitle("Scenic View "+VERSION);
-        show(new ScenicView(target, stage), stage);
-    }
-
-    public static void show(final ScenicView scenicview, final Stage stage) {
-        final Scene scene = new Scene(scenicview);
-        scene.getStylesheets().addAll(STYLESHEETS);
-        stage.setScene(scene);
-        stage.getIcons().add(APP_ICON);
-        if (scenicview.target.getScene() != null && scenicview.target.getScene().getWindow() != null) {
-            final Window targetWindow = scenicview.target.getScene().getWindow();
-            stage.setX(targetWindow.getX() + targetWindow.getWidth());
-            stage.setY(targetWindow.getY());
-            try {
-                // Prevents putting the stage out of the screen
-                final Screen primary = Screen.getPrimary();
-                if (primary != null) {
-                    final Rectangle2D rect = primary.getVisualBounds();
-                    if (stage.getX() + stage.getWidth() > rect.getMaxX()) {
-                        stage.setX(rect.getMaxX() - stage.getWidth());
-                    }
-                    if (stage.getY() + stage.getHeight() > rect.getMaxY()) {
-                        stage.setX(rect.getMaxY() - stage.getHeight());
-                    }
-                }
-            } catch (final Exception e) {
-                e.printStackTrace();
-            }
-        }
-        stage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, new EventHandler<WindowEvent>() {
-            @Override public void handle(final WindowEvent arg0) {
-                Runtime.getRuntime().removeShutdownHook(scenicview.shutdownHook);
-                scenicview.close();
-            }
-        });
-        stage.show();
-    }
-
-    protected BorderPane borderPane;
-    protected MenuBar menuBar;
-    private SplitPane splitPane;
-    private final TreeView<NodeInfo> treeView;
-    private final List<TreeItem<NodeInfo>> treeViewData = new ArrayList<TreeItem<NodeInfo>>();
-    private final ScrollPane scrollPane;
-    private final AllDetailsPane allDetailsPane;
-    private final EventLogPane eventLogPane;
-    private static StatusBar statusBar;
-
-    private final CheckMenuItem showBoundsCheckbox;
-    private final CheckMenuItem showBaselineCheckbox;
-    private final CheckMenuItem showDefaultProperties;
-    private final CheckMenuItem collapseControls;
-    private final CheckMenuItem collapseContentControls;
-
-    private final CheckMenuItem showFilteredNodesInTree;
-    private final CheckMenuItem showNodesIdInTree;
-    private final CheckMenuItem ignoreMouseTransparentNodes;
-    private final CheckMenuItem autoRefreshStyleSheets;
-
-    private StyleSheetRefresher refresher;
-    private final SubWindowChecker windowChecker;
-
-    private Parent overlayParent;
-
-    private final Rectangle boundsInParentRect;
-    private final Rectangle layoutBoundsRect;
-    private final Line baselineLine;
-    private Rectangle componentSelector;
-    private Node componentHighLighter;
-    private RuleGrid grid;
-
-    private Parent target;
-    private Scene targetScene;
-    private Window targetWindow;
-    /**
-     * Simplification for now, only a plain structure for now
-     */
-    private final List<PopupWindow> popupWindows = new ArrayList<PopupWindow>();
-    private final InvalidationListener targetScenePropListener;
-    private final InvalidationListener targetWindowPropListener;
-
-    private Node selectedNode;
-    private TreeItem<NodeInfo> previouslySelectedItem;
-
-    List<NodeFilter> activeNodeFilters = new ArrayList<ScenicView.NodeFilter>();
-
-    private final InvalidationListener selectedNodePropListener;
-
-    private final ListChangeListener<Node> structureInvalidationListener;
-    private final ChangeListener<Boolean> visibilityInvalidationListener;
-    private final Map<Node,PropertyTracker> propertyTrackers = new HashMap<Node, PropertyTracker>();
-
-    VBox leftPane;
-    
-    private final EventHandler<? super MouseEvent> sceneHoverListener = new EventHandler<MouseEvent>() {
-
-        @Override public void handle(final MouseEvent ev) {
-            highlightHovered(ev.getX(), ev.getY());
-        }
-
-    };
-    
-    private static final Map<String, Image> loadedImages = new HashMap<String, Image>();
-    private static final String CUSTOM_NODE_IMAGE = DisplayUtils.getNodeIcon("CustomNode").toString();
+    static final Image FX_APP_ICON = DisplayUtils.getUIImage("fx.png");    
     private static final Image PANEL_NODE_IMAGE = new Image(DisplayUtils.getNodeIcon("Panel").toString());
 
+    public static final String VERSION = "1.1";
+    // the Stage used to show Scenic View
+    private final Stage scenicViewStage;
+    
+    
     Thread shutdownHook = new Thread(){
         @Override
         public void run() {
@@ -169,7 +59,88 @@ public class ScenicView extends Region {
         }
     };
     
-    public ScenicView() {
+    protected BorderPane borderPane;
+    private SplitPane splitPane;
+    private final TreeView<NodeInfo> treeView;
+    private final List<TreeItem<NodeInfo>> treeViewData = new ArrayList<TreeItem<NodeInfo>>();
+    private final ScrollPane scrollPane;
+    private final AllDetailsPane allDetailsPane;
+    private final EventLogPane eventLogPane;
+    private static StatusBar statusBar;
+    VBox leftPane;
+
+    /**
+     * Menu Options
+     */
+    protected MenuBar menuBar;
+    private final CheckMenuItem showBoundsCheckbox;
+    private final CheckMenuItem showBaselineCheckbox;
+    private final CheckMenuItem showDefaultProperties;
+    private final CheckMenuItem collapseControls;
+    private final CheckMenuItem collapseContentControls;
+    private final CheckMenuItem showFilteredNodesInTree;
+    private final CheckMenuItem showNodesIdInTree;
+    private final CheckMenuItem ignoreMouseTransparentNodes;
+    private final CheckMenuItem autoRefreshStyleSheets;
+
+    private StyleSheetRefresher refresher;
+    private final SubWindowChecker windowChecker;
+
+    /**
+     * Special nodes included in target stages
+     */
+    private final Rectangle boundsInParentRect;
+    private final Rectangle layoutBoundsRect;
+    private final Line baselineLine;
+    private Rectangle componentSelector;
+    private Node componentHighLighter;
+    private RuleGrid grid;
+
+    private Parent overlayParent;
+    private Parent target;
+    private Scene targetScene;
+    private Window targetWindow;
+    /**
+     * Simplification for now, only a plain structure for now
+     */
+    private final List<PopupWindow> popupWindows = new ArrayList<PopupWindow>();
+    
+    private Node selectedNode;
+    private TreeItem<NodeInfo> previouslySelectedItem;
+    private TreeItem<NodeInfo> previousHightLightedData;
+
+    List<NodeFilter> activeNodeFilters = new ArrayList<NodeFilter>();
+    
+    /**
+     * Listeners and EventHandlers
+     */
+    private final EventHandler<? super Event> traceEventHandler = new EventHandler<Event>() {
+
+        @Override public void handle(final Event event) {
+            if(eventLogPane.isActive()) {
+                eventLogPane.trace((Node)event.getSource(), event.getEventType().toString(), "");
+            }
+        }
+    };
+    
+    private final EventHandler<? super MouseEvent> sceneHoverListener = new EventHandler<MouseEvent>() {
+
+        @Override public void handle(final MouseEvent ev) {
+            highlightHovered(ev.getX(), ev.getY());
+        }
+
+    };
+
+    private final ListChangeListener<Node> structureInvalidationListener;
+    private final ChangeListener<Boolean> visibilityInvalidationListener;
+    private final InvalidationListener selectedNodePropListener;
+    private final InvalidationListener targetScenePropListener;
+    private final InvalidationListener targetWindowPropListener;
+    
+    private final Map<Node,PropertyTracker> propertyTrackers = new HashMap<Node, PropertyTracker>();
+    
+
+    public ScenicView(final Parent target, final Stage stage) {
         Persistence.loadProperties();
         Runtime.getRuntime().addShutdownHook(shutdownHook);
         setId("scenic-view");
@@ -222,13 +193,13 @@ public class ScenicView extends Region {
                 close();
                 // TODO Why closing the Stage does not dispatch
                 // WINDOW_CLOSE_REQUEST??
-                getStage().close();
+                scenicViewStage.close();
             }
         });
         final MenuItem findStageItem = new MenuItem("Find Stages");
         findStageItem.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(final ActionEvent arg0) {
-                StageSelectionBox.make("Find Stages", stage);
+                StageSelectionBox.make("Find Stages", scenicViewStage);
             }
         });
 
@@ -344,7 +315,7 @@ public class ScenicView extends Region {
                         @Override public void handle(final MouseEvent ev) {
                             componentSelectOnClick.setSelected(false);
                             findDeepSelection(ev.getX(), ev.getY());
-                            getStage().toFront();
+                            scenicViewStage.toFront();
                         }
                     });
                     rect.setManaged(false);
@@ -437,7 +408,7 @@ public class ScenicView extends Region {
         help.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override public void handle(final ActionEvent arg0) {
-                HelpBox.make("Help Contents", HELP_URL, stage);
+                HelpBox.make("Help Contents", HELP_URL, scenicViewStage);
             }
         });
 
@@ -445,7 +416,7 @@ public class ScenicView extends Region {
         about.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override public void handle(final ActionEvent arg0) {
-                AboutBox.make("About", stage);
+                AboutBox.make("About", scenicViewStage);
             }
         });
 
@@ -638,14 +609,7 @@ public class ScenicView extends Region {
             }
         };
 
-        traceEventHandler = new EventHandler<Event>() {
-
-            @Override public void handle(final Event event) {
-                if(eventLogPane.isActive()) {
-                    eventLogPane.trace((Node)event.getSource(), event.getEventType().toString(), "");
-                }
-            }
-        };
+        
         visibilityInvalidationListener = new ChangeListener<Boolean>() {
 
             @Override public void changed(final ObservableValue<? extends Boolean> observable, final Boolean arg1, final Boolean newValue) {
@@ -660,7 +624,7 @@ public class ScenicView extends Region {
 //                        System.out.println("Post:"+index+" bean:"+bean+" node:"+node+" selected:"+getSelectedNode());
                         statusBar.updateNodeCount(targetScene);
                     } else if (filteringActive && newValue) {
-                    	addNewNode(bean);
+                        addNewNode(bean);
                         statusBar.updateNodeCount(targetScene);
                     } else {
                         /**
@@ -679,12 +643,12 @@ public class ScenicView extends Region {
                 if (automaticScenegraphStructureRefreshing.isSelected()) {
                     while (c.next()) {
                         for (final Node dead : c.getRemoved()) {
-                        	eventLogPane.trace(dead, EventLogPane.NODE_REMOVED, "");
+                            eventLogPane.trace(dead, EventLogPane.NODE_REMOVED, "");
                             
                             removeTreeItem(dead, true, false);
                         }
                         for (final Node alive : c.getAddedSubList()) {
-                        	eventLogPane.trace(alive, EventLogPane.NODE_ADDED, "");
+                            eventLogPane.trace(alive, EventLogPane.NODE_ADDED, "");
                             
                             addNewNode(alive);
                         }
@@ -693,66 +657,12 @@ public class ScenicView extends Region {
                 }
             }
         };
-    }
-
-    private void addNewNode(final Node alive) {
-        final TreeItem<NodeInfo> selected = treeView.getSelectionModel().getSelectedItem();
-        final TreeItem<NodeInfo> TreeItem = createTreeItem(alive, false);
-        // childItems[x] could be null because of bounds
-        // rectangles or filtered nodes
-        if (TreeItem != null) {
-            final Parent parent = alive.getParent();
-            @SuppressWarnings("unchecked") final TreeItem<NodeInfo> parentTreeItem = (TreeItem<NodeInfo>) parent.getProperties().get(SCENIC_VIEW_BASE_ID + "TreeItem");
-
-            /**
-             * In some situations node could be previously added
-             */
-            final List<TreeItem<NodeInfo>> actualNodes = parentTreeItem.getChildren();
-            boolean found = false;
-            for (final TreeItem<NodeInfo> node : actualNodes) {
-                if (node.getValue().getNode() == alive) {
-                    found = true;
-                }
-
-            }
-            if (!found) {
-                parentTreeItem.getChildren().add(TreeItem);
-            }
-        }
-        if(selected != null) {
-            // Ugly workaround
-            treeView.getSelectionModel().select(selected);
-        }
-    }
-
-    protected void filterProperties(final String text) {
-        allDetailsPane.filterProperties(text);
-    }
-
-    public ScenicView(final Parent target, final Stage stage) {
-        this();
         setTarget(target);
-        setStage(stage);
-    }
-
-    // the Stage used to show Scenic View
-    private Stage stage;
-    private TreeItem<NodeInfo> previousHightLightedData;
-    private EventHandler<? super Event> traceEventHandler;
-
-    private Stage getStage() {
-        return stage;
-    }
-
-    private void setStage(final Stage stage) {
-        this.stage = stage;
+        this.scenicViewStage = stage;
         Persistence.loadProperty("stageWidth", stage, 640);
         Persistence.loadProperty("stageHeight", stage, 800);
     }
 
-    public Parent getTarget() {
-        return target;
-    }
 
     public void setTarget(final Parent value) {
         if (target != value) {
@@ -887,7 +797,7 @@ public class ScenicView extends Region {
             node.removeEventFilter(Event.ANY, traceEventHandler);
             node.addEventFilter(Event.ANY, traceEventHandler);
         }
-        final NodeData nodeData = new NodeData(node);
+        final NodeData nodeData = new NodeData(node, showNodesIdInTree.isSelected());
         final TreeItem<NodeInfo> treeItem = new TreeItem<NodeInfo>(nodeData, new ImageView(nodeData.getIcon()));
         if (nodeData.node == selectedNode) {
             previouslySelectedItem = treeItem;
@@ -952,9 +862,43 @@ public class ScenicView extends Region {
         }
     }
 
+    private void addNewNode(final Node alive) {
+        final TreeItem<NodeInfo> selected = treeView.getSelectionModel().getSelectedItem();
+        final TreeItem<NodeInfo> TreeItem = createTreeItem(alive, false);
+        // childItems[x] could be null because of bounds
+        // rectangles or filtered nodes
+        if (TreeItem != null) {
+            final Parent parent = alive.getParent();
+            @SuppressWarnings("unchecked") final TreeItem<NodeInfo> parentTreeItem = (TreeItem<NodeInfo>) parent.getProperties().get(SCENIC_VIEW_BASE_ID + "TreeItem");
+
+            /**
+             * In some situations node could be previously added
+             */
+            final List<TreeItem<NodeInfo>> actualNodes = parentTreeItem.getChildren();
+            boolean found = false;
+            for (final TreeItem<NodeInfo> node : actualNodes) {
+                if (node.getValue().getNode() == alive) {
+                    found = true;
+                }
+
+            }
+            if (!found) {
+                parentTreeItem.getChildren().add(TreeItem);
+            }
+        }
+        if(selected != null) {
+            // Ugly workaround
+            treeView.getSelectionModel().select(selected);
+        }
+    }
+
+    protected void filterProperties(final String text) {
+        allDetailsPane.filterProperties(text);
+    }
+    
     private void removeTreeItem(final Node node, final boolean removeVisibilityListener, final boolean updateCount) {
         TreeItem<NodeInfo> selected = null;
-        if (getSelectedNode() == node) {
+        if (selectedNode == node) {
             treeView.getSelectionModel().clearSelection();
             setSelectedNode(null);
         }
@@ -1001,11 +945,7 @@ public class ScenicView extends Region {
 		}
     }
 
-    public Node getSelectedNode() {
-        return selectedNode;
-    }
-
-    public void setSelectedNode(final Node value) {
+    private void setSelectedNode(final Node value) {
         if (value != selectedNode) {
             storeSelectedNode(value);
             eventLogPane.setSelectedNode(value);
@@ -1031,28 +971,20 @@ public class ScenicView extends Region {
 
     }
 
-    public void setShowBounds(final boolean value) {
+    private void setShowBounds(final boolean value) {
         if (value != showBoundsCheckbox.isSelected()) {
             showBoundsCheckbox.setSelected(value);
             updateBoundsRects();
         }
     }
 
-    public boolean isShowBounds() {
-        return showBoundsCheckbox.isSelected();
-    }
-
-    public void setShowBaseline(final boolean value) {
+    private void setShowBaseline(final boolean value) {
         if (value != showBaselineCheckbox.isSelected()) {
             showBaselineCheckbox.setSelected(value);
             updateBaseline();
         }
     }
-
-    public boolean isShowBaseline() {
-        return showBaselineCheckbox.isSelected();
-    }
-
+    
     private void updateBoundsRects() {
         /**
          * By node layout bounds only on main scene not on popups
@@ -1197,11 +1129,6 @@ public class ScenicView extends Region {
                     clearStatusText();
             }
         });
-        // filterField.setOnAction(new EventHandler<ActionEvent>() {
-        // @Override public void handle(final ActionEvent ev) {
-        // storeTarget(target);
-        // }
-        // });
         return filterField;
     }
 
@@ -1339,128 +1266,6 @@ public class ScenicView extends Region {
         layoutInArea(borderPane, getPadding().getLeft(), getPadding().getTop(), getWidth() - getPadding().getLeft() - getPadding().getRight(), getHeight() - getPadding().getTop() - getPadding().getBottom(), 0, HPos.LEFT, VPos.TOP);
     }
 
-    // Need this to prevent the tree from using the node as the display!
-    class NodeData implements NodeInfo {
-
-        
-
-        public Node node;
-        /**
-         * Flag to indicate that this node is not valid for the filters but it's
-         * kept only to indicate the structure of lower accepted nodes + Node
-         * (Invalid) + Node (Invalid) + Node (Valid for filter)
-         */
-        public boolean invalidForFilter;
-        ObservableList<Node> children;
-
-        public NodeData(final Node node) {
-            this.node = node;
-        }
-
-        @Override public String toString() {
-            return DisplayUtils.nodeDetail(node, showNodesIdInTree.isSelected());
-        }
-
-        @Override public boolean isVisible() {
-            return isNodeVisible(node);
-        }
-
-        private boolean isNodeVisible(final Node node) {
-            return DisplayUtils.isNodeVisible(node);
-        }
-
-        @Override public boolean isMouseTransparent() {
-            return isMouseTransparent(node);
-        }
-
-        private boolean isMouseTransparent(final Node node) {
-            if (node == null) {
-                return false;
-            } else {
-                return node.isMouseTransparent() || isMouseTransparent(node.getParent());
-            }
-        }
-
-        private Image getIcon() {
-            final URL resource = DisplayUtils.getNodeIcon(nodeClass(node));
-            String url;
-            if (resource != null) {
-                url = resource.toString();
-            } else {
-                url = CUSTOM_NODE_IMAGE;
-            }
-            Image image = loadedImages.get(url);
-            if (image == null) {
-                image = new Image(url);
-                loadedImages.put(url, image);
-            }
-            return image;
-        }
-
-        @Override public Node getNode() {
-            return node;
-        }
-
-        @Override public boolean isInvalidForFilter() {
-            return invalidForFilter;
-        }
-    }
-
-    interface NodeFilter {
-        /**
-         * Checks if the node is accepted for this filter
-         * 
-         * @param node
-         * @return
-         */
-        public boolean accept(Node node);
-
-        /**
-         * Checks if the children could be accepted even though this node is
-         * rejected
-         * 
-         * @return
-         */
-        public boolean allowChildrenOnRejection();
-
-        /**
-         * Flag to hide always nodes
-         * 
-         * @return
-         */
-        public boolean ignoreShowFilteredNodesInTree();
-        
-        /**
-         * Flag to indicate if all the nodes must be expanded on filtering
-         * @return
-         */
-        public boolean expandAllNodes();
-
-    }
-
-    private static class CustomTreeCell extends TreeCell<NodeInfo> {
-        @Override public void updateItem(final NodeInfo item, final boolean empty) {
-            super.updateItem(item, empty);
-            
-            if (getTreeItem() != null) {
-                setGraphic(getTreeItem().getGraphic());
-            }
-
-            if (item != null) {
-                setText(item.toString());
-                setOpacity(1);
-            }
-
-            if (item != null && (!item.isVisible() || item.isInvalidForFilter())) {
-                setOpacity(0.3);
-            }
-
-            if (item != null && item.getNode() != null && item.getNode().isFocused()) {
-                setTextFill(Color.RED);
-            }
-        }
-    }
-
     public final BorderPane getBorderPane() {
         return borderPane;
     }
@@ -1559,4 +1364,53 @@ public class ScenicView extends Region {
             propertyTrackers.put(node, tracker);
         }
     }
+    
+
+    public static void show(final Scene target) {
+        show(target.getRoot());
+    }
+
+    public static void show(final Parent target) {
+        final Stage stage = new Stage();
+        // workaround for RT-10714
+        stage.setWidth(640);
+        stage.setHeight(800);
+        stage.setTitle("Scenic View "+VERSION);
+        show(new ScenicView(target, stage), stage);
+    }
+
+    public static void show(final ScenicView scenicview, final Stage stage) {
+        final Scene scene = new Scene(scenicview);
+        scene.getStylesheets().addAll(STYLESHEETS);
+        stage.setScene(scene);
+        stage.getIcons().add(APP_ICON);
+        if (scenicview.target.getScene() != null && scenicview.target.getScene().getWindow() != null) {
+            final Window targetWindow = scenicview.target.getScene().getWindow();
+            stage.setX(targetWindow.getX() + targetWindow.getWidth());
+            stage.setY(targetWindow.getY());
+            try {
+                // Prevents putting the stage out of the screen
+                final Screen primary = Screen.getPrimary();
+                if (primary != null) {
+                    final Rectangle2D rect = primary.getVisualBounds();
+                    if (stage.getX() + stage.getWidth() > rect.getMaxX()) {
+                        stage.setX(rect.getMaxX() - stage.getWidth());
+                    }
+                    if (stage.getY() + stage.getHeight() > rect.getMaxY()) {
+                        stage.setX(rect.getMaxY() - stage.getHeight());
+                    }
+                }
+            } catch (final Exception e) {
+                e.printStackTrace();
+            }
+        }
+        stage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, new EventHandler<WindowEvent>() {
+            @Override public void handle(final WindowEvent arg0) {
+                Runtime.getRuntime().removeShutdownHook(scenicview.shutdownHook);
+                scenicview.close();
+            }
+        });
+        stage.show();
+    }
+
 }
