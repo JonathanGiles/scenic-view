@@ -112,6 +112,7 @@ public class DisplayUtils {
         return c;
     }
     
+    @SuppressWarnings("rawtypes")
     public static void fillProperties(final Node target, final Map<ObservableValue,String> properties) {
         // Using reflection, locate all properties and their corresponding
         // property references
