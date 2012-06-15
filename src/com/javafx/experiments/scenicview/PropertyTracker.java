@@ -7,9 +7,10 @@ import javafx.beans.*;
 import javafx.beans.Observable;
 import javafx.beans.value.ObservableValue;
 
+@SuppressWarnings("rawtypes") 
 public abstract class PropertyTracker {
 
-    @SuppressWarnings("rawtypes") Map<ObservableValue, String> properties = new HashMap<ObservableValue, String>();
+    Map<ObservableValue, String> properties = new HashMap<ObservableValue, String>();
     private final InvalidationListener propListener;
     
     public PropertyTracker() {
