@@ -88,13 +88,6 @@ public class ScenicView extends Region {
                 scenicview.close();
             }
         });
-        scenicview.splitPane.getDividers().get(0).positionProperty().addListener(new ChangeListener<Number>() {
-
-            @Override public void changed(final ObservableValue<? extends Number> arg0, final Number oldValue, final Number newValue) {
-                System.out.println("Divider changed from:"+oldValue+" to:"+newValue.doubleValue());
-                new Exception().printStackTrace();
-            }
-        });
         stage.show();
     }
 
@@ -255,6 +248,7 @@ public class ScenicView extends Region {
         boundsInParentRect.setFill(Color.YELLOW);
         boundsInParentRect.setOpacity(.5);
         boundsInParentRect.setManaged(false);
+        boundsInParentRect.setMouseTransparent(true);
         layoutBoundsRect = new Rectangle();
         layoutBoundsRect.setId(SCENIC_VIEW_BASE_ID + "layoutBoundsRect");
         layoutBoundsRect.setFill(null);
@@ -264,6 +258,7 @@ public class ScenicView extends Region {
         layoutBoundsRect.getStrokeDashArray().addAll(3.0, 3.0);
         layoutBoundsRect.setStrokeWidth(1);
         layoutBoundsRect.setManaged(false);
+        layoutBoundsRect.setMouseTransparent(true);
 
         showDefaultProperties = buildCheckMenuItem("Show Default Properties", "Show default properties", "Hide default properties", "showDefaultProperties", Boolean.TRUE);
         showDefaultProperties.selectedProperty().addListener(new InvalidationListener() {
@@ -656,7 +651,11 @@ public class ScenicView extends Region {
                     @SuppressWarnings("unchecked") final Node bean = (Node) ((Property<Boolean>) observable).getBean();
                     final boolean filteringActive = !showInvisibleNodes.isSelected() && !showFilteredNodesInTree.isSelected();
                     if (filteringActive && !newValue) {
+//                        final int index = treeView.getSelectionModel().getSelectedIndex();
+//                        final NodeInfo node = treeView.getSelectionModel().getSelectedItem()!=null?treeView.getSelectionModel().getSelectedItem().getValue():null;
+//                        System.out.println("Previous:"+index+" bean:"+bean+" treeNode:"+node+" selected:"+getSelectedNode());
                         removeTreeItem(bean, false, false);
+//                        System.out.println("Post:"+index+" bean:"+bean+" node:"+node+" selected:"+getSelectedNode());
                         statusBar.updateNodeCount(targetScene);
                     } else if (filteringActive && newValue) {
                     	addNewNode(bean);
@@ -678,12 +677,12 @@ public class ScenicView extends Region {
                 if (automaticScenegraphStructureRefreshing.isSelected()) {
                     while (c.next()) {
                         for (final Node dead : c.getRemoved()) {
-                        	eventLogPane.trace(dead, "NODE_REMOVED", "removed");
+                        	eventLogPane.trace(dead, EventLogPane.NODE_REMOVED, "");
                             
                             removeTreeItem(dead, true, false);
                         }
                         for (final Node alive : c.getAddedSubList()) {
-                        	eventLogPane.trace(alive, "NODE_ADDED", "added");
+                        	eventLogPane.trace(alive, EventLogPane.NODE_ADDED, "");
                             
                             addNewNode(alive);
                         }
@@ -695,7 +694,7 @@ public class ScenicView extends Region {
     }
 
     private void addNewNode(final Node alive) {
-
+        final TreeItem<NodeInfo> selected = treeView.getSelectionModel().getSelectedItem();
         final TreeItem<NodeInfo> TreeItem = createTreeItem(alive, false);
         // childItems[x] could be null because of bounds
         // rectangles or filtered nodes
@@ -717,6 +716,10 @@ public class ScenicView extends Region {
             if (!found) {
                 parentTreeItem.getChildren().add(TreeItem);
             }
+        }
+        if(selected != null) {
+            // Ugly workaround
+            treeView.getSelectionModel().select(selected);
         }
     }
 
@@ -949,9 +952,14 @@ public class ScenicView extends Region {
     }
 
     private void removeTreeItem(final Node node, final boolean removeVisibilityListener, final boolean updateCount) {
+        TreeItem<NodeInfo> selected = null;
         if (getSelectedNode() == node) {
             treeView.getSelectionModel().clearSelection();
             setSelectedNode(null);
+        }
+        else {
+            // Ugly workaround
+            selected = treeView.getSelectionModel().getSelectedItem();
         }
         @SuppressWarnings("unchecked") final TreeItem<NodeInfo> treeItem = (TreeItem<NodeInfo>) node.getProperties().get(SCENIC_VIEW_BASE_ID + "TreeItem");
         final List<TreeItem<NodeInfo>> treeItemChildren = treeItem.getChildren();
@@ -983,6 +991,10 @@ public class ScenicView extends Region {
             treeItem.getParent().getChildren().remove(treeItem);
         }
         treeViewData.remove(treeItem);
+        if(selected!=null) {
+         // Ugly workaround
+            treeView.getSelectionModel().select(selected);
+        }
         if(updateCount) {
             statusBar.updateNodeCount(targetScene);
 		}
@@ -1538,7 +1550,7 @@ public class ScenicView extends Region {
                     /**
                      * Remove the bean
                      */
-                    eventLogPane.trace(node, "PROPERTY_CHANGED", propertyName+"="+property.getValue());
+                    eventLogPane.trace(node, EventLogPane.PROPERTY_CHANGED, propertyName+"="+property.getValue());
                    
                 }
             };
