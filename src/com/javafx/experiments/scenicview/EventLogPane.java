@@ -17,6 +17,11 @@ import javafx.stage.Stage;
 
 public class EventLogPane extends VBox {
 
+    public static final String PROPERTY_CHANGED = "PROPERTY_CHANGED";
+    public static final String OTHER_EVENTS = "OTHER_EVENTS";
+    public static final String NODE_REMOVED = "NODE_REMOVED";
+    public static final String NODE_ADDED = "NODE_ADDED";
+    
     TableView<ScenicViewEvent> table = new TableView<ScenicViewEvent>();
     ChoiceBox<String> showStack = new ChoiceBox<String>();
     CheckBox activateTrace = new CheckBox();
@@ -26,6 +31,7 @@ public class EventLogPane extends VBox {
     TextField idFilterField;
     Label selectedNodeLabel = new Label("Filtering from current selection: None");
     Node selectedNode;
+    final ListView<String> eventsList;
 
     @SuppressWarnings("unchecked")
     public EventLogPane() {
@@ -128,9 +134,12 @@ public class EventLogPane extends VBox {
 
             }
         });
-        final ListView<String> events = new ListView<String>();
-        events.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        eventsList = new ListView<String>();
+        eventsList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         final ObservableList<String> items = FXCollections.observableArrayList();
+        items.add(NODE_ADDED);
+        items.add(NODE_REMOVED);
+        items.add(PROPERTY_CHANGED);
         items.add(MouseEvent.MOUSE_ENTERED.toString());
         items.add(MouseEvent.MOUSE_ENTERED_TARGET.toString());
         items.add(MouseEvent.MOUSE_EXITED.toString());
@@ -138,8 +147,14 @@ public class EventLogPane extends VBox {
         items.add(MouseEvent.MOUSE_MOVED.toString());
         items.add(MouseEvent.MOUSE_PRESSED.toString());
         items.add(MouseEvent.MOUSE_RELEASED.toString());
-        events.setItems(items);
-        events.setPrefWidth(160);
+        items.add(MouseEvent.DRAG_DETECTED.toString());
+        items.add(MouseEvent.MOUSE_CLICKED.toString());
+        items.add(KeyEvent.KEY_PRESSED.toString());
+        items.add(KeyEvent.KEY_RELEASED.toString());
+        items.add(KeyEvent.KEY_TYPED.toString());
+        items.add(OTHER_EVENTS);
+        eventsList.setItems(items);
+        eventsList.setPrefWidth(160);
         
         GridPane.setHgrow(idFilterField, Priority.ALWAYS);
         GridPane.setHgrow(b1, Priority.NEVER);
@@ -149,7 +164,7 @@ public class EventLogPane extends VBox {
         filtersGridPane.add(new Label("Enable:"), 1, 1);
         filtersGridPane.add(activateTrace, 2, 1, 1, 1);
         filtersGridPane.add(new Label("Valid Events"), 4, 1, 1, 1);
-        filtersGridPane.add(events, 4, 2, 1, 3);
+        filtersGridPane.add(eventsList, 4, 2, 1, 3);
         filtersGridPane.add(new Label("Text Filter:"), 1, 2);
         filtersGridPane.add(idFilterField, 2, 2);
         filtersGridPane.add(b1, 3, 2);
@@ -174,7 +189,7 @@ public class EventLogPane extends VBox {
 
     public void trace(final Node source, final String eventType, final String eventValue) {
         if (isActive()) {
-            if(checkValid(source)) {
+            if(checkValid(source)&&checkValidEventType(eventType)) {
                 final String sourceId = DisplayUtils.nodeDetail(source, true);
                 final ScenicViewEvent event = new ScenicViewEvent(sourceId, eventType, eventValue);
                 addToFiltered(event);
@@ -183,6 +198,15 @@ public class EventLogPane extends VBox {
         }
     }
     
+    private boolean checkValidEventType(final String eventType) {
+        if(eventsList.getItems().contains(eventType)) {
+            return eventsList.getSelectionModel().getSelectedItems().contains(eventType);
+        }
+        else {
+            return eventsList.getSelectionModel().getSelectedItems().contains(OTHER_EVENTS);
+        }
+    }
+
     private void addToFiltered(final ScenicViewEvent event) {
         if (validForFilter(event)) {
             filteredEvents.add(event);
@@ -248,8 +272,6 @@ public class EventLogPane extends VBox {
         public String getMoment() {
             return moment;
         }
-        
-        
 
         public void setMoment(final String moment) {
             this.moment = moment;
