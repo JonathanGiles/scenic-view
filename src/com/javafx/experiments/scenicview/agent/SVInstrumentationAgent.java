@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.stage.*;
 
 import com.javafx.experiments.scenicview.*;
+import com.javafx.experiments.scenicview.dialog.StageSelectionBox;
 import com.javafx.experiments.scenicview.helper.*;
 import com.javafx.experiments.scenicview.helper.WindowChecker.WindowFilter;
 

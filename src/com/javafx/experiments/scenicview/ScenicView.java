@@ -29,6 +29,7 @@ import javafx.stage.*;
 import javafx.util.Callback;
 
 import com.javafx.experiments.scenicview.details.AllDetailsPane;
+import com.javafx.experiments.scenicview.dialog.*;
 import com.javafx.experiments.scenicview.helper.*;
 
 /**
@@ -41,8 +42,9 @@ public class ScenicView extends Region {
     static final String STYLESHEETS = "com/javafx/experiments/scenicview/scenicview.css";
     static final String SCENIC_VIEW_BASE_ID = "ScenicView.";
 
-    static final Image APP_ICON = DisplayUtils.getUIImage("mglass.gif");
+    public static final Image APP_ICON = DisplayUtils.getUIImage("mglass.gif");
     static final Image FX_APP_ICON = DisplayUtils.getUIImage("fx.png");
+    public static final String VERSION = "1.1";
 
     public static void show(final Scene target) {
         show(target.getRoot());
@@ -53,7 +55,7 @@ public class ScenicView extends Region {
         // workaround for RT-10714
         stage.setWidth(640);
         stage.setHeight(800);
-        stage.setTitle("Scenic View");
+        stage.setTitle("Scenic View "+VERSION);
         show(new ScenicView(target, stage), stage);
     }
 
@@ -435,7 +437,7 @@ public class ScenicView extends Region {
         help.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override public void handle(final ActionEvent arg0) {
-                HelpNode.make("Help Contents", HELP_URL, stage);
+                HelpBox.make("Help Contents", HELP_URL, stage);
             }
         });
 
@@ -833,7 +835,6 @@ public class ScenicView extends Region {
             addToNode(overlayParent, layoutBoundsRect);
             addToNode(overlayParent, baselineLine);
         }
-
         setTargetScene(target.getScene());
     }
 

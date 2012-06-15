@@ -1,6 +1,8 @@
-package com.javafx.experiments.scenicview;
+package com.javafx.experiments.scenicview.dialog;
 
 import java.util.logging.*;
+
+import com.javafx.experiments.scenicview.DisplayUtils;
 
 import javafx.event.EventHandler;
 import javafx.scene.*;
@@ -9,7 +11,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
 import javafx.stage.*;
 
-public class HelpNode {
+public class HelpBox {
 
     private static final int SCENE_WIDTH = 1024;
     private static final int SCENE_HEIGHT = 768;
@@ -18,7 +20,7 @@ public class HelpNode {
 
     final Stage stage;
 
-    public HelpNode(final String title, final String url, final double x, final double y) {
+    public HelpBox(final String title, final String url, final double x, final double y) {
         final BorderPane pane = new BorderPane();
         pane.setPrefWidth(SCENE_WIDTH);
         pane.setPrefHeight(SCENE_HEIGHT);
@@ -44,7 +46,7 @@ public class HelpNode {
     static Level wLevel;
     static Level wpLevel;
 
-    public static HelpNode make(final String title, final String url, final Stage stage) {
+    public static HelpBox make(final String title, final String url, final Stage stage) {
         /**
          * Ugly patch to remove the visual trace of the WebPane
          */
@@ -55,7 +57,7 @@ public class HelpNode {
         webLogger.setLevel(Level.SEVERE);
         webPltLogger.setLevel(Level.SEVERE);
         
-        final HelpNode node = new HelpNode(title, url, stage.getX() + (stage.getWidth() / 2) - (SCENE_WIDTH / 2), stage.getY() + (stage.getHeight() / 2) - (SCENE_HEIGHT / 2));
+        final HelpBox node = new HelpBox(title, url, stage.getX() + (stage.getWidth() / 2) - (SCENE_WIDTH / 2), stage.getY() + (stage.getHeight() / 2) - (SCENE_HEIGHT / 2));
 
         return node;
     }

@@ -1,4 +1,4 @@
-package com.javafx.experiments.scenicview;
+package com.javafx.experiments.scenicview.dialog;
 
 import javafx.event.*;
 import javafx.geometry.*;
@@ -7,6 +7,8 @@ import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.layout.*;
 import javafx.stage.*;
+
+import com.javafx.experiments.scenicview.*;
 
 public class AboutBox {
     private static final int SCENE_WIDTH = 476;
@@ -66,7 +68,7 @@ public class AboutBox {
     }
 
     private static String getAboutText() {
-        final String text = "JavaFX Scenic View 1.0.1"
+        final String text = "JavaFX Scenic View "+ScenicView.VERSION
                 + "\n"
                 + "\n"
                 + "JavaFX Build Information:"

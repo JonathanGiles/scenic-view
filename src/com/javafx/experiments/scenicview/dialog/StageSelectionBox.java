@@ -1,8 +1,7 @@
-package com.javafx.experiments.scenicview;
+package com.javafx.experiments.scenicview.dialog;
 
 import java.util.List;
 
-import javafx.beans.value.*;
 import javafx.collections.*;
 import javafx.event.*;
 import javafx.geometry.*;
@@ -13,6 +12,7 @@ import javafx.scene.layout.*;
 import javafx.stage.*;
 import javafx.util.Callback;
 
+import com.javafx.experiments.scenicview.ScenicView;
 import com.javafx.experiments.scenicview.helper.*;
 import com.javafx.experiments.scenicview.helper.WindowChecker.WindowFilter;
 
@@ -108,16 +108,6 @@ public class StageSelectionBox {
         this.stage.setX(x);
         this.stage.setY(y);
         this.stage.show();
-        windowList.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
-
-            @Override public void changed(final ObservableValue<? extends Number> arg0, final Number arg1, final Number newValue) {
-//                if(scenicView!=null) {
-//                    scenicView.close();
-//                }
-//                ScenicView.show(stages.get(newValue.intValue()).getScene());
-//                stage.close();
-            }
-        });
     }
     
     private void onSelected(final Stage scenicView, final Stage stage) {
