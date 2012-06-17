@@ -343,7 +343,7 @@ public class ScenicView extends Region {
 
         final Menu ruler = new Menu("Ruler");
         final Slider slider = new Slider(5, 50, 10);
-        final Label sliderValue = new Label();
+        final TextField sliderValue = new TextField();
         slider.valueProperty().addListener(new ChangeListener<Number>() {
 
             @Override public void changed(final ObservableValue<? extends Number> arg0, final Number arg1, final Number newValue) {
@@ -354,7 +354,26 @@ public class ScenicView extends Region {
         final HBox box = new HBox();
         sliderValue.setPrefWidth(40);
         sliderValue.setText(DisplayUtils.format(slider.getValue()));
-        box.getChildren().addAll(sliderValue, slider);
+        sliderValue.setOnAction(new EventHandler<ActionEvent>() {
+            
+            @Override public void handle(final ActionEvent arg0) {
+                final double value = DisplayUtils.parse(sliderValue.getText());
+                if(value >= slider.getMin() && value <= slider.getMax()) {
+                    activeStage.grid.updateSeparation(value);
+                    slider.setValue(value);
+                }
+                else if(value < slider.getMin()) {
+                    sliderValue.setText(DisplayUtils.format(slider.getMin()));
+                    slider.setValue(slider.getMin());
+                }
+                else {
+                    sliderValue.setText(DisplayUtils.format(slider.getMax()));
+                    slider.setValue(slider.getMax());
+                }
+            }
+        });
+        
+        box.getChildren().addAll(slider, sliderValue);
         final CustomMenuItem rulerSlider = new CustomMenuItem(box);
 
         final CheckMenuItem showRuler = buildCheckMenuItem("Show Ruler", "Show ruler in the scene for alignment purposes", "", null, null);

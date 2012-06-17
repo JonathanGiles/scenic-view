@@ -7,7 +7,7 @@ package com.javafx.experiments.scenicview;
 
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.text.DecimalFormat;
+import java.text.*;
 import java.util.*;
 
 import javafx.beans.value.ObservableValue;
@@ -30,6 +30,16 @@ public class DisplayUtils {
     
     public static String format(final double value) {
         return df.format(value);
+    }
+    
+    public static double parse(final String data) {
+        try {
+            return df.parse(data).doubleValue();
+        } catch (final ParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return 10;
+        }
     }
 
     public static String nodeClass(final Object node) {
