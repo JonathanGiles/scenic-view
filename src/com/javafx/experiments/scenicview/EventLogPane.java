@@ -179,7 +179,7 @@ public class EventLogPane extends VBox {
             selectedNodeLabel.setText("Filtering from current selection: "+DisplayUtils.nodeDetail(selectedNode, true));
         }
         else {
-            selectedNodeLabel.setText("Filtering from current selection: None");
+            selectedNodeLabel.setText("Filtering from current selection: Root node");
         }
     }
 
