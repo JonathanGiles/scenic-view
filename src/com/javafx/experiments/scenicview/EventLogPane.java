@@ -62,12 +62,12 @@ public class EventLogPane extends VBox {
                     for (int i = 0; i < newValue.stackTrace.length; i++) {
                         sb.append(newValue.stackTrace[i]).append('\n');
                     }
-                    final int width = 600;
-                    final int height = 400;
+                    final int width = 700;
+                    final int height = 600;
                     final VBox pane = new VBox();
                     final Scene scene = SceneBuilder.create().width(600).height(400).root(pane).stylesheets(ScenicView.STYLESHEETS).build();
 
-                    final Stage stage = StageBuilder.create().style(StageStyle.UTILITY).title("Event StackTrace").build();
+                    final Stage stage = StageBuilder.create().style(StageStyle.UTILITY).title("Event Stacktrace").build();
                     stage.initModality(Modality.APPLICATION_MODAL);
                     stage.setScene(scene);
                     stage.getIcons().add(ScenicView.APP_ICON);
