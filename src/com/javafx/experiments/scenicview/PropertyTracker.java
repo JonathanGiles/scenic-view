@@ -44,7 +44,6 @@ public abstract class PropertyTracker {
                         // Request access
                         method.setAccessible(true);
                         final ObservableValue property = (ObservableValue) method.invoke(target);
-                        // System.out.println("propertyName="+propertyName+".");
                         properties.put(property, propertyName);
                     }
                 } catch (final Exception e) {

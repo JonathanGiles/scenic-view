@@ -575,11 +575,7 @@ public class ScenicView extends Region {
                     @SuppressWarnings("unchecked") final Node bean = (Node) ((Property<Boolean>) observable).getBean();
                     final boolean filteringActive = !showInvisibleNodes.isSelected() && !showFilteredNodesInTree.isSelected();
                     if (filteringActive && !newValue) {
-//                        final int index = treeView.getSelectionModel().getSelectedIndex();
-//                        final NodeInfo node = treeView.getSelectionModel().getSelectedItem()!=null?treeView.getSelectionModel().getSelectedItem().getValue():null;
-//                        System.out.println("Previous:"+index+" bean:"+bean+" treeNode:"+node+" selected:"+getSelectedNode());
                         removeTreeItem(bean, false, false);
-//                        System.out.println("Post:"+index+" bean:"+bean+" node:"+node+" selected:"+getSelectedNode());
                         statusBar.updateNodeCount(activeStage.targetScene);
                     } else if (filteringActive && newValue) {
                         addNewNode(bean);
@@ -661,12 +657,6 @@ public class ScenicView extends Region {
             
             final TreeItem<NodeInfo> app = new TreeItem<NodeInfo>(new DummyNodeInfo(title), new ImageView(targetStageImage));
             app.setExpanded(true);
-            app.addEventHandler(Event.ANY, new EventHandler<Event>() {
-
-                @Override public void handle(final Event arg0) {
-                    System.out.println(arg0);
-                }
-            });
             app.getChildren().add(root);
             if(!activeStage.popupWindows.isEmpty()) {
                 final TreeItem<NodeInfo> subWindows = new TreeItem<NodeInfo>(new DummyNodeInfo("SubWindows"), new ImageView(DisplayUtils.getNodeIcon("Panel").toString()));

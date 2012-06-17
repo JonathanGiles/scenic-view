@@ -29,7 +29,7 @@ public class EventLogPane extends VBox {
     ObservableList<ScenicViewEvent> filteredEvents = FXCollections.observableArrayList();
     SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss.SSS");
     TextField idFilterField;
-    Label selectedNodeLabel = new Label("Filteriong from current selection: Rectangle 'Rect4'");//"Filtering is disabled");
+    Label selectedNodeLabel = new Label("Filtering is disabled");
     Node selectedNode;
     
     @SuppressWarnings("unchecked")
