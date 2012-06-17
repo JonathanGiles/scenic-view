@@ -906,6 +906,9 @@ public class ScenicView extends Region {
         if(showBoundsCheckbox.isSelected()) {
             activeStage.updateBoundsRects(selectedNode);
         }
+        else {
+            activeStage.updateBoundsRects(null);
+        }
     }
 
     private void updateBaseline() {
