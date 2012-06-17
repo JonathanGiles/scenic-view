@@ -1,7 +1,7 @@
 package com.javafx.experiments.scenicview.agent;
 
 import java.lang.instrument.Instrumentation;
-import java.util.List;
+import java.util.*;
 
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -60,7 +60,8 @@ public class SVInstrumentationAgent implements WindowFilter {
                     loadScenicView((Stage)windowList.get(0));
                 } else {
                     // show the Scenic View stage selection dialog
-                    StageSelectionBox.make("Stage selection", null);
+                    final List<StageModel> empty = Collections.emptyList();
+                    StageSelectionBox.make("Stage selection", null, empty);
                 }
 
             }
