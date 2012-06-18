@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.*;
 
+import javafx.application.Platform;
 import javafx.scene.Scene;
 
 public class StyleSheetRefresher extends Thread {
@@ -56,8 +57,14 @@ public class StyleSheetRefresher extends Thread {
                 }
                 if (needsRefresh) {
                     final List<String> styleSheets = new ArrayList<String>(sheets);
-                    scene.getStylesheets().clear();
-                    scene.getStylesheets().addAll(styleSheets);
+                    Platform.runLater(new Runnable(){
+
+                        @Override public void run() {
+                            scene.getStylesheets().clear();
+                            scene.getStylesheets().addAll(styleSheets);
+                        }
+                        
+                    });
                 }
             } catch (final Exception e) {
                 e.printStackTrace();
