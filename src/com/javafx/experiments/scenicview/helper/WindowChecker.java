@@ -34,9 +34,7 @@ public abstract class WindowChecker extends Thread {
         long currentWait = -1;
         List<Window> windows = getValidWindows(filter);
         while (running) {
-            if(!windows.isEmpty()) {
-                onWindowsFound(windows);
-            }
+            onWindowsFound(windows);
             try {
                 if(verbose) {
                     System.out.println("No JavaFX window found - sleeping for " + sleepTime / 1000 + " seconds");

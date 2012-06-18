@@ -31,6 +31,9 @@ public class SVInstrumentationAgent implements WindowFilter {
             
             @Override protected void onWindowsFound(final List<Window> windowList) {
 
+            	if(windowList.isEmpty())
+            		return;
+            	
                 finish();
                 
                 /**
