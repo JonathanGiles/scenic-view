@@ -1,4 +1,4 @@
-package com.javafx.experiments.scenicview.agent;
+package com.javafx.experiments.scenicview.utils;
 
 import java.lang.instrument.Instrumentation;
 import java.util.*;
@@ -22,6 +22,11 @@ public class SVInstrumentationAgent implements WindowFilter {
     
     public static void premain(final String agentArgs, final Instrumentation inst) {
         new SVInstrumentationAgent();
+    }
+    
+    public static void agentmain(String agentArgs, Instrumentation inst) {
+        System.out.println("HIT");
+//        new SVInstrumentationAgent();
     }
     
     private SVInstrumentationAgent() {
