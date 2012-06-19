@@ -179,7 +179,8 @@ public class StageModel {
     }
 
     public void updateSceneDetails() {
-     // hack, since we can't listen for a STAGE prop change on scene
+        // hack, since we can't listen for a STAGE prop change on scene
+        model2gui.updateSceneDetails(this, targetScene);
         if (targetScene != null && targetWindow == null) {
             setTargetWindow(targetScene.getWindow());
         }

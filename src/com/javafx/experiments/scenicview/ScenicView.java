@@ -149,6 +149,11 @@ public class ScenicView extends Region {
         @Override public List<TreeItem<NodeInfo>> getTreeItems() {
             return treeViewData;
         }
+
+        @Override public void updateSceneDetails(final StageModel stageModel, final Scene targetScene) {
+            if(isActive(stageModel))
+                statusBar.updateSceneDetails(targetScene);
+        }
     };
 
     
@@ -939,13 +944,6 @@ public class ScenicView extends Region {
         } else {
             activeStage.updateBaseline(false, null, 0);
         }
-    }
-
-
-
-    private void updateSceneDetails() {
-        statusBar.updateSceneDetails(activeStage.targetScene);
-        activeStage.updateSceneDetails();
     }
 
     private CheckMenuItem buildCheckMenuItem(final String text, final String toolTipSelected, final String toolTipNotSelected, final String property, final Boolean value) {

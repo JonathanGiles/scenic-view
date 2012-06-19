@@ -2,6 +2,7 @@ package com.javafx.experiments.scenicview;
 
 import java.util.List;
 
+import javafx.scene.Scene;
 import javafx.scene.control.TreeItem;
 import javafx.stage.Window;
 
@@ -22,5 +23,7 @@ interface Model2GUI {
     boolean isAutoRefreshStyles();
 
     List<TreeItem<NodeInfo>> getTreeItems();
+
+    void updateSceneDetails(StageModel stageModel, Scene targetScene);
 
 }
