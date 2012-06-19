@@ -24,11 +24,6 @@ public class SVInstrumentationAgent implements WindowFilter {
         new SVInstrumentationAgent();
     }
     
-    public static void agentmain(String agentArgs, Instrumentation inst) {
-        System.out.println("HIT");
-//        new SVInstrumentationAgent();
-    }
-    
     private SVInstrumentationAgent() {
         System.out.println("Starting Scenic View Instrumentation Agent");
         

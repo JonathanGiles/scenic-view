@@ -24,6 +24,7 @@ public class ScenicViewBooter {
         // Test if we can load a class from tools.jar
         try {
             Class.forName("com.sun.tools.attach.AttachNotSupportedException").newInstance();
+            isAttachAPIAvailable = true;
         } catch (final Exception e) {
             // First thing we need to do is try to get the tools.jar file onto 
             // the classpath
