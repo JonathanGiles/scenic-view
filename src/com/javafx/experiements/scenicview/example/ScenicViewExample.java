@@ -153,7 +153,7 @@ public class ScenicViewExample extends Application {
         tilepane.getChildren().addAll(rect1, rect2, rect3, new Group(rect4), b1, b2, listViewTest, new Group(b4), g1, g2, g3, new Group(g4), invisible);
 
         final Scene scene = new Scene(tilepane);
-        scene.getStylesheets().add(getClass().getResource("scenicviewtest.css").toString());
+        //scene.getStylesheets().add(getClass().getResource("scenicviewtest.css").toString());
         stage.setScene(scene);
         stage.show();
         
