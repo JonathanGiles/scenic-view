@@ -1,8 +1,8 @@
 package com.javafx.experiments.scenicview.utils;
 
+import java.io.*;
+
 import com.javafx.experiements.scenicview.example.ScenicViewExample;
-import java.io.File;
-import java.io.IOException;
 
 /**
  *
@@ -10,7 +10,7 @@ import java.io.IOException;
  */
 public class ScenicViewBooter {
     
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         new ScenicViewBooter();
     }
     
@@ -24,7 +24,7 @@ public class ScenicViewBooter {
         // Test if we can load a class from tools.jar
         try {
             Class.forName("com.sun.tools.attach.AttachNotSupportedException").newInstance();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             // First thing we need to do is try to get the tools.jar file onto 
             // the classpath
             updateClassPath();
@@ -33,12 +33,12 @@ public class ScenicViewBooter {
         if (isAttachAPIAvailable) {
             new JavaFXAppFinder();
         } else {
-            ScenicViewExample.launch();
+            ScenicViewExample.main(new String[0]);
         }
     }
     
     private void updateClassPath() {
-        String javaHome = System.getProperty("java.home");
+        final String javaHome = System.getProperty("java.home");
         if (! javaHome.contains("jdk")) {
             System.out.println("Error: No JDK found on system - disabling VM lookup");
             isAttachAPIAvailable = false;
@@ -50,7 +50,7 @@ public class ScenicViewBooter {
         // lib directory to find tools.jar
         System.out.println("JDK found at: " + javaHome);
 
-        File toolsJar = new File(javaHome + "/../lib/tools.jar");
+        final File toolsJar = new File(javaHome + "/../lib/tools.jar");
         if (! toolsJar.exists()) {
             System.out.println("Error: Can not find tools.jar on system - disabling VM lookup");
             isAttachAPIAvailable = false;
@@ -62,7 +62,7 @@ public class ScenicViewBooter {
 
         try {
             ClassPathHacker.addFile(toolsJar);
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             ex.printStackTrace();
             isAttachAPIAvailable = false;
             return;
