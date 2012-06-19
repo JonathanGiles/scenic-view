@@ -1,17 +1,17 @@
 package com.javafx.experiments.scenicview.utils;
 
 
+import com.sun.tools.attach.AttachNotSupportedException;
+import com.sun.tools.attach.VirtualMachine;
+import com.sun.tools.attach.VirtualMachineDescriptor;
 import java.io.*;
 import java.util.*;
 
 import javafx.stage.Stage;
 
-import com.sun.tools.attach.*;
-
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 /**
  *
@@ -19,9 +19,13 @@ import com.sun.tools.attach.*;
  */
 public class JavaFXAppFinder {
     
-    public static final List<Stage> stages = new ArrayList<Stage>();
+    private static final List<Stage> stages = new ArrayList<Stage>();
     
     private static final String JAVAFX_SYSTEM_PROPERTIES_KEY = "javafx.version";
+    
+//    public static void main(final String[] args) {
+//        new JavaFXAppFinder();
+//    }
     
     public List<VirtualMachine> getRunningJavaFXApplications() {
         final List<VirtualMachineDescriptor> machines = VirtualMachine.list();
@@ -47,21 +51,15 @@ public class JavaFXAppFinder {
         return javaFXMachines;
     }
     
-//    public int getPID() {
-//        String name = ManagementFactory.getRuntimeMXBean().getName();
-//        String pidString = name.substring(0, name.indexOf("@"));
-//        return Integer.parseInt(pidString);
-//    }
-    
-    public static void main(final String[] args) {
-        final List<VirtualMachine> machines = new JavaFXAppFinder().getRunningJavaFXApplications();
+    public JavaFXAppFinder() {
+        final List<VirtualMachine> machines = getRunningJavaFXApplications();
         
         for (final Iterator iterator = machines.iterator(); iterator.hasNext();) {
             final VirtualMachine virtualMachine = (VirtualMachine) iterator.next();
             System.out.println(virtualMachine);
         }
         
-        final File f = new File("./dist/ScenicView.jar");
+        final File f = new File("./ScenicView.jar");
         System.out.println(f.getAbsolutePath());
         
         try {

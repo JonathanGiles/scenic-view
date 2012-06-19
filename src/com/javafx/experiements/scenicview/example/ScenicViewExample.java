@@ -1,3 +1,5 @@
+package com.javafx.experiements.scenicview.example;
+
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.

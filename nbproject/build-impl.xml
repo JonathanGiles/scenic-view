@@ -454,6 +454,7 @@ is divided into following sections:
             <jar compress="${jar.compress}" index="${jar.index}" jarfile="${dist.jar}">
                 <j2seproject1:fileset dir="${build.classes.dir}"/>
                 <manifest>
+                    <attribute name="Main-Class" value="com.javafx.experiments.scenicview.utils.ScenicViewBooter"/>
                     <attribute name="Premain-Class" value="com.javafx.experiments.scenicview.utils.SVInstrumentationAgent"/>
                     <attribute name="Agent-Class" value="com.javafx.experiments.scenicview.utils.AgentTest"/>
                 </manifest>
