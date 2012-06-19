@@ -1,16 +1,12 @@
 package com.javafx.experiments.scenicview.utils;
 
 
-import com.sun.jdi.PathSearchingVirtualMachine;
+import java.io.*;
+import java.util.*;
+
+import javafx.stage.Stage;
+
 import com.sun.tools.attach.*;
-import java.io.File;
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /*
  * To change this template, choose Tools | Templates
@@ -22,26 +18,28 @@ import java.util.logging.Logger;
  * @author Jonathan
  */
 public class JavaFXAppFinder {
+    
+    public static final List<Stage> stages = new ArrayList<Stage>();
+    
     private static final String JAVAFX_SYSTEM_PROPERTIES_KEY = "javafx.version";
     
     public List<VirtualMachine> getRunningJavaFXApplications() {
-        List<VirtualMachineDescriptor> machines = VirtualMachine.list();
-        List<VirtualMachine> javaFXMachines = new ArrayList<VirtualMachine>();
+        final List<VirtualMachineDescriptor> machines = VirtualMachine.list();
+        final List<VirtualMachine> javaFXMachines = new ArrayList<VirtualMachine>();
         
         for (int i = 0; i < machines.size(); i++) {
-            VirtualMachineDescriptor vmd = machines.get(i);
+            final VirtualMachineDescriptor vmd = machines.get(i);
             try {
-                VirtualMachine virtualMachine = VirtualMachine.attach(vmd);
-                Map sysPropertiesMap = virtualMachine.getSystemProperties();
-                
+                final VirtualMachine virtualMachine = VirtualMachine.attach(vmd);
+                final Map sysPropertiesMap = virtualMachine.getSystemProperties();
                 if (sysPropertiesMap.containsKey(JAVAFX_SYSTEM_PROPERTIES_KEY)) {
                     javaFXMachines.add(virtualMachine);
                 } else {
                     virtualMachine.detach();
                 }
-            } catch (AttachNotSupportedException ex) {
+            } catch (final AttachNotSupportedException ex) {
                 ex.printStackTrace();
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 ex.printStackTrace();
             }
         }
@@ -55,19 +53,29 @@ public class JavaFXAppFinder {
 //        return Integer.parseInt(pidString);
 //    }
     
-    public static void main(String[] args) {
-        List<VirtualMachine> machines = new JavaFXAppFinder().getRunningJavaFXApplications();
+    public static void main(final String[] args) {
+        final List<VirtualMachine> machines = new JavaFXAppFinder().getRunningJavaFXApplications();
         
-        File f = new File("./dist/ScenicView.jar");
+        for (final Iterator iterator = machines.iterator(); iterator.hasNext();) {
+            final VirtualMachine virtualMachine = (VirtualMachine) iterator.next();
+            System.out.println(virtualMachine);
+        }
+        
+        final File f = new File("./dist/ScenicView.jar");
         System.out.println(f.getAbsolutePath());
         
         try {
-            for (VirtualMachine machine : machines) {
+            for (final VirtualMachine machine : machines) {
+                System.out.println("Loading agent for:"+machine);
                 machine.loadAgent(f.getAbsolutePath());
                 machine.detach();
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
+        }
+        for (final Iterator iterator = stages.iterator(); iterator.hasNext();) {
+            final Stage stage = (Stage) iterator.next();
+            System.out.println(stage);
         }
     }
 }
