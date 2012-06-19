@@ -11,7 +11,7 @@ import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.stage.*;
 
@@ -34,7 +34,7 @@ public class EventLogPane extends VBox {
     
     @SuppressWarnings("unchecked")
     public EventLogPane() {
-        selectedNodeLabel.setMaxWidth(Integer.MAX_VALUE);
+        //selectedNodeLabel.prefWidthProperty().bind(widthProperty().divide(1.1));
         table.setEditable(false);
         table.getStyleClass().add("trace-text-area");
         final TableColumn<ScenicViewEvent,String> sourceCol = new TableColumn<ScenicViewEvent,String>("source");
@@ -54,9 +54,11 @@ public class EventLogPane extends VBox {
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table.setItems(filteredEvents);
         table.setFocusTraversable(false);
-        table.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ScenicViewEvent>() {
+        table.setOnMouseClicked(new EventHandler<MouseEvent>() {
 
-            @Override public void changed(final ObservableValue<? extends ScenicViewEvent> arg0, final ScenicViewEvent arg1, final ScenicViewEvent newValue) {
+            @Override public void handle(final MouseEvent ev) {
+                if(ev.getClickCount()==2) {
+                final ScenicViewEvent newValue = table.getSelectionModel().getSelectedItem();
                 if(newValue != null) {
                     final StringBuilder sb = new StringBuilder();
                     for (int i = 0; i < newValue.stackTrace.length; i++) {
@@ -97,6 +99,7 @@ public class EventLogPane extends VBox {
                     
                     stage.show();
                 }
+            }
             }
         });
         final Button clear = new Button("Clear");
@@ -149,7 +152,10 @@ public class EventLogPane extends VBox {
                 setSelectedNode(selectedNode);
             }
         });
-        
+        /**
+         * This is an ugly fix for what I think is a bug of the gridPane
+         */
+        idFilterField.prefWidthProperty().bind(widthProperty().divide(1.3));
         GridPane.setHgrow(idFilterField, Priority.ALWAYS);
         GridPane.setHgrow(b1, Priority.NEVER);
         GridPane.setHgrow(showStack, Priority.ALWAYS);
