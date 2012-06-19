@@ -155,7 +155,7 @@ public class EventLogPane extends VBox {
         /**
          * This is an ugly fix for what I think is a bug of the gridPane
          */
-        idFilterField.prefWidthProperty().bind(widthProperty().divide(1.3));
+        idFilterField.prefWidthProperty().bind(widthProperty().subtract(105));
         GridPane.setHgrow(idFilterField, Priority.ALWAYS);
         GridPane.setHgrow(b1, Priority.NEVER);
         GridPane.setHgrow(showStack, Priority.ALWAYS);
