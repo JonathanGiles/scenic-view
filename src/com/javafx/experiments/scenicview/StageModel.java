@@ -234,22 +234,27 @@ public class StageModel {
     
 
     private void updateRect(final Node node, final Bounds bounds, final double tx, final double ty, final Rectangle rect) {
+        final Bounds b = toSceneBounds(node, bounds, tx, ty);
+        rect.setX(b.getMinX());
+        rect.setY(b.getMinY());
+        rect.setWidth(b.getMaxX()-b.getMinX());
+        rect.setHeight(b.getMaxY()-b.getMinY());
+    }
+    
+    private Bounds toSceneBounds(final Node node, final Bounds bounds, final double tx, final double ty) {
         final Parent parent = node.getParent();
         if (parent != null) {
             // need to translate position
             final Point2D pt = overlayParent.sceneToLocal(node.getParent().localToScene(bounds.getMinX(), bounds.getMinY()));
-            rect.setX(snapPosition(pt.getX()) + snapPosition(tx));
-            rect.setY(snapPosition(pt.getY()) + snapPosition(ty));
-            rect.setWidth(snapSize(bounds.getWidth()));
-            rect.setHeight(snapSize(bounds.getHeight()));
+            return new BoundingBox(snapPosition(pt.getX()) + snapPosition(tx), 
+                    snapPosition(pt.getY()) + snapPosition(ty)
+                    , snapSize(bounds.getWidth()), snapSize(bounds.getHeight()));
         } else {
             // selected node is root
-            rect.setX(snapPosition(bounds.getMinX()) + snapPosition(tx) + 1);
-            rect.setY(snapPosition(bounds.getMinY()) + snapPosition(ty) + 1);
-            rect.setWidth(snapSize(bounds.getWidth()) - 2);
-            rect.setHeight(snapSize(bounds.getHeight()) - 2);
+            return new BoundingBox(snapPosition(bounds.getMinX()) + snapPosition(tx) + 1, 
+                    snapPosition(bounds.getMinY()) + snapPosition(ty) + 1
+                    , snapSize(bounds.getWidth()) - 2, snapSize(bounds.getHeight()) - 2);
         }
-
     }
     
     private double snapPosition(final double pos) {
@@ -385,9 +390,7 @@ public class StageModel {
             }
             if (nodeData != null && nodeData.getValue().getNode() != null) {
                 final Node node = nodeData.getValue().getNode();
-                final Bounds bounds = node.getBoundsInParent();
-                final Point2D start = node.localToScene(new Point2D(0, 0));
-                componentHighLighter = new ComponentHighLighter(nodeData.getValue(), targetWindow != null ? targetWindow.getWidth() : -1, targetWindow != null ? targetWindow.getHeight() : -1, bounds, start);
+                componentHighLighter = new ComponentHighLighter(nodeData.getValue(), targetWindow != null ? targetWindow.getWidth() : -1, targetWindow != null ? targetWindow.getHeight() : -1, toSceneBounds(node, node.getBoundsInParent(), 0, 0));
                 addToNode(target, componentHighLighter);
             }
         }
@@ -404,14 +407,19 @@ public class StageModel {
         final List<TreeItem<NodeInfo>> infos = model2gui.getTreeItems();
         for (int i = infos.size() - 1; i >= 0; i--) {
             final NodeInfo info = infos.get(i).getValue();
-            final Point2D localPoint = info.getNode().sceneToLocal(x, y);
-            if (info.getNode().contains(localPoint)) {
-                /**
-                 * Mouse Transparent nodes can be ignored
-                 */
-                final boolean selectable = !model2gui.isIgnoreMouseTransparent() || !info.isMouseTransparent();
-                if (selectable) {
-                    return infos.get(i);
+            /**
+             * Discard filtered nodes
+             */
+            if(!info.isInvalidForFilter()) {
+                final Point2D localPoint = info.getNode().sceneToLocal(x, y);
+                if (info.getNode().contains(localPoint)) {
+                    /**
+                     * Mouse Transparent nodes can be ignored
+                     */
+                    final boolean selectable = !model2gui.isIgnoreMouseTransparent() || !info.isMouseTransparent();
+                    if (selectable) {
+                        return infos.get(i);
+                    }
                 }
             }
         }
