@@ -33,7 +33,7 @@ public class EventLogPane extends VBox {
     Node selectedNode;
     
     @SuppressWarnings("unchecked")
-    public EventLogPane() {
+    public EventLogPane(final ScenicView view) {
         //selectedNodeLabel.prefWidthProperty().bind(widthProperty().divide(1.1));
         table.setEditable(false);
         table.getStyleClass().add("trace-text-area");
@@ -150,6 +150,7 @@ public class EventLogPane extends VBox {
 
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean arg2) {
                 setSelectedNode(selectedNode);
+                view.update();
             }
         });
         /**

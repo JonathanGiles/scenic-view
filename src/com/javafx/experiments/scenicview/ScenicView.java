@@ -134,6 +134,7 @@ public class ScenicView extends Region {
             componentSelectOnClick.setSelected(false);
             if (nodeData != null) {
                 treeView.getSelectionModel().select(nodeData);
+                treeView.scrollTo(treeView.getSelectionModel().getSelectedIndex());
             }
             scenicViewStage.toFront();
         }
@@ -209,7 +210,7 @@ public class ScenicView extends Region {
         });
         propertyFilterField.setDisable(true);
 
-        eventLogPane = new EventLogPane();
+        eventLogPane = new EventLogPane(this);
 
         menuBar = new MenuBar();
         // menuBar.setId("main-menubar");
@@ -281,6 +282,14 @@ public class ScenicView extends Region {
         });
 
         final CheckMenuItem automaticScenegraphStructureRefreshing = buildCheckMenuItem("Auto-Refresh Scenegraph", "Scenegraph structure will be automatically updated on change", "Scenegraph structure will NOT be automatically updated on change", "automaticScenegraphStructureRefreshing", Boolean.TRUE);
+        automaticScenegraphStructureRefreshing.selectedProperty().addListener(new ChangeListener<Boolean>() {
+
+            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
+                if(newValue) {
+                    update();
+                }
+            }
+        });
         final CheckMenuItem showInvisibleNodes = buildCheckMenuItem("Show Invisible Nodes In Tree", "Invisible nodes will be faded in the scenegraph tree", "Invisible nodes will not be shown in the scenegraph tree", "showInvisibleNodes", Boolean.FALSE);
         showInvisibleNodes.selectedProperty().addListener(menuTreeChecksListener);
 
@@ -653,6 +662,12 @@ public class ScenicView extends Region {
         stages.add(stageModel);
         stageModel.setModel2gui(stageModelListener);
     }
+    
+    void update() {
+        for (int i = 0; i < stages.size(); i++) {
+            updateStageModel(stages.get(i));
+        }
+    }
  
     private void updateStageModel(final StageModel model) {
         final Parent value = model.target;
@@ -750,7 +765,8 @@ public class ScenicView extends Region {
             propertyTracker(node, true);
             
             node.removeEventFilter(Event.ANY, traceEventHandler);
-            node.addEventFilter(Event.ANY, traceEventHandler);
+            if(eventLogPane.isActive())
+                node.addEventFilter(Event.ANY, traceEventHandler);
         }
         final NodeData nodeData = new NodeData(node, showNodesIdInTree.isSelected());
         final TreeItem<NodeInfo> treeItem = new TreeItem<NodeInfo>(nodeData, new ImageView(nodeData.getIcon()));
@@ -1040,11 +1056,11 @@ public class ScenicView extends Region {
     }
     
     private void propertyTracker(final Node node, final boolean add) {
-        PropertyTracker tracker = propertyTrackers.get(node);
+        PropertyTracker tracker = propertyTrackers.remove(node);
         if(tracker != null) {
             tracker.clear();
         }
-        if(add) {
+        if(add && eventLogPane.isActive()) {
             tracker = new PropertyTracker() {
                 
                 @Override protected void updateDetail(final String propertyName, @SuppressWarnings("rawtypes") final ObservableValue property) {
