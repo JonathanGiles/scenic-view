@@ -8,7 +8,9 @@ import javafx.application.Platform;
 import javafx.stage.*;
 
 import com.javafx.experiments.scenicview.ScenicView;
-import com.javafx.experiments.scenicview.remote.*;
+import com.javafx.experiments.scenicview.connector.*;
+import com.javafx.experiments.scenicview.connector.AppEvent.SVEventType;
+import com.javafx.experiments.scenicview.remote.RemoteApplicationImpl;
 
 public class AgentTest {
     public static void agentmain(final String agentArgs, final Instrumentation instrumentation) {
@@ -35,7 +37,7 @@ public class AgentTest {
                     }
                 });
                 try {
-                    RemoteApplicationImpl.scenicView.dispatchEvent(new RemoteEvent(((Stage) window).getTitle()));
+                    RemoteApplicationImpl.scenicView.dispatchEvent(new AppEvent(SVEventType.EVENT_LOG));
                 } catch (final RemoteException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();

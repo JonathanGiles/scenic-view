@@ -86,6 +86,8 @@ public class ScenicView extends Region {
     
     List<NodeFilter> activeNodeFilters = new ArrayList<NodeFilter>();
     
+    Configuration configuration = new Configuration();
+    
     /**
      * Listeners and EventHandlers
      */
@@ -115,15 +117,6 @@ public class ScenicView extends Region {
             if(isActive(stageModel))
                 statusBar.updateMousePosition(position);
             
-        }
-
-        @Override public void overlayParentNotFound(final StageModel stageModel) {
-            showBoundsCheckbox.setSelected(false);
-            updateBoundsRects();
-            showBoundsCheckbox.setDisable(true);
-            showBaselineCheckbox.setSelected(false);
-            updateBaseline();
-            showBaselineCheckbox.setDisable(true);
         }
 
         @Override public void updateStageModel(final StageModel stageModel) {
@@ -156,6 +149,17 @@ public class ScenicView extends Region {
             if(isActive(stageModel))
                 statusBar.updateSceneDetails(targetScene);
         }
+
+        @Override public void dispatchEvent(final AppEvent appEvent) {
+            switch (appEvent.getType()) {
+            case EVENT_LOG:
+                eventLogPane.trace((EvLogEvent)appEvent);
+                break;
+
+            default:
+                break;
+            }
+        }
     };
 
     
@@ -164,11 +168,6 @@ public class ScenicView extends Region {
      */
     private final ListChangeListener<Node> structureInvalidationListener;
     private final ChangeListener<Boolean> visibilityInvalidationListener;
-    private final InvalidationListener selectedNodePropListener;
-
-    
-    private final Map<Node,PropertyTracker> propertyTrackers = new HashMap<Node, PropertyTracker>();
-
     
     private final List<StageModel> stages = new ArrayList<StageModel>();
     StageModel activeStage;
@@ -243,9 +242,12 @@ public class ScenicView extends Region {
         showBoundsCheckbox.setId("show-bounds-checkbox");
         // showBoundsCheckbox.setTooltip(new
         // Tooltip("Display a yellow highlight for boundsInParent and green outline for layoutBounds."));
-        showBoundsCheckbox.selectedProperty().addListener(new InvalidationListener() {
-            @Override public void invalidated(final Observable arg0) {
-                updateBoundsRects();
+        configuration.setShowBounds(showBoundsCheckbox.isSelected());
+        showBoundsCheckbox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+
+            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
+                configuration.setShowBounds(newValue);
+                configurationUpdated();
             }
         });
         
@@ -276,9 +278,12 @@ public class ScenicView extends Region {
 
         showBaselineCheckbox = buildCheckMenuItem("Show Baseline Overlay", "Display a red line at the current node's baseline offset", "Do not show baseline overlay", "showBaseline", Boolean.FALSE);
         showBaselineCheckbox.setId("show-baseline-overlay");
-        showBaselineCheckbox.selectedProperty().addListener(new InvalidationListener() {
-            @Override public void invalidated(final Observable arg0) {
-                updateBaseline();
+        configuration.setShowBaseline(showBaselineCheckbox.isSelected());
+        showBaselineCheckbox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+
+            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
+                configuration.setShowBaseline(newValue);
+                configurationUpdated();
             }
         });
 
@@ -593,14 +598,6 @@ public class ScenicView extends Region {
         borderPane.setBottom(statusBar);
 
         getChildren().add(borderPane);
-
-
-        selectedNodePropListener = new InvalidationListener() {
-            @Override public void invalidated(final Observable arg0) {
-                updateBoundsRects();
-            }
-        };
-
         
         visibilityInvalidationListener = new ChangeListener<Boolean>() {
 
@@ -651,6 +648,12 @@ public class ScenicView extends Region {
         Persistence.loadProperty("stageHeight", senicViewStage, 800);
     }
 
+    protected void configurationUpdated() {
+        for (int i = 0; i < stages.size(); i++) {
+            stages.get(i).configurationUpdated(configuration);
+        }
+    }
+
     public void addNewStage(final StageModel stageModel)
     {
         if(stages.isEmpty()) {
@@ -699,7 +702,7 @@ public class ScenicView extends Region {
             app.setExpanded(true);
             app.getChildren().add(root);
             if(!activeStage.popupWindows.isEmpty()) {
-                final TreeItem<SVNode> subWindows = new TreeItem<SVNode>(new SVDummyNode("SubWindows"), new ImageView(DisplayUtils.getNodeIcon("Panel").toString()));
+                final TreeItem<SVNode> subWindows = new TreeItem<SVNode>(new SVDummyNode("SubWindows"), new ImageView(DisplayUtils.getNodeIcon("Popup").toString()));
                 for (int i = 0; i < activeStage.popupWindows.size(); i++) {
                     final PopupWindow window = activeStage.popupWindows.get(i);
                     final URL windowIcon = DisplayUtils.getNodeIcon(nodeClass(window));
@@ -762,19 +765,18 @@ public class ScenicView extends Region {
          * Incredibly ugly workaround for the cursor in the TextField that
          * changes its visibility constantly
          */
-        if (node.getId() == null || !node.getId().startsWith(SCENIC_VIEW_BASE_ID)) {
+        if (svNode.getId() == null || !svNode.getId().startsWith(SCENIC_VIEW_BASE_ID)) {
             node.visibleProperty().removeListener(visibilityInvalidationListener);
             node.visibleProperty().addListener(visibilityInvalidationListener);
-            propertyTracker(node, true);
+            activeStage.propertyTracker(node, true);
             
             node.removeEventFilter(Event.ANY, traceEventHandler);
             if(eventLogPane.isActive())
                 node.addEventFilter(Event.ANY, traceEventHandler);
         }
-        final SVNode nodeData = new SVRealNodeAdapter(node);
-        nodeData.setShowId(showNodesIdInTree.isSelected());
-        final TreeItem<SVNode> treeItem = new TreeItem<SVNode>(nodeData, new ImageView(DisplayUtils.getIcon(nodeData)));
-        if (nodeData.equals(selectedNode)) {
+        svNode.setShowId(showNodesIdInTree.isSelected());
+        final TreeItem<SVNode> treeItem = new TreeItem<SVNode>(svNode, new ImageView(DisplayUtils.getIcon(svNode)));
+        if (svNode.equals(selectedNode)) {
             previouslySelectedItem = treeItem;
         }
         /**
@@ -815,7 +817,7 @@ public class ScenicView extends Region {
             /**
              * Mark the node as invalidForFilter
              */
-            nodeData.setInvalidForFilter(true);
+            svNode.setInvalidForFilter(true);
             return treeItem;
         } else if (!nodeAccepted && childrenAccepted) {
             /**
@@ -828,7 +830,7 @@ public class ScenicView extends Region {
                 /**
                  * Mark the node as invalidForFilter
                  */
-                nodeData.setInvalidForFilter(true);
+                svNode.setInvalidForFilter(true);
                 return treeItem;
             }
         } else {
@@ -899,7 +901,7 @@ public class ScenicView extends Region {
         }
         if (nodeData.getImpl() != null && removeVisibilityListener) {
             node.visibleProperty().removeListener(visibilityInvalidationListener);
-            propertyTracker(node, false);
+            activeStage.propertyTracker(node, false);
             node.removeEventFilter(Event.ANY, traceEventHandler);
         }
         // This does not seem to delete the TreeItem from the tree -- only moves
@@ -928,43 +930,12 @@ public class ScenicView extends Region {
     }
 
     private void storeSelectedNode(final Node value) {
-        final Node old = selectedNode;
-        if (old != null) {
-            old.boundsInParentProperty().removeListener(selectedNodePropListener);
-            old.layoutBoundsProperty().removeListener(selectedNodePropListener);
-        }
         selectedNode = value;
         allDetailsPane.setTarget(selectedNode);
         setStatusText("Label on the labels to modify its values. The panel could have different capabilities. When changed the values will be highlighted", 8000);
-
-        if (selectedNode != null) {
-            selectedNode.boundsInParentProperty().addListener(selectedNodePropListener);
-            selectedNode.layoutBoundsProperty().addListener(selectedNodePropListener);
-        }
-        updateBoundsRects();
-        updateBaseline();
-
-    }
-    
-    private void updateBoundsRects() {
-        if(showBoundsCheckbox.isSelected()) {
-            activeStage.updateBoundsRects(selectedNode);
-        }
-        else {
-            activeStage.updateBoundsRects(null);
-        }
+        activeStage.setSelectedNode(new SVRealNodeAdapter(value));
     }
 
-    private void updateBaseline() {
-        if (showBaselineCheckbox.isSelected() && selectedNode != null) {
-            final double baseline = selectedNode.getBaselineOffset();
-            final Bounds bounds = selectedNode.getLayoutBounds();
-            activeStage.updateBaseline(true, selectedNode.localToScene(bounds.getMinX(), bounds.getMinY() + baseline), bounds.getWidth());
-            
-        } else {
-            activeStage.updateBaseline(false, null, 0);
-        }
-    }
 
     private CheckMenuItem buildCheckMenuItem(final String text, final String toolTipSelected, final String toolTipNotSelected, final String property, final Boolean value) {
         final CheckMenuItem menuItem = new CheckMenuItem(text);
@@ -1058,28 +1029,6 @@ public class ScenicView extends Region {
     @Override public ObservableList<Node> getChildren() {
         return super.getChildren();
     }
-    
-    private void propertyTracker(final Node node, final boolean add) {
-        PropertyTracker tracker = propertyTrackers.remove(node);
-        if(tracker != null) {
-            tracker.clear();
-        }
-        if(add && eventLogPane.isActive()) {
-            tracker = new PropertyTracker() {
-                
-                @Override protected void updateDetail(final String propertyName, @SuppressWarnings("rawtypes") final ObservableValue property) {
-                    /**
-                     * Remove the bean
-                     */
-                    eventLogPane.trace(new SVRealNodeAdapter(node), EventLogPane.PROPERTY_CHANGED, propertyName+"="+property.getValue());
-                   
-                }
-            };
-            tracker.setTarget(node);
-            propertyTrackers.put(node, tracker);
-        }
-    }
-    
 
     public static void show(final Scene target) {
         show(target.getRoot());

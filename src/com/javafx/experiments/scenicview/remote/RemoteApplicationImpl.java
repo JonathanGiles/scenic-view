@@ -4,6 +4,9 @@ import java.net.InetAddress;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 
+import com.javafx.experiments.scenicview.connector.*;
+import com.javafx.experiments.scenicview.connector.AppEvent.SVEventType;
+
 public class RemoteApplicationImpl extends RMIBrowserObject implements RemoteApplication
 {
 
@@ -77,7 +80,7 @@ public class RemoteApplicationImpl extends RMIBrowserObject implements RemoteApp
                         e.printStackTrace();
                     }
                     try {
-                        scenicView.dispatchEvent(new RemoteEvent("My test!!!"));
+                        scenicView.dispatchEvent(new AppEvent(SVEventType.EVENT_LOG));
                     } catch (final RemoteException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();

@@ -15,7 +15,7 @@ import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.stage.*;
 
-import com.javafx.experiments.scenicview.connector.SVNode;
+import com.javafx.experiments.scenicview.connector.*;
 
 public class EventLogPane extends VBox {
 
@@ -192,6 +192,10 @@ public class EventLogPane extends VBox {
         }
     }
 
+    public void trace(final EvLogEvent event) {
+        trace(event.getSource(), event.getEventType(), event.getEventValue());
+    }
+    
     public void trace(final SVNode source, final String eventType, final String eventValue) {
         if (isActive()) {
             if(checkValid(source)) {

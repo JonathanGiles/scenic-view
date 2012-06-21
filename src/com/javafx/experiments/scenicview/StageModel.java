@@ -4,6 +4,7 @@ import java.util.*;
 
 import javafx.beans.*;
 import javafx.beans.Observable;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.geometry.*;
 import javafx.scene.*;
@@ -14,7 +15,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.stage.*;
 
-import com.javafx.experiments.scenicview.connector.SVNode;
+import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.helper.StyleSheetRefresher;
 
 public class StageModel {
@@ -46,6 +47,12 @@ public class StageModel {
     private final InvalidationListener targetScenePropListener;
     private final InvalidationListener targetWindowPropListener;
     private final InvalidationListener targetWindowSceneListener;
+    
+    private final InvalidationListener selectedNodePropListener;
+    
+    private final Map<Node,PropertyTracker> propertyTrackers = new HashMap<Node, PropertyTracker>();
+    
+    Configuration configuration = new Configuration();
     
     private final EventHandler<? super MouseEvent> sceneHoverListener = new EventHandler<MouseEvent>() {
 
@@ -80,6 +87,11 @@ public class StageModel {
                     setTarget(targetWindow.getScene().getRoot());
                     update();
                 }
+            }
+        };
+        selectedNodePropListener = new InvalidationListener() {
+            @Override public void invalidated(final Observable arg0) {
+                updateBoundsRects();
             }
         };
         windowChecker = new SubWindowChecker(this);
@@ -223,7 +235,12 @@ public class StageModel {
             /**
              * This should be improved
              */
-            model2gui.overlayParentNotFound(this);
+            configuration.setShowBounds(false);
+            updateBoundsRects();
+            configuration.setShowBounds(true);
+            configuration.setShowBaseline(false);
+            updateBaseline();
+            configuration.setShowBaseline(true);
             
         } else {
             addToNode(overlayParent, boundsInParentRect);
@@ -340,7 +357,7 @@ public class StageModel {
     }
     
 
-    void updateBaseline(final boolean show, final Point2D orig, final double width) {
+    private void updateBaseline(final boolean show, final Point2D orig, final double width) {
         if (show) {
             final Point2D pt = overlayParent.sceneToLocal(orig);
             baselineLine.setStartX(pt.getX());
@@ -436,5 +453,72 @@ public class StageModel {
 
     public boolean canStylesheetsBeRefreshed() {
         return StyleSheetRefresher.canStylesBeRefreshed(targetScene);
+    }
+    
+    public void configurationUpdated(final Configuration configuration) {
+        if(configuration.isShowBaseline()!=this.configuration.isShowBaseline()) {
+            this.configuration.setShowBaseline(configuration.isShowBaseline());
+            updateBaseline();
+        }
+        
+    }
+
+    public void setSelectedNode(final SVRealNodeAdapter svRealNodeAdapter) {
+        final Node old = selectedNode;
+        if (old != null) {
+            old.boundsInParentProperty().removeListener(selectedNodePropListener);
+            old.layoutBoundsProperty().removeListener(selectedNodePropListener);
+        }
+        this.selectedNode = svRealNodeAdapter.getImpl();
+        if (selectedNode != null) {
+            selectedNode.boundsInParentProperty().addListener(selectedNodePropListener);
+            selectedNode.layoutBoundsProperty().addListener(selectedNodePropListener);
+        }
+        updateBoundsRects();
+        updateBaseline();
+    }
+    
+    private Node selectedNode;
+
+    private void updateBaseline() {
+        if (this.configuration.isShowBaseline() && selectedNode != null) {
+            final double baseline = selectedNode.getBaselineOffset();
+            final Bounds bounds = selectedNode.getLayoutBounds();
+            updateBaseline(true, selectedNode.localToScene(bounds.getMinX(), bounds.getMinY() + baseline), bounds.getWidth());
+            
+        } else {
+            updateBaseline(false, null, 0);
+        }
+    }
+    
+    
+    private void updateBoundsRects() {
+        if(this.configuration.isShowBounds()) {
+            updateBoundsRects(selectedNode);
+        }
+        else {
+            updateBoundsRects(null);
+        }
+    }
+
+    
+    void propertyTracker(final Node node, final boolean add) {
+        PropertyTracker tracker = propertyTrackers.remove(node);
+        if(tracker != null) {
+            tracker.clear();
+        }
+        if(add && configuration.isEventLogEnabled()) {
+            tracker = new PropertyTracker() {
+                
+                @Override protected void updateDetail(final String propertyName, @SuppressWarnings("rawtypes") final ObservableValue property) {
+                    /**
+                     * Remove the bean
+                     */
+                    model2gui.dispatchEvent(new EvLogEvent(new SVRealNodeAdapter(node), EventLogPane.PROPERTY_CHANGED, propertyName+"="+property.getValue()));
+                }
+            };
+            tracker.setTarget(node);
+            propertyTrackers.put(node, tracker);
+        }
     }
 }

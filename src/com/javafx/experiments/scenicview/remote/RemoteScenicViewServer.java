@@ -2,6 +2,9 @@ package com.javafx.experiments.scenicview.remote;
 
 import java.rmi.RemoteException;
 
+import com.javafx.experiments.scenicview.connector.*;
+import com.javafx.experiments.scenicview.connector.AppEvent.SVEventType;
+
 
 public class RemoteScenicViewServer {
 
@@ -31,7 +34,7 @@ public class RemoteScenicViewServer {
                         }                           
                     }
                     try {
-                        scenicView.dispatchEvent(new RemoteEvent("Hello from agent"));
+                        scenicView.dispatchEvent(new AppEvent(SVEventType.EVENT_LOG));
                     } catch (final RemoteException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();

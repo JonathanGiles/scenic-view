@@ -4,6 +4,8 @@ import java.net.InetAddress;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 
+import com.javafx.experiments.scenicview.connector.AppEvent;
+
 public class RemoteScenicViewImpl extends RMIBrowserObject implements RemoteScenicView{
 
     RemoteApplication application;
@@ -30,8 +32,8 @@ public class RemoteScenicViewImpl extends RMIBrowserObject implements RemoteScen
         registry.rebind("ScenicView", this);
     }
 
-    @Override public void dispatchEvent(final RemoteEvent event) {
-        System.out.println(event.name);
+    @Override public void dispatchEvent(final AppEvent event) {
+        System.out.println(event.getType());
     }
 
     @Override public void onAgentStarted(final int port) {

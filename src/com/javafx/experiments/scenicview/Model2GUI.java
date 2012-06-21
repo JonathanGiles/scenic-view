@@ -6,15 +6,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.TreeItem;
 import javafx.stage.Window;
 
-import com.javafx.experiments.scenicview.connector.SVNode;
+import com.javafx.experiments.scenicview.connector.*;
 
 interface Model2GUI {
 
     void updateWindowDetails(StageModel stageModel, Window targetWindow);
 
     void updateMousePosition(StageModel stageModel, String string);
-
-    void overlayParentNotFound(StageModel stageModel);
 
     void updateStageModel(StageModel stageModel);
 
@@ -27,5 +25,7 @@ interface Model2GUI {
     List<TreeItem<SVNode>> getTreeItems();
 
     void updateSceneDetails(StageModel stageModel, Scene targetScene);
+    
+    void dispatchEvent(AppEvent appEvent);
 
 }
