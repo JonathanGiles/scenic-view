@@ -7,6 +7,7 @@ package com.javafx.experiements.scenicview.example;
 
 import javafx.application.Application;
 import javafx.beans.property.*;
+import javafx.beans.value.*;
 import javafx.collections.*;
 import javafx.event.*;
 import javafx.geometry.*;
@@ -112,8 +113,23 @@ public class ScenicViewExample extends Application {
         g2.setEffect(shadow);
         final Group g3 = createGroup();
         g3.setRotate(45);
-        final Group g4 = createGroup();
-        g4.setRotate(45);
+        
+        final ObservableList<String> citems = FXCollections.observableArrayList();
+        for (int i = 0; i < 10; i++) {
+            citems.add("Combo content:"+i);
+        }
+        
+        final ComboBox<String> comboTest = new ComboBox<String>();
+        comboTest.setItems(citems);
+        comboTest.setPrefWidth(250);
+        comboTest.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+
+            @Override
+            public void changed(final ObservableValue<? extends String> arg0,
+                    final String arg1, final String newValue) {
+                System.out.println("Changed");
+            }
+        });
 
         final BooleanProperty visible = new SimpleBooleanProperty(true);
         final DoubleProperty pos = new SimpleDoubleProperty(0);
@@ -150,10 +166,10 @@ public class ScenicViewExample extends Application {
         invisible.setId("InvisibleGroup");
         invisible.setVisible(false);
         
-        tilepane.getChildren().addAll(rect1, rect2, rect3, new Group(rect4), b1, b2, listViewTest, new Group(b4), g1, g2, g3, new Group(g4), invisible);
+        tilepane.getChildren().addAll(rect1, rect2, rect3, new Group(rect4), b1, b2, listViewTest, new Group(b4), g1, g2, g3, comboTest, invisible);
 
         final Scene scene = new Scene(tilepane);
-        //scene.getStylesheets().add(getClass().getResource("scenicviewtest.css").toString());
+        scene.getStylesheets().add(ScenicView.STYLESHEETS);
         stage.setScene(scene);
         stage.show();
         

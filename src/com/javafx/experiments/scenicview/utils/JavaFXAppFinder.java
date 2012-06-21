@@ -2,10 +2,12 @@ package com.javafx.experiments.scenicview.utils;
 
 
 import java.io.*;
+import java.rmi.RemoteException;
 import java.util.*;
 
 import javafx.stage.Stage;
 
+import com.javafx.experiments.scenicview.remote.RemoteScenicViewImpl;
 import com.sun.tools.attach.*;
 
 /**
@@ -43,6 +45,15 @@ public class JavaFXAppFinder {
     }
     
     public JavaFXAppFinder() {
+        try {
+            RemoteScenicViewImpl.main(new String[0]);
+        } catch (final RemoteException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        } catch (final InterruptedException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
         final List<VirtualMachine> machines = getRunningJavaFXApplications();
         
         for (final Iterator<VirtualMachine> iterator = machines.iterator(); iterator.hasNext();) {

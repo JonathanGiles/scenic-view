@@ -14,6 +14,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.stage.*;
 
+import com.javafx.experiments.scenicview.connector.SVNode;
 import com.javafx.experiments.scenicview.helper.StyleSheetRefresher;
 
 public class StageModel {
@@ -54,7 +55,7 @@ public class StageModel {
 
     };
     
-    private TreeItem<NodeInfo> previousHightLightedData;
+    private TreeItem<SVNode> previousHightLightedData;
     
     public StageModel(final Stage stage) {
         this(stage.getScene().getRoot());
@@ -382,14 +383,14 @@ public class StageModel {
     }
 
     private void highlightHovered(final double x, final double y) {
-        final TreeItem<NodeInfo> nodeData = getHoveredNode(x, y);
+        final TreeItem<SVNode> nodeData = getHoveredNode(x, y);
         if (previousHightLightedData != nodeData) {
             previousHightLightedData = null;
             if (componentHighLighter != null) {
                 removeFromNode(target, componentHighLighter);
             }
-            if (nodeData != null && nodeData.getValue().getNode() != null) {
-                final Node node = nodeData.getValue().getNode();
+            if (nodeData != null && nodeData.getValue().getImpl() != null) {
+                final Node node = nodeData.getValue().getImpl();
                 componentHighLighter = new ComponentHighLighter(nodeData.getValue(), targetWindow != null ? targetWindow.getWidth() : -1, targetWindow != null ? targetWindow.getHeight() : -1, toSceneBounds(node, node.getBoundsInParent(), 0, 0));
                 addToNode(target, componentHighLighter);
             }
@@ -398,21 +399,21 @@ public class StageModel {
     }
     
 
-    private TreeItem<NodeInfo> findDeepSelection(final double x, final double y) {
+    private TreeItem<SVNode> findDeepSelection(final double x, final double y) {
         return getHoveredNode(x, y);
         
     }
 
-    private TreeItem<NodeInfo> getHoveredNode(final double x, final double y) {
-        final List<TreeItem<NodeInfo>> infos = model2gui.getTreeItems();
+    private TreeItem<SVNode> getHoveredNode(final double x, final double y) {
+        final List<TreeItem<SVNode>> infos = model2gui.getTreeItems();
         for (int i = infos.size() - 1; i >= 0; i--) {
-            final NodeInfo info = infos.get(i).getValue();
+            final SVNode info = infos.get(i).getValue();
             /**
              * Discard filtered nodes
              */
             if(!info.isInvalidForFilter()) {
-                final Point2D localPoint = info.getNode().sceneToLocal(x, y);
-                if (info.getNode().contains(localPoint)) {
+                final Point2D localPoint = info.getImpl().sceneToLocal(x, y);
+                if (info.getImpl().contains(localPoint)) {
                     /**
                      * Mouse Transparent nodes can be ignored
                      */

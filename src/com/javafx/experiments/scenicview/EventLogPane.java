@@ -15,6 +15,8 @@ import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.stage.*;
 
+import com.javafx.experiments.scenicview.connector.SVNode;
+
 public class EventLogPane extends VBox {
 
     public static final String PROPERTY_CHANGED = "PROPERTY_CHANGED";
@@ -30,7 +32,7 @@ public class EventLogPane extends VBox {
     SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss.SSS");
     TextField idFilterField;
     Label selectedNodeLabel = new Label("Filtering is disabled");
-    Node selectedNode;
+    SVNode selectedNode;
     
     @SuppressWarnings("unchecked")
     public EventLogPane(final ScenicView view) {
@@ -177,23 +179,23 @@ public class EventLogPane extends VBox {
         VBox.setVgrow(table, Priority.ALWAYS);
     }
     
-    public void setSelectedNode(final Node selectedNode) {
+    public void setSelectedNode(final SVNode selectedNode) {
         this.selectedNode = selectedNode;
         if(!activateTrace.isSelected()) {
             selectedNodeLabel.setText("Filtering is disabled");
         }
         else if(selectedNode != null) {
-            selectedNodeLabel.setText("Filtering from current selection: "+DisplayUtils.nodeDetail(selectedNode, true));
+            selectedNodeLabel.setText("Filtering from current selection: "+selectedNode.getExtendedId());
         }
         else {
             selectedNodeLabel.setText("Filtering from current selection: Root node");
         }
     }
 
-    public void trace(final Node source, final String eventType, final String eventValue) {
+    public void trace(final SVNode source, final String eventType, final String eventValue) {
         if (isActive()) {
             if(checkValid(source)) {
-                final String sourceId = DisplayUtils.nodeDetail(source, true);
+                final String sourceId = source.getExtendedId();
                 final ScenicViewEvent event = new ScenicViewEvent(sourceId, eventType, eventValue);
                 addToFiltered(event);
                 events.add(event);
@@ -240,9 +242,9 @@ public class EventLogPane extends VBox {
         return valid;
     }
     
-    private boolean checkValid(final Node node) {
+    private boolean checkValid(final SVNode node) {
         if(node == null) return false;
-        return (selectedNode == null) || selectedNode == node || checkValid(node.getParent());
+        return (selectedNode == null) || selectedNode.equals(node) || checkValid(node.getParent());
     }
     
     public boolean isActive() {

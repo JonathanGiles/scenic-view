@@ -17,11 +17,17 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.Region;
 import javafx.scene.transform.*;
 
+import com.javafx.experiments.scenicview.connector.SVNode;
+
 /**
  * 
  * @author aim
  */
 public class DisplayUtils {
+    
+    private static final String CUSTOM_NODE_IMAGE = DisplayUtils.getNodeIcon("CustomNode").toString();
+    private static final Map<String, Image> loadedImages = new HashMap<String, Image>();
+    
     public static DecimalFormat DFMT = new DecimalFormat("0.0#");
 
     static final Image CLEAR_IMAGE = getUIImage("clear.gif");
@@ -52,8 +58,8 @@ public class DisplayUtils {
         return name;
     }
     
-    public static String nodeDetail(final Node node, final boolean showId) {
-        return nodeClass(node) + ((showId && node.getId() != null) ? " \"" + node.getId() + "\"" : "");
+    public static String nodeDetail(final SVNode node, final boolean showId) {
+        return node.getNodeClass() + ((showId && node.getId() != null) ? " \"" + node.getId() + "\"" : "");
     }
     
     public static Image getUIImage(final String image) {
@@ -64,12 +70,20 @@ public class DisplayUtils {
         return ScenicView.class.getResource("images/nodeicons/"+node+".png");
     }    
     
-    public static boolean isNodeVisible(final Node node) {
-        if (node == null) {
-            return true;
+    public static Image getIcon(final SVNode svNode) {
+        final URL resource = DisplayUtils.getNodeIcon(svNode.getNodeClass());
+        String url;
+        if (resource != null) {
+            url = resource.toString();
         } else {
-            return node.isVisible() && isNodeVisible(node.getParent());
+            url = CUSTOM_NODE_IMAGE;
         }
+        Image image = loadedImages.get(url);
+        if (image == null) {
+            image = new Image(url);
+            loadedImages.put(url, image);
+        }
+        return image;
     }
 
     public static String boundsToString(final Bounds b) {

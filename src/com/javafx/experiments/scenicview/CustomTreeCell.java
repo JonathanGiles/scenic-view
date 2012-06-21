@@ -3,8 +3,10 @@ package com.javafx.experiments.scenicview;
 import javafx.scene.control.TreeCell;
 import javafx.scene.paint.Color;
 
-class CustomTreeCell extends TreeCell<NodeInfo> {
-    @Override public void updateItem(final NodeInfo item, final boolean empty) {
+import com.javafx.experiments.scenicview.connector.SVNode;
+
+class CustomTreeCell extends TreeCell<SVNode> {
+    @Override public void updateItem(final SVNode item, final boolean empty) {
         super.updateItem(item, empty);
         
         if (getTreeItem() != null) {
@@ -20,7 +22,7 @@ class CustomTreeCell extends TreeCell<NodeInfo> {
             setOpacity(0.3);
         }
 
-        if (item != null && item.getNode() != null && item.getNode().isFocused()) {
+        if (item != null && item.isFocused()) {
             setTextFill(Color.RED);
         }
     }

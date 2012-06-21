@@ -7,9 +7,11 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.scene.text.Text;
 
+import com.javafx.experiments.scenicview.connector.SVNode;
+
 public class ComponentHighLighter extends Group {
 
-    public ComponentHighLighter(final NodeInfo node, final double width, final double height, final Bounds bounds) {
+    public ComponentHighLighter(final SVNode node, final double width, final double height, final Bounds bounds) {
         if(width == -1) {
             final Rectangle rect = new Rectangle();
             rect.setFill(Color.TRANSPARENT);
@@ -37,7 +39,7 @@ public class ComponentHighLighter extends Group {
             getChildren().add(shape);
             final TitledPane pane = new TitledPane();
             pane.setCollapsible(false);
-            pane.setText(node.toString());
+            pane.setText(node.getExtendedId());
             pane.setPrefHeight(60);
             pane.setPrefWidth(100);
             final Text label = new Text();

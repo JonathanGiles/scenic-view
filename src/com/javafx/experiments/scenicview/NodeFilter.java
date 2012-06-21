@@ -1,6 +1,6 @@
 package com.javafx.experiments.scenicview;
 
-import javafx.scene.Node;
+import com.javafx.experiments.scenicview.connector.SVNode;
 
 interface NodeFilter {
     /**
@@ -9,7 +9,7 @@ interface NodeFilter {
      * @param node
      * @return
      */
-    public boolean accept(Node node);
+    public boolean accept(SVNode node);
 
     /**
      * Checks if the children could be accepted even though this node is

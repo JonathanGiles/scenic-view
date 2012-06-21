@@ -1,16 +1,27 @@
 package com.javafx.experiments.scenicview.utils;
 
 import java.lang.instrument.Instrumentation;
+import java.rmi.RemoteException;
 import java.util.Iterator;
 
 import javafx.application.Platform;
 import javafx.stage.*;
 
 import com.javafx.experiments.scenicview.ScenicView;
+import com.javafx.experiments.scenicview.remote.*;
 
 public class AgentTest {
     public static void agentmain(final String agentArgs, final Instrumentation instrumentation) {
-        System.out.println("Launching scenicViews!!");
+        try {
+            RemoteApplicationImpl.main(new String[0]);
+        } catch (final RemoteException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (final InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        System.out.println("Launching scenicViews with RMI!!");
         @SuppressWarnings("deprecation") final Iterator<Window> it = Window.impl_getWindows();
         while (it.hasNext()) {
             final Window window = it.next();
@@ -23,7 +34,12 @@ public class AgentTest {
                         ScenicView.show(window.getScene());
                     }
                 });
-
+                try {
+                    RemoteApplicationImpl.scenicView.dispatchEvent(new RemoteEvent(((Stage) window).getTitle()));
+                } catch (final RemoteException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
         }
     }

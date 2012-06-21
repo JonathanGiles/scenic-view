@@ -25,6 +25,7 @@ import javafx.scene.layout.*;
 import javafx.stage.*;
 import javafx.util.Callback;
 
+import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.details.AllDetailsPane;
 import com.javafx.experiments.scenicview.dialog.*;
 
@@ -57,8 +58,8 @@ public class ScenicView extends Region {
     
     protected BorderPane borderPane;
     private SplitPane splitPane;
-    private final TreeView<NodeInfo> treeView;
-    private final List<TreeItem<NodeInfo>> treeViewData = new ArrayList<TreeItem<NodeInfo>>();
+    private final TreeView<SVNode> treeView;
+    private final List<TreeItem<SVNode>> treeViewData = new ArrayList<TreeItem<SVNode>>();
     private final ScrollPane scrollPane;
     private final AllDetailsPane allDetailsPane;
     private final EventLogPane eventLogPane;
@@ -81,7 +82,7 @@ public class ScenicView extends Region {
     private final CheckMenuItem componentSelectOnClick;
     
     private Node selectedNode;
-    private TreeItem<NodeInfo> previouslySelectedItem;
+    private TreeItem<SVNode> previouslySelectedItem;
     
     List<NodeFilter> activeNodeFilters = new ArrayList<NodeFilter>();
     
@@ -92,7 +93,7 @@ public class ScenicView extends Region {
 
         @Override public void handle(final Event event) {
             if(eventLogPane.isActive()) {
-                eventLogPane.trace((Node)event.getSource(), event.getEventType().toString(), "");
+                eventLogPane.trace(new SVRealNodeAdapter((Node)event.getSource()), event.getEventType().toString(), "");
             }
         }
     };
@@ -130,7 +131,7 @@ public class ScenicView extends Region {
                 ScenicView.this.updateStageModel(stageModel);
         }
 
-        @Override public void selectOnClick(final StageModel stageModel, final TreeItem<NodeInfo> nodeData) {
+        @Override public void selectOnClick(final StageModel stageModel, final TreeItem<SVNode> nodeData) {
             componentSelectOnClick.setSelected(false);
             if (nodeData != null) {
                 treeView.getSelectionModel().select(nodeData);
@@ -147,7 +148,7 @@ public class ScenicView extends Region {
             return autoRefreshStyleSheets.isSelected();
         }
 
-        @Override public List<TreeItem<NodeInfo>> getTreeItems() {
+        @Override public List<TreeItem<SVNode>> getTreeItems() {
             return treeViewData;
         }
 
@@ -188,7 +189,7 @@ public class ScenicView extends Region {
                 return false;
             }
 
-            @Override public boolean accept(final Node node) {
+            @Override public boolean accept(final SVNode node) {
                 // do not create tree nodes for our bounds rectangles
                 return node.getId() == null || !node.getId().startsWith(SCENIC_VIEW_BASE_ID);
             }
@@ -298,8 +299,8 @@ public class ScenicView extends Region {
                 return false;
             }
 
-            @Override public boolean accept(final Node node) {
-                return showInvisibleNodes.isSelected() || DisplayUtils.isNodeVisible(node);
+            @Override public boolean accept(final SVNode node) {
+                return showInvisibleNodes.isSelected() || node.isVisible();
             }
 
             @Override public boolean ignoreShowFilteredNodesInTree() {
@@ -438,21 +439,21 @@ public class ScenicView extends Region {
         scrollPane.setFitToWidth(true);
         scrollPane.setContent(allDetailsPane);
 
-        treeView = new TreeView<NodeInfo>();
+        treeView = new TreeView<SVNode>();
         treeView.setId("main-treeview");
         treeView.setPrefSize(200, 500);
-        treeView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<NodeInfo>>() {
+        treeView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<SVNode>>() {
 
-            @Override public void changed(final ObservableValue<? extends TreeItem<NodeInfo>> arg0, final TreeItem<NodeInfo> arg1, final TreeItem<NodeInfo> newValue) {
-                        final TreeItem<NodeInfo> selected = newValue;
-                        setSelectedNode(selected != null ? selected.getValue().getNode() : null);
+            @Override public void changed(final ObservableValue<? extends TreeItem<SVNode>> arg0, final TreeItem<SVNode> arg1, final TreeItem<SVNode> newValue) {
+                        final TreeItem<SVNode> selected = newValue;
+                        setSelectedNode(selected != null ? selected.getValue().getImpl() : null);
                         propertyFilterField.setText("");
                         propertyFilterField.setDisable(selected == null);
                         filterProperties(propertyFilterField.getText());
             }
         });
-        treeView.setCellFactory(new Callback<TreeView<NodeInfo>, TreeCell<NodeInfo>>() {
-            @Override public TreeCell<NodeInfo> call(final TreeView<NodeInfo> node) {
+        treeView.setCellFactory(new Callback<TreeView<SVNode>, TreeCell<SVNode>>() {
+            @Override public TreeCell<SVNode> call(final TreeView<SVNode> node) {
                 return new CustomTreeCell();
             }
         });
@@ -474,7 +475,7 @@ public class ScenicView extends Region {
                 return true;
             }
 
-            @Override public boolean accept(final Node node) {
+            @Override public boolean accept(final SVNode node) {
                 if (idFilterField.getText().equals(""))
                     return true;
                 return node.getId() != null && node.getId().toLowerCase().indexOf(idFilterField.getText().toLowerCase()) != -1;
@@ -494,12 +495,12 @@ public class ScenicView extends Region {
                 return true;
             }
 
-            @Override public boolean accept(final Node node) {
+            @Override public boolean accept(final SVNode node) {
                 if (classNameFilterField.getText().equals(""))
                     return true;
 
                 // Allow reduces or complete className
-                return nodeClass(node).toLowerCase().indexOf(classNameFilterField.getText().toLowerCase()) != -1;
+                return node.getNodeClass().toLowerCase().indexOf(classNameFilterField.getText().toLowerCase()) != -1;
             }
 
             @Override public boolean ignoreShowFilteredNodesInTree() {
@@ -630,12 +631,12 @@ public class ScenicView extends Region {
                 if (automaticScenegraphStructureRefreshing.isSelected()) {
                     while (c.next()) {
                         for (final Node dead : c.getRemoved()) {
-                            eventLogPane.trace(dead, EventLogPane.NODE_REMOVED, "");
+                            eventLogPane.trace(new SVRealNodeAdapter(dead), EventLogPane.NODE_REMOVED, "");
                             
                             removeTreeItem(dead, true, false);
                         }
                         for (final Node alive : c.getAddedSubList()) {
-                            eventLogPane.trace(alive, EventLogPane.NODE_ADDED, "");
+                            eventLogPane.trace(new SVRealNodeAdapter(alive), EventLogPane.NODE_ADDED, "");
                             
                             addNewNode(alive);
                         }
@@ -675,7 +676,7 @@ public class ScenicView extends Region {
         final Node previouslySelected = selectedNode;
         treeViewData.clear();
         previouslySelectedItem = null;
-        TreeItem<NodeInfo> root = createTreeItem(value, true);
+        TreeItem<SVNode> root = createTreeItem(value, true);
 
         /**
          * If the target is the root node of the scene include subwindows
@@ -694,11 +695,11 @@ public class ScenicView extends Region {
                 targetStageImage = FX_APP_ICON;
             }
             
-            final TreeItem<NodeInfo> app = new TreeItem<NodeInfo>(new DummyNodeInfo(title), new ImageView(targetStageImage));
+            final TreeItem<SVNode> app = new TreeItem<SVNode>(new SVDummyNode(title), new ImageView(targetStageImage));
             app.setExpanded(true);
             app.getChildren().add(root);
             if(!activeStage.popupWindows.isEmpty()) {
-                final TreeItem<NodeInfo> subWindows = new TreeItem<NodeInfo>(new DummyNodeInfo("SubWindows"), new ImageView(DisplayUtils.getNodeIcon("Panel").toString()));
+                final TreeItem<SVNode> subWindows = new TreeItem<SVNode>(new SVDummyNode("SubWindows"), new ImageView(DisplayUtils.getNodeIcon("Panel").toString()));
                 for (int i = 0; i < activeStage.popupWindows.size(); i++) {
                     final PopupWindow window = activeStage.popupWindows.get(i);
                     final URL windowIcon = DisplayUtils.getNodeIcon(nodeClass(window));
@@ -706,7 +707,7 @@ public class ScenicView extends Region {
                     if(windowIcon != null) {
                         targetWindowImage = new Image(windowIcon.toString());
                     }
-                    final TreeItem<NodeInfo> subWindow = new TreeItem<NodeInfo>(new DummyNodeInfo("SubWindow -"+nodeClass(window)), new ImageView(targetWindowImage));
+                    final TreeItem<SVNode> subWindow = new TreeItem<SVNode>(new SVDummyNode("SubWindow -"+nodeClass(window)), new ImageView(targetWindowImage));
                     subWindow.getChildren().add(createTreeItem(window.getScene().getRoot(), true));
                     subWindows.getChildren().add(subWindow);
                 }
@@ -730,7 +731,7 @@ public class ScenicView extends Region {
         }
     }
 
-    private TreeItem<NodeInfo> createTreeItem(final Node node, final boolean updateCount) {
+    private TreeItem<SVNode> createTreeItem(final Node node, final boolean updateCount) {
         /**
          * Strategy:
          * 
@@ -747,8 +748,10 @@ public class ScenicView extends Region {
         boolean ignoreShowFiltered = false;
         boolean expand = false;
 
+        final SVNode svNode = new SVRealNodeAdapter(node);
+        
         for (final NodeFilter filter : activeNodeFilters) {
-            if (!filter.accept(node)) {
+            if (!filter.accept(svNode)) {
                 nodeAccepted = false;
                 ignoreShowFiltered |= filter.ignoreShowFilteredNodesInTree();
                 childrenAccepted &= filter.allowChildrenOnRejection();
@@ -768,9 +771,10 @@ public class ScenicView extends Region {
             if(eventLogPane.isActive())
                 node.addEventFilter(Event.ANY, traceEventHandler);
         }
-        final NodeData nodeData = new NodeData(node, showNodesIdInTree.isSelected());
-        final TreeItem<NodeInfo> treeItem = new TreeItem<NodeInfo>(nodeData, new ImageView(nodeData.getIcon()));
-        if (nodeData.node == selectedNode) {
+        final SVNode nodeData = new SVRealNodeAdapter(node);
+        nodeData.setShowId(showNodesIdInTree.isSelected());
+        final TreeItem<SVNode> treeItem = new TreeItem<SVNode>(nodeData, new ImageView(DisplayUtils.getIcon(nodeData)));
+        if (nodeData.equals(selectedNode)) {
             previouslySelectedItem = treeItem;
         }
         /**
@@ -784,11 +788,11 @@ public class ScenicView extends Region {
         if (node instanceof Parent) {
             ((Parent) node).getChildrenUnmodifiable().removeListener(structureInvalidationListener);
             ((Parent) node).getChildrenUnmodifiable().addListener(structureInvalidationListener);
-            final List<TreeItem<NodeInfo>> childItems = new ArrayList<TreeItem<NodeInfo>>();
+            final List<TreeItem<SVNode>> childItems = new ArrayList<TreeItem<SVNode>>();
             for (final Node child : ((Parent) node).getChildrenUnmodifiable()) {
                 childItems.add(createTreeItem(child, updateCount));
             }
-            for (final TreeItem<NodeInfo> childItem : childItems) {
+            for (final TreeItem<SVNode> childItem : childItems) {
                 // childItems[x] could be null because of bounds rectangles or
                 // filtered nodes
                 if (childItem != null) {
@@ -811,7 +815,7 @@ public class ScenicView extends Region {
             /**
              * Mark the node as invalidForFilter
              */
-            nodeData.invalidForFilter = true;
+            nodeData.setInvalidForFilter(true);
             return treeItem;
         } else if (!nodeAccepted && childrenAccepted) {
             /**
@@ -824,7 +828,7 @@ public class ScenicView extends Region {
                 /**
                  * Mark the node as invalidForFilter
                  */
-                nodeData.invalidForFilter = true;
+                nodeData.setInvalidForFilter(true);
                 return treeItem;
             }
         } else {
@@ -834,21 +838,21 @@ public class ScenicView extends Region {
     }
 
     private void addNewNode(final Node alive) {
-        final TreeItem<NodeInfo> selected = treeView.getSelectionModel().getSelectedItem();
-        final TreeItem<NodeInfo> TreeItem = createTreeItem(alive, false);
+        final TreeItem<SVNode> selected = treeView.getSelectionModel().getSelectedItem();
+        final TreeItem<SVNode> TreeItem = createTreeItem(alive, false);
         // childItems[x] could be null because of bounds
         // rectangles or filtered nodes
         if (TreeItem != null) {
             final Parent parent = alive.getParent();
-            @SuppressWarnings("unchecked") final TreeItem<NodeInfo> parentTreeItem = (TreeItem<NodeInfo>) parent.getProperties().get(SCENIC_VIEW_BASE_ID + "TreeItem");
+            @SuppressWarnings("unchecked") final TreeItem<SVNode> parentTreeItem = (TreeItem<SVNode>) parent.getProperties().get(SCENIC_VIEW_BASE_ID + "TreeItem");
 
             /**
              * In some situations node could be previously added
              */
-            final List<TreeItem<NodeInfo>> actualNodes = parentTreeItem.getChildren();
+            final List<TreeItem<SVNode>> actualNodes = parentTreeItem.getChildren();
             boolean found = false;
-            for (final TreeItem<NodeInfo> node : actualNodes) {
-                if (node.getValue().getNode() == alive) {
+            for (final TreeItem<SVNode> node : actualNodes) {
+                if (node.getValue().equals(alive)) {
                     found = true;
                 }
 
@@ -868,7 +872,7 @@ public class ScenicView extends Region {
     }
     
     private void removeTreeItem(final Node node, final boolean removeVisibilityListener, final boolean updateCount) {
-        TreeItem<NodeInfo> selected = null;
+        TreeItem<SVNode> selected = null;
         if (selectedNode == node) {
             treeView.getSelectionModel().clearSelection();
             setSelectedNode(null);
@@ -877,23 +881,23 @@ public class ScenicView extends Region {
             // Ugly workaround
             selected = treeView.getSelectionModel().getSelectedItem();
         }
-        @SuppressWarnings("unchecked") final TreeItem<NodeInfo> treeItem = (TreeItem<NodeInfo>) node.getProperties().get(SCENIC_VIEW_BASE_ID + "TreeItem");
-        final List<TreeItem<NodeInfo>> treeItemChildren = treeItem.getChildren();
+        @SuppressWarnings("unchecked") final TreeItem<SVNode> treeItem = (TreeItem<SVNode>) node.getProperties().get(SCENIC_VIEW_BASE_ID + "TreeItem");
+        final List<TreeItem<SVNode>> treeItemChildren = treeItem.getChildren();
         if (treeItemChildren != null) {
             /**
              * Do not use directly the list as it will suffer concurrent
              * modifications
              */
-            @SuppressWarnings("unchecked") final TreeItem<NodeInfo> children[] = treeItemChildren.toArray(new TreeItem[treeItemChildren.size()]);
+            @SuppressWarnings("unchecked") final TreeItem<SVNode> children[] = treeItemChildren.toArray(new TreeItem[treeItemChildren.size()]);
             for (int i = 0; i < children.length; i++) {
-                removeTreeItem(children[i].getValue().getNode(), removeVisibilityListener, updateCount);
+                removeTreeItem(children[i].getValue().getImpl(), removeVisibilityListener, updateCount);
             }
         }
-        final NodeInfo nodeData = treeItem.getValue();
-        if (nodeData.getNode() instanceof Parent) {
+        final SVNode nodeData = treeItem.getValue();
+        if (nodeData.getImpl() instanceof Parent) {
             ((Parent) node).getChildrenUnmodifiable().removeListener(structureInvalidationListener);
         }
-        if (nodeData.getNode() != null && removeVisibilityListener) {
+        if (nodeData.getImpl() != null && removeVisibilityListener) {
             node.visibleProperty().removeListener(visibilityInvalidationListener);
             propertyTracker(node, false);
             node.removeEventFilter(Event.ANY, traceEventHandler);
@@ -919,7 +923,7 @@ public class ScenicView extends Region {
     private void setSelectedNode(final Node value) {
         if (value != selectedNode) {
             storeSelectedNode(value);
-            eventLogPane.setSelectedNode(value);
+            eventLogPane.setSelectedNode(value!=null?new SVRealNodeAdapter(value):null);
         }
     }
 
@@ -1067,7 +1071,7 @@ public class ScenicView extends Region {
                     /**
                      * Remove the bean
                      */
-                    eventLogPane.trace(node, EventLogPane.PROPERTY_CHANGED, propertyName+"="+property.getValue());
+                    eventLogPane.trace(new SVRealNodeAdapter(node), EventLogPane.PROPERTY_CHANGED, propertyName+"="+property.getValue());
                    
                 }
             };
