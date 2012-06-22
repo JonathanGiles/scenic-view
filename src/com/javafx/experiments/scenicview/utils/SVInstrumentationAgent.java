@@ -13,34 +13,34 @@ import com.javafx.experiments.scenicview.helper.*;
 import com.javafx.experiments.scenicview.helper.WindowChecker.WindowFilter;
 
 /**
- *
+ * 
  * @author Jonathan Giles
  */
 public class SVInstrumentationAgent implements WindowFilter {
-    private static final int WAIT_TIME = 1000 * 1;                  // 1 second
-    private static final int MAX_WAIT_TIME = WAIT_TIME * 60 * 5;    // 5 minutes
-    
+    private static final int WAIT_TIME = 1000 * 1; // 1 second
+    private static final int MAX_WAIT_TIME = WAIT_TIME * 60 * 5; // 5 minutes
+
     public static void premain(final String agentArgs, final Instrumentation inst) {
         new SVInstrumentationAgent();
     }
-    
+
     private SVInstrumentationAgent() {
         System.out.println("Starting Scenic View Instrumentation Agent");
-        
+
         final WindowChecker agentThread = new WindowChecker(this) {
-            
+
             @Override protected void onWindowsFound(final List<Window> windowList) {
 
-            	if(windowList.isEmpty())
-            		return;
-            	
+                if (windowList.isEmpty())
+                    return;
+
                 finish();
-                
+
                 /**
                  * Wait till we have the scene and the root node
                  */
                 boolean initialized = false;
-                while(!initialized) {
+                while (!initialized) {
                     initialized = true;
                     try {
                         Thread.sleep(WAIT_TIME);
@@ -49,7 +49,7 @@ public class SVInstrumentationAgent implements WindowFilter {
                         e.printStackTrace();
                     }
                     for (int i = 0; i < windowList.size(); i++) {
-                        if(windowList.get(i).getScene() == null || windowList.get(i).getScene().getRoot() == null) {
+                        if (windowList.get(i).getScene() == null || windowList.get(i).getScene().getRoot() == null) {
                             initialized = false;
                         }
                     }
@@ -60,7 +60,7 @@ public class SVInstrumentationAgent implements WindowFilter {
                     return;
                 } else if (windowList.size() == 1) {
                     // go straight into scenic view with this window
-                    loadScenicView((Stage)windowList.get(0));
+                    loadScenicView((Stage) windowList.get(0));
                 } else {
                     // show the Scenic View stage selection dialog
                     final List<StageModel> empty = Collections.emptyList();
@@ -73,11 +73,11 @@ public class SVInstrumentationAgent implements WindowFilter {
         agentThread.setMaxWaitTime(MAX_WAIT_TIME);
         agentThread.start();
     }
-    
+
     private void loadScenicView(final Stage stage) {
         loadScenicView(stage.getScene());
     }
-    
+
     private void loadScenicView(final Scene scene) {
         Platform.runLater(new Runnable() {
             @Override public void run() {
