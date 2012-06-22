@@ -16,10 +16,13 @@ import javafx.scene.shape.*;
 import javafx.stage.*;
 
 import com.javafx.experiments.scenicview.connector.*;
+import com.javafx.experiments.scenicview.connector.event.*;
 import com.javafx.experiments.scenicview.helper.StyleSheetRefresher;
 
 public class StageModel {
 
+    public static StageID STAGE_ID = new StageID(0,0);
+    
     private StyleSheetRefresher refresher;
     
 
@@ -77,7 +80,7 @@ public class StageModel {
 
         targetWindowPropListener = new InvalidationListener() {
             @Override public void invalidated(final Observable value) {
-                model2gui.updateWindowDetails(StageModel.this, targetWindow);
+                updateWindowDetails();
             }
         };
         targetWindowSceneListener = new InvalidationListener() {
@@ -217,8 +220,18 @@ public class StageModel {
             targetWindow.focusedProperty().addListener(targetWindowPropListener);
             targetWindow.sceneProperty().addListener(targetWindowSceneListener);
         }
-        model2gui.updateWindowDetails(this, targetWindow);
-
+        updateWindowDetails();
+    }
+    
+    private void updateWindowDetails() {
+        if(targetWindow != null) {
+            model2gui.dispatchEvent(new WindowDetailsEvent(getID(), targetWindow.getClass().getSimpleName(), 
+                    DisplayUtils.boundsToString(targetWindow.getX(), targetWindow.getY(), targetWindow.getWidth(), targetWindow.getHeight()), 
+                    targetWindow.isFocused(), canStylesheetsBeRefreshed()));
+        }
+        else {
+            model2gui.dispatchEvent(new WindowDetailsEvent(getID(), null, "", false, false));
+        }
     }
     
     void setTarget(final Parent value) {
@@ -384,7 +397,7 @@ public class StageModel {
             targetScene.setOnMouseMoved(new EventHandler<MouseEvent>() {
 
                 @Override public void handle(final MouseEvent ev) {
-                    model2gui.updateMousePosition(StageModel.this, (int) ev.getSceneX() + "x" + (int) ev.getSceneY());
+                    model2gui.dispatchEvent(new MousePosEvent(STAGE_ID, (int) ev.getSceneX() + "x" + (int) ev.getSceneY()));
                 }
             });
             final boolean canBeRefreshed = StyleSheetRefresher.canStylesBeRefreshed(targetScene);
@@ -451,7 +464,7 @@ public class StageModel {
         update();
     }
 
-    public boolean canStylesheetsBeRefreshed() {
+    private boolean canStylesheetsBeRefreshed() {
         return StyleSheetRefresher.canStylesBeRefreshed(targetScene);
     }
     
@@ -514,11 +527,15 @@ public class StageModel {
                     /**
                      * Remove the bean
                      */
-                    model2gui.dispatchEvent(new EvLogEvent(new SVRealNodeAdapter(node), EventLogPane.PROPERTY_CHANGED, propertyName+"="+property.getValue()));
+                    model2gui.dispatchEvent(new EvLogEvent(STAGE_ID, new SVRealNodeAdapter(node), EventLogPane.PROPERTY_CHANGED, propertyName+"="+property.getValue()));
                 }
             };
             tracker.setTarget(node);
             propertyTrackers.put(node, tracker);
         }
+    }
+
+    public StageID getID() {
+        return STAGE_ID;
     }
 }

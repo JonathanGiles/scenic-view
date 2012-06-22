@@ -16,6 +16,7 @@ import javafx.scene.layout.*;
 import javafx.stage.*;
 
 import com.javafx.experiments.scenicview.connector.*;
+import com.javafx.experiments.scenicview.connector.event.EvLogEvent;
 
 public class EventLogPane extends VBox {
 

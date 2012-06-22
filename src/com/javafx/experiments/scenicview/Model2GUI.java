@@ -4,15 +4,11 @@ import java.util.List;
 
 import javafx.scene.Scene;
 import javafx.scene.control.TreeItem;
-import javafx.stage.Window;
 
-import com.javafx.experiments.scenicview.connector.*;
+import com.javafx.experiments.scenicview.connector.SVNode;
+import com.javafx.experiments.scenicview.connector.event.AppEvent;
 
 interface Model2GUI {
-
-    void updateWindowDetails(StageModel stageModel, Window targetWindow);
-
-    void updateMousePosition(StageModel stageModel, String string);
 
     void updateStageModel(StageModel stageModel);
 

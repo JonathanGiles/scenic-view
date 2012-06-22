@@ -2,7 +2,7 @@ package com.javafx.experiments.scenicview.remote;
 
 import java.rmi.*;
 
-import com.javafx.experiments.scenicview.connector.AppEvent;
+import com.javafx.experiments.scenicview.connector.event.AppEvent;
 
 public interface RemoteScenicView extends Remote {
 

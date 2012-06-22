@@ -7,9 +7,8 @@ import java.util.Iterator;
 import javafx.application.Platform;
 import javafx.stage.*;
 
-import com.javafx.experiments.scenicview.ScenicView;
-import com.javafx.experiments.scenicview.connector.*;
-import com.javafx.experiments.scenicview.connector.AppEvent.SVEventType;
+import com.javafx.experiments.scenicview.*;
+import com.javafx.experiments.scenicview.connector.event.MousePosEvent;
 import com.javafx.experiments.scenicview.remote.RemoteApplicationImpl;
 
 public class AgentTest {
@@ -37,7 +36,7 @@ public class AgentTest {
                     }
                 });
                 try {
-                    RemoteApplicationImpl.scenicView.dispatchEvent(new AppEvent(SVEventType.EVENT_LOG));
+                    RemoteApplicationImpl.scenicView.dispatchEvent(new MousePosEvent(StageModel.STAGE_ID, "454x454"));
                 } catch (final RemoteException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();

@@ -4,7 +4,7 @@ import java.net.InetAddress;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 
-import com.javafx.experiments.scenicview.connector.AppEvent;
+import com.javafx.experiments.scenicview.connector.event.AppEvent;
 
 public class RemoteScenicViewImpl extends RMIBrowserObject implements RemoteScenicView{
 

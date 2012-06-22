@@ -26,6 +26,7 @@ import javafx.stage.*;
 import javafx.util.Callback;
 
 import com.javafx.experiments.scenicview.connector.*;
+import com.javafx.experiments.scenicview.connector.event.*;
 import com.javafx.experiments.scenicview.details.AllDetailsPane;
 import com.javafx.experiments.scenicview.dialog.*;
 
@@ -106,17 +107,8 @@ public class ScenicView extends Region {
             return activeStage == stageModel;
         }
         
-        @Override public void updateWindowDetails(final StageModel stageModel, final Window targetWindow) {
-            autoRefreshStyleSheets.setDisable(!stageModel.canStylesheetsBeRefreshed());
-
-            if(isActive(stageModel))
-                statusBar.updateWindowDetails(targetWindow);
-        }
-
-        @Override public void updateMousePosition(final StageModel stageModel, final String position) {
-            if(isActive(stageModel))
-                statusBar.updateMousePosition(position);
-            
+        private boolean isActive(final StageID stageID) {
+            return activeStage.getID().equals(stageID);
         }
 
         @Override public void updateStageModel(final StageModel stageModel) {
@@ -154,6 +146,18 @@ public class ScenicView extends Region {
             switch (appEvent.getType()) {
             case EVENT_LOG:
                 eventLogPane.trace((EvLogEvent)appEvent);
+                break;
+            case MOUSE_POSITION:
+                if(isActive(appEvent.getStageID()))
+                    statusBar.updateMousePosition(((MousePosEvent)appEvent).getPosition());
+                break;
+                
+            case WINDOW_DETAILS:
+                final WindowDetailsEvent wevent = (WindowDetailsEvent)appEvent;
+                autoRefreshStyleSheets.setDisable(!wevent.isStylesRefreshable());
+
+                if(isActive(wevent.getStageID()))
+                    statusBar.updateWindowDetails(wevent.getWindowType(), wevent.getBounds(), wevent.isFocused());
                 break;
 
             default:

@@ -10,7 +10,6 @@ import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.stage.Window;
 import javafx.util.Duration;
 
 public class StatusBar extends HBox {
@@ -80,14 +79,14 @@ public class StatusBar extends HBox {
         return label;
     }
 
-    void updateWindowDetails(final Window targetWindow) {
+    void updateWindowDetails(final String targetWindow, final String bounds, final boolean focused) {
         if (targetWindow != null) {
-            windowTypeLabel.setText(targetWindow.getClass().getSimpleName() + ":");
-            if (!targetWindow.isFocused()) {
+            windowTypeLabel.setText(targetWindow + ":");
+            if (!focused) {
                 updateMousePosition("---");
             }
         }
-        stageBoundsText.setText(targetWindow != null ? DisplayUtils.boundsToString(targetWindow.getX(), targetWindow.getY(), targetWindow.getWidth(), targetWindow.getHeight()) : "");
+        stageBoundsText.setText(bounds);
     }
 
     void updateNodeCount(final Scene targetScene) {
