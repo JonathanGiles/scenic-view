@@ -14,14 +14,14 @@ class SubWindowChecker extends WindowChecker {
 
     public SubWindowChecker(final StageModel model) {
         super(new WindowFilter() {
-            
+
             @Override public boolean accept(final Window window) {
                 return window instanceof PopupWindow;
             }
         });
         this.model = model;
     }
-    
+
     Map<PopupWindow, Map> previousTree = new HashMap<PopupWindow, Map>();
     List<PopupWindow> windows = new ArrayList<PopupWindow>();
     final Map<PopupWindow, Map> tree = new HashMap<PopupWindow, Map>();
@@ -29,12 +29,12 @@ class SubWindowChecker extends WindowChecker {
     @Override protected void onWindowsFound(final List<Window> tempPopups) {
         tree.clear();
         windows.clear();
-        
+
         for (final Window popupWindow : tempPopups) {
-            final Map<PopupWindow, Map> pos = valid((PopupWindow)popupWindow, tree);
+            final Map<PopupWindow, Map> pos = valid((PopupWindow) popupWindow, tree);
             if (pos != null) {
-                pos.put((PopupWindow)popupWindow, new HashMap<PopupWindow, Map>());
-                windows.add((PopupWindow)popupWindow);
+                pos.put((PopupWindow) popupWindow, new HashMap<PopupWindow, Map>());
+                windows.add((PopupWindow) popupWindow);
             }
         }
         if (!tree.equals(previousTree)) {
@@ -48,7 +48,7 @@ class SubWindowChecker extends WindowChecker {
                     model.popupWindows.clear();
                     model.popupWindows.addAll(actualWindows);
                     model.update();
-                    
+
                 }
             });
 

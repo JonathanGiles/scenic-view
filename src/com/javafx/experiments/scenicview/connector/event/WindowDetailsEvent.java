@@ -12,7 +12,7 @@ public class WindowDetailsEvent extends AppEvent {
     private final String bounds;
     private final boolean focused;
     private final boolean stylesRefreshable;
-    
+
     public WindowDetailsEvent(final StageID id, final String windowType, final String bounds, final boolean focused, final boolean stylesRefreshable) {
         super(SVEventType.WINDOW_DETAILS, id);
         this.windowType = windowType;

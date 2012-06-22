@@ -1,6 +1,5 @@
 package com.javafx.experiments.scenicview.connector;
 
-
 public abstract class SVNodeImpl implements SVNode {
 
     boolean invalidForFilter;
@@ -18,5 +17,4 @@ public abstract class SVNodeImpl implements SVNode {
         this.showID = showID;
     }
 
-    
 }

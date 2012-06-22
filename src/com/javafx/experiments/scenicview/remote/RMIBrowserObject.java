@@ -4,22 +4,20 @@ import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
-public class RMIBrowserObject extends UnicastRemoteObject 
-{
-	/**
+public class RMIBrowserObject extends UnicastRemoteObject {
+    /**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	int      thisPort;
+    int thisPort;
 
-	String   thisAddress;
+    String thisAddress;
 
-	Registry registry;    // rmi registry for lookup the remote objects.
-	
-	public RMIBrowserObject() throws RemoteException
-	{
-		
-	}
-	
+    Registry registry; // rmi registry for lookup the remote objects.
+
+    public RMIBrowserObject() throws RemoteException {
+
+    }
+
 }

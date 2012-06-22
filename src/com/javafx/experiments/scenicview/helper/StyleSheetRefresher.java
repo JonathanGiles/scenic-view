@@ -57,13 +57,13 @@ public class StyleSheetRefresher extends Thread {
                 }
                 if (needsRefresh) {
                     final List<String> styleSheets = new ArrayList<String>(sheets);
-                    Platform.runLater(new Runnable(){
+                    Platform.runLater(new Runnable() {
 
                         @Override public void run() {
                             scene.getStylesheets().clear();
                             scene.getStylesheets().addAll(styleSheets);
                         }
-                        
+
                     });
                 }
             } catch (final Exception e) {

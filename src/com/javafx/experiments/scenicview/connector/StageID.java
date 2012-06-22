@@ -10,7 +10,7 @@ public final class StageID implements Serializable {
     private static final long serialVersionUID = 1091256426733557091L;
     private final int appID;
     private final int stageID;
-    
+
     public StageID(final int appID, final int stageID) {
         this.appID = appID;
         this.stageID = stageID;

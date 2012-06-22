@@ -7,29 +7,29 @@ import javafx.beans.*;
 import javafx.beans.Observable;
 import javafx.beans.value.ObservableValue;
 
-@SuppressWarnings("rawtypes") 
+@SuppressWarnings("rawtypes")
 public abstract class PropertyTracker {
 
     Map<ObservableValue, String> properties = new HashMap<ObservableValue, String>();
     private final InvalidationListener propListener;
-    
+
     public PropertyTracker() {
         propListener = new InvalidationListener() {
             @Override public void invalidated(final Observable property) {
-                updateDetail(properties.get(property), (ObservableValue)property);
+                updateDetail(properties.get(property), (ObservableValue) property);
             }
         };
     }
-    
+
     protected abstract void updateDetail(String string, ObservableValue property);
-    
+
     public void clear() {
         for (final ObservableValue ov : properties.keySet()) {
             ov.removeListener(propListener);
         }
         properties.clear();
     }
-    
+
     public void setTarget(final Object target) {
         properties.clear();
         // Using reflection, locate all properties and their corresponding
@@ -61,5 +61,5 @@ public abstract class PropertyTracker {
     public Map<ObservableValue, String> getProperties() {
         return properties;
     }
-    
+
 }

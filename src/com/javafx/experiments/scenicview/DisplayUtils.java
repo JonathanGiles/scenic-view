@@ -24,20 +24,20 @@ import com.javafx.experiments.scenicview.connector.SVNode;
  * @author aim
  */
 public class DisplayUtils {
-    
+
     private static final String CUSTOM_NODE_IMAGE = DisplayUtils.getNodeIcon("CustomNode").toString();
     private static final Map<String, Image> loadedImages = new HashMap<String, Image>();
-    
+
     public static DecimalFormat DFMT = new DecimalFormat("0.0#");
 
     static final Image CLEAR_IMAGE = getUIImage("clear.gif");
-    
+
     static final DecimalFormat df = new DecimalFormat("0.0");
-    
+
     public static String format(final double value) {
         return df.format(value);
     }
-    
+
     public static double parse(final String data) {
         try {
             return df.parse(data).doubleValue();
@@ -57,19 +57,19 @@ public class DisplayUtils {
         }
         return name;
     }
-    
+
     public static String nodeDetail(final SVNode node, final boolean showId) {
         return node.getNodeClass() + ((showId && node.getId() != null) ? " \"" + node.getId() + "\"" : "");
     }
-    
+
     public static Image getUIImage(final String image) {
-        return new Image(ScenicView.class.getResource("images/ui/"+image).toString());
+        return new Image(ScenicView.class.getResource("images/ui/" + image).toString());
     }
-    
+
     public static URL getNodeIcon(final String node) {
-        return ScenicView.class.getResource("images/nodeicons/"+node+".png");
-    }    
-    
+        return ScenicView.class.getResource("images/nodeicons/" + node + ".png");
+    }
+
     public static Image getIcon(final SVNode svNode) {
         final URL resource = DisplayUtils.getNodeIcon(svNode.getNodeClass());
         String url;
@@ -135,9 +135,8 @@ public class DisplayUtils {
         }
         return c;
     }
-    
-    @SuppressWarnings("rawtypes")
-    public static void fillProperties(final Node target, final Map<ObservableValue,String> properties) {
+
+    @SuppressWarnings("rawtypes") public static void fillProperties(final Node target, final Map<ObservableValue, String> properties) {
         // Using reflection, locate all properties and their corresponding
         // property references
         properties.clear();

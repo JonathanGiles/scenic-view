@@ -34,7 +34,7 @@ public class HelpBox {
         stage.setScene(scene);
         stage.getIcons().add(HELP_ICON);
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            
+
             @Override public void handle(final WindowEvent arg0) {
                 Logger.getLogger("com.sun.webpane").setLevel(wLevel);
                 Logger.getLogger("webcore.platform.api.SharedBufferInputStream").setLevel(wpLevel);
@@ -42,7 +42,7 @@ public class HelpBox {
         });
         stage.show();
     }
-    
+
     static Level wLevel;
     static Level wpLevel;
 
@@ -56,7 +56,7 @@ public class HelpBox {
         wpLevel = webPltLogger.getLevel();
         webLogger.setLevel(Level.SEVERE);
         webPltLogger.setLevel(Level.SEVERE);
-        
+
         final HelpBox node = new HelpBox(title, url, stage.getX() + (stage.getWidth() / 2) - (SCENE_WIDTH / 2), stage.getY() + (stage.getHeight() / 2) - (SCENE_HEIGHT / 2));
 
         return node;

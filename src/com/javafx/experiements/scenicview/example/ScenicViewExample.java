@@ -113,20 +113,18 @@ public class ScenicViewExample extends Application {
         g2.setEffect(shadow);
         final Group g3 = createGroup();
         g3.setRotate(45);
-        
+
         final ObservableList<String> citems = FXCollections.observableArrayList();
         for (int i = 0; i < 10; i++) {
-            citems.add("Combo content:"+i);
+            citems.add("Combo content:" + i);
         }
-        
+
         final ComboBox<String> comboTest = new ComboBox<String>();
         comboTest.setItems(citems);
         comboTest.setPrefWidth(250);
         comboTest.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 
-            @Override
-            public void changed(final ObservableValue<? extends String> arg0,
-                    final String arg1, final String newValue) {
+            @Override public void changed(final ObservableValue<? extends String> arg0, final String arg1, final String newValue) {
                 System.out.println("Changed");
             }
         });
@@ -147,9 +145,9 @@ public class ScenicViewExample extends Application {
         final ObservableList<String> items = FXCollections.observableArrayList();
         b2.setEffect(shadow);
         for (int i = 0; i < 1000; i++) {
-            items.add("List View content:"+i);
+            items.add("List View content:" + i);
         }
-        
+
         final ListView<String> listViewTest = new ListView<String>(items);
         listViewTest.setPrefHeight(40);
         final Button b4 = new Button("Fourth");
@@ -165,18 +163,16 @@ public class ScenicViewExample extends Application {
         final Group invisible = createGroup();
         invisible.setId("InvisibleGroup");
         invisible.setVisible(false);
-        
+
         tilepane.getChildren().addAll(rect1, rect2, rect3, new Group(rect4), b1, b2, listViewTest, new Group(b4), g1, g2, g3, comboTest, invisible);
 
         final Scene scene = new Scene(tilepane);
         scene.getStylesheets().add(ScenicView.STYLESHEETS);
         stage.setScene(scene);
         stage.show();
-        
-        
 
         ScenicView.show(scene);
-        
+
         final Stage stage2 = new Stage();
         stage2.setTitle("Second example");
         stage2.setScene(new Scene(new Group()));

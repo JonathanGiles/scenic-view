@@ -21,7 +21,7 @@ interface Model2GUI {
     List<TreeItem<SVNode>> getTreeItems();
 
     void updateSceneDetails(StageModel stageModel, Scene targetScene);
-    
+
     void dispatchEvent(AppEvent appEvent);
 
 }

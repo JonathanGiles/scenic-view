@@ -221,7 +221,8 @@ public class NodeDetailPane extends DetailPane {
                     return node.getStyleClass().toString();
                 }
             });
-            if (!all) return;
+            if (!all)
+                return;
         }
         if (all || propertyName.equals("visible")) {
             visibleDetail.valueLabel.setText(node != null ? Boolean.toString(node.isVisible()) : "-");

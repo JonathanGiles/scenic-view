@@ -8,7 +8,7 @@ import com.javafx.experiments.scenicview.connector.SVNode;
 class CustomTreeCell extends TreeCell<SVNode> {
     @Override public void updateItem(final SVNode item, final boolean empty) {
         super.updateItem(item, empty);
-        
+
         if (getTreeItem() != null) {
             setGraphic(getTreeItem().getGraphic());
         }

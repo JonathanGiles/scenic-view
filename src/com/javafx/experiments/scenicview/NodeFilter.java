@@ -25,9 +25,10 @@ interface NodeFilter {
      * @return
      */
     public boolean ignoreShowFilteredNodesInTree();
-    
+
     /**
      * Flag to indicate if all the nodes must be expanded on filtering
+     * 
      * @return
      */
     public boolean expandAllNodes();

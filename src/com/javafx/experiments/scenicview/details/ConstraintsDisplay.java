@@ -7,7 +7,6 @@ package com.javafx.experiments.scenicview.details;
 
 import java.util.Map;
 
-
 import javafx.collections.ObservableMap;
 import javafx.geometry.*;
 import javafx.scene.control.Label;

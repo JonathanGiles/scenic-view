@@ -5,9 +5,9 @@ import java.io.Serializable;
 public class Configuration implements Serializable {
 
     private boolean showBounds;
-    
+
     private boolean showBaseline;
-    
+
     private boolean eventLogEnabled;
 
     public boolean isShowBounds() {
@@ -33,5 +33,5 @@ public class Configuration implements Serializable {
     public void setEventLogEnabled(final boolean eventLogEnabled) {
         this.eventLogEnabled = eventLogEnabled;
     }
-    
+
 }
