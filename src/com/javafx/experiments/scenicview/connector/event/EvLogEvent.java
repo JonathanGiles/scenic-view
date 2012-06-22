@@ -11,7 +11,7 @@ public class EvLogEvent extends AppEvent {
     private final SVNode source;
     private final String eventType;
     private final String eventValue;
-    
+
     public EvLogEvent(final StageID id, final SVNode source, final String eventType, final String eventValue) {
         super(SVEventType.EVENT_LOG, id);
         this.source = source;

@@ -6,13 +6,15 @@ import com.javafx.experiments.scenicview.connector.StageID;
 
 public class AppEvent implements Serializable {
 
-    public enum SVEventType { EVENT_LOG, MOUSE_POSITION, WINDOW_DETAILS }
-    
+    public enum SVEventType {
+        EVENT_LOG, MOUSE_POSITION, WINDOW_DETAILS
+    }
+
     /**
      * 
      */
     private static final long serialVersionUID = -2556951288718105815L;
-    
+
     private final SVEventType type;
     private final StageID stageID;
 
@@ -28,5 +30,5 @@ public class AppEvent implements Serializable {
     public StageID getStageID() {
         return stageID;
     }
-    
+
 }

@@ -62,7 +62,7 @@ public class FullPropertiesDetailPane extends DetailPane {
         final Node node = (Node) getTarget();
         styles = new HashMap<WritableValue, String>();
 
-        if(node != null) {
+        if (node != null) {
             final List<StyleableProperty> list = node.impl_getStyleableProperties();
             for (final Iterator iterator = list.iterator(); iterator.hasNext();) {
                 final StyleableProperty styleableProperty = (StyleableProperty) iterator.next();
@@ -82,7 +82,7 @@ public class FullPropertiesDetailPane extends DetailPane {
         }
         orderedProperties = new TreeMap<String, ObservableValue>();
         details = new HashMap<String, Detail>();
-        final Map<ObservableValue,String> properties = tracker.getProperties();
+        final Map<ObservableValue, String> properties = tracker.getProperties();
         for (final Iterator<ObservableValue> iterator = properties.keySet().iterator(); iterator.hasNext();) {
             final ObservableValue type = iterator.next();
             orderedProperties.put(properties.get(type), type);
@@ -122,11 +122,9 @@ public class FullPropertiesDetailPane extends DetailPane {
                 detail.setEnumProperty((Property) observable, (Class<? extends Enum>) observable.getValue().getClass());
             } else if (!(observable instanceof ObjectProperty)) {
                 detail.setSimpleProperty((Property) observable);
-            }
-            else if(observable.getValue() instanceof Color) {
+            } else if (observable.getValue() instanceof Color) {
                 detail.setSimpleProperty((Property) observable);
-            }
-            else {
+            } else {
                 detail.setSimpleProperty(null);
                 detail.unavailableEdition(STATUS_NOT_SUPPORTED);
             }

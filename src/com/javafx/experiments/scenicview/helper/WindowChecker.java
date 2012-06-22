@@ -11,7 +11,7 @@ public abstract class WindowChecker extends Thread {
     private long maxWaitTime = -1;
     private final WindowFilter filter;
     private boolean verbose = false;
-    
+
     public WindowChecker(final WindowFilter filter) {
         this.filter = filter;
     }
@@ -19,11 +19,11 @@ public abstract class WindowChecker extends Thread {
     public void finish() {
         this.running = false;
     }
-    
+
     public void verbose() {
         verbose = true;
     }
-    
+
     public interface WindowFilter {
         public boolean accept(Window window);
     }
@@ -36,11 +36,11 @@ public abstract class WindowChecker extends Thread {
         while (running) {
             onWindowsFound(windows);
             try {
-                if(verbose) {
+                if (verbose) {
                     System.out.println("No JavaFX window found - sleeping for " + sleepTime / 1000 + " seconds");
                 }
                 Thread.sleep(sleepTime);
-                if(maxWaitTime != -1) {
+                if (maxWaitTime != -1) {
                     currentWait += sleepTime;
                 }
 
@@ -55,17 +55,17 @@ public abstract class WindowChecker extends Thread {
         }
 
     }
-    
+
     protected abstract void onWindowsFound(List<Window> windows);
-    
+
     public static List<Window> getValidWindows(final WindowFilter filter) {
-        @SuppressWarnings("deprecation")
-        final Iterator<Window> windows = Window.impl_getWindows();
-        if(! windows.hasNext()) return Collections.emptyList();
+        @SuppressWarnings("deprecation") final Iterator<Window> windows = Window.impl_getWindows();
+        if (!windows.hasNext())
+            return Collections.emptyList();
         final List<Window> list = new ArrayList<Window>();
         while (windows.hasNext()) {
             final Window window = windows.next();
-            if(filter.accept(window)) {
+            if (filter.accept(window)) {
                 list.add(window);
             }
         }
@@ -75,5 +75,5 @@ public abstract class WindowChecker extends Thread {
     public void setMaxWaitTime(final long maxWaitTime) {
         this.maxWaitTime = maxWaitTime;
     }
-    
+
 }

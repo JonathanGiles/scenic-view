@@ -41,22 +41,20 @@ public class ScenicView extends Region {
     static final String SCENIC_VIEW_BASE_ID = "ScenicView.";
 
     public static final Image APP_ICON = DisplayUtils.getUIImage("mglass.gif");
-    static final Image FX_APP_ICON = DisplayUtils.getUIImage("fx.png");    
+    static final Image FX_APP_ICON = DisplayUtils.getUIImage("fx.png");
     private static final Image PANEL_NODE_IMAGE = new Image(DisplayUtils.getNodeIcon("Panel").toString());
 
     public static final String VERSION = "1.1";
     // the Stage used to show Scenic View
     private final Stage scenicViewStage;
-    
-    
-    Thread shutdownHook = new Thread(){
-        @Override
-        public void run() {
+
+    Thread shutdownHook = new Thread() {
+        @Override public void run() {
             // We can't use close() because we are not in FXThread
             saveProperties();
         }
     };
-    
+
     protected BorderPane borderPane;
     private SplitPane splitPane;
     private final TreeView<SVNode> treeView;
@@ -81,38 +79,38 @@ public class ScenicView extends Region {
     private final CheckMenuItem ignoreMouseTransparentNodes;
     private final CheckMenuItem autoRefreshStyleSheets;
     private final CheckMenuItem componentSelectOnClick;
-    
+
     private Node selectedNode;
     private TreeItem<SVNode> previouslySelectedItem;
-    
+
     List<NodeFilter> activeNodeFilters = new ArrayList<NodeFilter>();
-    
+
     Configuration configuration = new Configuration();
-    
+
     /**
      * Listeners and EventHandlers
      */
     private final EventHandler<? super Event> traceEventHandler = new EventHandler<Event>() {
 
         @Override public void handle(final Event event) {
-            if(eventLogPane.isActive()) {
-                eventLogPane.trace(new SVRealNodeAdapter((Node)event.getSource()), event.getEventType().toString(), "");
+            if (eventLogPane.isActive()) {
+                eventLogPane.trace(new SVRealNodeAdapter((Node) event.getSource()), event.getEventType().toString(), "");
             }
         }
     };
-    
+
     private final Model2GUI stageModelListener = new Model2GUI() {
 
         private boolean isActive(final StageModel stageModel) {
             return activeStage == stageModel;
         }
-        
+
         private boolean isActive(final StageID stageID) {
             return activeStage.getID().equals(stageID);
         }
 
         @Override public void updateStageModel(final StageModel stageModel) {
-            if(isActive(stageModel))
+            if (isActive(stageModel))
                 ScenicView.this.updateStageModel(stageModel);
         }
 
@@ -138,25 +136,25 @@ public class ScenicView extends Region {
         }
 
         @Override public void updateSceneDetails(final StageModel stageModel, final Scene targetScene) {
-            if(isActive(stageModel))
+            if (isActive(stageModel))
                 statusBar.updateSceneDetails(targetScene);
         }
 
         @Override public void dispatchEvent(final AppEvent appEvent) {
             switch (appEvent.getType()) {
             case EVENT_LOG:
-                eventLogPane.trace((EvLogEvent)appEvent);
+                eventLogPane.trace((EvLogEvent) appEvent);
                 break;
             case MOUSE_POSITION:
-                if(isActive(appEvent.getStageID()))
-                    statusBar.updateMousePosition(((MousePosEvent)appEvent).getPosition());
+                if (isActive(appEvent.getStageID()))
+                    statusBar.updateMousePosition(((MousePosEvent) appEvent).getPosition());
                 break;
-                
+
             case WINDOW_DETAILS:
-                final WindowDetailsEvent wevent = (WindowDetailsEvent)appEvent;
+                final WindowDetailsEvent wevent = (WindowDetailsEvent) appEvent;
                 autoRefreshStyleSheets.setDisable(!wevent.isStylesRefreshable());
 
-                if(isActive(wevent.getStageID()))
+                if (isActive(wevent.getStageID()))
                     statusBar.updateWindowDetails(wevent.getWindowType(), wevent.getBounds(), wevent.isFocused());
                 break;
 
@@ -166,13 +164,12 @@ public class ScenicView extends Region {
         }
     };
 
-    
     /**
      * Special nodes included in target stages
      */
     private final ListChangeListener<Node> structureInvalidationListener;
     private final ChangeListener<Boolean> visibilityInvalidationListener;
-    
+
     private final List<StageModel> stages = new ArrayList<StageModel>();
     StageModel activeStage;
 
@@ -180,7 +177,7 @@ public class ScenicView extends Region {
         Persistence.loadProperties();
         Runtime.getRuntime().addShutdownHook(shutdownHook);
         setId("scenic-view");
-        
+
         borderPane = new BorderPane();
         borderPane.setId("main-borderpane");
 
@@ -234,7 +231,7 @@ public class ScenicView extends Region {
         final MenuItem findStageItem = new MenuItem("Find Stages");
         findStageItem.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(final ActionEvent arg0) {
-                StageSelectionBox.make("Find Stages", ScenicView.this,stages);
+                StageSelectionBox.make("Find Stages", ScenicView.this, stages);
             }
         });
 
@@ -254,7 +251,7 @@ public class ScenicView extends Region {
                 configurationUpdated();
             }
         });
-        
+
         showDefaultProperties = buildCheckMenuItem("Show Default Properties", "Show default properties", "Hide default properties", "showDefaultProperties", Boolean.TRUE);
         showDefaultProperties.selectedProperty().addListener(new InvalidationListener() {
             @Override public void invalidated(final Observable arg0) {
@@ -272,7 +269,7 @@ public class ScenicView extends Region {
         collapseContentControls = buildCheckMenuItem("Collapse container controls In Tree", "Container controls will be collapsed", "Container controls will be expanded", "collapseContainerControls", Boolean.FALSE);
         collapseContentControls.selectedProperty().addListener(menuTreeChecksListener);
         collapseContentControls.disableProperty().bind(collapseControls.selectedProperty().not());
-        
+
         final CheckMenuItem showCSSProperties = buildCheckMenuItem("Show CSS Properties", "Show CSS properties", "Hide CSS properties", "showCSSProperties", Boolean.FALSE);
         showCSSProperties.selectedProperty().addListener(new InvalidationListener() {
             @Override public void invalidated(final Observable arg0) {
@@ -295,7 +292,7 @@ public class ScenicView extends Region {
         automaticScenegraphStructureRefreshing.selectedProperty().addListener(new ChangeListener<Boolean>() {
 
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
-                if(newValue) {
+                if (newValue) {
                     update();
                 }
             }
@@ -354,10 +351,9 @@ public class ScenicView extends Region {
             }
         });
 
-        
-
         final Menu scenegraphMenu = new Menu("Scenegraph");
         scenegraphMenu.getItems().addAll(automaticScenegraphStructureRefreshing, autoRefreshStyleSheets, /**
+         * 
          * 
          * new SeparatorMenuItem(), showScenegraphTrace,
          */
@@ -379,24 +375,22 @@ public class ScenicView extends Region {
         sliderValue.setPrefWidth(40);
         sliderValue.setText(DisplayUtils.format(slider.getValue()));
         sliderValue.setOnAction(new EventHandler<ActionEvent>() {
-            
+
             @Override public void handle(final ActionEvent arg0) {
                 final double value = DisplayUtils.parse(sliderValue.getText());
-                if(value >= slider.getMin() && value <= slider.getMax()) {
+                if (value >= slider.getMin() && value <= slider.getMax()) {
                     activeStage.grid.updateSeparation(value);
                     slider.setValue(value);
-                }
-                else if(value < slider.getMin()) {
+                } else if (value < slider.getMin()) {
                     sliderValue.setText(DisplayUtils.format(slider.getMin()));
                     slider.setValue(slider.getMin());
-                }
-                else {
+                } else {
                     sliderValue.setText(DisplayUtils.format(slider.getMax()));
                     slider.setValue(slider.getMax());
                 }
             }
         });
-        
+
         box.getChildren().addAll(slider, sliderValue);
         final CustomMenuItem rulerSlider = new CustomMenuItem(box);
 
@@ -454,11 +448,11 @@ public class ScenicView extends Region {
         treeView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<SVNode>>() {
 
             @Override public void changed(final ObservableValue<? extends TreeItem<SVNode>> arg0, final TreeItem<SVNode> arg1, final TreeItem<SVNode> newValue) {
-                        final TreeItem<SVNode> selected = newValue;
-                        setSelectedNode(selected != null ? selected.getValue().getImpl() : null);
-                        propertyFilterField.setText("");
-                        propertyFilterField.setDisable(selected == null);
-                        filterProperties(propertyFilterField.getText());
+                final TreeItem<SVNode> selected = newValue;
+                setSelectedNode(selected != null ? selected.getValue().getImpl() : null);
+                propertyFilterField.setText("");
+                propertyFilterField.setDisable(selected == null);
+                filterProperties(propertyFilterField.getText());
             }
         });
         treeView.setCellFactory(new Callback<TreeView<SVNode>, TreeCell<SVNode>>() {
@@ -580,7 +574,7 @@ public class ScenicView extends Region {
         treeViewPane.setPrefHeight(50);
         leftPane.getChildren().addAll(filtersPane, treeViewPane);
         VBox.setVgrow(treeViewPane, Priority.ALWAYS);
-        
+
         final TabPane tabPane = new TabPane();
         final Tab detailsTab = new Tab("Details");
         detailsTab.setGraphic(new ImageView(DisplayUtils.getUIImage("details.png")));
@@ -592,7 +586,7 @@ public class ScenicView extends Region {
         eventsTab.setClosable(false);
         tabPane.getTabs().addAll(detailsTab, eventsTab);
         Persistence.loadProperty("splitPaneDividerPosition", splitPane, 0.3);
-        
+
         splitPane.getItems().addAll(leftPane, tabPane);
 
         borderPane.setCenter(splitPane);
@@ -602,7 +596,7 @@ public class ScenicView extends Region {
         borderPane.setBottom(statusBar);
 
         getChildren().add(borderPane);
-        
+
         visibilityInvalidationListener = new ChangeListener<Boolean>() {
 
             @Override public void changed(final ObservableValue<? extends Boolean> observable, final Boolean arg1, final Boolean newValue) {
@@ -633,12 +627,12 @@ public class ScenicView extends Region {
                     while (c.next()) {
                         for (final Node dead : c.getRemoved()) {
                             eventLogPane.trace(new SVRealNodeAdapter(dead), EventLogPane.NODE_REMOVED, "");
-                            
+
                             removeTreeItem(dead, true, false);
                         }
                         for (final Node alive : c.getAddedSubList()) {
                             eventLogPane.trace(new SVRealNodeAdapter(alive), EventLogPane.NODE_ADDED, "");
-                            
+
                             addNewNode(alive);
                         }
                     }
@@ -658,25 +652,23 @@ public class ScenicView extends Region {
         }
     }
 
-    public void addNewStage(final StageModel stageModel)
-    {
-        if(stages.isEmpty()) {
+    public void addNewStage(final StageModel stageModel) {
+        if (stages.isEmpty()) {
             activeStage = stageModel;
-        }
-        else {
+        } else {
             stages.clear();
             activeStage = stageModel;
         }
         stages.add(stageModel);
         stageModel.setModel2gui(stageModelListener);
     }
-    
+
     void update() {
         for (int i = 0; i < stages.size(); i++) {
             updateStageModel(stages.get(i));
         }
     }
- 
+
     private void updateStageModel(final StageModel model) {
         final Parent value = model.target;
 
@@ -691,31 +683,31 @@ public class ScenicView extends Region {
         if (activeStage.targetScene != null && activeStage.targetScene.getRoot() == value) {
             String title = "App";
             Image targetStageImage = null;
-            if(activeStage.targetScene.getWindow() instanceof Stage) {
-                final Stage s = ((Stage)activeStage.targetScene.getWindow());
-                if(!s.getIcons().isEmpty()) {
-                    targetStageImage = ((Stage)activeStage.targetScene.getWindow()).getIcons().get(0);
+            if (activeStage.targetScene.getWindow() instanceof Stage) {
+                final Stage s = ((Stage) activeStage.targetScene.getWindow());
+                if (!s.getIcons().isEmpty()) {
+                    targetStageImage = ((Stage) activeStage.targetScene.getWindow()).getIcons().get(0);
                 }
-                title = s.getTitle()!=null?s.getTitle():"App";
+                title = s.getTitle() != null ? s.getTitle() : "App";
             }
-            if(targetStageImage==null) {
+            if (targetStageImage == null) {
                 targetStageImage = FX_APP_ICON;
             }
-            
+
             final TreeItem<SVNode> app = new TreeItem<SVNode>(new SVDummyNode(title), new ImageView(targetStageImage));
             app.setExpanded(true);
             app.getChildren().add(root);
-            if(!activeStage.popupWindows.isEmpty()) {
+            if (!activeStage.popupWindows.isEmpty()) {
                 final TreeItem<SVNode> subWindows = new TreeItem<SVNode>(new SVDummyNode("SubWindows"), new ImageView(DisplayUtils.getNodeIcon("Popup").toString()));
                 for (int i = 0; i < activeStage.popupWindows.size(); i++) {
                     final PopupWindow window = activeStage.popupWindows.get(i);
                     final URL windowIcon = DisplayUtils.getNodeIcon(nodeClass(window));
                     Image targetWindowImage = PANEL_NODE_IMAGE;
-                    if(windowIcon != null) {
+                    if (windowIcon != null) {
                         targetWindowImage = new Image(windowIcon.toString());
                     }
-                    final TreeItem<SVNode> subWindow = new TreeItem<SVNode>(new SVDummyNode("SubWindow -"+nodeClass(window)), new ImageView(targetWindowImage));
-                    subWindow.getChildren().add(createTreeItem(window.getScene().getRoot(), true));
+                    final TreeItem<SVNode> subWindow = new TreeItem<SVNode>(new SVDummyNode("SubWindow -" + nodeClass(window)), new ImageView(targetWindowImage));
+                    subWindow.getChildren().add(createTreeItem(window.getScene().getRoot(), false));
                     subWindows.getChildren().add(subWindow);
                 }
                 app.getChildren().add(subWindows);
@@ -756,7 +748,7 @@ public class ScenicView extends Region {
         boolean expand = false;
 
         final SVNode svNode = new SVRealNodeAdapter(node);
-        
+
         for (final NodeFilter filter : activeNodeFilters) {
             if (!filter.accept(svNode)) {
                 nodeAccepted = false;
@@ -773,9 +765,9 @@ public class ScenicView extends Region {
             node.visibleProperty().removeListener(visibilityInvalidationListener);
             node.visibleProperty().addListener(visibilityInvalidationListener);
             activeStage.propertyTracker(node, true);
-            
+
             node.removeEventFilter(Event.ANY, traceEventHandler);
-            if(eventLogPane.isActive())
+            if (eventLogPane.isActive())
                 node.addEventFilter(Event.ANY, traceEventHandler);
         }
         svNode.setShowId(showNodesIdInTree.isSelected());
@@ -784,9 +776,9 @@ public class ScenicView extends Region {
             previouslySelectedItem = treeItem;
         }
         /**
-         * TODO Improve this calculation THIS IS NOT CORRECT AS NEW NODES ARE INCLUDED ON TOP
-         * a) updateCount=true: We are adding all the nodes
-         * b) updateCount=false: We are adding only one node, find its position
+         * TODO Improve this calculation THIS IS NOT CORRECT AS NEW NODES ARE
+         * INCLUDED ON TOP a) updateCount=true: We are adding all the nodes b)
+         * updateCount=false: We are adding only one node, find its position
          */
         treeViewData.add(treeItem);
         node.getProperties().put(SCENIC_VIEW_BASE_ID + "TreeItem", treeItem);
@@ -805,14 +797,14 @@ public class ScenicView extends Region {
                     treeItem.getChildren().add(childItem);
                 }
             }
-            boolean mustBeExpanded = expand  || !(node instanceof Control) || !collapseControls.isSelected();
-            if(!mustBeExpanded && !collapseContentControls.isSelected()) {
-            	mustBeExpanded = node instanceof TabPane || node instanceof SplitPane || node instanceof ScrollPane || node instanceof Accordion || node instanceof TitledPane;
+            boolean mustBeExpanded = expand || !(node instanceof Control) || !collapseControls.isSelected();
+            if (!mustBeExpanded && !collapseContentControls.isSelected()) {
+                mustBeExpanded = node instanceof TabPane || node instanceof SplitPane || node instanceof ScrollPane || node instanceof Accordion || node instanceof TitledPane;
             }
-            
+
             treeItem.setExpanded(mustBeExpanded);
         }
-        if(updateCount)
+        if (updateCount)
             statusBar.updateNodeCount(activeStage.targetScene);
 
         if (nodeAccepted) {
@@ -867,7 +859,7 @@ public class ScenicView extends Region {
                 parentTreeItem.getChildren().add(TreeItem);
             }
         }
-        if(selected != null) {
+        if (selected != null) {
             // Ugly workaround
             treeView.getSelectionModel().select(selected);
         }
@@ -876,14 +868,13 @@ public class ScenicView extends Region {
     protected void filterProperties(final String text) {
         allDetailsPane.filterProperties(text);
     }
-    
+
     private void removeTreeItem(final Node node, final boolean removeVisibilityListener, final boolean updateCount) {
         TreeItem<SVNode> selected = null;
         if (selectedNode == node) {
             treeView.getSelectionModel().clearSelection();
             setSelectedNode(null);
-        }
-        else {
+        } else {
             // Ugly workaround
             selected = treeView.getSelectionModel().getSelectedItem();
         }
@@ -917,19 +908,19 @@ public class ScenicView extends Region {
             treeItem.getParent().getChildren().remove(treeItem);
         }
         treeViewData.remove(treeItem);
-        if(selected!=null) {
-         // Ugly workaround
+        if (selected != null) {
+            // Ugly workaround
             treeView.getSelectionModel().select(selected);
         }
-        if(updateCount) {
+        if (updateCount) {
             statusBar.updateNodeCount(activeStage.targetScene);
-		}
+        }
     }
 
     private void setSelectedNode(final Node value) {
         if (value != selectedNode) {
             storeSelectedNode(value);
-            eventLogPane.setSelectedNode(value!=null?new SVRealNodeAdapter(value):null);
+            eventLogPane.setSelectedNode(value != null ? new SVRealNodeAdapter(value) : null);
         }
     }
 
@@ -937,9 +928,8 @@ public class ScenicView extends Region {
         selectedNode = value;
         allDetailsPane.setTarget(selectedNode);
         setStatusText("Label on the labels to modify its values. The panel could have different capabilities. When changed the values will be highlighted", 8000);
-        activeStage.setSelectedNode(new SVRealNodeAdapter(value));
+        activeStage.setSelectedNode(value != null ? new SVRealNodeAdapter(value) : null);
     }
-
 
     private CheckMenuItem buildCheckMenuItem(final String text, final String toolTipSelected, final String toolTipNotSelected, final String property, final Boolean value) {
         final CheckMenuItem menuItem = new CheckMenuItem(text);
@@ -978,13 +968,12 @@ public class ScenicView extends Region {
         return filterField;
     }
 
-
     public void close() {
         for (final Iterator<StageModel> iterator = stages.iterator(); iterator.hasNext();) {
             final StageModel stage = iterator.next();
             stage.close();
         }
-        
+
         saveProperties();
     }
 
@@ -1005,7 +994,6 @@ public class ScenicView extends Region {
     public static void clearStatusText() {
         statusBar.clearStatusText();
     }
-
 
     @Override protected double computePrefWidth(final double height) {
         return 600;
@@ -1043,7 +1031,7 @@ public class ScenicView extends Region {
         // workaround for RT-10714
         stage.setWidth(640);
         stage.setHeight(800);
-        stage.setTitle("Scenic View v"+VERSION);
+        stage.setTitle("Scenic View v" + VERSION);
         show(new ScenicView(target, stage), stage);
     }
 
@@ -1052,26 +1040,8 @@ public class ScenicView extends Region {
         scene.getStylesheets().addAll(STYLESHEETS);
         stage.setScene(scene);
         stage.getIcons().add(APP_ICON);
-        if (scenicview.activeStage.targetWindow != null) {
-            final Window targetWindow = scenicview.activeStage.targetWindow;
-            stage.setX(targetWindow.getX() + targetWindow.getWidth());
-            stage.setY(targetWindow.getY());
-            try {
-                // Prevents putting the stage out of the screen
-                final Screen primary = Screen.getPrimary();
-                if (primary != null) {
-                    final Rectangle2D rect = primary.getVisualBounds();
-                    if (stage.getX() + stage.getWidth() > rect.getMaxX()) {
-                        stage.setX(rect.getMaxX() - stage.getWidth());
-                    }
-                    if (stage.getY() + stage.getHeight() > rect.getMaxY()) {
-                        stage.setX(rect.getMaxY() - stage.getHeight());
-                    }
-                }
-            } catch (final Exception e) {
-                e.printStackTrace();
-            }
-        }
+        scenicview.activeStage.placeStage(stage);
+
         stage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, new EventHandler<WindowEvent>() {
             @Override public void handle(final WindowEvent arg0) {
                 Runtime.getRuntime().removeShutdownHook(scenicview.shutdownHook);

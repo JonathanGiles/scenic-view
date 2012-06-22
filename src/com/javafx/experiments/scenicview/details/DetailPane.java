@@ -38,7 +38,7 @@ public abstract class DetailPane extends TitledPane {
     public static DecimalFormat f = new DecimalFormat("0.0#");
 
     private Object target;
-    
+
     static final Image EDIT_IMAGE = DisplayUtils.getUIImage("editclear.png");
 
     static final String DETAIL_LABEL_STYLE = "detail-label";
@@ -51,7 +51,7 @@ public abstract class DetailPane extends TitledPane {
         @Override protected void updateDetail(final String propertyName, @SuppressWarnings("rawtypes") final ObservableValue property) {
             DetailPane.this.updateDetail(propertyName);
         }
-        
+
     };
 
     public DetailPane() {
@@ -161,7 +161,7 @@ public abstract class DetailPane extends TitledPane {
             GridPane.setValignment(group, VPos.TOP);
             addToPane(detail.label, group);
         }
-        
+
         return detail;
     }
 
@@ -191,12 +191,13 @@ public abstract class DetailPane extends TitledPane {
     }
 
     private String currentFilter = null;
+
     public void filterProperties(final String text) {
         if (currentFilter != null && currentFilter.equals(text)) {
             return;
         }
         currentFilter = text;
-        
+
         /**
          * Make this more clean
          */
@@ -209,11 +210,11 @@ public abstract class DetailPane extends TitledPane {
             boolean valid = text.equals("") || label.getText().toLowerCase().indexOf(text.toLowerCase()) != -1;
             final Group g = (Group) nodes.get(i);
             final Node value = g.getChildren().get(0);
-            
+
             if (!valid && value instanceof Label) {
                 valid |= ((Label) value).getText().toLowerCase().indexOf(text.toLowerCase()) != -1;
             }
-            
+
             if (valid) {
                 GridPane.setConstraints(label, LABEL_COLUMN, row);
                 GridPane.setConstraints(g, VALUE_COLUMN, row);

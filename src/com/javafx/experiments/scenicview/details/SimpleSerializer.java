@@ -35,7 +35,7 @@ public class SimpleSerializer implements WritableValue<String> {
 
     public void setEnumClass(final Class<? extends Enum> enumClass) {
         this.enumClass = enumClass;
-        if(enumClass != null) {
+        if (enumClass != null) {
             editionType = EditionType.COMBO;
         }
     }
@@ -103,11 +103,9 @@ public class SimpleSerializer implements WritableValue<String> {
                 if (enumClass != null) {
                     final Method m = enumClass.getMethod("valueOf", String.class);
                     property.setValue(m.invoke(null, value));
-                }
-                else if(property.getValue() instanceof Color) {
+                } else if (property.getValue() instanceof Color) {
                     property.setValue(Color.valueOf(value));
-                }
-                else {
+                } else {
                     ScenicView.setStatusText(DetailPane.STATUS_NOT_SUPPORTED, 10000);
                 }
             }

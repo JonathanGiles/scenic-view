@@ -6,7 +6,6 @@ import javafx.scene.*;
 
 import com.javafx.experiments.scenicview.DisplayUtils;
 
-
 public class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
 
     private final Node node;
@@ -16,7 +15,7 @@ public class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
         this.node = node;
         this.nodeClass = DisplayUtils.nodeClass(node);
     }
-    
+
     @Override public String getId() {
         return node.getId();
     }
@@ -27,12 +26,12 @@ public class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
          */
         return new SVRealNodeAdapter(node.getParent());
     }
-    
+
     @Override public List<SVNode> getChildren() {
         /**
          * This should be improved
          */
-        if(node instanceof Parent) {
+        if (node instanceof Parent) {
             final List<SVNode> nodes = new ArrayList<SVNode>();
             final List<Node> realNodes = ((Parent) node).getChildrenUnmodifiable();
             for (int i = 0; i < realNodes.size(); i++) {
@@ -42,26 +41,23 @@ public class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
         }
         return Collections.emptyList();
     }
-    
+
     /**
      * This must be removed in the future
      */
-    @Override
-    public boolean equals(final Object node) {
-        if(node instanceof SVNode) {
-            return equals((SVNode)node);
-        }
-        else {
+    @Override public boolean equals(final Object node) {
+        if (node instanceof SVNode) {
+            return equals((SVNode) node);
+        } else {
             return this.node == node;
         }
     }
 
     @Override public boolean equals(final SVNode node) {
-        if(node instanceof SVRealNodeAdapter) {
-            return node.getImpl()==this.node;
-        }
-        else {
-            return getNodeId()==node.getNodeId();
+        if (node instanceof SVRealNodeAdapter) {
+            return node.getImpl() == this.node;
+        } else {
+            return getNodeId() == node.getNodeId();
         }
     }
 
@@ -80,7 +76,7 @@ public class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
     @Override public boolean isVisible() {
         return isNodeVisible(node);
     }
-    
+
     public static boolean isNodeVisible(final Node node) {
         if (node == null) {
             return true;
@@ -88,11 +84,11 @@ public class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
             return node.isVisible() && isNodeVisible(node.getParent());
         }
     }
-    
+
     @Override public boolean isMouseTransparent() {
         return isMouseTransparent(node);
     }
-    
+
     public static boolean isMouseTransparent(final Node node) {
         if (node == null) {
             return false;
@@ -108,7 +104,7 @@ public class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
     @Override public String toString() {
         return DisplayUtils.nodeDetail(this, showID);
     }
-    
+
     @Override public String getExtendedId() {
         return DisplayUtils.nodeDetail(this, true);
     }

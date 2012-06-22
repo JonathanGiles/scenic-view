@@ -11,7 +11,7 @@ public class SVDummyNode extends SVNodeImpl implements SVNode {
     public SVDummyNode(final String name) {
         this.name = name;
     }
-    
+
     @Override public String getId() {
         return name;
     }
@@ -58,7 +58,7 @@ public class SVDummyNode extends SVNodeImpl implements SVNode {
     @Override public boolean isFocused() {
         return false;
     }
-    
+
     @Override public String toString() {
         return name;
     }

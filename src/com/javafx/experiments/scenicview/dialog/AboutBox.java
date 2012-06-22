@@ -68,25 +68,7 @@ public class AboutBox {
     }
 
     private static String getAboutText() {
-        final String text = "JavaFX Scenic View "+ScenicView.VERSION
-                + "\n"
-                + "\n"
-                + "JavaFX Build Information:"
-                + "\n"
-                + "Java FX " + System.getProperty("javafx.runtime.version")
-                + "\n"
-                + "\n"
-                + "Operating System\n"+ System.getProperty("os.name")
-                + ", "
-                + System.getProperty("os.arch")
-                + ", "
-                + System.getProperty("os.version")
-                + "\n\nJava Version\n"
-                + System.getProperty("java.version")
-                + ", "
-                + System.getProperty("java.vendor")
-                + ", "
-                + System.getProperty("java.runtime.version");
+        final String text = "JavaFX Scenic View " + ScenicView.VERSION + "\n" + "\n" + "JavaFX Build Information:" + "\n" + "Java FX " + System.getProperty("javafx.runtime.version") + "\n" + "\n" + "Operating System\n" + System.getProperty("os.name") + ", " + System.getProperty("os.arch") + ", " + System.getProperty("os.version") + "\n\nJava Version\n" + System.getProperty("java.version") + ", " + System.getProperty("java.vendor") + ", " + System.getProperty("java.runtime.version");
 
         return text;
     }

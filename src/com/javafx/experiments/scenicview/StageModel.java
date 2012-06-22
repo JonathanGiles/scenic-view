@@ -21,11 +21,9 @@ import com.javafx.experiments.scenicview.helper.StyleSheetRefresher;
 
 public class StageModel {
 
-    public static StageID STAGE_ID = new StageID(0,0);
-    
-    private StyleSheetRefresher refresher;
-    
+    public static StageID STAGE_ID = new StageID(0, 0);
 
+    private StyleSheetRefresher refresher;
 
     private Parent overlayParent;
     Parent target;
@@ -35,28 +33,28 @@ public class StageModel {
      * Simplification for now, only a plain structure for now
      */
     final List<PopupWindow> popupWindows = new ArrayList<PopupWindow>();
-    
+
     private final Rectangle boundsInParentRect;
     private final Rectangle layoutBoundsRect;
     private final Line baselineLine;
     private Rectangle componentSelector;
     private Node componentHighLighter;
     RuleGrid grid;
-    
+
     private Model2GUI model2gui;
-    
+
     private final SubWindowChecker windowChecker;
-    
+
     private final InvalidationListener targetScenePropListener;
     private final InvalidationListener targetWindowPropListener;
     private final InvalidationListener targetWindowSceneListener;
-    
+
     private final InvalidationListener selectedNodePropListener;
-    
-    private final Map<Node,PropertyTracker> propertyTrackers = new HashMap<Node, PropertyTracker>();
-    
+
+    private final Map<Node, PropertyTracker> propertyTrackers = new HashMap<Node, PropertyTracker>();
+
     Configuration configuration = new Configuration();
-    
+
     private final EventHandler<? super MouseEvent> sceneHoverListener = new EventHandler<MouseEvent>() {
 
         @Override public void handle(final MouseEvent ev) {
@@ -64,9 +62,9 @@ public class StageModel {
         }
 
     };
-    
+
     private TreeItem<SVNode> previousHightLightedData;
-    
+
     public StageModel(final Stage stage) {
         this(stage.getScene().getRoot());
     }
@@ -84,9 +82,9 @@ public class StageModel {
             }
         };
         targetWindowSceneListener = new InvalidationListener() {
-            
+
             @Override public void invalidated(final Observable arg0) {
-                if(targetScene.getRoot()==StageModel.this.target) {
+                if (targetScene.getRoot() == StageModel.this.target) {
                     setTarget(targetWindow.getScene().getRoot());
                     update();
                 }
@@ -123,7 +121,7 @@ public class StageModel {
         baselineLine.setManaged(false);
         this.target = target;
     }
-    
+
     private void startRefresher() {
         refresher = new StyleSheetRefresher(targetScene);
     }
@@ -135,7 +133,7 @@ public class StageModel {
             refresher.finish();
         }
     }
-    
+
     void updateBoundsRects(final Node selectedNode) {
         /**
          * By node layout bounds only on main scene not on popups
@@ -153,7 +151,7 @@ public class StageModel {
 
     public void close() {
         removeScenicViewComponents(target);
-        if(targetScene != null) {
+        if (targetScene != null) {
             targetScene.removeEventHandler(MouseEvent.MOUSE_MOVED, sceneHoverListener);
         }
         if (refresher != null)
@@ -161,7 +159,6 @@ public class StageModel {
         if (windowChecker != null)
             windowChecker.finish();
     }
-    
 
     private void removeScenicViewComponents(final Node target) {
         /**
@@ -189,7 +186,6 @@ public class StageModel {
         }
     }
 
-
     public void update() {
         model2gui.updateStageModel(this);
     }
@@ -201,7 +197,7 @@ public class StageModel {
             setTargetWindow(targetScene.getWindow());
         }
     }
-    
+
     private void setTargetWindow(final Window value) {
         if (targetWindow != null) {
             targetWindow.xProperty().removeListener(targetWindowPropListener);
@@ -222,20 +218,17 @@ public class StageModel {
         }
         updateWindowDetails();
     }
-    
+
     private void updateWindowDetails() {
-        if(targetWindow != null) {
-            model2gui.dispatchEvent(new WindowDetailsEvent(getID(), targetWindow.getClass().getSimpleName(), 
-                    DisplayUtils.boundsToString(targetWindow.getX(), targetWindow.getY(), targetWindow.getWidth(), targetWindow.getHeight()), 
-                    targetWindow.isFocused(), canStylesheetsBeRefreshed()));
-        }
-        else {
+        if (targetWindow != null) {
+            model2gui.dispatchEvent(new WindowDetailsEvent(getID(), targetWindow.getClass().getSimpleName(), DisplayUtils.boundsToString(targetWindow.getX(), targetWindow.getY(), targetWindow.getWidth(), targetWindow.getHeight()), targetWindow.isFocused(), canStylesheetsBeRefreshed()));
+        } else {
             model2gui.dispatchEvent(new WindowDetailsEvent(getID(), null, "", false, false));
         }
     }
-    
+
     void setTarget(final Parent value) {
-     // Find parent we can use to hang bounds rectangles
+        // Find parent we can use to hang bounds rectangles
         this.target = value;
         if (overlayParent != null) {
             removeFromNode(overlayParent, boundsInParentRect);
@@ -254,7 +247,7 @@ public class StageModel {
             configuration.setShowBaseline(false);
             updateBaseline();
             configuration.setShowBaseline(true);
-            
+
         } else {
             addToNode(overlayParent, boundsInParentRect);
             addToNode(overlayParent, layoutBoundsRect);
@@ -262,39 +255,34 @@ public class StageModel {
         }
         setTargetScene(target.getScene());
     }
-    
 
     private void updateRect(final Node node, final Bounds bounds, final double tx, final double ty, final Rectangle rect) {
         final Bounds b = toSceneBounds(node, bounds, tx, ty);
         rect.setX(b.getMinX());
         rect.setY(b.getMinY());
-        rect.setWidth(b.getMaxX()-b.getMinX());
-        rect.setHeight(b.getMaxY()-b.getMinY());
+        rect.setWidth(b.getMaxX() - b.getMinX());
+        rect.setHeight(b.getMaxY() - b.getMinY());
     }
-    
+
     private Bounds toSceneBounds(final Node node, final Bounds bounds, final double tx, final double ty) {
         final Parent parent = node.getParent();
         if (parent != null) {
             // need to translate position
             final Point2D pt = overlayParent.sceneToLocal(node.getParent().localToScene(bounds.getMinX(), bounds.getMinY()));
-            return new BoundingBox(snapPosition(pt.getX()) + snapPosition(tx), 
-                    snapPosition(pt.getY()) + snapPosition(ty)
-                    , snapSize(bounds.getWidth()), snapSize(bounds.getHeight()));
+            return new BoundingBox(snapPosition(pt.getX()) + snapPosition(tx), snapPosition(pt.getY()) + snapPosition(ty), snapSize(bounds.getWidth()), snapSize(bounds.getHeight()));
         } else {
             // selected node is root
-            return new BoundingBox(snapPosition(bounds.getMinX()) + snapPosition(tx) + 1, 
-                    snapPosition(bounds.getMinY()) + snapPosition(ty) + 1
-                    , snapSize(bounds.getWidth()) - 2, snapSize(bounds.getHeight()) - 2);
+            return new BoundingBox(snapPosition(bounds.getMinX()) + snapPosition(tx) + 1, snapPosition(bounds.getMinY()) + snapPosition(ty) + 1, snapSize(bounds.getWidth()) - 2, snapSize(bounds.getHeight()) - 2);
         }
     }
-    
+
     private double snapPosition(final double pos) {
         return pos;
     }
-    
+
     private double snapSize(final double pos) {
         return pos;
-    }   
+    }
 
     private void addToNode(final Parent parent, final Node node) {
         if (parent instanceof Group) {
@@ -326,9 +314,9 @@ public class StageModel {
             rect.setId(ScenicView.SCENIC_VIEW_BASE_ID + "componentSelectorRect");
             rect.setOnMousePressed(new EventHandler<MouseEvent>() {
                 @Override public void handle(final MouseEvent ev) {
-                    
+
                     model2gui.selectOnClick(StageModel.this, findDeepSelection(ev.getX(), ev.getY()));
-                    
+
                 }
             });
             rect.setManaged(false);
@@ -356,7 +344,7 @@ public class StageModel {
                 removeFromNode(target, grid);
         }
     }
-    
+
     private Parent findFertileParent(final Parent p) {
         Parent fertile = (p instanceof Group || p instanceof Pane) ? p : null;
         if (fertile == null) {
@@ -368,7 +356,6 @@ public class StageModel {
         }
         return fertile; // could be null!
     }
-    
 
     private void updateBaseline(final boolean show, final Point2D orig, final double width) {
         if (show) {
@@ -401,7 +388,7 @@ public class StageModel {
                 }
             });
             final boolean canBeRefreshed = StyleSheetRefresher.canStylesBeRefreshed(targetScene);
-            
+
             if (refresher == null || refresher.getScene() != value) {
                 if (refresher != null)
                     refresher.finish();
@@ -425,13 +412,12 @@ public class StageModel {
                 addToNode(target, componentHighLighter);
             }
         }
-        
+
     }
-    
 
     private TreeItem<SVNode> findDeepSelection(final double x, final double y) {
         return getHoveredNode(x, y);
-        
+
     }
 
     private TreeItem<SVNode> getHoveredNode(final double x, final double y) {
@@ -441,7 +427,7 @@ public class StageModel {
             /**
              * Discard filtered nodes
              */
-            if(!info.isInvalidForFilter()) {
+            if (!info.isInvalidForFilter()) {
                 final Point2D localPoint = info.getImpl().sceneToLocal(x, y);
                 if (info.getImpl().contains(localPoint)) {
                     /**
@@ -457,7 +443,6 @@ public class StageModel {
         return null;
     }
 
-
     public void setModel2gui(final Model2GUI model2gui) {
         this.model2gui = model2gui;
         setTarget(target);
@@ -467,13 +452,13 @@ public class StageModel {
     private boolean canStylesheetsBeRefreshed() {
         return StyleSheetRefresher.canStylesBeRefreshed(targetScene);
     }
-    
+
     public void configurationUpdated(final Configuration configuration) {
-        if(configuration.isShowBaseline()!=this.configuration.isShowBaseline()) {
+        if (configuration.isShowBaseline() != this.configuration.isShowBaseline()) {
             this.configuration.setShowBaseline(configuration.isShowBaseline());
             updateBaseline();
         }
-        
+
     }
 
     public void setSelectedNode(final SVRealNodeAdapter svRealNodeAdapter) {
@@ -482,15 +467,19 @@ public class StageModel {
             old.boundsInParentProperty().removeListener(selectedNodePropListener);
             old.layoutBoundsProperty().removeListener(selectedNodePropListener);
         }
-        this.selectedNode = svRealNodeAdapter.getImpl();
-        if (selectedNode != null) {
-            selectedNode.boundsInParentProperty().addListener(selectedNodePropListener);
-            selectedNode.layoutBoundsProperty().addListener(selectedNodePropListener);
+        if (svRealNodeAdapter != null) {
+            this.selectedNode = svRealNodeAdapter.getImpl();
+            if (selectedNode != null) {
+                selectedNode.boundsInParentProperty().addListener(selectedNodePropListener);
+                selectedNode.layoutBoundsProperty().addListener(selectedNodePropListener);
+            }
+        } else {
+            selectedNode = null;
         }
         updateBoundsRects();
         updateBaseline();
     }
-    
+
     private Node selectedNode;
 
     private void updateBaseline() {
@@ -498,36 +487,33 @@ public class StageModel {
             final double baseline = selectedNode.getBaselineOffset();
             final Bounds bounds = selectedNode.getLayoutBounds();
             updateBaseline(true, selectedNode.localToScene(bounds.getMinX(), bounds.getMinY() + baseline), bounds.getWidth());
-            
+
         } else {
             updateBaseline(false, null, 0);
         }
     }
-    
-    
+
     private void updateBoundsRects() {
-        if(this.configuration.isShowBounds()) {
+        if (this.configuration.isShowBounds()) {
             updateBoundsRects(selectedNode);
-        }
-        else {
+        } else {
             updateBoundsRects(null);
         }
     }
 
-    
     void propertyTracker(final Node node, final boolean add) {
         PropertyTracker tracker = propertyTrackers.remove(node);
-        if(tracker != null) {
+        if (tracker != null) {
             tracker.clear();
         }
-        if(add && configuration.isEventLogEnabled()) {
+        if (add && configuration.isEventLogEnabled()) {
             tracker = new PropertyTracker() {
-                
+
                 @Override protected void updateDetail(final String propertyName, @SuppressWarnings("rawtypes") final ObservableValue property) {
                     /**
                      * Remove the bean
                      */
-                    model2gui.dispatchEvent(new EvLogEvent(STAGE_ID, new SVRealNodeAdapter(node), EventLogPane.PROPERTY_CHANGED, propertyName+"="+property.getValue()));
+                    model2gui.dispatchEvent(new EvLogEvent(STAGE_ID, new SVRealNodeAdapter(node), EventLogPane.PROPERTY_CHANGED, propertyName + "=" + property.getValue()));
                 }
             };
             tracker.setTarget(node);
@@ -537,5 +523,27 @@ public class StageModel {
 
     public StageID getID() {
         return STAGE_ID;
+    }
+
+    public void placeStage(final Stage stage) {
+        if (targetWindow != null) {
+            stage.setX(targetWindow.getX() + targetWindow.getWidth());
+            stage.setY(targetWindow.getY());
+            try {
+                // Prevents putting the stage out of the screen
+                final Screen primary = Screen.getPrimary();
+                if (primary != null) {
+                    final Rectangle2D rect = primary.getVisualBounds();
+                    if (stage.getX() + stage.getWidth() > rect.getMaxX()) {
+                        stage.setX(rect.getMaxX() - stage.getWidth());
+                    }
+                    if (stage.getY() + stage.getHeight() > rect.getMaxY()) {
+                        stage.setX(rect.getMaxY() - stage.getHeight());
+                    }
+                }
+            } catch (final Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
