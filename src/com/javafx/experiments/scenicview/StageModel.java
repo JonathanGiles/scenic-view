@@ -10,6 +10,7 @@ import javafx.collections.ListChangeListener;
 import javafx.event.*;
 import javafx.geometry.*;
 import javafx.scene.*;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -566,7 +567,7 @@ public class StageModel {
         this.configuration.setVisibilityFilteringActive(configuration.isVisibilityFilteringActive());
     }
 
-    public void setSelectedNode(final SVRealNodeAdapter svRealNodeAdapter) {
+    public void setSelectedNode(final SVNode svRealNodeAdapter) {
         final Node old = selectedNode;
         if (old != null) {
             old.boundsInParentProperty().removeListener(selectedNodePropListener);
@@ -654,6 +655,10 @@ public class StageModel {
     
     private void addNewNode(final Node node) {
         updateListeners(node, true, false);
+        boolean mustBeExpanded = !(node instanceof Control) || !configuration.isCollapseControls();
+        if (!mustBeExpanded && !configuration.isCollapseContentControls()) {
+            mustBeExpanded = node instanceof TabPane || node instanceof SplitPane || node instanceof ScrollPane || node instanceof Accordion || node instanceof TitledPane;
+        }
         model2gui.dispatchEvent(new NodeAddRemoveEvent(SVEventType.NODE_ADDED, getID(), new SVRealNodeAdapter(node)));
     }
     
