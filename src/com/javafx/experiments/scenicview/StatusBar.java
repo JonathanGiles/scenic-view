@@ -1,13 +1,11 @@
 package com.javafx.experiments.scenicview;
 
-import static com.javafx.experiments.scenicview.DisplayUtils.getBranchCount;
-
 import java.util.*;
 
 import javafx.animation.*;
 import javafx.event.*;
 import javafx.geometry.Pos;
-import javafx.scene.*;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.util.Duration;
@@ -89,13 +87,13 @@ public class StatusBar extends HBox {
         stageBoundsText.setText(bounds);
     }
 
-    void updateNodeCount(final Scene targetScene) {
-        nodeCountText.setText(Integer.toString(targetScene != null ? getBranchCount(targetScene.getRoot()) : 0));
+    void updateNodeCount(final int count) {
+        nodeCountText.setText(Integer.toString(count));
     }
 
-    void updateSceneDetails(final Scene targetScene) {
-        sceneSizeText.setText(targetScene != null ? targetScene.getWidth() + " x " + targetScene.getHeight() : "");
-        updateNodeCount(targetScene);
+    void updateSceneDetails(final String size, final int count) {
+        sceneSizeText.setText(size);
+        updateNodeCount(count);
     }
 
     void updateMousePosition(final String position) {

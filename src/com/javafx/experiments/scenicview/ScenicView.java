@@ -12,9 +12,8 @@ import java.util.*;
 
 import javafx.beans.*;
 import javafx.beans.Observable;
-import javafx.beans.property.Property;
 import javafx.beans.value.*;
-import javafx.collections.*;
+import javafx.collections.ObservableList;
 import javafx.event.*;
 import javafx.geometry.*;
 import javafx.scene.*;
@@ -87,18 +86,6 @@ public class ScenicView extends Region {
 
     Configuration configuration = new Configuration();
 
-    /**
-     * Listeners and EventHandlers
-     */
-    private final EventHandler<? super Event> traceEventHandler = new EventHandler<Event>() {
-
-        @Override public void handle(final Event event) {
-            if (eventLogPane.isActive()) {
-                eventLogPane.trace(new SVRealNodeAdapter((Node) event.getSource()), event.getEventType().toString(), "");
-            }
-        }
-    };
-
     private final Model2GUI stageModelListener = new Model2GUI() {
 
         private boolean isActive(final StageModel stageModel) {
@@ -112,32 +99,6 @@ public class ScenicView extends Region {
         @Override public void updateStageModel(final StageModel stageModel) {
             if (isActive(stageModel))
                 ScenicView.this.updateStageModel(stageModel);
-        }
-
-        @Override public void selectOnClick(final StageModel stageModel, final TreeItem<SVNode> nodeData) {
-            componentSelectOnClick.setSelected(false);
-            if (nodeData != null) {
-                treeView.getSelectionModel().select(nodeData);
-                treeView.scrollTo(treeView.getSelectionModel().getSelectedIndex());
-            }
-            scenicViewStage.toFront();
-        }
-
-        @Override public boolean isIgnoreMouseTransparent() {
-            return ignoreMouseTransparentNodes.isSelected();
-        }
-
-        @Override public boolean isAutoRefreshStyles() {
-            return autoRefreshStyleSheets.isSelected();
-        }
-
-        @Override public List<TreeItem<SVNode>> getTreeItems() {
-            return treeViewData;
-        }
-
-        @Override public void updateSceneDetails(final StageModel stageModel, final Scene targetScene) {
-            if (isActive(stageModel))
-                statusBar.updateSceneDetails(targetScene);
         }
 
         @Override public void dispatchEvent(final AppEvent appEvent) {
@@ -157,18 +118,47 @@ public class ScenicView extends Region {
                 if (isActive(wevent.getStageID()))
                     statusBar.updateWindowDetails(wevent.getWindowType(), wevent.getBounds(), wevent.isFocused());
                 break;
+            case NODE_SELECTED:
+                componentSelectOnClick.setSelected(false);
+                final SVNode nodeData = ((NodeSelectedEvent) appEvent).getNode();
+                if (nodeData != null) {
+                    for (int i = 0; i < treeViewData.size(); i++) {
+                        final TreeItem<SVNode> item = treeViewData.get(i);
+                        if (item.getValue().equals(nodeData)) {
+                            treeView.getSelectionModel().select(item);
+                            treeView.scrollTo(treeView.getSelectionModel().getSelectedIndex());
+                            break;
+                        }
+                    }
+                }
+                scenicViewStage.toFront();
+                break;
+
+            case NODE_COUNT:
+                statusBar.updateNodeCount(((NodeCountEvent) appEvent).getNodeCount());
+                break;
+                
+            case SCENE_DETAILS:
+                if (isActive(appEvent.getStageID())) {
+                    final SceneDetailsEvent sEvent = (SceneDetailsEvent)appEvent;
+                    statusBar.updateSceneDetails(sEvent.getSize(), sEvent.getNodeCount());
+                }
+                break;
+                
+            case NODE_ADDED:
+                addNewNode(((NodeAddRemoveEvent)appEvent).getNode().getImpl());
+                break;
+                
+            case NODE_REMOVED:
+                removeTreeItem(((NodeAddRemoveEvent)appEvent).getNode().getImpl());
+                break;
 
             default:
+                System.out.println("Unused event");
                 break;
             }
         }
     };
-
-    /**
-     * Special nodes included in target stages
-     */
-    private final ListChangeListener<Node> structureInvalidationListener;
-    private final ChangeListener<Boolean> visibilityInvalidationListener;
 
     private final List<StageModel> stages = new ArrayList<StageModel>();
     StageModel activeStage;
@@ -264,11 +254,27 @@ public class ScenicView extends Region {
             }
         };
         collapseControls = buildCheckMenuItem("Collapse controls In Tree", "Controls will be collapsed", "Controls will be expanded", "collapseControls", Boolean.TRUE);
-        collapseControls.selectedProperty().addListener(menuTreeChecksListener);
+        collapseControls.selectedProperty().addListener(new ChangeListener<Boolean>() {
+
+            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
+                configuration.setCollapseControls(newValue);
+                configurationUpdated();
+                updateStageModel(activeStage);
+            }
+        });
+        configuration.setCollapseControls(collapseControls.isSelected());
 
         collapseContentControls = buildCheckMenuItem("Collapse container controls In Tree", "Container controls will be collapsed", "Container controls will be expanded", "collapseContainerControls", Boolean.FALSE);
-        collapseContentControls.selectedProperty().addListener(menuTreeChecksListener);
+        collapseContentControls.selectedProperty().addListener(new ChangeListener<Boolean>() {
+
+            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
+                configuration.setCollapseContentControls(newValue);
+                configurationUpdated();
+                updateStageModel(activeStage);
+            }
+        });
         collapseContentControls.disableProperty().bind(collapseControls.selectedProperty().not());
+        configuration.setCollapseContentControls(collapseContentControls.isSelected());
 
         final CheckMenuItem showCSSProperties = buildCheckMenuItem("Show CSS Properties", "Show CSS properties", "Hide CSS properties", "showCSSProperties", Boolean.FALSE);
         showCSSProperties.selectedProperty().addListener(new InvalidationListener() {
@@ -292,13 +298,23 @@ public class ScenicView extends Region {
         automaticScenegraphStructureRefreshing.selectedProperty().addListener(new ChangeListener<Boolean>() {
 
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
-                if (newValue) {
-                    update();
-                }
+                configuration.setAutoRefreshSceneGraph(automaticScenegraphStructureRefreshing.isSelected());
+                configurationUpdated();
+
             }
         });
+        configuration.setAutoRefreshSceneGraph(automaticScenegraphStructureRefreshing.isSelected());
+
         final CheckMenuItem showInvisibleNodes = buildCheckMenuItem("Show Invisible Nodes In Tree", "Invisible nodes will be faded in the scenegraph tree", "Invisible nodes will not be shown in the scenegraph tree", "showInvisibleNodes", Boolean.FALSE);
-        showInvisibleNodes.selectedProperty().addListener(menuTreeChecksListener);
+        final ChangeListener<Boolean> visilityListener = new ChangeListener<Boolean>() {
+
+            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean arg2) {
+                configuration.setVisibilityFilteringActive(!showInvisibleNodes.isSelected() && !showFilteredNodesInTree.isSelected());
+                configurationUpdated();
+                updateStageModel(activeStage);
+            }
+        };
+        showInvisibleNodes.selectedProperty().addListener(visilityListener);
 
         activeNodeFilters.add(new NodeFilter() {
             @Override public boolean allowChildrenOnRejection() {
@@ -322,7 +338,10 @@ public class ScenicView extends Region {
         showNodesIdInTree.selectedProperty().addListener(menuTreeChecksListener);
 
         showFilteredNodesInTree = buildCheckMenuItem("Show Filtered Nodes In Tree", "Filtered nodes will be faded in the tree", "Filtered nodes will not be shown in tree (unless they are parents of non-filtered nodes)", "showFilteredNodesInTree", Boolean.TRUE);
-        showFilteredNodesInTree.selectedProperty().addListener(menuTreeChecksListener);
+        
+        showFilteredNodesInTree.selectedProperty().addListener(visilityListener);
+        configuration.setVisibilityFilteringActive(!showInvisibleNodes.isSelected() && !showFilteredNodesInTree.isSelected());
+        
 
         /**
          * Filter invisible nodes only makes sense if showFilteredNodesInTree is
@@ -339,20 +358,28 @@ public class ScenicView extends Region {
         });
 
         ignoreMouseTransparentNodes = buildCheckMenuItem("Ignore MouseTransparent Nodes", "Transparent nodes will not be selectable", "Transparent nodes can be selected", "ignoreMouseTransparentNodes", Boolean.TRUE);
+        ignoreMouseTransparentNodes.selectedProperty().addListener(new ChangeListener<Boolean>() {
+
+            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
+                configuration.setIgnoreMouseTransparent(newValue);
+                configurationUpdated();
+            }
+        });
+        configuration.setIgnoreMouseTransparent(ignoreMouseTransparentNodes.isSelected());
 
         autoRefreshStyleSheets = buildCheckMenuItem("Auto-Refresh StyleSheets", "A background thread will check modifications on the css files to reload them if needed", "StyleSheets autorefreshing disabled", "autoRefreshStyleSheets", Boolean.FALSE);
         autoRefreshStyleSheets.selectedProperty().addListener(new ChangeListener<Boolean>() {
 
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
-                for (final Iterator<StageModel> iterator = stages.iterator(); iterator.hasNext();) {
-                    final StageModel stage = iterator.next();
-                    stage.styleRefresher(newValue);
-                }
+                configuration.setAutoRefreshStyles(newValue);
+                configurationUpdated();
             }
         });
+        configuration.setAutoRefreshStyles(autoRefreshStyleSheets.isSelected());
 
         final Menu scenegraphMenu = new Menu("Scenegraph");
         scenegraphMenu.getItems().addAll(automaticScenegraphStructureRefreshing, autoRefreshStyleSheets, /**
+         * 
          * 
          * 
          * new SeparatorMenuItem(), showScenegraphTrace,
@@ -367,7 +394,8 @@ public class ScenicView extends Region {
         slider.valueProperty().addListener(new ChangeListener<Number>() {
 
             @Override public void changed(final ObservableValue<? extends Number> arg0, final Number arg1, final Number newValue) {
-                activeStage.grid.updateSeparation(newValue.doubleValue());
+                configuration.setRulerSeparation((int) newValue.doubleValue());
+                configurationUpdated();
                 sliderValue.setText(DisplayUtils.format(newValue.doubleValue()));
             }
         });
@@ -379,7 +407,8 @@ public class ScenicView extends Region {
             @Override public void handle(final ActionEvent arg0) {
                 final double value = DisplayUtils.parse(sliderValue.getText());
                 if (value >= slider.getMin() && value <= slider.getMax()) {
-                    activeStage.grid.updateSeparation(value);
+                    configuration.setRulerSeparation((int) slider.getValue());
+                    configurationUpdated();
                     slider.setValue(value);
                 } else if (value < slider.getMin()) {
                     sliderValue.setText(DisplayUtils.format(slider.getMin()));
@@ -398,7 +427,9 @@ public class ScenicView extends Region {
         showRuler.selectedProperty().addListener(new ChangeListener<Boolean>() {
 
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean oldValue, final Boolean newValue) {
-                activeStage.showGrid(newValue.booleanValue(), (int) slider.getValue());
+                configuration.setShowRuler(newValue.booleanValue());
+                configuration.setRulerSeparation((int) slider.getValue());
+                configurationUpdated();
             }
         });
         rulerSlider.disableProperty().bind(showRuler.selectedProperty().not());
@@ -596,50 +627,6 @@ public class ScenicView extends Region {
         borderPane.setBottom(statusBar);
 
         getChildren().add(borderPane);
-
-        visibilityInvalidationListener = new ChangeListener<Boolean>() {
-
-            @Override public void changed(final ObservableValue<? extends Boolean> observable, final Boolean arg1, final Boolean newValue) {
-                if (automaticScenegraphStructureRefreshing.isSelected()) {
-                    @SuppressWarnings("unchecked") final Node bean = (Node) ((Property<Boolean>) observable).getBean();
-                    final boolean filteringActive = !showInvisibleNodes.isSelected() && !showFilteredNodesInTree.isSelected();
-                    if (filteringActive && !newValue) {
-                        removeTreeItem(bean, false, false);
-                        statusBar.updateNodeCount(activeStage.targetScene);
-                    } else if (filteringActive && newValue) {
-                        addNewNode(bean);
-                        statusBar.updateNodeCount(activeStage.targetScene);
-                    } else {
-                        /**
-                         * This should be improved ideally we use request a
-                         * repaint for the TreeItem
-                         */
-                        removeTreeItem(bean, false, false);
-                        addNewNode(bean);
-                    }
-                }
-            }
-        };
-
-        structureInvalidationListener = new ListChangeListener<Node>() {
-            @Override public void onChanged(final Change<? extends Node> c) {
-                if (automaticScenegraphStructureRefreshing.isSelected()) {
-                    while (c.next()) {
-                        for (final Node dead : c.getRemoved()) {
-                            eventLogPane.trace(new SVRealNodeAdapter(dead), EventLogPane.NODE_REMOVED, "");
-
-                            removeTreeItem(dead, true, false);
-                        }
-                        for (final Node alive : c.getAddedSubList()) {
-                            eventLogPane.trace(new SVRealNodeAdapter(alive), EventLogPane.NODE_ADDED, "");
-
-                            addNewNode(alive);
-                        }
-                    }
-                    statusBar.updateNodeCount(activeStage.targetScene);
-                }
-            }
-        };
         addNewStage(new StageModel(target));
         this.scenicViewStage = senicViewStage;
         Persistence.loadProperty("stageWidth", senicViewStage, 640);
@@ -661,6 +648,7 @@ public class ScenicView extends Region {
         }
         stages.add(stageModel);
         stageModel.setModel2gui(stageModelListener);
+        configurationUpdated();
     }
 
     void update() {
@@ -675,7 +663,7 @@ public class ScenicView extends Region {
         final Node previouslySelected = selectedNode;
         treeViewData.clear();
         previouslySelectedItem = null;
-        TreeItem<SVNode> root = createTreeItem(value, true);
+        TreeItem<SVNode> root = createTreeItem(value);
 
         /**
          * If the target is the root node of the scene include subwindows
@@ -707,7 +695,7 @@ public class ScenicView extends Region {
                         targetWindowImage = new Image(windowIcon.toString());
                     }
                     final TreeItem<SVNode> subWindow = new TreeItem<SVNode>(new SVDummyNode("SubWindow -" + nodeClass(window)), new ImageView(targetWindowImage));
-                    subWindow.getChildren().add(createTreeItem(window.getScene().getRoot(), false));
+                    subWindow.getChildren().add(createTreeItem(window.getScene().getRoot()));
                     subWindows.getChildren().add(subWindow);
                 }
                 app.getChildren().add(subWindows);
@@ -730,7 +718,7 @@ public class ScenicView extends Region {
         }
     }
 
-    private TreeItem<SVNode> createTreeItem(final Node node, final boolean updateCount) {
+    private TreeItem<SVNode> createTreeItem(final Node node) {
         /**
          * Strategy:
          * 
@@ -757,19 +745,6 @@ public class ScenicView extends Region {
             }
             expand |= filter.expandAllNodes();
         }
-        /**
-         * Incredibly ugly workaround for the cursor in the TextField that
-         * changes its visibility constantly
-         */
-        if (svNode.getId() == null || !svNode.getId().startsWith(SCENIC_VIEW_BASE_ID)) {
-            node.visibleProperty().removeListener(visibilityInvalidationListener);
-            node.visibleProperty().addListener(visibilityInvalidationListener);
-            activeStage.propertyTracker(node, true);
-
-            node.removeEventFilter(Event.ANY, traceEventHandler);
-            if (eventLogPane.isActive())
-                node.addEventFilter(Event.ANY, traceEventHandler);
-        }
         svNode.setShowId(showNodesIdInTree.isSelected());
         final TreeItem<SVNode> treeItem = new TreeItem<SVNode>(svNode, new ImageView(DisplayUtils.getIcon(svNode)));
         if (svNode.equals(selectedNode)) {
@@ -784,11 +759,9 @@ public class ScenicView extends Region {
         node.getProperties().put(SCENIC_VIEW_BASE_ID + "TreeItem", treeItem);
 
         if (node instanceof Parent) {
-            ((Parent) node).getChildrenUnmodifiable().removeListener(structureInvalidationListener);
-            ((Parent) node).getChildrenUnmodifiable().addListener(structureInvalidationListener);
             final List<TreeItem<SVNode>> childItems = new ArrayList<TreeItem<SVNode>>();
             for (final Node child : ((Parent) node).getChildrenUnmodifiable()) {
-                childItems.add(createTreeItem(child, updateCount));
+                childItems.add(createTreeItem(child));
             }
             for (final TreeItem<SVNode> childItem : childItems) {
                 // childItems[x] could be null because of bounds rectangles or
@@ -804,8 +777,6 @@ public class ScenicView extends Region {
 
             treeItem.setExpanded(mustBeExpanded);
         }
-        if (updateCount)
-            statusBar.updateNodeCount(activeStage.targetScene);
 
         if (nodeAccepted) {
             return treeItem;
@@ -837,7 +808,7 @@ public class ScenicView extends Region {
 
     private void addNewNode(final Node alive) {
         final TreeItem<SVNode> selected = treeView.getSelectionModel().getSelectedItem();
-        final TreeItem<SVNode> TreeItem = createTreeItem(alive, false);
+        final TreeItem<SVNode> TreeItem = createTreeItem(alive);
         // childItems[x] could be null because of bounds
         // rectangles or filtered nodes
         if (TreeItem != null) {
@@ -869,7 +840,7 @@ public class ScenicView extends Region {
         allDetailsPane.filterProperties(text);
     }
 
-    private void removeTreeItem(final Node node, final boolean removeVisibilityListener, final boolean updateCount) {
+    private void removeTreeItem(final Node node) {
         TreeItem<SVNode> selected = null;
         if (selectedNode == node) {
             treeView.getSelectionModel().clearSelection();
@@ -887,18 +858,11 @@ public class ScenicView extends Region {
              */
             @SuppressWarnings("unchecked") final TreeItem<SVNode> children[] = treeItemChildren.toArray(new TreeItem[treeItemChildren.size()]);
             for (int i = 0; i < children.length; i++) {
-                removeTreeItem(children[i].getValue().getImpl(), removeVisibilityListener, updateCount);
+                removeTreeItem(children[i].getValue().getImpl());
             }
         }
         final SVNode nodeData = treeItem.getValue();
-        if (nodeData.getImpl() instanceof Parent) {
-            ((Parent) node).getChildrenUnmodifiable().removeListener(structureInvalidationListener);
-        }
-        if (nodeData.getImpl() != null && removeVisibilityListener) {
-            node.visibleProperty().removeListener(visibilityInvalidationListener);
-            activeStage.propertyTracker(node, false);
-            node.removeEventFilter(Event.ANY, traceEventHandler);
-        }
+
         // This does not seem to delete the TreeItem from the tree -- only moves
         // it up a level visually
         /**
@@ -911,9 +875,6 @@ public class ScenicView extends Region {
         if (selected != null) {
             // Ugly workaround
             treeView.getSelectionModel().select(selected);
-        }
-        if (updateCount) {
-            statusBar.updateNodeCount(activeStage.targetScene);
         }
     }
 

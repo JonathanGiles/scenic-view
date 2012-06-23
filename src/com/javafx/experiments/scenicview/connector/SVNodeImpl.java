@@ -4,6 +4,7 @@ public abstract class SVNodeImpl implements SVNode {
 
     boolean invalidForFilter;
     boolean showID;
+    boolean expanded;
 
     @Override public void setInvalidForFilter(final boolean invalid) {
         this.invalidForFilter = invalid;
@@ -15,6 +16,14 @@ public abstract class SVNodeImpl implements SVNode {
 
     @Override public void setShowId(final boolean showID) {
         this.showID = showID;
+    }
+
+    @Override public boolean isExpanded() {
+        return this.expanded;
+    }
+
+    @Override public void setExpanded(final boolean expanded) {
+        this.expanded = expanded;
     }
 
 }

@@ -42,5 +42,9 @@ public interface SVNode {
     boolean isInvalidForFilter();
 
     void setShowId(boolean showId);
+    
+    boolean isExpanded();
+    
+    void setExpanded(boolean expanded);
 
 }
