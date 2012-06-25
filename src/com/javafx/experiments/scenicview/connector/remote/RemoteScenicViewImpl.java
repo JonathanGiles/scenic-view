@@ -47,6 +47,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                     final int[] ids = application.getStageIDs();
                     final AppControllerImpl impl = new AppControllerImpl(port, vmInfo.get(port));
                     for (int i = 0; i < ids.length; i++) {
+                        System.out.println("App:" + port + " id:" + ids[i]);
                         final int cont = i;
                         impl.getStages().add(new StageController() {
 

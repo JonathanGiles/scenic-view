@@ -593,12 +593,7 @@ public class ScenicView extends Region implements SelectedNodeContainer {
 
     public void addNewApp(final AppController appController) {
         if (!apps.contains(appController)) {
-            if (apps.isEmpty()) {
-                activeStage = appController.getStages().get(0);
-            } else {
-                apps.clear();
-                activeStage = appController.getStages().get(0);
-            }
+            activeStage = appController.getStages().get(0);
             apps.add(appController);
         }
         final List<StageController> stages = appController.getStages();
