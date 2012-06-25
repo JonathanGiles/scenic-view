@@ -13,6 +13,7 @@ import javafx.stage.*;
 import javafx.util.Callback;
 
 import com.javafx.experiments.scenicview.*;
+import com.javafx.experiments.scenicview.connector.StageController;
 import com.javafx.experiments.scenicview.helper.*;
 import com.javafx.experiments.scenicview.helper.WindowChecker.WindowFilter;
 
@@ -26,7 +27,7 @@ public class StageSelectionBox {
     private final Scene scene;
     private final ListView<String> windowList;
 
-    private StageSelectionBox(final String title, final double x, final double y, final Stage stageScenic, final ScenicView scenicView, final List<StageModel> active) {
+    private StageSelectionBox(final String title, final double x, final double y, final Stage stageScenic, final ScenicView scenicView, final List<StageController> active) {
         this.panel = new VBox();
         this.panel.getStyleClass().add("stageSelection");
         final List<Window> stages = WindowChecker.getValidWindows(new WindowFilter() {
@@ -118,11 +119,11 @@ public class StageSelectionBox {
         // scenicView.close();
         // }
         // ScenicView.show(stage.getScene());
-        scenicView.addNewStage(new StageModel(stage));
+        scenicView.addNewStage(new StageController(stage));
         this.stage.close();
     }
 
-    public static StageSelectionBox make(final String title, final ScenicView scenicView, final List<StageModel> active) {
+    public static StageSelectionBox make(final String title, final ScenicView scenicView, final List<StageController> active) {
         final Stage stage = (Stage) scenicView.getScene().getWindow();
         return new StageSelectionBox(title, stage == null ? 0 : stage.getX() + (stage.getWidth() / 2) - (SCENE_WIDTH / 2), stage == null ? 0 : stage.getY() + (stage.getHeight() / 2) - (SCENE_HEIGHT / 2), stage, scenicView, active);
     }

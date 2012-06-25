@@ -1,10 +1,17 @@
 package com.javafx.experiments.scenicview.connector;
 
+import javafx.scene.image.Image;
+
 public abstract class SVNodeImpl implements SVNode {
 
     boolean invalidForFilter;
     boolean showID;
     boolean expanded;
+    protected final String nodeClass;
+
+    protected SVNodeImpl(final String nodeClass) {
+        this.nodeClass = nodeClass;
+    }
 
     @Override public void setInvalidForFilter(final boolean invalid) {
         this.invalidForFilter = invalid;
@@ -24,6 +31,14 @@ public abstract class SVNodeImpl implements SVNode {
 
     @Override public void setExpanded(final boolean expanded) {
         this.expanded = expanded;
+    }
+
+    @Override public Image getIcon() {
+        return null;
+    }
+
+    @Override public String getNodeClass() {
+        return nodeClass;
     }
 
 }

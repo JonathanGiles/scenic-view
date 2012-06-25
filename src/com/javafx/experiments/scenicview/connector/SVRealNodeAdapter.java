@@ -3,17 +3,30 @@ package com.javafx.experiments.scenicview.connector;
 import java.util.*;
 
 import javafx.scene.*;
+import javafx.scene.control.*;
 
 import com.javafx.experiments.scenicview.DisplayUtils;
 
 public class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
 
     private final Node node;
-    private final String nodeClass;
+    private final boolean collapseControls;
+    private final boolean collapseContentControls;
 
     public SVRealNodeAdapter(final Node node) {
+        this(node, true, true);
+    }
+
+    public SVRealNodeAdapter(final Node node, final boolean collapseControls, final boolean collapseContentControls) {
+        super(DisplayUtils.nodeClass(node));
         this.node = node;
-        this.nodeClass = DisplayUtils.nodeClass(node);
+        this.collapseControls = collapseControls;
+        this.collapseContentControls = collapseContentControls;
+        boolean mustBeExpanded = !(node instanceof Control) || !collapseControls;
+        if (!mustBeExpanded && !collapseContentControls) {
+            mustBeExpanded = node instanceof TabPane || node instanceof SplitPane || node instanceof ScrollPane || node instanceof Accordion || node instanceof TitledPane;
+        }
+        setExpanded(mustBeExpanded);
     }
 
     @Override public String getId() {
@@ -24,7 +37,7 @@ public class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
         /**
          * This should be improved
          */
-        return new SVRealNodeAdapter(node.getParent());
+        return new SVRealNodeAdapter(node.getParent(), collapseControls, collapseContentControls);
     }
 
     @Override public List<SVNode> getChildren() {
@@ -35,7 +48,7 @@ public class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
             final List<SVNode> nodes = new ArrayList<SVNode>();
             final List<Node> realNodes = ((Parent) node).getChildrenUnmodifiable();
             for (int i = 0; i < realNodes.size(); i++) {
-                nodes.add(new SVRealNodeAdapter(realNodes.get(i)));
+                nodes.add(new SVRealNodeAdapter(realNodes.get(i), collapseControls, collapseContentControls));
             }
             return nodes;
         }
@@ -57,7 +70,7 @@ public class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
         if (node instanceof SVRealNodeAdapter) {
             return node.getImpl() == this.node;
         } else {
-            return getNodeId() == node.getNodeId();
+            return node != null && getNodeId() == node.getNodeId();
         }
     }
 
@@ -67,10 +80,6 @@ public class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
 
     @Override public int getNodeId() {
         return node.hashCode();
-    }
-
-    @Override public String getNodeClass() {
-        return nodeClass;
     }
 
     @Override public boolean isVisible() {
@@ -107,5 +116,9 @@ public class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
 
     @Override public String getExtendedId() {
         return DisplayUtils.nodeDetail(this, true);
+    }
+
+    @Override public boolean isRealNode() {
+        return true;
     }
 }

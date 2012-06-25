@@ -2,7 +2,7 @@ package com.javafx.experiments.scenicview.remote;
 
 import java.rmi.RemoteException;
 
-import com.javafx.experiments.scenicview.StageModel;
+import com.javafx.experiments.scenicview.connector.StageController;
 import com.javafx.experiments.scenicview.connector.event.MousePosEvent;
 
 public class RemoteScenicViewServer {
@@ -26,7 +26,7 @@ public class RemoteScenicViewServer {
                     }
                 }
                 try {
-                    scenicView.dispatchEvent(new MousePosEvent(StageModel.STAGE_ID, "300x300"));
+                    scenicView.dispatchEvent(new MousePosEvent(StageController.STAGE_ID, "300x300"));
                 } catch (final RemoteException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();

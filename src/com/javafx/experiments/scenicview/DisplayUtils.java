@@ -71,6 +71,8 @@ public class DisplayUtils {
     }
 
     public static Image getIcon(final SVNode svNode) {
+        if (svNode.getIcon() != null)
+            return svNode.getIcon();
         final URL resource = DisplayUtils.getNodeIcon(svNode.getNodeClass());
         String url;
         if (resource != null) {

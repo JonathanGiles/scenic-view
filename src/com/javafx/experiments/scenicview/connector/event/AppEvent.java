@@ -7,8 +7,7 @@ import com.javafx.experiments.scenicview.connector.StageID;
 public class AppEvent implements Serializable {
 
     public enum SVEventType {
-        EVENT_LOG, MOUSE_POSITION, WINDOW_DETAILS, NODE_SELECTED, NODE_ADDED, NODE_REMOVED,
-        NODE_COUNT, SCENE_DETAILS
+        EVENT_LOG, MOUSE_POSITION, WINDOW_DETAILS, NODE_SELECTED, NODE_ADDED, NODE_REMOVED, NODE_COUNT, SCENE_DETAILS, ROOT_UPDATED
     }
 
     /**

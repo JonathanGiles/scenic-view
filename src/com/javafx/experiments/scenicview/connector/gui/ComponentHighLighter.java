@@ -1,4 +1,4 @@
-package com.javafx.experiments.scenicview;
+package com.javafx.experiments.scenicview.connector.gui;
 
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
@@ -7,7 +7,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.scene.text.Text;
 
-import com.javafx.experiments.scenicview.connector.SVNode;
+import com.javafx.experiments.scenicview.*;
+import com.javafx.experiments.scenicview.connector.*;
 
 public class ComponentHighLighter extends Group {
 
@@ -62,7 +63,7 @@ public class ComponentHighLighter extends Group {
             getChildren().add(pane);
         }
         setManaged(false);
-        setId(ScenicView.SCENIC_VIEW_BASE_ID + "componentHighLighter");
+        setId(StageController.SCENIC_VIEW_BASE_ID + "componentHighLighter");
     }
 
 }

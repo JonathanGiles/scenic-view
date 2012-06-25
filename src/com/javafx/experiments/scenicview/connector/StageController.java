@@ -1,4 +1,6 @@
-package com.javafx.experiments.scenicview;
+package com.javafx.experiments.scenicview.connector;
+
+import static com.javafx.experiments.scenicview.DisplayUtils.nodeClass;
 
 import java.util.*;
 
@@ -10,27 +12,28 @@ import javafx.collections.ListChangeListener;
 import javafx.event.*;
 import javafx.geometry.*;
 import javafx.scene.*;
-import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.stage.*;
 
-import com.javafx.experiments.scenicview.connector.*;
+import com.javafx.experiments.scenicview.*;
 import com.javafx.experiments.scenicview.connector.event.AppEvent.SVEventType;
 import com.javafx.experiments.scenicview.connector.event.*;
+import com.javafx.experiments.scenicview.connector.gui.*;
 import com.javafx.experiments.scenicview.helper.StyleSheetRefresher;
 
-public class StageModel {
+public class StageController {
 
     public static StageID STAGE_ID = new StageID(0, 0);
 
     private StyleSheetRefresher refresher;
 
     private Parent overlayParent;
-    Parent target;
-    Scene targetScene;
+    private Parent target;
+    private Scene targetScene;
     public Window targetWindow;
     /**
      * Simplification for now, only a plain structure for now
@@ -44,7 +47,7 @@ public class StageModel {
     private Node componentHighLighter;
     private RuleGrid grid;
 
-    private Model2GUI model2gui;
+    private AppEventDispatcher dispatcher;
 
     private final SubWindowChecker windowChecker;
 
@@ -56,7 +59,7 @@ public class StageModel {
 
     private final Map<Node, PropertyTracker> propertyTrackers = new HashMap<Node, PropertyTracker>();
 
-    Configuration configuration = new Configuration();
+    private final Configuration configuration = new Configuration();
 
     private final EventHandler<? super MouseEvent> sceneHoverListener = new EventHandler<MouseEvent>() {
 
@@ -65,7 +68,6 @@ public class StageModel {
         }
 
     };
-    
 
     /**
      * Listeners and EventHandlers
@@ -74,21 +76,21 @@ public class StageModel {
 
         @Override public void handle(final Event event) {
             if (configuration.isEventLogEnabled()) {
-                model2gui.dispatchEvent(new EvLogEvent(getID(), new SVRealNodeAdapter((Node) event.getSource()), event.getEventType().toString(), ""));
+                dispatcher.dispatchEvent(new EvLogEvent(getID(), createNode((Node) event.getSource()), event.getEventType().toString(), ""));
             }
         }
     };
-    
+
     private final ListChangeListener<Node> structureInvalidationListener;
     private final ChangeListener<Boolean> visibilityInvalidationListener;
 
     private Node previousHightLightedData;
 
-    public StageModel(final Stage stage) {
+    public StageController(final Stage stage) {
         this(stage.getScene().getRoot());
     }
 
-    public StageModel(final Parent target) {
+    public StageController(final Parent target) {
         targetScenePropListener = new InvalidationListener() {
             @Override public void invalidated(final Observable value) {
                 updateSceneDetails();
@@ -103,7 +105,7 @@ public class StageModel {
         targetWindowSceneListener = new InvalidationListener() {
 
             @Override public void invalidated(final Observable arg0) {
-                if (targetScene.getRoot() == StageModel.this.target) {
+                if (targetScene.getRoot() == StageController.this.target) {
                     setTarget(targetWindow.getScene().getRoot());
                     update();
                 }
@@ -133,7 +135,7 @@ public class StageModel {
                         removeNode(bean, false);
                         addNewNode(bean);
                     }
-                    model2gui.dispatchEvent(new NodeCountEvent(getID(), DisplayUtils.getBranchCount(target)));
+                    dispatcher.dispatchEvent(new NodeCountEvent(getID(), DisplayUtils.getBranchCount(target)));
                 }
             }
         };
@@ -143,18 +145,18 @@ public class StageModel {
                 if (configuration.isAutoRefreshSceneGraph()) {
                     while (c.next()) {
                         for (final Node dead : c.getRemoved()) {
-                            final SVNode node = new SVRealNodeAdapter(dead);
-                            model2gui.dispatchEvent(new EvLogEvent(getID(), node, EventLogPane.NODE_REMOVED, ""));
+                            final SVNode node = createNode(dead);
+                            dispatcher.dispatchEvent(new EvLogEvent(getID(), node, EventLogPane.NODE_REMOVED, ""));
                             removeNode(dead, true);
                         }
                         for (final Node alive : c.getAddedSubList()) {
-                            final SVNode node = new SVRealNodeAdapter(alive);
-                            model2gui.dispatchEvent(new EvLogEvent(getID(), node, EventLogPane.NODE_ADDED, ""));
-                            
+                            final SVNode node = createNode(alive);
+                            dispatcher.dispatchEvent(new EvLogEvent(getID(), node, EventLogPane.NODE_ADDED, ""));
+
                             addNewNode(alive);
                         }
                     }
-                    model2gui.dispatchEvent(new NodeCountEvent(getID(), DisplayUtils.getBranchCount(target)));
+                    dispatcher.dispatchEvent(new NodeCountEvent(getID(), DisplayUtils.getBranchCount(target)));
                 }
             }
         };
@@ -162,13 +164,13 @@ public class StageModel {
         windowChecker = new SubWindowChecker(this);
         windowChecker.start();
         boundsInParentRect = new Rectangle();
-        boundsInParentRect.setId(ScenicView.SCENIC_VIEW_BASE_ID + "boundsInParentRect");
+        boundsInParentRect.setId(StageController.SCENIC_VIEW_BASE_ID + "boundsInParentRect");
         boundsInParentRect.setFill(Color.YELLOW);
         boundsInParentRect.setOpacity(.5);
         boundsInParentRect.setManaged(false);
         boundsInParentRect.setMouseTransparent(true);
         layoutBoundsRect = new Rectangle();
-        layoutBoundsRect.setId(ScenicView.SCENIC_VIEW_BASE_ID + "layoutBoundsRect");
+        layoutBoundsRect.setId(StageController.SCENIC_VIEW_BASE_ID + "layoutBoundsRect");
         layoutBoundsRect.setFill(null);
         layoutBoundsRect.setStroke(Color.GREEN);
         layoutBoundsRect.setStrokeType(StrokeType.INSIDE);
@@ -178,7 +180,7 @@ public class StageModel {
         layoutBoundsRect.setManaged(false);
         layoutBoundsRect.setMouseTransparent(true);
         baselineLine = new Line();
-        baselineLine.setId(ScenicView.SCENIC_VIEW_BASE_ID + "baselineLine");
+        baselineLine.setId(StageController.SCENIC_VIEW_BASE_ID + "baselineLine");
         baselineLine.setStroke(Color.RED);
         baselineLine.setOpacity(.75);
         baselineLine.setStrokeWidth(1);
@@ -225,7 +227,7 @@ public class StageModel {
                 final List<Node> nodes = ((Group) target).getChildren();
                 for (final Iterator<Node> iterator = nodes.iterator(); iterator.hasNext();) {
                     final Node node = iterator.next();
-                    if (node.getId() != null && node.getId().startsWith(ScenicView.SCENIC_VIEW_BASE_ID)) {
+                    if (node.getId() != null && node.getId().startsWith(StageController.SCENIC_VIEW_BASE_ID)) {
                         iterator.remove();
                     }
                 }
@@ -234,7 +236,7 @@ public class StageModel {
                 final List<Node> nodes = ((Pane) target).getChildren();
                 for (final Iterator<Node> iterator = nodes.iterator(); iterator.hasNext();) {
                     final Node node = iterator.next();
-                    if (node.getId() != null && node.getId().startsWith(ScenicView.SCENIC_VIEW_BASE_ID)) {
+                    if (node.getId() != null && node.getId().startsWith(StageController.SCENIC_VIEW_BASE_ID)) {
                         iterator.remove();
                     }
                 }
@@ -244,12 +246,42 @@ public class StageModel {
 
     public void update() {
         updateListeners(target, true, false);
-        model2gui.updateStageModel(this);
+        SVNode root = createNode(target);
+        /**
+         * If the target is the root node of the scene include subwindows
+         */
+        if (targetScene != null && targetScene.getRoot() == target) {
+            String title = "App";
+            Image targetStageImage = null;
+            if (targetScene.getWindow() instanceof Stage) {
+                final Stage s = ((Stage) targetScene.getWindow());
+                if (!s.getIcons().isEmpty()) {
+                    targetStageImage = ((Stage) targetScene.getWindow()).getIcons().get(0);
+                }
+                title = s.getTitle() != null ? s.getTitle() : "App";
+            }
+            final SVDummyNode app = new SVDummyNode(title, "Stage");
+            app.setIcon(targetStageImage);
+            app.setExpanded(true);
+            app.getChildren().add(root);
+            if (!popupWindows.isEmpty()) {
+                final SVDummyNode subWindows = new SVDummyNode("SubWindows", "Popup");
+                for (int i = 0; i < popupWindows.size(); i++) {
+                    final PopupWindow window = popupWindows.get(i);
+                    final SVDummyNode subWindow = new SVDummyNode("SubWindow -" + nodeClass(window), nodeClass(window));
+                    subWindow.getChildren().add(createNode(window.getScene().getRoot()));
+                    subWindows.getChildren().add(subWindow);
+                }
+                app.getChildren().add(subWindows);
+            }
+            root = app;
+        }
+        dispatcher.dispatchEvent(new NodeAddRemoveEvent(SVEventType.ROOT_UPDATED, getID(), root));
     }
 
     public void updateSceneDetails() {
         // hack, since we can't listen for a STAGE prop change on scene
-        model2gui.dispatchEvent(new SceneDetailsEvent(getID(), DisplayUtils.getBranchCount(target), targetScene != null ? targetScene.getWidth() + " x " + targetScene.getHeight() : ""));
+        dispatcher.dispatchEvent(new SceneDetailsEvent(getID(), DisplayUtils.getBranchCount(target), targetScene != null ? targetScene.getWidth() + " x " + targetScene.getHeight() : ""));
         if (targetScene != null && targetWindow == null) {
             setTargetWindow(targetScene.getWindow());
         }
@@ -278,9 +310,9 @@ public class StageModel {
 
     private void updateWindowDetails() {
         if (targetWindow != null) {
-            model2gui.dispatchEvent(new WindowDetailsEvent(getID(), targetWindow.getClass().getSimpleName(), DisplayUtils.boundsToString(targetWindow.getX(), targetWindow.getY(), targetWindow.getWidth(), targetWindow.getHeight()), targetWindow.isFocused(), canStylesheetsBeRefreshed()));
+            dispatcher.dispatchEvent(new WindowDetailsEvent(getID(), targetWindow.getClass().getSimpleName(), DisplayUtils.boundsToString(targetWindow.getX(), targetWindow.getY(), targetWindow.getWidth(), targetWindow.getHeight()), targetWindow.isFocused(), canStylesheetsBeRefreshed()));
         } else {
-            model2gui.dispatchEvent(new WindowDetailsEvent(getID(), null, "", false, false));
+            dispatcher.dispatchEvent(new WindowDetailsEvent(getID(), null, "", false, false));
         }
     }
 
@@ -368,10 +400,10 @@ public class StageModel {
             rect.setFill(Color.TRANSPARENT);
             rect.setWidth(targetWindow.getWidth());
             rect.setHeight(targetWindow.getHeight());
-            rect.setId(ScenicView.SCENIC_VIEW_BASE_ID + "componentSelectorRect");
+            rect.setId(StageController.SCENIC_VIEW_BASE_ID + "componentSelectorRect");
             rect.setOnMousePressed(new EventHandler<MouseEvent>() {
                 @Override public void handle(final MouseEvent ev) {
-                    model2gui.dispatchEvent(new NodeSelectedEvent(getID(), new SVRealNodeAdapter(getHoveredNode(ev.getX(), ev.getY()))));
+                    dispatcher.dispatchEvent(new NodeSelectedEvent(getID(), createNode(getHoveredNode(ev.getX(), ev.getY()))));
 
                 }
             });
@@ -392,7 +424,7 @@ public class StageModel {
     private void showGrid(final boolean newValue, final int gap) {
         if (newValue) {
             grid = new RuleGrid(gap, targetScene.getWidth(), targetScene.getHeight());
-            grid.setId(ScenicView.SCENIC_VIEW_BASE_ID + "ruler");
+            grid.setId(StageController.SCENIC_VIEW_BASE_ID + "ruler");
             grid.setManaged(false);
             addToNode(target, grid);
         } else {
@@ -442,7 +474,7 @@ public class StageModel {
             targetScene.setOnMouseMoved(new EventHandler<MouseEvent>() {
 
                 @Override public void handle(final MouseEvent ev) {
-                    model2gui.dispatchEvent(new MousePosEvent(STAGE_ID, (int) ev.getSceneX() + "x" + (int) ev.getSceneY()));
+                    dispatcher.dispatchEvent(new MousePosEvent(STAGE_ID, (int) ev.getSceneX() + "x" + (int) ev.getSceneY()));
                 }
             });
             final boolean canBeRefreshed = StyleSheetRefresher.canStylesBeRefreshed(targetScene);
@@ -466,7 +498,7 @@ public class StageModel {
             }
             if (nodeData != null) {
                 // TODO Change this
-                componentHighLighter = new ComponentHighLighter(new SVRealNodeAdapter(nodeData), targetWindow != null ? targetWindow.getWidth() : -1, targetWindow != null ? targetWindow.getHeight() : -1, toSceneBounds(nodeData, nodeData.getBoundsInParent(), 0, 0));
+                componentHighLighter = new ComponentHighLighter(createNode(nodeData), targetWindow != null ? targetWindow.getWidth() : -1, targetWindow != null ? targetWindow.getHeight() : -1, toSceneBounds(nodeData, nodeData.getBoundsInParent(), 0, 0));
                 addToNode(target, componentHighLighter);
             }
         }
@@ -474,38 +506,41 @@ public class StageModel {
     }
 
     private Node getHoveredNode(final double x, final double y) {
-//        final List<TreeItem<SVNode>> infos = model2gui.getTreeItems();
-//        for (int i = infos.size() - 1; i >= 0; i--) {
-//            final SVNode info = infos.get(i).getValue();
-//            /**
-//             * Discard filtered nodes
-//             */
-//            if (!info.isInvalidForFilter()) {
-//                final Point2D localPoint = info.getImpl().sceneToLocal(x, y);
-//                if (info.getImpl().contains(localPoint)) {
-//                    /**
-//                     * Mouse Transparent nodes can be ignored
-//                     */
-//                    final boolean selectable = !model2gui.isIgnoreMouseTransparent() || !info.isMouseTransparent();
-//                    if (selectable) {
-//                        return infos.get(i);
-//                    }
-//                }
-//            }
-//        }
-//        return null;
+        // final List<TreeItem<SVNode>> infos = model2gui.getTreeItems();
+        // for (int i = infos.size() - 1; i >= 0; i--) {
+        // final SVNode info = infos.get(i).getValue();
+        // /**
+        // * Discard filtered nodes
+        // */
+        // if (!info.isInvalidForFilter()) {
+        // final Point2D localPoint = info.getImpl().sceneToLocal(x, y);
+        // if (info.getImpl().contains(localPoint)) {
+        // /**
+        // * Mouse Transparent nodes can be ignored
+        // */
+        // final boolean selectable = !model2gui.isIgnoreMouseTransparent() ||
+        // !info.isMouseTransparent();
+        // if (selectable) {
+        // return infos.get(i);
+        // }
+        // }
+        // }
+        // }
+        // return null;
 
         return getHoveredNode(target, x, y);
     }
-    
+
     private Node getHoveredNode(final Node target, final double x, final double y) {
-        if(target.getId() != null && target.getId().startsWith(ScenicView.SCENIC_VIEW_BASE_ID)) return null;
-        if(target instanceof Parent) {
-            final List<Node> childrens = ((Parent)target).getChildrenUnmodifiable();
+        if (target.getId() != null && target.getId().startsWith(StageController.SCENIC_VIEW_BASE_ID))
+            return null;
+        if (target instanceof Parent) {
+            final List<Node> childrens = ((Parent) target).getChildrenUnmodifiable();
             for (int i = childrens.size() - 1; i >= 0; i--) {
                 final Node node = childrens.get(i);
                 final Node hovered = getHoveredNode(node, x, y);
-                if(hovered != null) return hovered;
+                if (hovered != null)
+                    return hovered;
             }
         }
         final Point2D localPoint = target.sceneToLocal(x, y);
@@ -518,8 +553,8 @@ public class StageModel {
         return null;
     }
 
-    public void setModel2gui(final Model2GUI model2gui) {
-        this.model2gui = model2gui;
+    public void setModel2gui(final AppEventDispatcher model2gui) {
+        this.dispatcher = model2gui;
         setTarget(target);
         update();
     }
@@ -537,16 +572,15 @@ public class StageModel {
             this.configuration.setShowBounds(configuration.isShowBounds());
             updateBoundsRects();
         }
-        if(configuration.isShowRuler() != this.configuration.isShowRuler()) {
+        if (configuration.isShowRuler() != this.configuration.isShowRuler()) {
             showGrid(configuration.isShowRuler(), configuration.getRulerSeparation());
             this.configuration.setShowRuler(configuration.isShowRuler());
             this.configuration.setRulerSeparation(configuration.getRulerSeparation());
-        }
-        else if(configuration.getRulerSeparation()!= this.configuration.getRulerSeparation() && grid != null) {
+        } else if (configuration.getRulerSeparation() != this.configuration.getRulerSeparation() && grid != null) {
             grid.updateSeparation(configuration.getRulerSeparation());
             this.configuration.setRulerSeparation(configuration.getRulerSeparation());
         }
-        if(configuration.isAutoRefreshStyles() != this.configuration.isAutoRefreshStyles()) {
+        if (configuration.isAutoRefreshStyles() != this.configuration.isAutoRefreshStyles()) {
             this.configuration.setAutoRefreshStyles(configuration.isAutoRefreshStyles());
             if (this.configuration.isAutoRefreshStyles()) {
                 startRefresher();
@@ -554,7 +588,7 @@ public class StageModel {
                 refresher.finish();
             }
         }
-        if(configuration.isAutoRefreshSceneGraph() != this.configuration.isAutoRefreshSceneGraph()) {
+        if (configuration.isAutoRefreshSceneGraph() != this.configuration.isAutoRefreshSceneGraph()) {
             this.configuration.setAutoRefreshSceneGraph(configuration.isAutoRefreshSceneGraph());
             if (this.configuration.isAutoRefreshSceneGraph()) {
                 update();
@@ -565,6 +599,7 @@ public class StageModel {
         this.configuration.setCollapseContentControls(configuration.isCollapseContentControls());
         this.configuration.setCollapseControls(configuration.isCollapseControls());
         this.configuration.setVisibilityFilteringActive(configuration.isVisibilityFilteringActive());
+        update();
     }
 
     public void setSelectedNode(final SVNode svRealNodeAdapter) {
@@ -587,6 +622,8 @@ public class StageModel {
     }
 
     private Node selectedNode;
+
+    public static final String SCENIC_VIEW_BASE_ID = "ScenicView.";
 
     private void updateBaseline() {
         if (this.configuration.isShowBaseline() && selectedNode != null) {
@@ -619,7 +656,7 @@ public class StageModel {
                     /**
                      * Remove the bean
                      */
-                    model2gui.dispatchEvent(new EvLogEvent(STAGE_ID, new SVRealNodeAdapter(node), EventLogPane.PROPERTY_CHANGED, propertyName + "=" + property.getValue()));
+                    dispatcher.dispatchEvent(new EvLogEvent(STAGE_ID, createNode(node), EventLogPane.PROPERTY_CHANGED, propertyName + "=" + property.getValue()));
                 }
             };
             tracker.setTarget(node);
@@ -652,24 +689,21 @@ public class StageModel {
             }
         }
     }
-    
+
     private void addNewNode(final Node node) {
         updateListeners(node, true, false);
-        boolean mustBeExpanded = !(node instanceof Control) || !configuration.isCollapseControls();
-        if (!mustBeExpanded && !configuration.isCollapseContentControls()) {
-            mustBeExpanded = node instanceof TabPane || node instanceof SplitPane || node instanceof ScrollPane || node instanceof Accordion || node instanceof TitledPane;
-        }
-        model2gui.dispatchEvent(new NodeAddRemoveEvent(SVEventType.NODE_ADDED, getID(), new SVRealNodeAdapter(node)));
+        final SVNode svNode = createNode(node);
+        dispatcher.dispatchEvent(new NodeAddRemoveEvent(SVEventType.NODE_ADDED, getID(), svNode));
     }
-    
+
     private void removeNode(final Node node, final boolean removeVisibilityListener) {
         updateListeners(node, false, removeVisibilityListener);
-        model2gui.dispatchEvent(new NodeAddRemoveEvent(SVEventType.NODE_REMOVED, getID(), new SVRealNodeAdapter(node)));
+        dispatcher.dispatchEvent(new NodeAddRemoveEvent(SVEventType.NODE_REMOVED, getID(), createNode(node)));
     }
-    
+
     private void updateListeners(final Node node, final boolean add, final boolean removeVisibilityListener) {
-        if(add) {
-            if (node.getId() == null || !node.getId().startsWith(ScenicView.SCENIC_VIEW_BASE_ID)) {
+        if (add) {
+            if (node.getId() == null || !node.getId().startsWith(StageController.SCENIC_VIEW_BASE_ID)) {
                 node.visibleProperty().removeListener(visibilityInvalidationListener);
                 node.visibleProperty().addListener(visibilityInvalidationListener);
                 propertyTracker(node, true);
@@ -686,8 +720,7 @@ public class StageModel {
                     }
                 }
             }
-        }
-        else {
+        } else {
             if (node instanceof Parent) {
                 ((Parent) node).getChildrenUnmodifiable().removeListener(structureInvalidationListener);
                 final List<Node> childrens = ((Parent) node).getChildrenUnmodifiable();
@@ -701,5 +734,9 @@ public class StageModel {
                 node.removeEventFilter(Event.ANY, traceEventHandler);
             }
         }
+    }
+
+    private SVNode createNode(final Node node) {
+        return new SVRealNodeAdapter(node, configuration.isCollapseControls(), configuration.isCollapseContentControls());
     }
 }

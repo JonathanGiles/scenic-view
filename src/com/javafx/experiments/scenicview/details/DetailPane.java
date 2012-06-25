@@ -18,6 +18,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 
 import com.javafx.experiments.scenicview.*;
+import com.javafx.experiments.scenicview.connector.PropertyTracker;
 
 /**
  * 

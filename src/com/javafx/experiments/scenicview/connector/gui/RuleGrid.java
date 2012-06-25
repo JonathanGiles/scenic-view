@@ -4,7 +4,7 @@
  * Created on 18-sep-2009, 20:52:51
  */
 
-package com.javafx.experiments.scenicview;
+package com.javafx.experiments.scenicview.connector.gui;
 
 import java.util.*;
 

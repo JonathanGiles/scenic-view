@@ -3,20 +3,20 @@ package com.javafx.experiments.scenicview.connector;
 import java.util.*;
 
 import javafx.scene.Node;
+import javafx.scene.image.Image;
 
 public class SVDummyNode extends SVNodeImpl implements SVNode {
 
     private final String name;
+    private final List<SVNode> childrens = new ArrayList<SVNode>();
+    private Image icon;
 
-    public SVDummyNode(final String name) {
+    public SVDummyNode(final String name, final String nodeClass) {
+        super(nodeClass);
         this.name = name;
     }
 
     @Override public String getId() {
-        return name;
-    }
-
-    @Override public String getNodeClass() {
         return name;
     }
 
@@ -29,7 +29,7 @@ public class SVDummyNode extends SVNodeImpl implements SVNode {
     }
 
     @Override public List<SVNode> getChildren() {
-        return Collections.emptyList();
+        return childrens;
     }
 
     @Override public boolean equals(final SVNode node) {
@@ -61,6 +61,22 @@ public class SVDummyNode extends SVNodeImpl implements SVNode {
 
     @Override public String toString() {
         return name;
+    }
+
+    @Override public boolean isRealNode() {
+        return false;
+    }
+
+    @Override public boolean isExpanded() {
+        return true;
+    }
+
+    @Override public Image getIcon() {
+        return icon;
+    }
+
+    public void setIcon(final Image icon) {
+        this.icon = icon;
     }
 
 }

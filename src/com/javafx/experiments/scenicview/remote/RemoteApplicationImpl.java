@@ -4,7 +4,7 @@ import java.net.InetAddress;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 
-import com.javafx.experiments.scenicview.StageModel;
+import com.javafx.experiments.scenicview.connector.StageController;
 import com.javafx.experiments.scenicview.connector.event.MousePosEvent;
 
 public class RemoteApplicationImpl extends RMIBrowserObject implements RemoteApplication {
@@ -68,7 +68,7 @@ public class RemoteApplicationImpl extends RMIBrowserObject implements RemoteApp
                     e.printStackTrace();
                 }
                 try {
-                    scenicView.dispatchEvent(new MousePosEvent(StageModel.STAGE_ID, "1024x345"));
+                    scenicView.dispatchEvent(new MousePosEvent(StageController.STAGE_ID, "1024x345"));
                 } catch (final RemoteException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();

@@ -1,4 +1,4 @@
-package com.javafx.experiments.scenicview;
+package com.javafx.experiments.scenicview.connector;
 
 import java.lang.reflect.Method;
 import java.util.*;

@@ -3,6 +3,7 @@ package com.javafx.experiments.scenicview.connector;
 import java.util.List;
 
 import javafx.scene.Node;
+import javafx.scene.image.Image;
 
 public interface SVNode {
 
@@ -32,6 +33,8 @@ public interface SVNode {
 
     boolean isFocused();
 
+    boolean isRealNode();
+
     /**
      * I'm not sure about this three methods...
      * 
@@ -42,9 +45,11 @@ public interface SVNode {
     boolean isInvalidForFilter();
 
     void setShowId(boolean showId);
-    
+
     boolean isExpanded();
-    
+
     void setExpanded(boolean expanded);
+
+    Image getIcon();
 
 }
