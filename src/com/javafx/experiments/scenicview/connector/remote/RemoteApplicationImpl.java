@@ -1,13 +1,13 @@
-package com.javafx.experiments.scenicview.remote;
+package com.javafx.experiments.scenicview.connector.remote;
 
-import java.net.InetAddress;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
+import java.rmi.server.UnicastRemoteObject;
+import java.util.*;
 
 import com.javafx.experiments.scenicview.connector.StageController;
 import com.javafx.experiments.scenicview.connector.event.MousePosEvent;
 
-public class RemoteApplicationImpl extends RMIBrowserObject implements RemoteApplication {
+public class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplication {
 
     /**
 	 * 
@@ -18,16 +18,9 @@ public class RemoteApplicationImpl extends RMIBrowserObject implements RemoteApp
     public RemoteApplicationImpl(final RemoteApplication browser, final int port) throws RemoteException {
         try {
             this.application = browser;
-            this.thisPort = port;
-            thisAddress = (InetAddress.getLocalHost()).toString();
-
-            // create the registry and bind the name and object.
-
-            registry = LocateRegistry.createRegistry(thisPort);
-
-            registry.rebind("AgentServer", this);
+            RMIUtils.bindApplication(this, port);
         } catch (final Exception e) {
-            throw new RemoteException();
+            throw new RemoteException("Error starting agent", e);
         }
 
     }
@@ -48,19 +41,10 @@ public class RemoteApplicationImpl extends RMIBrowserObject implements RemoteApp
         }, 7556);
         System.out.println("Remote application launched");
 
-        final Thread remoteScenicViewFinder = new Thread() {
-            @Override public void run() {
+        RMIUtils.findScenicView(new Observer() {
 
-                while (scenicView == null) {
-                    try {
-                        System.out.println("Finding ScenicView...");
-                        scenicView = new RemoteScenicViewFinder("127.0.0.1", 7557).getRemoteBrowser();
-
-                        sleep(10000);
-                    } catch (final Exception e) {
-
-                    }
-                }
+            @Override public void update(final Observable o, final Object obj) {
+                scenicView = (RemoteScenicView) obj;
                 try {
                     scenicView.onAgentStarted(7556);
                 } catch (final RemoteException e) {
@@ -75,8 +59,7 @@ public class RemoteApplicationImpl extends RMIBrowserObject implements RemoteApp
                 }
 
             }
-        };
-        remoteScenicViewFinder.start();
+        });
 
         while (scenicView == null) {
             Thread.sleep(1000);

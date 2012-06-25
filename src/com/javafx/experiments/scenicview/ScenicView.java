@@ -752,10 +752,12 @@ public class ScenicView extends Region implements SelectedNodeContainer {
         stage.setHeight(800);
         stage.setTitle("Scenic View v" + VERSION);
         final List<AppController> controllers = new ArrayList<AppController>();
-        final StageController sController = new StageController(target);
-        final AppController aController = new AppController("Local");
-        aController.getStages().add(sController);
-        controllers.add(aController);
+        if (target != null) {
+            final StageController sController = new StageController(target);
+            final AppController aController = new AppController("Local");
+            aController.getStages().add(sController);
+            controllers.add(aController);
+        }
         show(new ScenicView(controllers, stage), stage);
     }
 
@@ -764,7 +766,8 @@ public class ScenicView extends Region implements SelectedNodeContainer {
         scene.getStylesheets().addAll(STYLESHEETS);
         stage.setScene(scene);
         stage.getIcons().add(APP_ICON);
-        scenicview.activeStage.placeStage(stage);
+        if (scenicview.activeStage != null)
+            scenicview.activeStage.placeStage(stage);
 
         stage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, new EventHandler<WindowEvent>() {
             @Override public void handle(final WindowEvent arg0) {

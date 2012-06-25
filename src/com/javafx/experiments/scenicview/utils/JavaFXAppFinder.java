@@ -6,7 +6,10 @@ import java.util.*;
 
 import javafx.stage.Stage;
 
-import com.javafx.experiments.scenicview.remote.RemoteScenicViewImpl;
+import com.javafx.experiments.scenicview.ScenicView;
+import com.javafx.experiments.scenicview.connector.AppController;
+import com.javafx.experiments.scenicview.connector.remote.RemoteScenicViewImpl;
+import com.sun.javafx.application.PlatformImpl;
 import com.sun.tools.attach.*;
 
 /**
@@ -43,7 +46,29 @@ public class JavaFXAppFinder {
         return javaFXMachines;
     }
 
+    ScenicView view;
+
     public JavaFXAppFinder() {
+        PlatformImpl.startup(new Runnable() {
+
+            @Override public void run() {
+                final Stage stage = new Stage();
+                // workaround for RT-10714
+                stage.setWidth(640);
+                stage.setHeight(800);
+                stage.setTitle("Scenic View v" + ScenicView.VERSION);
+                view = new ScenicView(new ArrayList<AppController>(), stage);
+                ScenicView.show(view, stage);
+            }
+        });
+        while (view != null) {
+            try {
+                Thread.sleep(1000);
+            } catch (final InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
         try {
             RemoteScenicViewImpl.main(new String[0]);
         } catch (final RemoteException e1) {
@@ -71,6 +96,7 @@ public class JavaFXAppFinder {
         } catch (final Exception e) {
             e.printStackTrace();
         }
+
         for (final Iterator<Stage> iterator = stages.iterator(); iterator.hasNext();) {
             final Stage stage = iterator.next();
             System.out.println(stage);
