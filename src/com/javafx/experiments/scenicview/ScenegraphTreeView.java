@@ -76,8 +76,9 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
 
     void updateStageModel(final StageController controller, final SVNode value, final boolean showNodesIdInTree, final boolean showFilteredNodesInTree) {
         final SVNode previouslySelected = container.getSelectedNode();
-        treeViewData.clear();
+        // treeViewData.clear();
         previouslySelectedItem = null;
+        removeForNode(value);
         final TreeItem<SVNode> root = createTreeItem(value, showNodesIdInTree, showFilteredNodesInTree);
 
         final TreeItem<SVNode> applicationRoot = findStageRoot(controller);
@@ -282,6 +283,34 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         void setSelectedNode(SVNode node);
 
         SVNode getSelectedNode();
+    }
+
+    private void removeForNode(final SVNode node) {
+        final TreeItem<SVNode> treeItem = getTreeItem(node);
+        if (treeItem != null) {
+            final List<TreeItem<SVNode>> treeItemChildren = treeItem.getChildren();
+            if (treeItemChildren != null) {
+                /**
+                 * Do not use directly the list as it will suffer concurrent
+                 * modifications
+                 */
+                @SuppressWarnings("unchecked") final TreeItem<SVNode> children[] = treeItemChildren.toArray(new TreeItem[treeItemChildren.size()]);
+                for (int i = 0; i < children.length; i++) {
+                    removeForNode(children[i].getValue());
+                }
+            }
+
+            // This does not seem to delete the TreeItem from the tree -- only
+            // moves
+            // it up a level visually
+            /**
+             * I don't know why this protection is needed
+             */
+            if (treeItem.getParent() != null) {
+                treeItem.getParent().getChildren().remove(treeItem);
+            }
+        }
+        treeViewData.remove(treeItem);
     }
 
 }

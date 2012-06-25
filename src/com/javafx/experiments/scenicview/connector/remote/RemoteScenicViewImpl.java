@@ -17,6 +17,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
 
     Map<Integer, String> vmInfo = new HashMap<Integer, String>();
     AppEventDispatcher dispatcher;
+    List<AppEvent> previous = new ArrayList<AppEvent>();
 
     public RemoteScenicViewImpl(final ScenicView view) throws RemoteException {
         super();
@@ -30,10 +31,18 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
             Platform.runLater(new Runnable() {
 
                 @Override public void run() {
+                    if (!previous.isEmpty()) {
+                        for (int i = 0; i < previous.size(); i++) {
+                            dispatcher.dispatchEvent(previous.get(i));
+                        }
+                        previous.clear();
+                    }
                     dispatcher.dispatchEvent(event);
                 }
             });
 
+        } else {
+            previous.add(event);
         }
     }
 
