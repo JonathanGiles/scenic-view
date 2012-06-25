@@ -125,11 +125,11 @@ public class ScenicView extends Region implements SelectedNodeContainer {
         }
     };
 
-    private final List<StageController> stages = new ArrayList<StageController>();
+    private final List<AppController> apps = new ArrayList<AppController>();
     StageController activeStage;
     private SVNode selectedNode;
 
-    public ScenicView(final Parent target, final Stage senicViewStage) {
+    public ScenicView(final List<AppController> controllers, final Stage senicViewStage) {
         Persistence.loadProperties();
         Runtime.getRuntime().addShutdownHook(shutdownHook);
         setId("scenic-view");
@@ -189,7 +189,7 @@ public class ScenicView extends Region implements SelectedNodeContainer {
         final MenuItem findStageItem = new MenuItem("Find Stages");
         findStageItem.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(final ActionEvent arg0) {
-                StageSelectionBox.make("Find Stages", ScenicView.this, stages);
+                StageSelectionBox.make("Find Stages", ScenicView.this, apps);
             }
         });
 
@@ -570,34 +570,62 @@ public class ScenicView extends Region implements SelectedNodeContainer {
         borderPane.setBottom(statusBar);
 
         getChildren().add(borderPane);
-        addNewStage(new StageController(target));
+
+        for (int i = 0; i < controllers.size(); i++) {
+            addNewApp(controllers.get(i));
+        }
+
         this.scenicViewStage = senicViewStage;
         Persistence.loadProperty("stageWidth", senicViewStage, 640);
         Persistence.loadProperty("stageHeight", senicViewStage, 800);
     }
 
     protected void configurationUpdated() {
-        for (int i = 0; i < stages.size(); i++) {
-            stages.get(i).configurationUpdated(configuration);
+        for (int i = 0; i < apps.size(); i++) {
+            final List<StageController> stages = apps.get(i).getStages();
+            for (int j = 0; j < stages.size(); j++) {
+                stages.get(j).configurationUpdated(configuration);
+            }
         }
     }
 
-    public void addNewStage(final StageController stageModel) {
-        if (stages.isEmpty()) {
-            activeStage = stageModel;
-        } else {
-            stages.clear();
-            activeStage = stageModel;
+    public void addNewApp(final AppController appController) {
+        if (!apps.contains(appController)) {
+            if (apps.isEmpty()) {
+                activeStage = appController.getStages().get(0);
+            } else {
+                apps.clear();
+                activeStage = appController.getStages().get(0);
+            }
+            apps.add(appController);
         }
-        stages.add(stageModel);
-        stageModel.setModel2gui(stageModelListener);
+        final List<StageController> stages = appController.getStages();
+        for (int j = 0; j < stages.size(); j++) {
+            stages.get(j).setEventDispatcher(stageModelListener);
+        }
         configurationUpdated();
-
     }
+
+    //
+    // public void addNewStage(final StageController stageModel) {
+    // if (apps.isEmpty()) {
+    // activeStage = stageModel;
+    // } else {
+    // apps.clear();
+    // activeStage = stageModel;
+    // }
+    // apps.add(stageModel);
+    // stageModel.setEventDispatcher(stageModelListener);
+    // configurationUpdated();
+    //
+    // }
 
     void update() {
-        for (int i = 0; i < stages.size(); i++) {
-            stages.get(i).update();
+        for (int i = 0; i < apps.size(); i++) {
+            final List<StageController> stages = apps.get(i).getStages();
+            for (int j = 0; j < stages.size(); j++) {
+                stages.get(j).update();
+            }
         }
     }
 
@@ -661,8 +689,8 @@ public class ScenicView extends Region implements SelectedNodeContainer {
     }
 
     public void close() {
-        for (final Iterator<StageController> iterator = stages.iterator(); iterator.hasNext();) {
-            final StageController stage = iterator.next();
+        for (final Iterator<AppController> iterator = apps.iterator(); iterator.hasNext();) {
+            final AppController stage = iterator.next();
             stage.close();
         }
 
@@ -723,7 +751,12 @@ public class ScenicView extends Region implements SelectedNodeContainer {
         stage.setWidth(640);
         stage.setHeight(800);
         stage.setTitle("Scenic View v" + VERSION);
-        show(new ScenicView(target, stage), stage);
+        final List<AppController> controllers = new ArrayList<AppController>();
+        final StageController sController = new StageController(target);
+        final AppController aController = new AppController("Local");
+        aController.getStages().add(sController);
+        controllers.add(aController);
+        show(new ScenicView(controllers, stage), stage);
     }
 
     public static void show(final ScenicView scenicview, final Stage stage) {

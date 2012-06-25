@@ -1,6 +1,6 @@
 package com.javafx.experiments.scenicview.dialog;
 
-import java.util.List;
+import java.util.*;
 
 import javafx.collections.*;
 import javafx.event.*;
@@ -12,8 +12,8 @@ import javafx.scene.layout.*;
 import javafx.stage.*;
 import javafx.util.Callback;
 
-import com.javafx.experiments.scenicview.*;
-import com.javafx.experiments.scenicview.connector.StageController;
+import com.javafx.experiments.scenicview.ScenicView;
+import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.helper.*;
 import com.javafx.experiments.scenicview.helper.WindowChecker.WindowFilter;
 
@@ -26,10 +26,22 @@ public class StageSelectionBox {
     private final Stage stage;
     private final Scene scene;
     private final ListView<String> windowList;
+    AppController local;
 
-    private StageSelectionBox(final String title, final double x, final double y, final Stage stageScenic, final ScenicView scenicView, final List<StageController> active) {
+    private StageSelectionBox(final String title, final double x, final double y, final Stage stageScenic, final ScenicView scenicView, final List<AppController> apps) {
         this.panel = new VBox();
         this.panel.getStyleClass().add("stageSelection");
+
+        // Find Local App
+
+        final List<StageController> active = new ArrayList<StageController>();
+        for (int i = 0; i < apps.size(); i++) {
+            if (apps.get(i).isLocal()) {
+                local = apps.get(i);
+                active.addAll(apps.get(i).getStages());
+            }
+        }
+
         final List<Window> stages = WindowChecker.getValidWindows(new WindowFilter() {
 
             @Override public boolean accept(final Window window) {
@@ -60,7 +72,7 @@ public class StageSelectionBox {
                                     if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
                                         if (mouseEvent.getClickCount() == 2) {
                                             final int index = windowList.getSelectionModel().getSelectedIndex();
-                                            onSelected(scenicView, (Stage) stages.get(index));
+                                            onSelected(scenicView, (Stage) stages.get(index), local);
                                         }
                                     }
                                 }
@@ -90,7 +102,7 @@ public class StageSelectionBox {
 
             @Override public void handle(final ActionEvent arg0) {
                 final int index = windowList.getSelectionModel().getSelectedIndex();
-                onSelected(scenicView, (Stage) stages.get(index));
+                onSelected(scenicView, (Stage) stages.get(index), local);
 
             }
         });
@@ -114,16 +126,13 @@ public class StageSelectionBox {
         this.stage.show();
     }
 
-    private void onSelected(final ScenicView scenicView, final Stage stage) {
-        // if (scenicView != null) {
-        // scenicView.close();
-        // }
-        // ScenicView.show(stage.getScene());
-        scenicView.addNewStage(new StageController(stage));
+    private void onSelected(final ScenicView scenicView, final Stage stage, final AppController local) {
+        local.getStages().add(new StageController(stage));
+        scenicView.addNewApp(local);
         this.stage.close();
     }
 
-    public static StageSelectionBox make(final String title, final ScenicView scenicView, final List<StageController> active) {
+    public static StageSelectionBox make(final String title, final ScenicView scenicView, final List<AppController> active) {
         final Stage stage = (Stage) scenicView.getScene().getWindow();
         return new StageSelectionBox(title, stage == null ? 0 : stage.getX() + (stage.getWidth() / 2) - (SCENE_WIDTH / 2), stage == null ? 0 : stage.getY() + (stage.getHeight() / 2) - (SCENE_HEIGHT / 2), stage, scenicView, active);
     }

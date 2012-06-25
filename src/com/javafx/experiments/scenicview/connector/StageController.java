@@ -188,6 +188,23 @@ public class StageController {
         this.target = target;
     }
 
+    public void close() {
+        removeScenicViewComponents(target);
+        if (targetScene != null) {
+            targetScene.removeEventHandler(MouseEvent.MOUSE_MOVED, sceneHoverListener);
+        }
+        if (refresher != null)
+            refresher.finish();
+        if (windowChecker != null)
+            windowChecker.finish();
+    }
+
+    public void setEventDispatcher(final AppEventDispatcher model2gui) {
+        this.dispatcher = model2gui;
+        setTarget(target);
+        update();
+    }
+
     private void startRefresher() {
         refresher = new StyleSheetRefresher(targetScene);
     }
@@ -205,17 +222,6 @@ public class StageController {
             boundsInParentRect.setVisible(false);
             layoutBoundsRect.setVisible(false);
         }
-    }
-
-    public void close() {
-        removeScenicViewComponents(target);
-        if (targetScene != null) {
-            targetScene.removeEventHandler(MouseEvent.MOUSE_MOVED, sceneHoverListener);
-        }
-        if (refresher != null)
-            refresher.finish();
-        if (windowChecker != null)
-            windowChecker.finish();
     }
 
     private void removeScenicViewComponents(final Node target) {
@@ -279,7 +285,7 @@ public class StageController {
         dispatcher.dispatchEvent(new NodeAddRemoveEvent(SVEventType.ROOT_UPDATED, getID(), root));
     }
 
-    public void updateSceneDetails() {
+    private void updateSceneDetails() {
         // hack, since we can't listen for a STAGE prop change on scene
         dispatcher.dispatchEvent(new SceneDetailsEvent(getID(), DisplayUtils.getBranchCount(target), targetScene != null ? targetScene.getWidth() + " x " + targetScene.getHeight() : ""));
         if (targetScene != null && targetWindow == null) {
@@ -316,7 +322,7 @@ public class StageController {
         }
     }
 
-    void setTarget(final Parent value) {
+    private void setTarget(final Parent value) {
         // Find parent we can use to hang bounds rectangles
         this.target = value;
         if (overlayParent != null) {
@@ -506,28 +512,6 @@ public class StageController {
     }
 
     private Node getHoveredNode(final double x, final double y) {
-        // final List<TreeItem<SVNode>> infos = model2gui.getTreeItems();
-        // for (int i = infos.size() - 1; i >= 0; i--) {
-        // final SVNode info = infos.get(i).getValue();
-        // /**
-        // * Discard filtered nodes
-        // */
-        // if (!info.isInvalidForFilter()) {
-        // final Point2D localPoint = info.getImpl().sceneToLocal(x, y);
-        // if (info.getImpl().contains(localPoint)) {
-        // /**
-        // * Mouse Transparent nodes can be ignored
-        // */
-        // final boolean selectable = !model2gui.isIgnoreMouseTransparent() ||
-        // !info.isMouseTransparent();
-        // if (selectable) {
-        // return infos.get(i);
-        // }
-        // }
-        // }
-        // }
-        // return null;
-
         return getHoveredNode(target, x, y);
     }
 
@@ -551,12 +535,6 @@ public class StageController {
         }
 
         return null;
-    }
-
-    public void setModel2gui(final AppEventDispatcher model2gui) {
-        this.dispatcher = model2gui;
-        setTarget(target);
-        update();
     }
 
     private boolean canStylesheetsBeRefreshed() {

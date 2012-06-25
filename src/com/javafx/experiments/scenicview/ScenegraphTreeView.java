@@ -121,7 +121,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
             // rectangles or filtered nodes
             if (TreeItem != null) {
                 final SVNode parent = alive.getParent();
-                @SuppressWarnings("unchecked") final TreeItem<SVNode> parentTreeItem = getTreeItem(parent);
+                final TreeItem<SVNode> parentTreeItem = getTreeItem(parent);
 
                 /**
                  * In some situations node could be previously added
