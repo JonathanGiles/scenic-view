@@ -205,7 +205,7 @@ public class StageControllerImpl implements StageController {
         removeScenicViewComponents(target);
         if (targetScene != null) {
             targetScene.removeEventHandler(MouseEvent.MOUSE_MOVED, sceneHoverListener);
-            targetScene.removeEventFilter(MouseEvent.MOUSE_MOVED, mousePosListener);
+            targetScene.removeEventHandler(MouseEvent.MOUSE_MOVED, mousePosListener);
         }
         /**
          * Remove the window listeners
@@ -495,8 +495,8 @@ public class StageControllerImpl implements StageController {
             setTargetWindow(targetScene.getWindow());
             targetScene.widthProperty().addListener(targetScenePropListener);
             targetScene.heightProperty().addListener(targetScenePropListener);
-            targetScene.removeEventFilter(MouseEvent.MOUSE_MOVED, mousePosListener);
-            targetScene.addEventFilter(MouseEvent.MOUSE_MOVED, mousePosListener);
+            targetScene.removeEventHandler(MouseEvent.MOUSE_MOVED, mousePosListener);
+            targetScene.addEventHandler(MouseEvent.MOUSE_MOVED, mousePosListener);
             final boolean canBeRefreshed = StyleSheetRefresher.canStylesBeRefreshed(targetScene);
 
             if (refresher == null || refresher.getScene() != value) {
