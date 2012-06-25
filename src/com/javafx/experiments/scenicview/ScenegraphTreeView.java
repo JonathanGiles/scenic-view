@@ -9,6 +9,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
 
 import com.javafx.experiments.scenicview.connector.*;
+import com.javafx.experiments.scenicview.connector.node.SVNode;
 
 public class ScenegraphTreeView extends TreeView<SVNode> {
 

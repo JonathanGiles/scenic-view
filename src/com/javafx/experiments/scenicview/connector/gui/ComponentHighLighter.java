@@ -9,6 +9,7 @@ import javafx.scene.text.Text;
 
 import com.javafx.experiments.scenicview.*;
 import com.javafx.experiments.scenicview.connector.*;
+import com.javafx.experiments.scenicview.connector.node.SVNode;
 
 public class ComponentHighLighter extends Group {
 

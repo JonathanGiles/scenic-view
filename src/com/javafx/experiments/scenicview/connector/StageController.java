@@ -23,6 +23,7 @@ import com.javafx.experiments.scenicview.*;
 import com.javafx.experiments.scenicview.connector.event.AppEvent.SVEventType;
 import com.javafx.experiments.scenicview.connector.event.*;
 import com.javafx.experiments.scenicview.connector.gui.*;
+import com.javafx.experiments.scenicview.connector.node.*;
 import com.javafx.experiments.scenicview.helper.StyleSheetRefresher;
 
 public class StageController {

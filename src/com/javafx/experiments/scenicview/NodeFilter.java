@@ -1,6 +1,6 @@
 package com.javafx.experiments.scenicview;
 
-import com.javafx.experiments.scenicview.connector.SVNode;
+import com.javafx.experiments.scenicview.connector.node.SVNode;
 
 interface NodeFilter {
     /**

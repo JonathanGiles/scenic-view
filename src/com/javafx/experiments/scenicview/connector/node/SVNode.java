@@ -1,4 +1,4 @@
-package com.javafx.experiments.scenicview.connector;
+package com.javafx.experiments.scenicview.connector.node;
 
 import java.util.List;
 

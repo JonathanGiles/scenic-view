@@ -3,7 +3,7 @@ package com.javafx.experiments.scenicview;
 import javafx.scene.control.TreeCell;
 import javafx.scene.paint.Color;
 
-import com.javafx.experiments.scenicview.connector.SVNode;
+import com.javafx.experiments.scenicview.connector.node.SVNode;
 
 class CustomTreeCell extends TreeCell<SVNode> {
     @Override public void updateItem(final SVNode item, final boolean empty) {

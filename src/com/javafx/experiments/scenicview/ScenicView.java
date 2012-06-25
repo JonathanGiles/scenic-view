@@ -23,6 +23,7 @@ import javafx.stage.*;
 import com.javafx.experiments.scenicview.ScenegraphTreeView.SelectedNodeContainer;
 import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.event.*;
+import com.javafx.experiments.scenicview.connector.node.SVNode;
 import com.javafx.experiments.scenicview.details.AllDetailsPane;
 import com.javafx.experiments.scenicview.dialog.*;
 

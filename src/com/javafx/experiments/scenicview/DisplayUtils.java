@@ -17,7 +17,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.Region;
 import javafx.scene.transform.*;
 
-import com.javafx.experiments.scenicview.connector.SVNode;
+import com.javafx.experiments.scenicview.connector.node.SVNode;
 
 /**
  * 
