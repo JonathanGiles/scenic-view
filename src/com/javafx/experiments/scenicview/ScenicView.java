@@ -626,7 +626,9 @@ public class ScenicView extends Region implements SelectedNodeContainer {
                 }
             }
         }
-        return null;
+        System.out.println("Returning dummy!!!!!!");
+        return apps.get(0).getStages().get(0);
+        // return null;
     }
 
     protected void filterProperties(final String text) {
@@ -646,7 +648,7 @@ public class ScenicView extends Region implements SelectedNodeContainer {
 
     private void storeSelectedNode(final SVNode value) {
         selectedNode = value;
-        allDetailsPane.setTarget(selectedNode.getImpl());
+        allDetailsPane.setTarget(selectedNode != null ? selectedNode.getImpl() : null);
         setStatusText("Label on the labels to modify its values. The panel could have different capabilities. When changed the values will be highlighted", 8000);
         activeStage.setSelectedNode(value);
     }

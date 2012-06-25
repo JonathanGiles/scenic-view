@@ -1,16 +1,25 @@
 package com.javafx.experiments.scenicview.connector.node;
 
+import java.io.Serializable;
 import java.util.*;
 
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 
-public class SVDummyNode extends SVNodeImpl implements SVNode {
+public class SVDummyNode extends SVNodeImpl implements SVNode, Serializable {
 
-    private final String name;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 5879997163440845764L;
+    private String name;
     private final List<SVNode> childrens = new ArrayList<SVNode>();
-    private Image icon;
-    private final int nodeID;
+    private transient Image icon;
+    private int nodeID;
+
+    public SVDummyNode() {
+        super();
+    }
 
     public SVDummyNode(final String name, final String nodeClass, final int nodeID) {
         super(nodeClass);

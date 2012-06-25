@@ -4,8 +4,8 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
-import com.javafx.experiments.scenicview.connector.StageID;
-import com.javafx.experiments.scenicview.connector.event.MousePosEvent;
+import com.javafx.experiments.scenicview.connector.Configuration;
+import com.javafx.experiments.scenicview.connector.event.*;
 
 public class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplication {
 
@@ -14,59 +14,89 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
 	 */
     private static final long serialVersionUID = 1L;
     RemoteApplication application;
+    private RemoteScenicView scenicView;
 
-    public RemoteApplicationImpl(final RemoteApplication browser, final int port) throws RemoteException {
+    public RemoteApplicationImpl(final RemoteApplication application, final int port) throws RemoteException {
+        this.application = application;
         try {
-            this.application = browser;
             RMIUtils.bindApplication(this, port);
         } catch (final Exception e) {
             throw new RemoteException("Error starting agent", e);
         }
 
-    }
-
-    @Override public void sendInfo(final String info) throws RemoteException {
-        application.sendInfo(info);
-    }
-
-    public static RemoteScenicView scenicView;
-
-    public static void main(final String[] args) throws RemoteException, InterruptedException {
-        final int port = Integer.parseInt(args[0]);
-        new RemoteApplicationImpl(new RemoteApplication() {
-
-            @Override public void sendInfo(final String info) {
-                System.out.println("INFO:" + info);
-
-            }
-        }, port);
-        System.out.println("Remote application launched");
-
         RMIUtils.findScenicView(new Observer() {
 
             @Override public void update(final Observable o, final Object obj) {
                 scenicView = (RemoteScenicView) obj;
-                try {
-                    scenicView.onAgentStarted(port);
-                } catch (final RemoteException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                try {
-                    scenicView.dispatchEvent(new MousePosEvent(new StageID(0, 0), "1024x345"));
-                } catch (final RemoteException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
             }
         });
-
         while (scenicView == null) {
-            Thread.sleep(1000);
+            try {
+                Thread.sleep(1000);
+            } catch (final InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
         System.out.println("ScenicView found:" + scenicView);
+        application.setEventDispatcher(new AppEventDispatcher() {
 
+            @Override public void dispatchEvent(final AppEvent appEvent) {
+                try {
+                    if (scenicView != null)
+                        scenicView.dispatchEvent(appEvent);
+                    else {
+                        System.out.println("Cannot dispatch event:" + appEvent);
+                    }
+                } catch (final RemoteException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                    try {
+                        close();
+                        scenicView = null;
+                        RMIUtils.unbindApplication(port);
+
+                    } catch (final Exception e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
+                }
+            }
+        });
+        try {
+            scenicView.onAgentStarted(port);
+        } catch (final RemoteException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        try {
+            Thread.sleep(3000);
+        } catch (final InterruptedException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+
+    }
+
+    @Override public void configurationUpdated(final Configuration configuration) throws RemoteException {
+        application.configurationUpdated(configuration);
+    }
+
+    @Override public void update() throws RemoteException {
+        application.update();
+    }
+
+    @Override public void setEventDispatcher(final AppEventDispatcher dispatcher) throws RemoteException {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override public int[] getStageIDs() throws RemoteException {
+        return application.getStageIDs();
+    }
+
+    @Override public void close() throws RemoteException {
+        application.close();
     }
 
 }

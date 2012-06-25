@@ -1,6 +1,7 @@
 package com.javafx.experiments.scenicview.utils;
 
 import java.io.*;
+import java.net.Socket;
 import java.rmi.RemoteException;
 import java.util.*;
 
@@ -61,7 +62,7 @@ public class JavaFXAppFinder {
                 ScenicView.show(view, stage);
             }
         });
-        while (view != null) {
+        while (view == null) {
             try {
                 Thread.sleep(1000);
             } catch (final InterruptedException e) {
@@ -69,8 +70,9 @@ public class JavaFXAppFinder {
                 e.printStackTrace();
             }
         }
+        RemoteScenicViewImpl server = null;
         try {
-            final RemoteScenicViewImpl server = new RemoteScenicViewImpl(view);
+            server = new RemoteScenicViewImpl(view);
         } catch (final RemoteException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
@@ -80,14 +82,28 @@ public class JavaFXAppFinder {
         for (final Iterator<VirtualMachine> iterator = machines.iterator(); iterator.hasNext();) {
             final VirtualMachine virtualMachine = iterator.next();
             System.out.println(virtualMachine);
+
         }
         final File f = new File("./ScenicView.jar");
         System.out.println(f.getAbsolutePath());
 
         try {
             for (final VirtualMachine machine : machines) {
-                final int port = RMIUtils.getClientPort();
+                boolean valid = false;
+                int port = RMIUtils.getClientPort();
+                do {
+                    try {
+                        final Socket socket = new Socket("127.0.0.1", port);
+                        socket.close();
+                        valid = true;
+                        port = RMIUtils.getClientPort();
+                    } catch (final Exception e) {
+                        valid = false;
+                    }
+
+                } while (valid);
                 System.out.println("Loading agent for:" + machine + " on port:" + port);
+                server.addVMInfo(port, machine.id());
                 machine.loadAgent(f.getAbsolutePath(), Integer.toString(port));
                 machine.detach();
             }
@@ -95,9 +111,5 @@ public class JavaFXAppFinder {
             e.printStackTrace();
         }
 
-        for (final Iterator<Stage> iterator = stages.iterator(); iterator.hasNext();) {
-            final Stage stage = iterator.next();
-            System.out.println(stage);
-        }
     }
 }

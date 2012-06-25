@@ -62,6 +62,8 @@ public class StageControllerImpl implements StageController {
 
     private final Configuration configuration = new Configuration();
 
+    boolean remote;
+
     private final EventHandler<? super MouseEvent> sceneHoverListener = new EventHandler<MouseEvent>() {
 
         @Override public void handle(final MouseEvent ev) {
@@ -88,13 +90,20 @@ public class StageControllerImpl implements StageController {
     private Node previousHightLightedData;
     final AppController appController;
 
+    private final EventHandler<? super MouseEvent> mousePosListener = new EventHandler<MouseEvent>() {
+
+        @Override public void handle(final MouseEvent ev) {
+            dispatcher.dispatchEvent(new MousePosEvent(getID(), (int) ev.getSceneX() + "x" + (int) ev.getSceneY()));
+        }
+    };
+
     public StageControllerImpl(final Stage stage, final AppController appController) {
         this(stage.getScene().getRoot(), appController);
     }
 
     public StageControllerImpl(final Parent target, final AppController appController) {
         this.appController = appController;
-        this.stageID = new StageID(0, hashCode());
+        this.stageID = new StageID(appController.getID(), hashCode());
         targetScenePropListener = new InvalidationListener() {
             @Override public void invalidated(final Observable value) {
                 updateSceneDetails();
@@ -196,7 +205,12 @@ public class StageControllerImpl implements StageController {
         removeScenicViewComponents(target);
         if (targetScene != null) {
             targetScene.removeEventHandler(MouseEvent.MOUSE_MOVED, sceneHoverListener);
+            targetScene.removeEventFilter(MouseEvent.MOUSE_MOVED, mousePosListener);
         }
+        /**
+         * Remove the window listeners
+         */
+        setTargetWindow(null);
         if (refresher != null)
             refresher.finish();
         if (windowChecker != null)
@@ -481,12 +495,8 @@ public class StageControllerImpl implements StageController {
             setTargetWindow(targetScene.getWindow());
             targetScene.widthProperty().addListener(targetScenePropListener);
             targetScene.heightProperty().addListener(targetScenePropListener);
-            targetScene.setOnMouseMoved(new EventHandler<MouseEvent>() {
-
-                @Override public void handle(final MouseEvent ev) {
-                    dispatcher.dispatchEvent(new MousePosEvent(getID(), (int) ev.getSceneX() + "x" + (int) ev.getSceneY()));
-                }
-            });
+            targetScene.removeEventFilter(MouseEvent.MOUSE_MOVED, mousePosListener);
+            targetScene.addEventFilter(MouseEvent.MOUSE_MOVED, mousePosListener);
             final boolean canBeRefreshed = StyleSheetRefresher.canStylesBeRefreshed(targetScene);
 
             if (refresher == null || refresher.getScene() != value) {
@@ -532,10 +542,8 @@ public class StageControllerImpl implements StageController {
             }
         }
         final Point2D localPoint = target.sceneToLocal(x, y);
-        if (target.contains(localPoint)) {
-            if (!configuration.isIgnoreMouseTransparent() || !target.isMouseTransparent()) {
-                return target;
-            }
+        if (target.contains(localPoint) && (!configuration.isIgnoreMouseTransparent() || !SVNodeImpl.isMouseTransparent(target)) && SVNodeImpl.isNodeVisible(target)) {
+            return target;
         }
 
         return null;
@@ -721,10 +729,18 @@ public class StageControllerImpl implements StageController {
     }
 
     private SVNode createNode(final Node node) {
-        return new SVRealNodeAdapter(node, configuration.isCollapseControls(), configuration.isCollapseContentControls());
+        if (remote) {
+            return new SVRemoteNodeAdapter(node, configuration.isCollapseControls(), configuration.isCollapseContentControls());
+        } else {
+            return new SVRealNodeAdapter(node, configuration.isCollapseControls(), configuration.isCollapseContentControls());
+        }
     }
 
     @Override public AppController getAppController() {
         return appController;
+    }
+
+    public void setRemote(final boolean remote) {
+        this.remote = remote;
     }
 }

@@ -67,7 +67,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                 return apps.get(i);
             }
         }
-        final SVDummyNode dummy = new SVDummyNode("VM - " + controller.getAppController().getID(), "Java", controller.getAppController().getID());
+        final SVDummyNode dummy = new SVDummyNode("VM - " + controller.getAppController(), "Java", controller.getAppController().getID());
         final TreeItem<SVNode> app = new TreeItem<SVNode>(dummy, new ImageView(DisplayUtils.getIcon(dummy)));
         app.setExpanded(true);
         getRoot().getChildren().add(app);

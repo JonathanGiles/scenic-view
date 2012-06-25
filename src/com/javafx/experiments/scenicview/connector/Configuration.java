@@ -132,4 +132,8 @@ public class Configuration implements Serializable {
         this.componentSelectOnClick = componentSelectOnClick;
     }
 
+    @Override public String toString() {
+        return "Configuration [showBounds=" + showBounds + ", showBaseline=" + showBaseline + ", showRuler=" + showRuler + ", rulerSeparation=" + rulerSeparation + ", eventLogEnabled=" + eventLogEnabled + ", autoRefreshStyles=" + autoRefreshStyles + ", ignoreMouseTransparent=" + ignoreMouseTransparent + ", collapseControls=" + collapseControls + ", collapseContentControls=" + collapseContentControls + ", autoRefreshSceneGraph=" + autoRefreshSceneGraph + ", visibilityFilteringActive=" + visibilityFilteringActive + ", componentSelectOnClick=" + componentSelectOnClick + "]";
+    }
+
 }

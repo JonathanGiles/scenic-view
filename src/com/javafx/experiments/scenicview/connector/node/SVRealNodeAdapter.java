@@ -34,10 +34,13 @@ public class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
     }
 
     @Override public SVNode getParent() {
-        /**
-         * This should be improved
-         */
-        return new SVRealNodeAdapter(node.getParent(), collapseControls, collapseContentControls);
+        if (node.getParent() != null) {
+            /**
+             * This should be improved
+             */
+            return new SVRealNodeAdapter(node.getParent(), collapseControls, collapseContentControls);
+        }
+        return null;
     }
 
     @Override public List<SVNode> getChildren() {
@@ -86,24 +89,8 @@ public class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
         return isNodeVisible(node);
     }
 
-    public static boolean isNodeVisible(final Node node) {
-        if (node == null) {
-            return true;
-        } else {
-            return node.isVisible() && isNodeVisible(node.getParent());
-        }
-    }
-
     @Override public boolean isMouseTransparent() {
         return isMouseTransparent(node);
-    }
-
-    public static boolean isMouseTransparent(final Node node) {
-        if (node == null) {
-            return false;
-        } else {
-            return node.isMouseTransparent() || isMouseTransparent(node.getParent());
-        }
     }
 
     @Override public boolean isFocused() {
