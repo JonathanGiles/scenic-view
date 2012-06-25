@@ -211,6 +211,7 @@ public class StageControllerImpl implements StageController {
          * Remove the window listeners
          */
         setTargetWindow(null);
+        updateListeners(target, false, true);
         if (refresher != null)
             refresher.finish();
         if (windowChecker != null)

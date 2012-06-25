@@ -54,6 +54,8 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
                     try {
                         close();
                         scenicView = null;
+                        // UnicastRemoteObject.unexportObject(application,
+                        // true);
                         RMIUtils.unbindApplication(port);
 
                     } catch (final Exception e1) {

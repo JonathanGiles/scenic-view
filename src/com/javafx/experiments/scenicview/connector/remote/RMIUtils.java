@@ -38,7 +38,7 @@ public class RMIUtils {
 
     public static final void unbindApplication(final int port) throws AccessException, RemoteException, NotBoundException {
         // create the registry and bind the name and object.
-        final Registry registry = LocateRegistry.createRegistry(port);
+        final Registry registry = LocateRegistry.getRegistry(port);
         registry.unbind("AgentServer");
     }
 
