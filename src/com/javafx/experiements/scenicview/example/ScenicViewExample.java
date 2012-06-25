@@ -5,6 +5,8 @@ package com.javafx.experiements.scenicview.example;
  * and open the template in the editor.
  */
 
+import java.util.*;
+
 import javafx.application.Application;
 import javafx.beans.property.*;
 import javafx.beans.value.*;
@@ -22,6 +24,7 @@ import javafx.scene.text.Font;
 import javafx.stage.*;
 
 import com.javafx.experiments.scenicview.ScenicView;
+import com.javafx.experiments.scenicview.connector.*;
 
 /**
  * 
@@ -171,12 +174,25 @@ public class ScenicViewExample extends Application {
         stage.setScene(scene);
         stage.show();
 
-        ScenicView.show(scene);
+        // ScenicView.show(scene);
 
         final Stage stage2 = new Stage();
         stage2.setTitle("Second example");
-        stage2.setScene(new Scene(new Group()));
+        final Scene scene2 = new Scene(new Group());
+        stage2.setScene(scene2);
         stage2.show();
+
+        final Stage stages = new Stage();
+        // workaround for RT-10714
+        stages.setWidth(640);
+        stages.setHeight(800);
+        final List<AppController> controllers = new ArrayList<AppController>();
+
+        final AppController aController = new AppControllerImpl();
+        aController.getStages().add(new StageControllerImpl(scene.getRoot(), aController));
+        aController.getStages().add(new StageControllerImpl(scene2.getRoot(), aController));
+        controllers.add(aController);
+        ScenicView.show(new ScenicView(controllers, stages), stages);
     }
 
     public static void main(final String[] args) {

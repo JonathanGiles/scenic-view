@@ -19,4 +19,6 @@ public interface StageController {
 
     void setSelectedNode(SVNode value);
 
+    AppController getAppController();
+
 }

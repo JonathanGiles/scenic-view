@@ -4,7 +4,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
-import com.javafx.experiments.scenicview.connector.StageControllerImpl;
+import com.javafx.experiments.scenicview.connector.StageID;
 import com.javafx.experiments.scenicview.connector.event.MousePosEvent;
 
 public class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplication {
@@ -32,13 +32,14 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
     public static RemoteScenicView scenicView;
 
     public static void main(final String[] args) throws RemoteException, InterruptedException {
+        final int port = Integer.parseInt(args[0]);
         new RemoteApplicationImpl(new RemoteApplication() {
 
             @Override public void sendInfo(final String info) {
                 System.out.println("INFO:" + info);
 
             }
-        }, 7556);
+        }, port);
         System.out.println("Remote application launched");
 
         RMIUtils.findScenicView(new Observer() {
@@ -46,13 +47,13 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
             @Override public void update(final Observable o, final Object obj) {
                 scenicView = (RemoteScenicView) obj;
                 try {
-                    scenicView.onAgentStarted(7556);
+                    scenicView.onAgentStarted(port);
                 } catch (final RemoteException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
                 try {
-                    scenicView.dispatchEvent(new MousePosEvent(StageControllerImpl.STAGE_ID, "1024x345"));
+                    scenicView.dispatchEvent(new MousePosEvent(new StageID(0, 0), "1024x345"));
                 } catch (final RemoteException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();

@@ -6,14 +6,16 @@ import java.util.Iterator;
 
 import javafx.stage.*;
 
-import com.javafx.experiments.scenicview.connector.StageControllerImpl;
+import com.javafx.experiments.scenicview.connector.StageID;
 import com.javafx.experiments.scenicview.connector.event.MousePosEvent;
 import com.javafx.experiments.scenicview.connector.remote.RemoteApplicationImpl;
 
 public class AgentTest {
     public static void agentmain(final String agentArgs, final Instrumentation instrumentation) {
+
+        System.out.println("Launching agent server on:" + agentArgs);
         try {
-            RemoteApplicationImpl.main(new String[0]);
+            RemoteApplicationImpl.main(new String[] { agentArgs });
         } catch (final RemoteException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -27,15 +29,8 @@ public class AgentTest {
             final Window window = it.next();
             if (window instanceof Stage) {
                 System.out.println("Launching scenicView for:" + ((Stage) window).getTitle());
-                // JavaFXAppFinder.stages.add((Stage) window);
-                // Platform.runLater(new Runnable() {
-                //
-                // @Override public void run() {
-                // ScenicView.show(window.getScene());
-                // }
-                // });
                 try {
-                    RemoteApplicationImpl.scenicView.dispatchEvent(new MousePosEvent(StageControllerImpl.STAGE_ID, "454x454"));
+                    RemoteApplicationImpl.scenicView.dispatchEvent(new MousePosEvent(new StageID(0, 0), "454x454"));
                 } catch (final RemoteException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();

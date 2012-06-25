@@ -8,7 +8,7 @@ import javafx.stage.Stage;
 
 import com.javafx.experiments.scenicview.ScenicView;
 import com.javafx.experiments.scenicview.connector.AppController;
-import com.javafx.experiments.scenicview.connector.remote.RemoteScenicViewImpl;
+import com.javafx.experiments.scenicview.connector.remote.*;
 import com.sun.javafx.application.PlatformImpl;
 import com.sun.tools.attach.*;
 
@@ -70,11 +70,8 @@ public class JavaFXAppFinder {
             }
         }
         try {
-            RemoteScenicViewImpl.main(new String[0]);
+            final RemoteScenicViewImpl server = new RemoteScenicViewImpl(view);
         } catch (final RemoteException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        } catch (final InterruptedException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
@@ -89,8 +86,9 @@ public class JavaFXAppFinder {
 
         try {
             for (final VirtualMachine machine : machines) {
-                System.out.println("Loading agent for:" + machine);
-                machine.loadAgent(f.getAbsolutePath());
+                final int port = RMIUtils.getClientPort();
+                System.out.println("Loading agent for:" + machine + " on port:" + port);
+                machine.loadAgent(f.getAbsolutePath(), Integer.toString(port));
                 machine.detach();
             }
         } catch (final Exception e) {

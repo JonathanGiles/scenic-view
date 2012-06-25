@@ -4,13 +4,15 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
+import com.javafx.experiments.scenicview.ScenicView;
 import com.javafx.experiments.scenicview.connector.event.AppEvent;
 
 public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteScenicView {
 
+    ScenicView view;
     RemoteApplication application;
 
-    public RemoteScenicViewImpl() throws RemoteException {
+    public RemoteScenicViewImpl(final ScenicView view) throws RemoteException {
         super();
         RMIUtils.bindScenicView(this);
     }
@@ -33,14 +35,6 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                 }
             }
         });
-    }
-
-    public static void main(final String[] args) throws RemoteException, InterruptedException {
-        final RemoteScenicViewImpl impl = new RemoteScenicViewImpl();
-        // while(impl.application==null) {
-        // Thread.sleep(1000);
-        // }
-
     }
 
 }

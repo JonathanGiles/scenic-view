@@ -10,10 +10,12 @@ public class SVDummyNode extends SVNodeImpl implements SVNode {
     private final String name;
     private final List<SVNode> childrens = new ArrayList<SVNode>();
     private Image icon;
+    private final int nodeID;
 
-    public SVDummyNode(final String name, final String nodeClass) {
+    public SVDummyNode(final String name, final String nodeClass, final int nodeID) {
         super(nodeClass);
         this.name = name;
+        this.nodeID = nodeID;
     }
 
     @Override public String getId() {
@@ -43,8 +45,7 @@ public class SVDummyNode extends SVNodeImpl implements SVNode {
     }
 
     @Override public int getNodeId() {
-        // TODO Auto-generated method stub
-        return 0;
+        return nodeID;
     }
 
     @Override public boolean isVisible() {

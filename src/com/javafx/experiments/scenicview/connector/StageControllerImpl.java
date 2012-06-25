@@ -28,7 +28,7 @@ import com.javafx.experiments.scenicview.helper.StyleSheetRefresher;
 
 public class StageControllerImpl implements StageController {
 
-    public static StageID STAGE_ID = new StageID(0, 0);
+    public final StageID stageID;
 
     private StyleSheetRefresher refresher;
 
@@ -86,12 +86,15 @@ public class StageControllerImpl implements StageController {
     private final ChangeListener<Boolean> visibilityInvalidationListener;
 
     private Node previousHightLightedData;
+    final AppController appController;
 
-    public StageControllerImpl(final Stage stage) {
-        this(stage.getScene().getRoot());
+    public StageControllerImpl(final Stage stage, final AppController appController) {
+        this(stage.getScene().getRoot(), appController);
     }
 
-    public StageControllerImpl(final Parent target) {
+    public StageControllerImpl(final Parent target, final AppController appController) {
+        this.appController = appController;
+        this.stageID = new StageID(0, hashCode());
         targetScenePropListener = new InvalidationListener() {
             @Override public void invalidated(final Observable value) {
                 updateSceneDetails();
@@ -267,15 +270,15 @@ public class StageControllerImpl implements StageController {
                 }
                 title = s.getTitle() != null ? s.getTitle() : "App";
             }
-            final SVDummyNode app = new SVDummyNode(title, "Stage");
+            final SVDummyNode app = new SVDummyNode(title, "Stage", getID().getStageID());
             app.setIcon(targetStageImage);
             app.setExpanded(true);
             app.getChildren().add(root);
             if (!popupWindows.isEmpty()) {
-                final SVDummyNode subWindows = new SVDummyNode("SubWindows", "Popup");
+                final SVDummyNode subWindows = new SVDummyNode("SubWindows", "Popup", 0);
                 for (int i = 0; i < popupWindows.size(); i++) {
                     final PopupWindow window = popupWindows.get(i);
-                    final SVDummyNode subWindow = new SVDummyNode("SubWindow -" + nodeClass(window), nodeClass(window));
+                    final SVDummyNode subWindow = new SVDummyNode("SubWindow -" + nodeClass(window), nodeClass(window), window.hashCode());
                     subWindow.getChildren().add(createNode(window.getScene().getRoot()));
                     subWindows.getChildren().add(subWindow);
                 }
@@ -481,7 +484,7 @@ public class StageControllerImpl implements StageController {
             targetScene.setOnMouseMoved(new EventHandler<MouseEvent>() {
 
                 @Override public void handle(final MouseEvent ev) {
-                    dispatcher.dispatchEvent(new MousePosEvent(STAGE_ID, (int) ev.getSceneX() + "x" + (int) ev.getSceneY()));
+                    dispatcher.dispatchEvent(new MousePosEvent(getID(), (int) ev.getSceneX() + "x" + (int) ev.getSceneY()));
                 }
             });
             final boolean canBeRefreshed = StyleSheetRefresher.canStylesBeRefreshed(targetScene);
@@ -637,7 +640,7 @@ public class StageControllerImpl implements StageController {
                     /**
                      * Remove the bean
                      */
-                    dispatcher.dispatchEvent(new EvLogEvent(STAGE_ID, createNode(node), EventLogPane.PROPERTY_CHANGED, propertyName + "=" + property.getValue()));
+                    dispatcher.dispatchEvent(new EvLogEvent(getID(), createNode(node), EventLogPane.PROPERTY_CHANGED, propertyName + "=" + property.getValue()));
                 }
             };
             tracker.setTarget(node);
@@ -646,7 +649,7 @@ public class StageControllerImpl implements StageController {
     }
 
     @Override public StageID getID() {
-        return STAGE_ID;
+        return stageID;
     }
 
     public void placeStage(final Stage stage) {
@@ -719,5 +722,9 @@ public class StageControllerImpl implements StageController {
 
     private SVNode createNode(final Node node) {
         return new SVRealNodeAdapter(node, configuration.isCollapseControls(), configuration.isCollapseContentControls());
+    }
+
+    @Override public AppController getAppController() {
+        return appController;
     }
 }

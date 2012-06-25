@@ -4,9 +4,10 @@ import java.rmi.*;
 import java.rmi.registry.*;
 import java.util.Observer;
 
-class RMIUtils {
+public class RMIUtils {
 
     private static final int SV_SERVER_PORT = 7557;
+    private static int clientPort = 7558;
 
     private RMIUtils() {
     }
@@ -74,6 +75,10 @@ class RMIUtils {
             }
         };
         remoteBrowserFinder.start();
+    }
+
+    public static int getClientPort() {
+        return clientPort++;
     }
 
 }

@@ -9,7 +9,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
 
 import com.javafx.experiments.scenicview.connector.StageController;
-import com.javafx.experiments.scenicview.connector.node.SVNode;
+import com.javafx.experiments.scenicview.connector.node.*;
 
 public class ScenegraphTreeView extends TreeView<SVNode> {
 
@@ -17,6 +17,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     private final List<TreeItem<SVNode>> treeViewData = new ArrayList<TreeItem<SVNode>>();
     private final List<NodeFilter> activeNodeFilters;
     private final SelectedNodeContainer container;
+    private final Map<Integer, TreeItem<SVNode>> applications = new HashMap<Integer, TreeItem<SVNode>>();
 
     public ScenegraphTreeView(final List<NodeFilter> activeNodeFilters, final SelectedNodeContainer container) {
         this.activeNodeFilters = activeNodeFilters;
@@ -52,14 +53,51 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         }
     }
 
-    void updateStageModel(final SVNode value, final boolean showNodesIdInTree, final boolean showFilteredNodesInTree) {
+    TreeItem<SVNode> findStageRoot(final StageController controller) {
+        if (getRoot() == null) {
+            final SVDummyNode dummy = new SVDummyNode("Apps", "Java", 0);
+            final TreeItem<SVNode> root = new TreeItem<SVNode>(dummy, new ImageView(DisplayUtils.getIcon(dummy)));
+            root.setExpanded(true);
+            setRoot(root);
 
+        }
+        final List<TreeItem<SVNode>> apps = getRoot().getChildren();
+        for (int i = 0; i < apps.size(); i++) {
+            if (apps.get(i).getValue().getNodeId() == controller.getAppController().getID()) {
+                return apps.get(i);
+            }
+        }
+        final SVDummyNode dummy = new SVDummyNode("VM - " + controller.getAppController().getID(), "Java", controller.getAppController().getID());
+        final TreeItem<SVNode> app = new TreeItem<SVNode>(dummy, new ImageView(DisplayUtils.getIcon(dummy)));
+        app.setExpanded(true);
+        getRoot().getChildren().add(app);
+        return app;
+    }
+
+    void updateStageModel(final StageController controller, final SVNode value, final boolean showNodesIdInTree, final boolean showFilteredNodesInTree) {
         final SVNode previouslySelected = container.getSelectedNode();
         treeViewData.clear();
         previouslySelectedItem = null;
         final TreeItem<SVNode> root = createTreeItem(value, showNodesIdInTree, showFilteredNodesInTree);
 
-        setRoot(root);
+        final TreeItem<SVNode> applicationRoot = findStageRoot(controller);
+
+        /**
+         * Check if the application was already present
+         */
+        boolean added = false;
+        final List<TreeItem<SVNode>> apps = applicationRoot.getChildren();
+        for (int i = 0; i < apps.size(); i++) {
+            if (apps.get(i).getValue().getNodeId() == controller.getID().getStageID()) {
+                apps.remove(i);
+                apps.add(i, root);
+                added = true;
+                break;
+            }
+        }
+        if (!added) {
+            applicationRoot.getChildren().add(root);
+        }
         if (previouslySelectedItem != null) {
             /**
              * TODO Why this is not working??

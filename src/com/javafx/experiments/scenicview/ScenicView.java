@@ -116,7 +116,7 @@ public class ScenicView extends Region implements SelectedNodeContainer {
                 break;
 
             case ROOT_UPDATED:
-                treeView.updateStageModel(((NodeAddRemoveEvent) appEvent).getNode(), showNodesIdInTree.isSelected(), showFilteredNodesInTree.isSelected());
+                treeView.updateStageModel(getStageController(appEvent.getStageID()), ((NodeAddRemoveEvent) appEvent).getNode(), showNodesIdInTree.isSelected(), showFilteredNodesInTree.isSelected());
                 break;
 
             default:
@@ -608,20 +608,6 @@ public class ScenicView extends Region implements SelectedNodeContainer {
         configurationUpdated();
     }
 
-    //
-    // public void addNewStage(final StageController stageModel) {
-    // if (apps.isEmpty()) {
-    // activeStage = stageModel;
-    // } else {
-    // apps.clear();
-    // activeStage = stageModel;
-    // }
-    // apps.add(stageModel);
-    // stageModel.setEventDispatcher(stageModelListener);
-    // configurationUpdated();
-    //
-    // }
-
     void update() {
         for (int i = 0; i < apps.size(); i++) {
             final List<StageController> stages = apps.get(i).getStages();
@@ -629,6 +615,18 @@ public class ScenicView extends Region implements SelectedNodeContainer {
                 stages.get(j).update();
             }
         }
+    }
+
+    StageController getStageController(final StageID id) {
+        for (int i = 0; i < apps.size(); i++) {
+            final List<StageController> stages = apps.get(i).getStages();
+            for (int j = 0; j < stages.size(); j++) {
+                if (stages.get(j).getID().equals(id)) {
+                    return stages.get(j);
+                }
+            }
+        }
+        return null;
     }
 
     protected void filterProperties(final String text) {
@@ -755,8 +753,9 @@ public class ScenicView extends Region implements SelectedNodeContainer {
         stage.setTitle("Scenic View v" + VERSION);
         final List<AppController> controllers = new ArrayList<AppController>();
         if (target != null) {
-            final StageControllerImpl sController = new StageControllerImpl(target);
-            final AppController aController = new AppController("Local");
+            final AppController aController = new AppControllerImpl();
+            final StageControllerImpl sController = new StageControllerImpl(target, aController);
+
             aController.getStages().add(sController);
             controllers.add(aController);
         }

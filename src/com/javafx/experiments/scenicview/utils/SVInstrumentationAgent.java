@@ -8,7 +8,7 @@ import javafx.scene.Scene;
 import javafx.stage.*;
 
 import com.javafx.experiments.scenicview.ScenicView;
-import com.javafx.experiments.scenicview.connector.AppController;
+import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.dialog.StageSelectionBox;
 import com.javafx.experiments.scenicview.helper.*;
 import com.javafx.experiments.scenicview.helper.WindowChecker.WindowFilter;
@@ -65,7 +65,7 @@ public class SVInstrumentationAgent implements WindowFilter {
                 } else {
                     // show the Scenic View stage selection dialog
                     final List<AppController> empty = Collections.emptyList();
-                    empty.add(new AppController());
+                    empty.add(new AppControllerImpl());
                     StageSelectionBox.make("Stage selection", null, empty);
                 }
 

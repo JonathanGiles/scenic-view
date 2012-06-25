@@ -128,7 +128,7 @@ public class StageSelectionBox {
     }
 
     private void onSelected(final ScenicView scenicView, final Stage stage, final AppController local) {
-        local.getStages().add(new StageControllerImpl(stage));
+        local.getStages().add(new StageControllerImpl(stage, local));
         scenicView.addNewApp(local);
         this.stage.close();
     }
