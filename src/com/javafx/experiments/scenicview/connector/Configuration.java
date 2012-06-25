@@ -12,24 +12,29 @@ public class Configuration implements Serializable {
     private boolean showBounds;
 
     private boolean showBaseline;
-    
+
     private boolean showRuler;
-    
+
     private int rulerSeparation;
 
     private boolean eventLogEnabled;
-    
+
     private boolean autoRefreshStyles;
-    
+
     private boolean ignoreMouseTransparent;
-    
+
     private boolean collapseControls;
-    
+
     private boolean collapseContentControls;
-    
+
     private boolean autoRefreshSceneGraph;
-    
+
     private boolean visibilityFilteringActive;
+
+    /**
+     * I'm not totally sure about this...
+     */
+    private boolean componentSelectOnClick;
 
     public boolean isShowBounds() {
         return showBounds;
@@ -117,6 +122,14 @@ public class Configuration implements Serializable {
 
     public void setVisibilityFilteringActive(final boolean visibilityFilteringActive) {
         this.visibilityFilteringActive = visibilityFilteringActive;
+    }
+
+    public boolean isComponentSelectOnClick() {
+        return componentSelectOnClick;
+    }
+
+    public void setComponentSelectOnClick(final boolean componentSelectOnClick) {
+        this.componentSelectOnClick = componentSelectOnClick;
     }
 
 }

@@ -26,7 +26,7 @@ import com.javafx.experiments.scenicview.connector.gui.*;
 import com.javafx.experiments.scenicview.connector.node.*;
 import com.javafx.experiments.scenicview.helper.StyleSheetRefresher;
 
-public class StageController {
+public class StageControllerImpl implements StageController {
 
     public static StageID STAGE_ID = new StageID(0, 0);
 
@@ -87,11 +87,11 @@ public class StageController {
 
     private Node previousHightLightedData;
 
-    public StageController(final Stage stage) {
+    public StageControllerImpl(final Stage stage) {
         this(stage.getScene().getRoot());
     }
 
-    public StageController(final Parent target) {
+    public StageControllerImpl(final Parent target) {
         targetScenePropListener = new InvalidationListener() {
             @Override public void invalidated(final Observable value) {
                 updateSceneDetails();
@@ -106,7 +106,7 @@ public class StageController {
         targetWindowSceneListener = new InvalidationListener() {
 
             @Override public void invalidated(final Observable arg0) {
-                if (targetScene.getRoot() == StageController.this.target) {
+                if (targetScene.getRoot() == StageControllerImpl.this.target) {
                     setTarget(targetWindow.getScene().getRoot());
                     update();
                 }
@@ -189,7 +189,7 @@ public class StageController {
         this.target = target;
     }
 
-    public void close() {
+    @Override public void close() {
         removeScenicViewComponents(target);
         if (targetScene != null) {
             targetScene.removeEventHandler(MouseEvent.MOUSE_MOVED, sceneHoverListener);
@@ -200,7 +200,7 @@ public class StageController {
             windowChecker.finish();
     }
 
-    public void setEventDispatcher(final AppEventDispatcher model2gui) {
+    @Override public void setEventDispatcher(final AppEventDispatcher model2gui) {
         this.dispatcher = model2gui;
         setTarget(target);
         update();
@@ -251,7 +251,7 @@ public class StageController {
         }
     }
 
-    public void update() {
+    @Override public void update() {
         updateListeners(target, true, false);
         SVNode root = createNode(target);
         /**
@@ -400,7 +400,7 @@ public class StageController {
         }
     }
 
-    public void componentSelectOnClick(final boolean newValue) {
+    private void componentSelectOnClick(final boolean newValue) {
         if (newValue) {
             targetScene.addEventHandler(MouseEvent.MOUSE_MOVED, sceneHoverListener);
             final Rectangle rect = new Rectangle();
@@ -542,7 +542,7 @@ public class StageController {
         return StyleSheetRefresher.canStylesBeRefreshed(targetScene);
     }
 
-    public void configurationUpdated(final Configuration configuration) {
+    @Override public void configurationUpdated(final Configuration configuration) {
         if (configuration.isShowBaseline() != this.configuration.isShowBaseline()) {
             this.configuration.setShowBaseline(configuration.isShowBaseline());
             updateBaseline();
@@ -573,6 +573,10 @@ public class StageController {
                 update();
             }
         }
+        if (configuration.isComponentSelectOnClick() != this.configuration.isComponentSelectOnClick()) {
+            this.configuration.setComponentSelectOnClick(configuration.isComponentSelectOnClick());
+            componentSelectOnClick(configuration.isComponentSelectOnClick());
+        }
         this.configuration.setEventLogEnabled(configuration.isEventLogEnabled());
         this.configuration.setIgnoreMouseTransparent(configuration.isIgnoreMouseTransparent());
         this.configuration.setCollapseContentControls(configuration.isCollapseContentControls());
@@ -581,7 +585,7 @@ public class StageController {
         update();
     }
 
-    public void setSelectedNode(final SVNode svRealNodeAdapter) {
+    @Override public void setSelectedNode(final SVNode svRealNodeAdapter) {
         final Node old = selectedNode;
         if (old != null) {
             old.boundsInParentProperty().removeListener(selectedNodePropListener);
@@ -601,8 +605,6 @@ public class StageController {
     }
 
     private Node selectedNode;
-
-    public static final String SCENIC_VIEW_BASE_ID = "ScenicView.";
 
     private void updateBaseline() {
         if (this.configuration.isShowBaseline() && selectedNode != null) {
@@ -643,7 +645,7 @@ public class StageController {
         }
     }
 
-    public StageID getID() {
+    @Override public StageID getID() {
         return STAGE_ID;
     }
 

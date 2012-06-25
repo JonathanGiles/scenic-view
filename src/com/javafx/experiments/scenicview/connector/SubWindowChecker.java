@@ -10,9 +10,9 @@ import com.javafx.experiments.scenicview.helper.WindowChecker;
 @SuppressWarnings("rawtypes")
 class SubWindowChecker extends WindowChecker {
 
-    StageController model;
+    StageControllerImpl model;
 
-    public SubWindowChecker(final StageController model) {
+    public SubWindowChecker(final StageControllerImpl model) {
         super(new WindowFilter() {
 
             @Override public boolean accept(final Window window) {

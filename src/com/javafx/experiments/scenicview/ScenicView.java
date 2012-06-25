@@ -318,7 +318,8 @@ public class ScenicView extends Region implements SelectedNodeContainer {
         componentSelectOnClick.selectedProperty().addListener(new ChangeListener<Boolean>() {
 
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean oldValue, final Boolean newValue) {
-                activeStage.componentSelectOnClick(newValue.booleanValue());
+                configuration.setComponentSelectOnClick(newValue);
+                configurationUpdated();
             }
         });
 
@@ -754,7 +755,7 @@ public class ScenicView extends Region implements SelectedNodeContainer {
         stage.setTitle("Scenic View v" + VERSION);
         final List<AppController> controllers = new ArrayList<AppController>();
         if (target != null) {
-            final StageController sController = new StageController(target);
+            final StageControllerImpl sController = new StageControllerImpl(target);
             final AppController aController = new AppController("Local");
             aController.getStages().add(sController);
             controllers.add(aController);
@@ -767,8 +768,8 @@ public class ScenicView extends Region implements SelectedNodeContainer {
         scene.getStylesheets().addAll(STYLESHEETS);
         stage.setScene(scene);
         stage.getIcons().add(APP_ICON);
-        if (scenicview.activeStage != null)
-            scenicview.activeStage.placeStage(stage);
+        if (scenicview.activeStage != null && scenicview.activeStage instanceof StageControllerImpl)
+            ((StageControllerImpl) scenicview.activeStage).placeStage(stage);
 
         stage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, new EventHandler<WindowEvent>() {
             @Override public void handle(final WindowEvent arg0) {

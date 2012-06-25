@@ -7,8 +7,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.scene.text.Text;
 
-import com.javafx.experiments.scenicview.*;
-import com.javafx.experiments.scenicview.connector.*;
+import com.javafx.experiments.scenicview.DisplayUtils;
+import com.javafx.experiments.scenicview.connector.StageController;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
 
 public class ComponentHighLighter extends Group {

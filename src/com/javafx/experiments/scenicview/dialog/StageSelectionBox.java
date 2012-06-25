@@ -47,7 +47,8 @@ public class StageSelectionBox {
             @Override public boolean accept(final Window window) {
                 if (window instanceof Stage && window != stageScenic) {
                     for (int i = 0; i < active.size(); i++) {
-                        if (active.get(i).targetWindow == window)
+                        final StageController controller = active.get(i);
+                        if (controller instanceof StageControllerImpl && ((StageControllerImpl) active.get(i)).targetWindow == window)
                             return false;
                     }
                     return true;
@@ -127,7 +128,7 @@ public class StageSelectionBox {
     }
 
     private void onSelected(final ScenicView scenicView, final Stage stage, final AppController local) {
-        local.getStages().add(new StageController(stage));
+        local.getStages().add(new StageControllerImpl(stage));
         scenicView.addNewApp(local);
         this.stage.close();
     }
