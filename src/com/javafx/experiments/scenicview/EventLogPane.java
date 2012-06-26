@@ -21,6 +21,8 @@ import com.javafx.experiments.scenicview.connector.node.SVNode;
 
 public class EventLogPane extends VBox {
 
+    private static final int MAX_EVENTS = 5000;
+
     public static final String PROPERTY_CHANGED = "PROPERTY_CHANGED";
     public static final String OTHER_EVENTS = "OTHER_EVENTS";
     public static final String NODE_REMOVED = "NODE_REMOVED";
@@ -140,10 +142,18 @@ public class EventLogPane extends VBox {
             }
         });
 
-        final Button b1 = new Button();
-        b1.setGraphic(new ImageView(DisplayUtils.CLEAR_IMAGE));
-        b1.setOnAction(new EventHandler<ActionEvent>() {
-            @Override public void handle(final ActionEvent arg0) {
+        // final Button b1 = new Button();
+        // b1.setGraphic(new ImageView(DisplayUtils.CLEAR_IMAGE));
+        // b1.setOnAction(new EventHandler<ActionEvent>() {
+        // @Override public void handle(final ActionEvent arg0) {
+        // idFilterField.setText("");
+        // applyFilter();
+        // }
+        // });
+        final ImageView b1 = new ImageView(DisplayUtils.CLEAR_IMAGE);
+        b1.setOnMousePressed(new EventHandler<Event>() {
+
+            @Override public void handle(final Event arg0) {
                 idFilterField.setText("");
                 applyFilter();
             }
@@ -201,6 +211,20 @@ public class EventLogPane extends VBox {
                 final ScenicViewEvent event = new ScenicViewEvent(sourceId, eventType, eventValue);
                 addToFiltered(event);
                 events.add(event);
+                if (events.size() > MAX_EVENTS) {
+                    if (events.size() == filteredEvents.size()) {
+                        final ScenicViewEvent oldEvent = events.remove(0);
+                        filteredEvents.remove(oldEvent);
+                    } else {
+                        // Try to find the first unfiltered event
+                        for (int i = 0; i < events.size(); i++) {
+                            if (!filteredEvents.contains(events.get(i))) {
+                                events.remove(i);
+                                break;
+                            }
+                        }
+                    }
+                }
             }
         }
     }
