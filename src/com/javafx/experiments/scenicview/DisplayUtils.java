@@ -30,7 +30,7 @@ public class DisplayUtils {
 
     public static DecimalFormat DFMT = new DecimalFormat("0.0#");
 
-    static final Image CLEAR_IMAGE = getUIImage("clear.gif");
+    static final Image CLEAR_IMAGE = getUIImage("clear_left.png");
 
     static final DecimalFormat df = new DecimalFormat("0.0");
 
