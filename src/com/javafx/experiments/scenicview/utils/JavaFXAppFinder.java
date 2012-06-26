@@ -19,8 +19,6 @@ import com.sun.tools.attach.*;
  */
 public class JavaFXAppFinder {
 
-    private static final List<Stage> stages = new ArrayList<Stage>();
-
     private static final String JAVAFX_SYSTEM_PROPERTIES_KEY = "javafx.version";
 
     public List<VirtualMachine> getRunningJavaFXApplications() {
@@ -31,7 +29,7 @@ public class JavaFXAppFinder {
             final VirtualMachineDescriptor vmd = machines.get(i);
             try {
                 final VirtualMachine virtualMachine = VirtualMachine.attach(vmd);
-                final Map sysPropertiesMap = virtualMachine.getSystemProperties();
+                final Properties sysPropertiesMap = virtualMachine.getSystemProperties();
                 if (sysPropertiesMap.containsKey(JAVAFX_SYSTEM_PROPERTIES_KEY)) {
                     javaFXMachines.add(virtualMachine);
                 } else {

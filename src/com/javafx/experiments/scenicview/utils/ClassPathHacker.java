@@ -1,33 +1,32 @@
 package com.javafx.experiments.scenicview.utils;
 
-import java.io.IOException;
-import java.io.File;
-import java.net.URLClassLoader;
-import java.net.URL;
+import java.io.*;
 import java.lang.reflect.Method;
+import java.net.*;
 
+@SuppressWarnings("rawtypes")
 public class ClassPathHacker {
 
     private static final Class[] parameters = new Class[] { URL.class };
 
-    public static void addFile(String s) throws IOException {
-        File f = new File(s);
+    public static void addFile(final String s) throws IOException {
+        final File f = new File(s);
         addFile(f);
     }
 
-    public static void addFile(File f) throws IOException {
+    @SuppressWarnings("deprecation") public static void addFile(final File f) throws IOException {
         addURL(f.toURL());
     }
 
-    public static void addURL(URL u) throws IOException {
-        URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-        Class sysclass = URLClassLoader.class;
+    public static void addURL(final URL u) throws IOException {
+        final URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+        final Class sysclass = URLClassLoader.class;
 
         try {
-            Method method = sysclass.getDeclaredMethod("addURL", parameters);
+            @SuppressWarnings("unchecked") final Method method = sysclass.getDeclaredMethod("addURL", parameters);
             method.setAccessible(true);
             method.invoke(sysloader, new Object[] { u });
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             t.printStackTrace();
             throw new IOException("Error, could not add URL to system classloader");
         }
