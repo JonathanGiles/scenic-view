@@ -6,6 +6,7 @@ import java.util.*;
 
 import com.javafx.experiments.scenicview.connector.Configuration;
 import com.javafx.experiments.scenicview.connector.event.*;
+import com.javafx.experiments.scenicview.connector.node.SVNode;
 
 public class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplication {
 
@@ -99,6 +100,10 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
 
     @Override public void close() throws RemoteException {
         application.close();
+    }
+
+    @Override public void setSelectedNode(final SVNode value) throws RemoteException {
+        application.setSelectedNode(value);
     }
 
 }

@@ -4,6 +4,7 @@ import java.rmi.*;
 
 import com.javafx.experiments.scenicview.connector.Configuration;
 import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
+import com.javafx.experiments.scenicview.connector.node.SVNode;
 
 public interface RemoteApplication extends Remote {
 
@@ -16,5 +17,7 @@ public interface RemoteApplication extends Remote {
     public int[] getStageIDs() throws RemoteException;
 
     public void close() throws RemoteException;
+
+    public void setSelectedNode(SVNode value) throws RemoteException;
 
 }

@@ -10,6 +10,7 @@ import javafx.stage.*;
 import com.javafx.experiments.scenicview.ScenicView;
 import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
+import com.javafx.experiments.scenicview.connector.node.SVNode;
 import com.javafx.experiments.scenicview.connector.remote.*;
 
 public class AgentTest {
@@ -48,6 +49,7 @@ public class AgentTest {
                     Platform.runLater(new Runnable() {
 
                         @Override public void run() {
+                            System.out.println(configuration);
                             for (int i = 0; i < controller.size(); i++) {
                                 controller.get(i).configurationUpdated(configuration);
                             }
@@ -82,6 +84,18 @@ public class AgentTest {
                         @Override public void run() {
                             for (int i = 0; i < controller.size(); i++) {
                                 controller.get(i).close();
+                            }
+                        }
+                    });
+                }
+
+                @Override public void setSelectedNode(final SVNode value) throws RemoteException {
+                    Platform.runLater(new Runnable() {
+
+                        @Override public void run() {
+                            System.out.println("Setting selected node:" + value + " id:" + value.getNodeId() + " class:" + value.getClass());
+                            for (int i = 0; i < controller.size(); i++) {
+                                controller.get(i).setSelectedNode(value);
                             }
                         }
                     });

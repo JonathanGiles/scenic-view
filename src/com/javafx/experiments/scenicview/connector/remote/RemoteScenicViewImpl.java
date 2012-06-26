@@ -84,8 +84,12 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                             }
 
                             @Override public void close() {
-                                // TODO Auto-generated method stub
-
+                                try {
+                                    application.close();
+                                } catch (final RemoteException e) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                }
                             }
 
                             @Override public void setEventDispatcher(final AppEventDispatcher dispatcher) {
@@ -94,8 +98,12 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                             }
 
                             @Override public void setSelectedNode(final SVNode value) {
-                                // TODO Auto-generated method stub
-
+                                try {
+                                    application.setSelectedNode(value);
+                                } catch (final RemoteException e) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                }
                             }
 
                             @Override public AppController getAppController() {

@@ -306,7 +306,7 @@ public class StageControllerImpl implements StageController {
 
     private void updateSceneDetails() {
         // hack, since we can't listen for a STAGE prop change on scene
-        dispatcher.dispatchEvent(new SceneDetailsEvent(getID(), DisplayUtils.getBranchCount(target), targetScene != null ? targetScene.getWidth() + " x " + targetScene.getHeight() : ""));
+        dispatcher.dispatchEvent(new SceneDetailsEvent(getID(), DisplayUtils.getBranchCount(target), targetScene != null ? DisplayUtils.format(targetScene.getWidth()) + " x " + DisplayUtils.format(targetScene.getHeight()) : ""));
         if (targetScene != null && targetWindow == null) {
             setTargetWindow(targetScene.getWindow());
         }
@@ -550,6 +550,26 @@ public class StageControllerImpl implements StageController {
         return null;
     }
 
+    private Node findNode(final Node target, final int hashCode) {
+        if (target.getId() != null && target.getId().startsWith(StageController.SCENIC_VIEW_BASE_ID))
+            return null;
+        if (target instanceof Parent) {
+            final List<Node> childrens = ((Parent) target).getChildrenUnmodifiable();
+            for (int i = childrens.size() - 1; i >= 0; i--) {
+                final Node node = childrens.get(i);
+                final Node child = findNode(node, hashCode);
+                if (child != null)
+                    return child;
+            }
+        }
+
+        if (target.hashCode() == hashCode) {
+            return target;
+        }
+
+        return null;
+    }
+
     private boolean canStylesheetsBeRefreshed() {
         return StyleSheetRefresher.canStylesBeRefreshed(targetScene);
     }
@@ -597,14 +617,18 @@ public class StageControllerImpl implements StageController {
         update();
     }
 
-    @Override public void setSelectedNode(final SVNode svRealNodeAdapter) {
+    @Override public void setSelectedNode(final SVNode svNode) {
         final Node old = selectedNode;
         if (old != null) {
             old.boundsInParentProperty().removeListener(selectedNodePropListener);
             old.layoutBoundsProperty().removeListener(selectedNodePropListener);
         }
-        if (svRealNodeAdapter != null) {
-            this.selectedNode = svRealNodeAdapter.getImpl();
+        if (svNode != null) {
+            if (svNode instanceof SVRealNodeAdapter) {
+                this.selectedNode = svNode.getImpl();
+            } else {
+                this.selectedNode = findNode(target, svNode.getNodeId());
+            }
             if (selectedNode != null) {
                 selectedNode.boundsInParentProperty().addListener(selectedNodePropListener);
                 selectedNode.layoutBoundsProperty().addListener(selectedNodePropListener);

@@ -93,7 +93,7 @@ public class DisplayUtils {
     }
 
     public static String boundsToString(final double minx, final double miny, final double width, final double height) {
-        return DFMT.format(minx) + "," + DFMT.format(miny) + "  " + DFMT.format(width) + " x " + DFMT.format(height);
+        return DFMT.format(minx) + " - " + DFMT.format(miny) + "  " + DFMT.format(width) + " x " + DFMT.format(height);
     }
 
     public static String transformToString(final Transform tx) {
