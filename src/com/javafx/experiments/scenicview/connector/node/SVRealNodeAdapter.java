@@ -108,4 +108,8 @@ public class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
     @Override public boolean isRealNode() {
         return true;
     }
+
+    @Override public int hashCode() {
+        return getNodeId();
+    }
 }

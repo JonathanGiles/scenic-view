@@ -94,4 +94,12 @@ public class SVDummyNode extends SVNodeImpl implements SVNode, Serializable {
         this.icon = icon;
     }
 
+    @Override public int hashCode() {
+        return nodeID;
+    }
+
+    @Override public boolean equals(final Object obj) {
+        return equals((SVNode) obj);
+    }
+
 }

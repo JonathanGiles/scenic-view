@@ -118,4 +118,8 @@ public class SVRemoteNodeAdapter extends SVNodeImpl implements Serializable {
         return DisplayUtils.nodeDetail(this, showID);
     }
 
+    @Override public int hashCode() {
+        return nodeId;
+    }
+
 }
