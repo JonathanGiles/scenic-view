@@ -738,11 +738,11 @@ public class StageControllerImpl implements StageController {
             }
         } else {
             if (node instanceof Parent) {
-                ((Parent) node).getChildrenUnmodifiable().removeListener(structureInvalidationListener);
                 final List<Node> childrens = ((Parent) node).getChildrenUnmodifiable();
                 for (int i = 0; i < childrens.size(); i++) {
                     updateListeners(childrens.get(i), add, removeVisibilityListener);
                 }
+                ((Parent) node).getChildrenUnmodifiable().removeListener(structureInvalidationListener);
             }
             if (node != null && removeVisibilityListener) {
                 node.visibleProperty().removeListener(visibilityInvalidationListener);

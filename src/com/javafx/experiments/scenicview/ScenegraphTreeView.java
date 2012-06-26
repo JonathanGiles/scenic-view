@@ -14,7 +14,7 @@ import com.javafx.experiments.scenicview.connector.node.*;
 public class ScenegraphTreeView extends TreeView<SVNode> {
 
     private TreeItem<SVNode> previouslySelectedItem;
-    private final List<TreeItem<SVNode>> treeViewData = new ArrayList<TreeItem<SVNode>>();
+    private final Map<SVNode, TreeItem<SVNode>> treeViewData = new HashMap<SVNode, TreeItem<SVNode>>();
     private final List<NodeFilter> activeNodeFilters;
     private final SelectedNodeContainer container;
 
@@ -43,15 +43,18 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     }
 
     void nodeSelected(final SVNode nodeData) {
-        if (nodeData != null) {
-            for (int i = 0; i < treeViewData.size(); i++) {
-                final TreeItem<SVNode> item = treeViewData.get(i);
-                if (item.getValue().equals(nodeData)) {
-                    getSelectionModel().select(item);
-                    scrollTo(getSelectionModel().getSelectedIndex());
-                    break;
-                }
-            }
+        if (nodeData != null && treeViewData.containsKey(nodeData)) {
+            // for (int i = 0; i < treeViewData.size(); i++) {
+            // final TreeItem<SVNode> item = treeViewData.get(i);
+            // if (item.getValue().equals(nodeData)) {
+            // getSelectionModel().select(item);
+            // scrollTo(getSelectionModel().getSelectedIndex());
+            // break;
+            // }
+            // }
+            final TreeItem<SVNode> item = treeViewData.get(nodeData);
+            getSelectionModel().select(item);
+            scrollTo(getSelectionModel().getSelectedIndex());
         }
     }
 
@@ -116,7 +119,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     }
 
     void removeNode(final SVNode node) {
-        System.out.println("removing treeItem:" + node.getExtendedId());
+        // System.out.println("removing treeItem:" + node.getExtendedId());
         if (node.getId() == null || !node.getId().startsWith(StageController.SCENIC_VIEW_BASE_ID)) {
             TreeItem<SVNode> selected = null;
             if (container.getSelectedNode() == node) {
@@ -127,6 +130,16 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                 selected = getSelectionModel().getSelectedItem();
             }
             final TreeItem<SVNode> treeItem = getTreeItem(node);
+            /**
+             * TODO Analyze this problem:
+             * 
+             * In some situations a parent node could be removed by visibility
+             * and after that a children could also change its visibility to
+             * false triggering a removal that actually does not exist. In those
+             * situations we should keep visibility listener on the parent and
+             * remove it to its childrens. Anyway this need to be tested deeply
+             * and this protection is not so dangerous
+             */
             if (treeItem == null) {
                 System.out.println("Removing unfound treeItem:" + node.getExtendedId());
                 return;
@@ -152,7 +165,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
             if (treeItem.getParent() != null) {
                 treeItem.getParent().getChildren().remove(treeItem);
             }
-            treeViewData.remove(treeItem);
+            treeViewData.remove(treeItem.getValue());
             if (selected != null) {
                 // Ugly workaround
                 getSelectionModel().select(selected);
@@ -161,7 +174,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     }
 
     void addNewNode(final SVNode alive, final boolean showNodesIdInTree, final boolean showFilteredNodesInTree) {
-        System.out.println("adding treeItem:" + alive.getExtendedId());
+        // System.out.println("adding treeItem:" + alive.getExtendedId());
         if (alive.getId() == null || !alive.getId().startsWith(StageController.SCENIC_VIEW_BASE_ID)) {
             final TreeItem<SVNode> selected = getSelectionModel().getSelectedItem();
             final TreeItem<SVNode> treeItem = createTreeItem(alive, showNodesIdInTree, showFilteredNodesInTree);
@@ -173,16 +186,34 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                 /**
                  * In some situations node could be previously added
                  */
-                final List<TreeItem<SVNode>> actualNodes = parentTreeItem.getChildren();
-                boolean found = false;
-                for (final TreeItem<SVNode> node : actualNodes) {
-                    if (node.getValue().equals(alive)) {
-                        found = true;
-                    }
+                final boolean found = findInTree(parentTreeItem, alive);
 
-                }
                 if (!found) {
-                    parentTreeItem.getChildren().add(treeItem);
+                    /**
+                     * We try to insert the treeItem in the real position of the
+                     * parent
+                     */
+                    boolean posFound = false;
+                    int previousPos = -1;
+                    final List<SVNode> childrens = parent.getChildren();
+                    final int pos = childrens.indexOf(alive);
+                    final List<TreeItem<SVNode>> items = parentTreeItem.getChildren();
+                    for (int i = 0; i < items.size(); i++) {
+                        final TreeItem<SVNode> node = items.get(i);
+                        final int actualPos = childrens.indexOf(node.getValue());
+                        if (previousPos > actualPos) {
+                            System.out.println("This should never happen :" + parent.getExtendedId() + " node:" + node.getValue().getExtendedId());
+                        }
+                        if (pos > previousPos && pos < actualPos) {
+                            parentTreeItem.getChildren().add(i, treeItem);
+                            posFound = true;
+                            break;
+                        }
+                        previousPos = actualPos;
+                    }
+                    if (!posFound) {
+                        parentTreeItem.getChildren().add(treeItem);
+                    }
                 }
             }
             if (selected != null) {
@@ -193,12 +224,16 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     }
 
     private TreeItem<SVNode> getTreeItem(final SVNode node) {
-        for (int i = 0; i < treeViewData.size(); i++) {
-            if (treeViewData.get(i).getValue().equals(node)) {
-                return treeViewData.get(i);
+        final TreeItem<SVNode> item = treeViewData.get(node);
+        if (item == null) {
+            for (final Iterator<SVNode> iterator = treeViewData.keySet().iterator(); iterator.hasNext();) {
+                final SVNode type = iterator.next();
+                if (type.equals(node)) {
+                    System.out.println("Error on hashmap:" + node.getExtendedId() + " and type:" + type.getExtendedId() + " are equals but:" + treeViewData.containsKey(node));
+                }
             }
         }
-        return null;
+        return item;
     }
 
     private TreeItem<SVNode> createTreeItem(final SVNode node, final boolean showNodesIdInTree, final boolean showFilteredNodesInTree) {
@@ -236,7 +271,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
          * INCLUDED ON TOP a) updateCount=true: We are adding all the nodes b)
          * updateCount=false: We are adding only one node, find its position
          */
-        treeViewData.add(treeItem);
+        treeViewData.put(node, treeItem);
 
         final List<TreeItem<SVNode>> childItems = new ArrayList<TreeItem<SVNode>>();
         for (final SVNode child : node.getChildren()) {
@@ -265,7 +300,6 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
              * Only return if the node has children
              */
             if (treeItem.getChildren().isEmpty()) {
-                treeViewData.remove(treeItem);
                 return null;
             } else {
                 /**
@@ -275,9 +309,19 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                 return treeItem;
             }
         } else {
-            treeViewData.remove(treeItem);
             return null;
         }
+    }
+
+    private boolean findInTree(final TreeItem<SVNode> parentTreeItem, final SVNode alive) {
+        final List<TreeItem<SVNode>> actualNodes = parentTreeItem.getChildren();
+        boolean found = false;
+        for (final TreeItem<SVNode> node : actualNodes) {
+            if (node.getValue().equals(alive)) {
+                found = true;
+            }
+        }
+        return found;
     }
 
     /**
@@ -315,8 +359,9 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
             if (treeItem.getParent() != null) {
                 treeItem.getParent().getChildren().remove(treeItem);
             }
+            treeViewData.remove(treeItem.getValue());
         }
-        treeViewData.remove(treeItem);
+
     }
 
 }
