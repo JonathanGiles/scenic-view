@@ -498,26 +498,50 @@ public class ScenicView extends Region implements SelectedNodeContainer {
                 return !classNameFilterField.getText().equals("");
             }
         });
-        final Button b1 = new Button();
-        b1.setGraphic(new ImageView(DisplayUtils.CLEAR_IMAGE));
-        b1.setOnAction(new EventHandler<ActionEvent>() {
-            @Override public void handle(final ActionEvent arg0) {
+        // final Button b1 = new Button();
+        // b1.setGraphic(new ImageView(DisplayUtils.CLEAR_IMAGE));
+        // b1.setOnAction(new EventHandler<ActionEvent>() {
+        // @Override public void handle(final ActionEvent arg0) {
+        // idFilterField.setText("");
+        // activeStage.update();
+        // }
+        // });
+        final ImageView b1 = new ImageView(DisplayUtils.CLEAR_IMAGE);
+        b1.setOnMousePressed(new EventHandler<Event>() {
+
+            @Override public void handle(final Event arg0) {
                 idFilterField.setText("");
                 activeStage.update();
             }
         });
-        final Button b2 = new Button();
-        b2.setGraphic(new ImageView(DisplayUtils.CLEAR_IMAGE));
-        b2.setOnAction(new EventHandler<ActionEvent>() {
-            @Override public void handle(final ActionEvent arg0) {
+        // final Button b2 = new Button();
+        // b2.setGraphic(new ImageView(DisplayUtils.CLEAR_IMAGE));
+        // b2.setOnAction(new EventHandler<ActionEvent>() {
+        // @Override public void handle(final ActionEvent arg0) {
+        // classNameFilterField.setText("");
+        // activeStage.update();
+        // }
+        // });
+        final ImageView b2 = new ImageView(DisplayUtils.CLEAR_IMAGE);
+        b2.setOnMousePressed(new EventHandler<Event>() {
+
+            @Override public void handle(final Event arg0) {
                 classNameFilterField.setText("");
                 activeStage.update();
             }
         });
-        final Button b3 = new Button();
-        b3.setGraphic(new ImageView(DisplayUtils.CLEAR_IMAGE));
-        b3.setOnAction(new EventHandler<ActionEvent>() {
-            @Override public void handle(final ActionEvent arg0) {
+        // final Button b3 = new Button();
+        // b3.setGraphic(new ImageView(DisplayUtils.CLEAR_IMAGE));
+        // b3.setOnAction(new EventHandler<ActionEvent>() {
+        // @Override public void handle(final ActionEvent arg0) {
+        // propertyFilterField.setText("");
+        // filterProperties(propertyFilterField.getText());
+        // }
+        // });
+        final ImageView b3 = new ImageView(DisplayUtils.CLEAR_IMAGE);
+        b3.setOnMousePressed(new EventHandler<Event>() {
+
+            @Override public void handle(final Event arg0) {
                 propertyFilterField.setText("");
                 filterProperties(propertyFilterField.getText());
             }
