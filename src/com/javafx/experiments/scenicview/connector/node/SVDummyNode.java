@@ -44,7 +44,12 @@ public class SVDummyNode extends SVNodeImpl implements SVNode, Serializable {
     }
 
     @Override public boolean equals(final SVNode node) {
-        // TODO Auto-generated method stub
+        /**
+         * Only equal to another dummyNode
+         */
+        if (node instanceof SVDummyNode) {
+            return getNodeId() == node.getNodeId();
+        }
         return false;
     }
 

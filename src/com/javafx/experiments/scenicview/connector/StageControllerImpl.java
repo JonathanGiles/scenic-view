@@ -562,7 +562,6 @@ public class StageControllerImpl implements StageController {
                     return child;
             }
         }
-
         if (target.hashCode() == hashCode) {
             return target;
         }

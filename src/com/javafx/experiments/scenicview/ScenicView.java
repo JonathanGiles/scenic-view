@@ -74,6 +74,7 @@ public class ScenicView extends Region implements SelectedNodeContainer {
         }
 
         @Override public void dispatchEvent(final AppEvent appEvent) {
+            // System.out.println("Event:" + appEvent.getType());
             switch (appEvent.getType()) {
             case EVENT_LOG:
                 eventLogPane.trace((EvLogEvent) appEvent);
@@ -171,6 +172,13 @@ public class ScenicView extends Region implements SelectedNodeContainer {
         propertyFilterField.setDisable(true);
 
         eventLogPane = new EventLogPane(this);
+        eventLogPane.activeProperty().addListener(new ChangeListener<Boolean>() {
+
+            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
+                configuration.setEventLogEnabled(newValue);
+                configurationUpdated();
+            }
+        });
 
         menuBar = new MenuBar();
         // menuBar.setId("main-menubar");
@@ -738,6 +746,18 @@ public class ScenicView extends Region implements SelectedNodeContainer {
         return super.getChildren();
     }
 
+    protected static List<AppController> buildAppController(final Parent target) {
+        final List<AppController> controllers = new ArrayList<AppController>();
+        if (target != null) {
+            final AppController aController = new AppControllerImpl();
+            final StageControllerImpl sController = new StageControllerImpl(target, aController);
+
+            aController.getStages().add(sController);
+            controllers.add(aController);
+        }
+        return controllers;
+    }
+
     public static void show(final Scene target) {
         show(target.getRoot());
     }
@@ -748,15 +768,8 @@ public class ScenicView extends Region implements SelectedNodeContainer {
         stage.setWidth(640);
         stage.setHeight(800);
         stage.setTitle("Scenic View v" + VERSION);
-        final List<AppController> controllers = new ArrayList<AppController>();
-        if (target != null) {
-            final AppController aController = new AppControllerImpl();
-            final StageControllerImpl sController = new StageControllerImpl(target, aController);
 
-            aController.getStages().add(sController);
-            controllers.add(aController);
-        }
-        show(new ScenicView(controllers, stage), stage);
+        show(new ScenicView(buildAppController(target), stage), stage);
     }
 
     public static void show(final ScenicView scenicview, final Stage stage) {

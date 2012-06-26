@@ -17,7 +17,9 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     private final List<TreeItem<SVNode>> treeViewData = new ArrayList<TreeItem<SVNode>>();
     private final List<NodeFilter> activeNodeFilters;
     private final SelectedNodeContainer container;
-    private final Map<Integer, TreeItem<SVNode>> applications = new HashMap<Integer, TreeItem<SVNode>>();
+
+    // private final Map<Integer, TreeItem<SVNode>> applications = new
+    // HashMap<Integer, TreeItem<SVNode>>();
 
     public ScenegraphTreeView(final List<NodeFilter> activeNodeFilters, final SelectedNodeContainer container) {
         this.activeNodeFilters = activeNodeFilters;
@@ -78,7 +80,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         final SVNode previouslySelected = container.getSelectedNode();
         // treeViewData.clear();
         previouslySelectedItem = null;
-        removeForNode(value);
+        removeForNode(getTreeItem(value));
         final TreeItem<SVNode> root = createTreeItem(value, showNodesIdInTree, showFilteredNodesInTree);
 
         final TreeItem<SVNode> applicationRoot = findStageRoot(controller);
@@ -114,6 +116,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     }
 
     void removeNode(final SVNode node) {
+        System.out.println("removing treeItem:" + node.getExtendedId());
         if (node.getId() == null || !node.getId().startsWith(StageController.SCENIC_VIEW_BASE_ID)) {
             TreeItem<SVNode> selected = null;
             if (container.getSelectedNode() == node) {
@@ -124,6 +127,10 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                 selected = getSelectionModel().getSelectedItem();
             }
             final TreeItem<SVNode> treeItem = getTreeItem(node);
+            if (treeItem == null) {
+                System.out.println("Removing unfound treeItem:" + node.getExtendedId());
+                return;
+            }
             final List<TreeItem<SVNode>> treeItemChildren = treeItem.getChildren();
             if (treeItemChildren != null) {
                 /**
@@ -154,15 +161,15 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     }
 
     void addNewNode(final SVNode alive, final boolean showNodesIdInTree, final boolean showFilteredNodesInTree) {
+        System.out.println("adding treeItem:" + alive.getExtendedId());
         if (alive.getId() == null || !alive.getId().startsWith(StageController.SCENIC_VIEW_BASE_ID)) {
             final TreeItem<SVNode> selected = getSelectionModel().getSelectedItem();
-            final TreeItem<SVNode> TreeItem = createTreeItem(alive, showNodesIdInTree, showFilteredNodesInTree);
+            final TreeItem<SVNode> treeItem = createTreeItem(alive, showNodesIdInTree, showFilteredNodesInTree);
             // childItems[x] could be null because of bounds
             // rectangles or filtered nodes
-            if (TreeItem != null) {
+            if (treeItem != null) {
                 final SVNode parent = alive.getParent();
                 final TreeItem<SVNode> parentTreeItem = getTreeItem(parent);
-
                 /**
                  * In some situations node could be previously added
                  */
@@ -175,7 +182,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
 
                 }
                 if (!found) {
-                    parentTreeItem.getChildren().add(TreeItem);
+                    parentTreeItem.getChildren().add(treeItem);
                 }
             }
             if (selected != null) {
@@ -285,8 +292,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         SVNode getSelectedNode();
     }
 
-    private void removeForNode(final SVNode node) {
-        final TreeItem<SVNode> treeItem = getTreeItem(node);
+    private void removeForNode(final TreeItem<SVNode> treeItem) {
         if (treeItem != null) {
             final List<TreeItem<SVNode>> treeItemChildren = treeItem.getChildren();
             if (treeItemChildren != null) {
@@ -296,7 +302,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                  */
                 @SuppressWarnings("unchecked") final TreeItem<SVNode> children[] = treeItemChildren.toArray(new TreeItem[treeItemChildren.size()]);
                 for (int i = 0; i < children.length; i++) {
-                    removeForNode(children[i].getValue());
+                    removeForNode(children[i]);
                 }
             }
 

@@ -3,6 +3,7 @@ package com.javafx.experiments.scenicview;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.value.*;
 import javafx.collections.*;
 import javafx.event.*;
@@ -15,7 +16,6 @@ import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.stage.*;
 
-import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.event.EvLogEvent;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
 
@@ -251,8 +251,12 @@ public class EventLogPane extends VBox {
         return (selectedNode == null) || selectedNode.equals(node) || checkValid(node.getParent());
     }
 
-    public boolean isActive() {
+    private boolean isActive() {
         return activateTrace.isSelected();
+    }
+
+    public ReadOnlyBooleanProperty activeProperty() {
+        return activateTrace.selectedProperty();
     }
 
     private void applyFilter() {
