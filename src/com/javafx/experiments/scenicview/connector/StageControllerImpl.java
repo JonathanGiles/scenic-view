@@ -134,46 +134,56 @@ public class StageControllerImpl implements StageController {
         visibilityInvalidationListener = new ChangeListener<Boolean>() {
 
             @Override public void changed(final ObservableValue<? extends Boolean> observable, final Boolean arg1, final Boolean newValue) {
-                if (configuration.isAutoRefreshSceneGraph()) {
-                    @SuppressWarnings("unchecked") final Node bean = (Node) ((Property<Boolean>) observable).getBean();
-                    final boolean filteringActive = configuration.isVisibilityFilteringActive();
-                    if (filteringActive && !newValue) {
-                        removeNode(bean, false);
-                    } else if (filteringActive && newValue) {
-                        addNewNode(bean);
-                    } else {
-                        /**
-                         * This should be improved ideally we use request a
-                         * repaint for the TreeItem
-                         */
-                        removeNode(bean, false);
-                        addNewNode(bean);
+                try {
+                    if (configuration.isAutoRefreshSceneGraph()) {
+                        @SuppressWarnings("unchecked") final Node bean = (Node) ((Property<Boolean>) observable).getBean();
+                        final boolean filteringActive = configuration.isVisibilityFilteringActive();
+                        if (filteringActive && !newValue) {
+                            removeNode(bean, false);
+                        } else if (filteringActive && newValue) {
+                            addNewNode(bean);
+                        } else {
+                            /**
+                             * This should be improved ideally we use request a
+                             * repaint for the TreeItem
+                             */
+                            removeNode(bean, false);
+                            addNewNode(bean);
+                        }
                     }
+                } catch (final Exception e) {
+                    // Protect the application from ScenicView problems
+                    e.printStackTrace();
                 }
             }
         };
 
         structureInvalidationListener = new ListChangeListener<Node>() {
             @Override public void onChanged(final Change<? extends Node> c) {
-                if (configuration.isAutoRefreshSceneGraph()) {
-                    int difference = 0;
-                    while (c.next()) {
-                        for (final Node dead : c.getRemoved()) {
-                            final SVNode node = createNode(dead);
-                            dispatcher.dispatchEvent(new EvLogEvent(getID(), node, EventLogPane.NODE_REMOVED, ""));
-                            removeNode(dead, true);
-                            difference -= DisplayUtils.getBranchCount(dead);
-                        }
-                        for (final Node alive : c.getAddedSubList()) {
-                            final SVNode node = createNode(alive);
-                            dispatcher.dispatchEvent(new EvLogEvent(getID(), node, EventLogPane.NODE_ADDED, ""));
+                try {
+                    if (configuration.isAutoRefreshSceneGraph()) {
+                        int difference = 0;
+                        while (c.next()) {
+                            for (final Node dead : c.getRemoved()) {
+                                final SVNode node = createNode(dead);
+                                dispatcher.dispatchEvent(new EvLogEvent(getID(), node, EventLogPane.NODE_REMOVED, ""));
+                                removeNode(dead, true);
+                                difference -= DisplayUtils.getBranchCount(dead);
+                            }
+                            for (final Node alive : c.getAddedSubList()) {
+                                final SVNode node = createNode(alive);
+                                dispatcher.dispatchEvent(new EvLogEvent(getID(), node, EventLogPane.NODE_ADDED, ""));
 
-                            addNewNode(alive);
-                            difference += DisplayUtils.getBranchCount(alive);
+                                addNewNode(alive);
+                                difference += DisplayUtils.getBranchCount(alive);
+                            }
                         }
+                        setNodeCount(nodeCount + difference);
+                        dispatcher.dispatchEvent(new NodeCountEvent(getID(), nodeCount));
                     }
-                    setNodeCount(nodeCount + difference);
-                    dispatcher.dispatchEvent(new NodeCountEvent(getID(), nodeCount));
+                } catch (final Exception e) {
+                    // Protect the application from ScenicView problems
+                    e.printStackTrace();
                 }
             }
         };
