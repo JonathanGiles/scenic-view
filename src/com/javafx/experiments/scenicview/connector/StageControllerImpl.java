@@ -614,16 +614,11 @@ public class StageControllerImpl implements StageController {
                 refresher.finish();
             }
         }
-        if (configuration.isAutoRefreshSceneGraph() != this.configuration.isAutoRefreshSceneGraph()) {
-            this.configuration.setAutoRefreshSceneGraph(configuration.isAutoRefreshSceneGraph());
-            if (this.configuration.isAutoRefreshSceneGraph()) {
-                update();
-            }
-        }
         if (configuration.isComponentSelectOnClick() != this.configuration.isComponentSelectOnClick()) {
             this.configuration.setComponentSelectOnClick(configuration.isComponentSelectOnClick());
             componentSelectOnClick(configuration.isComponentSelectOnClick());
         }
+        this.configuration.setAutoRefreshSceneGraph(configuration.isAutoRefreshSceneGraph());
         this.configuration.setEventLogEnabled(configuration.isEventLogEnabled());
         this.configuration.setIgnoreMouseTransparent(configuration.isIgnoreMouseTransparent());
         this.configuration.setCollapseContentControls(configuration.isCollapseContentControls());
@@ -756,7 +751,14 @@ public class StageControllerImpl implements StageController {
             if (node instanceof Parent) {
                 final List<Node> childrens = ((Parent) node).getChildrenUnmodifiable();
                 for (int i = 0; i < childrens.size(); i++) {
-                    updateListeners(childrens.get(i), add, removeVisibilityListener);
+                    /**
+                     * If we are removing a node: 1) If it is a real node
+                     * removal removeVisibilityListener is true 2) If it is a
+                     * visibility remove we should remove the visibility
+                     * listeners of its childrens because the visibility is
+                     * reduced by their parent
+                     */
+                    updateListeners(childrens.get(i), add, true);
                 }
                 ((Parent) node).getChildrenUnmodifiable().removeListener(structureInvalidationListener);
             }
