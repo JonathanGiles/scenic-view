@@ -17,7 +17,7 @@ import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 
-import com.javafx.experiments.scenicview.*;
+import com.javafx.experiments.scenicview.DisplayUtils;
 import com.javafx.experiments.scenicview.connector.PropertyTracker;
 
 /**
@@ -31,9 +31,9 @@ public abstract class DetailPane extends TitledPane {
 
     private static final String STATUS_NOT_SET = "Value can not be changed ";
     public static final String STATUS_NOT_SUPPORTED = STATUS_NOT_SET + "(Not supported yet)";
-    protected static final String STATUS_BOUND = STATUS_NOT_SET + "(Bound property)";
+    public static final String STATUS_BOUND = STATUS_NOT_SET + "(Bound property)";
     public static final String STATUS_EXCEPTION = STATUS_NOT_SET + "an exception has ocurred:";
-    protected static final String STATUS_READ_ONLY = STATUS_NOT_SET + "(Read-Only property)";
+    public static final String STATUS_READ_ONLY = STATUS_NOT_SET + "(Read-Only property)";
 
     public static float FADE = .50f;
     public static DecimalFormat f = new DecimalFormat("0.0#");

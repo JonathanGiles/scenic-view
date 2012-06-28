@@ -1,17 +1,18 @@
-package com.javafx.experiments.scenicview.details;
+package com.javafx.experiments.scenicview.connector.details;
 
 import java.lang.reflect.Method;
-
-import com.javafx.experiments.scenicview.ScenicView;
 
 import javafx.beans.property.*;
 import javafx.beans.value.WritableValue;
 import javafx.scene.paint.Color;
 
+import com.javafx.experiments.scenicview.ScenicView;
+import com.javafx.experiments.scenicview.details.DetailPane;
+
 @SuppressWarnings("rawtypes")
 public class SimpleSerializer implements WritableValue<String> {
 
-    enum EditionType {
+    public enum EditionType {
         TEXT_FIELD, COMBO, SLIDER
     };
 

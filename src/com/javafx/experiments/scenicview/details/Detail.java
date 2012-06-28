@@ -12,7 +12,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.util.Duration;
 
 import com.javafx.experiments.scenicview.*;
-import com.javafx.experiments.scenicview.details.SimpleSerializer.EditionType;
+import com.javafx.experiments.scenicview.connector.details.*;
+import com.javafx.experiments.scenicview.connector.details.SimpleSerializer.EditionType;
 
 public class Detail {
     public Label label;
