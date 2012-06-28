@@ -73,17 +73,17 @@ public class DisplayUtils {
     public static Image getIcon(final SVNode svNode) {
         if (svNode.getIcon() != null)
             return svNode.getIcon();
-        final URL resource = DisplayUtils.getNodeIcon(svNode.getNodeClass());
-        String url;
-        if (resource != null) {
-            url = resource.toString();
-        } else {
-            url = CUSTOM_NODE_IMAGE;
-        }
-        Image image = loadedImages.get(url);
+        Image image = loadedImages.get(svNode.getNodeClass());
         if (image == null) {
+            final URL resource = DisplayUtils.getNodeIcon(svNode.getNodeClass());
+            String url;
+            if (resource != null) {
+                url = resource.toString();
+            } else {
+                url = CUSTOM_NODE_IMAGE;
+            }
             image = new Image(url);
-            loadedImages.put(url, image);
+            loadedImages.put(svNode.getNodeClass(), image);
         }
         return image;
     }
