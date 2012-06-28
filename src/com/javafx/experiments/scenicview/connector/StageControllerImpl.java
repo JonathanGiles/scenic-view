@@ -89,6 +89,7 @@ public class StageControllerImpl implements StageController {
 
     private Node previousHightLightedData;
     final AppController appController;
+    int nodeCount;
 
     private final EventHandler<? super MouseEvent> mousePosListener = new EventHandler<MouseEvent>() {
 
@@ -148,7 +149,6 @@ public class StageControllerImpl implements StageController {
                         removeNode(bean, false);
                         addNewNode(bean);
                     }
-                    dispatcher.dispatchEvent(new NodeCountEvent(getID(), DisplayUtils.getBranchCount(target)));
                 }
             }
         };
@@ -156,20 +156,24 @@ public class StageControllerImpl implements StageController {
         structureInvalidationListener = new ListChangeListener<Node>() {
             @Override public void onChanged(final Change<? extends Node> c) {
                 if (configuration.isAutoRefreshSceneGraph()) {
+                    int difference = 0;
                     while (c.next()) {
                         for (final Node dead : c.getRemoved()) {
                             final SVNode node = createNode(dead);
                             dispatcher.dispatchEvent(new EvLogEvent(getID(), node, EventLogPane.NODE_REMOVED, ""));
                             removeNode(dead, true);
+                            difference -= DisplayUtils.getBranchCount(dead);
                         }
                         for (final Node alive : c.getAddedSubList()) {
                             final SVNode node = createNode(alive);
                             dispatcher.dispatchEvent(new EvLogEvent(getID(), node, EventLogPane.NODE_ADDED, ""));
 
                             addNewNode(alive);
+                            difference += DisplayUtils.getBranchCount(alive);
                         }
                     }
-                    dispatcher.dispatchEvent(new NodeCountEvent(getID(), DisplayUtils.getBranchCount(target)));
+                    setNodeCount(nodeCount + difference);
+                    dispatcher.dispatchEvent(new NodeCountEvent(getID(), nodeCount));
                 }
             }
         };
@@ -302,11 +306,13 @@ public class StageControllerImpl implements StageController {
             root = app;
         }
         dispatcher.dispatchEvent(new NodeAddRemoveEvent(SVEventType.ROOT_UPDATED, getID(), root));
+        updateSceneDetails();
     }
 
     private void updateSceneDetails() {
         // hack, since we can't listen for a STAGE prop change on scene
-        dispatcher.dispatchEvent(new SceneDetailsEvent(getID(), DisplayUtils.getBranchCount(target), targetScene != null ? DisplayUtils.format(targetScene.getWidth()) + " x " + DisplayUtils.format(targetScene.getHeight()) : ""));
+        setNodeCount(DisplayUtils.getBranchCount(target));
+        dispatcher.dispatchEvent(new SceneDetailsEvent(getID(), nodeCount, targetScene != null ? DisplayUtils.format(targetScene.getWidth()) + " x " + DisplayUtils.format(targetScene.getHeight()) : ""));
         if (targetScene != null && targetWindow == null) {
             setTargetWindow(targetScene.getWindow());
         }
@@ -766,5 +772,9 @@ public class StageControllerImpl implements StageController {
 
     public void setRemote(final boolean remote) {
         this.remote = remote;
+    }
+
+    private void setNodeCount(final int value) {
+        this.nodeCount = value;
     }
 }
