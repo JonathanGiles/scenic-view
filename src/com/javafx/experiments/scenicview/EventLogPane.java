@@ -39,7 +39,6 @@ public class EventLogPane extends VBox {
     SVNode selectedNode;
 
     @SuppressWarnings("unchecked") public EventLogPane(final ScenicView view) {
-        // selectedNodeLabel.prefWidthProperty().bind(widthProperty().divide(1.1));
         table.setEditable(false);
         table.getStyleClass().add("trace-text-area");
         final TableColumn<ScenicViewEvent, String> sourceCol = new TableColumn<ScenicViewEvent, String>("source");
@@ -125,12 +124,12 @@ public class EventLogPane extends VBox {
         filtersGridPane.setId("structure-trace-grid-pane");
 
         idFilterField = new TextField();
-        idFilterField.setPromptText("Insert text to filter");
+        idFilterField.setPromptText("Insert text to filter (logical operations supported)");
         idFilterField.focusedProperty().addListener(new ChangeListener<Boolean>() {
 
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
                 if (newValue)
-                    ScenicView.setStatusText("Type any text for filtering");
+                    ScenicView.setStatusText("Type any text for filtering (logical expressions NOT AND and OR are supported, example NOT MOUSE_MOVED AND TilePane)");
                 else
                     ScenicView.clearStatusText();
             }
@@ -142,14 +141,6 @@ public class EventLogPane extends VBox {
             }
         });
 
-        // final Button b1 = new Button();
-        // b1.setGraphic(new ImageView(DisplayUtils.CLEAR_IMAGE));
-        // b1.setOnAction(new EventHandler<ActionEvent>() {
-        // @Override public void handle(final ActionEvent arg0) {
-        // idFilterField.setText("");
-        // applyFilter();
-        // }
-        // });
         final ImageView b1 = new ImageView(DisplayUtils.CLEAR_IMAGE);
         b1.setOnMousePressed(new EventHandler<Event>() {
 
