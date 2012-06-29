@@ -32,7 +32,6 @@ public class RegionDetailPaneInfo extends DetailPaneInfo {
     }
 
     @Override protected void createDetails() {
-        final int row = 0;
         snapToPixelDetail = addDetail("snapToPixel", "snapToPixel:");
         paddingDetail = addDetail("padding", "padding:", ValueType.INSECTS);
         insetsDetail = addDetail("insets", "insets:\n(includes padding)", ValueType.INSECTS);

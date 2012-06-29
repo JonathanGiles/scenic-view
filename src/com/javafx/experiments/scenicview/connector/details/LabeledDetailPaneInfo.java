@@ -35,8 +35,6 @@ public class LabeledDetailPaneInfo extends DetailPaneInfo {
     }
 
     @Override protected void createDetails() {
-        final int row = 0;
-
         textDetail = addDetail("text", "text:");
         graphicDetail = addDetail("graphic", "graphic:");
         graphicTextGapDetail = addDetail("graphicTextGap", "graphicTextGap:");

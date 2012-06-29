@@ -53,14 +53,7 @@ abstract class DetailPaneInfo {
         return target;
     }
 
-    public void setShowCSSProperties(final boolean show) {
-        // TODO Auto-generated method stub
-
-    }
-
-    public void setShowDefaultProperties(final boolean show) {
-        // TODO Auto-generated method stub
-
+    void setShowCSSProperties(final boolean show) {
     }
 
     protected String getPaneName() {
@@ -74,13 +67,19 @@ abstract class DetailPaneInfo {
     }
 
     protected Detail addDetail(final String property, final String label, final ValueType type) {
-        // TODO Auto-generated method stub
-        return null;
+        final Detail detail = new Detail();
+        detail.setProperty(property);
+        detail.setLabel(label);
+        detail.setValueType(type);
+        return detail;
     }
 
     protected Detail addDetail(final String property, final String label, final LabelType type) {
-        // TODO Auto-generated method stub
-        return null;
+        final Detail detail = new Detail();
+        detail.setProperty(property);
+        detail.setLabel(label);
+        detail.setLabelType(type);
+        return detail;
     }
 
     protected abstract void updateAllDetails();

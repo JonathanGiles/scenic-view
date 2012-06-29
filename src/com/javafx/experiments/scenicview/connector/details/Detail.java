@@ -22,15 +22,17 @@ class Detail implements Serializable {
     };
 
     private boolean isDefault;
+    private String property;
     private String label;
     private String value;
     private String reason;
-    private final LabelType labelType = LabelType.NORMAL;
-    private final ValueType valueType = ValueType.NORMAL;
-    public SimpleSerializer serializer;
+    private LabelType labelType = LabelType.NORMAL;
+    private ValueType valueType = ValueType.NORMAL;
+    private boolean editable;
+    transient WritableValue<String> serializer;
 
     public Detail() {
-        // TODO Auto-generated constructor stub
+
     }
 
     public void setIsDefault(final boolean isDefault) {
@@ -63,12 +65,8 @@ class Detail implements Serializable {
     }
 
     public void setSerializer(final WritableValue<String> serializer) {
-        // this.serializer = serializer;
-        // if (serializer != null && valueLabel != null) {
-        // final ImageView graphic = new ImageView(DetailPane.EDIT_IMAGE);
-        // valueLabel.setGraphic(graphic);
-        // }
-
+        this.serializer = serializer;
+        this.editable = serializer != null;
     }
 
     public final void setReason(final String reason) {
@@ -135,6 +133,54 @@ class Detail implements Serializable {
     public void addObject(final HPos halignment, final int rowIndex, final int i) {
         // TODO Auto-generated method stub
 
+    }
+
+    public boolean isDefault() {
+        return isDefault;
+    }
+
+    public void setDefault(final boolean isDefault) {
+        this.isDefault = isDefault;
+    }
+
+    public String getProperty() {
+        return property;
+    }
+
+    public void setProperty(final String property) {
+        this.property = property;
+    }
+
+    public LabelType getLabelType() {
+        return labelType;
+    }
+
+    public void setLabelType(final LabelType labelType) {
+        this.labelType = labelType;
+    }
+
+    public ValueType getValueType() {
+        return valueType;
+    }
+
+    public void setValueType(final ValueType valueType) {
+        this.valueType = valueType;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public boolean isEditable() {
+        return editable;
     }
 
 }

@@ -20,6 +20,7 @@ import javafx.scene.shape.*;
 import javafx.stage.*;
 
 import com.javafx.experiments.scenicview.*;
+import com.javafx.experiments.scenicview.connector.details.AllDetails;
 import com.javafx.experiments.scenicview.connector.event.AppEvent.SVEventType;
 import com.javafx.experiments.scenicview.connector.event.*;
 import com.javafx.experiments.scenicview.connector.gui.*;
@@ -63,6 +64,8 @@ public class StageControllerImpl implements StageController {
     private final Configuration configuration = new Configuration();
 
     boolean remote;
+
+    AllDetails details = new AllDetails();
 
     private final EventHandler<? super MouseEvent> sceneHoverListener = new EventHandler<MouseEvent>() {
 
@@ -624,6 +627,8 @@ public class StageControllerImpl implements StageController {
         this.configuration.setCollapseContentControls(configuration.isCollapseContentControls());
         this.configuration.setCollapseControls(configuration.isCollapseControls());
         this.configuration.setVisibilityFilteringActive(configuration.isVisibilityFilteringActive());
+        this.configuration.setCSSPropertiesDetail(configuration.isCSSPropertiesDetail());
+        details.setShowCSSProperties(this.configuration.isCSSPropertiesDetail());
         update();
     }
 
@@ -648,6 +653,7 @@ public class StageControllerImpl implements StageController {
         }
         updateBoundsRects();
         updateBaseline();
+        details.setTarget(this.selectedNode);
     }
 
     private Node selectedNode;

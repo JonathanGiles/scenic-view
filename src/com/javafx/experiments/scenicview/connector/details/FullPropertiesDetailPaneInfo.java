@@ -11,11 +11,11 @@ import com.javafx.experiments.scenicview.details.DetailPane;
 import com.sun.javafx.css.StyleableProperty;
 
 @SuppressWarnings("rawtypes")
-public class FullPropertiesDetailPane extends DetailPaneInfo {
+public class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
 
     boolean showCSSProperties = true;
 
-    public FullPropertiesDetailPane() {
+    public FullPropertiesDetailPaneInfo() {
     }
 
     Map<String, ObservableValue> orderedProperties;
@@ -117,7 +117,7 @@ public class FullPropertiesDetailPane extends DetailPaneInfo {
             detail.updated();
     }
 
-    @Override public void setShowCSSProperties(final boolean show) {
+    @Override void setShowCSSProperties(final boolean show) {
         showCSSProperties = show;
         if (getTarget() != null) {
             createPropertiesPanel();

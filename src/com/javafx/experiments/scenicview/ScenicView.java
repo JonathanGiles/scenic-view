@@ -255,8 +255,11 @@ public class ScenicView extends Region implements SelectedNodeContainer {
         showCSSProperties.selectedProperty().addListener(new InvalidationListener() {
             @Override public void invalidated(final Observable arg0) {
                 allDetailsPane.setShowCSSProperties(showCSSProperties.isSelected());
+                configuration.setCSSPropertiesDetail(showCSSProperties.isSelected());
+                configurationUpdated();
             }
         });
+        configuration.setCSSPropertiesDetail(showCSSProperties.isSelected());
 
         final CheckMenuItem showBaselineCheckbox = buildCheckMenuItem("Show Baseline Overlay", "Display a red line at the current node's baseline offset", "Do not show baseline overlay", "showBaseline", Boolean.FALSE);
         showBaselineCheckbox.setId("show-baseline-overlay");
@@ -676,7 +679,8 @@ public class ScenicView extends Region implements SelectedNodeContainer {
     private void storeSelectedNode(final SVNode value) {
         selectedNode = value;
         allDetailsPane.setTarget(selectedNode != null ? selectedNode.getImpl() : null);
-        setStatusText("Label on the labels to modify its values. The panel could have different capabilities. When changed the values will be highlighted", 8000);
+        if (selectedNode != null)
+            setStatusText("Click on the labels to modify its values. The panel could have different capabilities. When changed the values will be highlighted", 8000);
         activeStage.setSelectedNode(value);
     }
 

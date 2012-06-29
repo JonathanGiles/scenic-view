@@ -31,6 +31,8 @@ public class Configuration implements Serializable {
 
     private boolean visibilityFilteringActive;
 
+    private boolean CSSPropertiesDetail;
+
     /**
      * I'm not totally sure about this...
      */
@@ -134,6 +136,14 @@ public class Configuration implements Serializable {
 
     @Override public String toString() {
         return "Configuration [showBounds=" + showBounds + ", showBaseline=" + showBaseline + ", showRuler=" + showRuler + ", rulerSeparation=" + rulerSeparation + ", eventLogEnabled=" + eventLogEnabled + ", autoRefreshStyles=" + autoRefreshStyles + ", ignoreMouseTransparent=" + ignoreMouseTransparent + ", collapseControls=" + collapseControls + ", collapseContentControls=" + collapseContentControls + ", autoRefreshSceneGraph=" + autoRefreshSceneGraph + ", visibilityFilteringActive=" + visibilityFilteringActive + ", componentSelectOnClick=" + componentSelectOnClick + "]";
+    }
+
+    public boolean isCSSPropertiesDetail() {
+        return CSSPropertiesDetail;
+    }
+
+    public void setCSSPropertiesDetail(final boolean cSSPropertiesDetail) {
+        CSSPropertiesDetail = cSSPropertiesDetail;
     }
 
 }

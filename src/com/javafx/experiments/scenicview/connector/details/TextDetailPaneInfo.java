@@ -38,8 +38,6 @@ public class TextDetailPaneInfo extends DetailPaneInfo {
     }
 
     @Override protected void createDetails() {
-        final int row = 0;
-
         contentDetail = addDetail("content", "content:");
         fontDetail = addDetail("font", "font:");
         originDetail = addDetail("textOrigin", "textOrigin:");
@@ -49,7 +47,6 @@ public class TextDetailPaneInfo extends DetailPaneInfo {
         wrappingWidthDetail = addDetail("wrappingWidth", "wrappingWidth:");
         underlineDetail = addDetail("underline", "underline:");
         strikethroughDetail = addDetail("strikethrough", "strikethrough:");
-
     }
 
     @Override protected void updateAllDetails() {

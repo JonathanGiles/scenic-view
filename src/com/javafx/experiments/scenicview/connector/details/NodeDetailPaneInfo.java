@@ -67,8 +67,6 @@ public class NodeDetailPaneInfo extends DetailPaneInfo {
     }
 
     @Override protected void createDetails() {
-        final int row = 0;
-
         nodeClassName = addDetail("className", "className:");
         styleClassDetail = addDetail("styleClass", "styleClass:");
         visibleDetail = addDetail("visible", "visible:");
@@ -240,8 +238,8 @@ public class NodeDetailPaneInfo extends DetailPaneInfo {
              * Include the slider
              */
             if (opacityDetail.serializer != null) {
-                opacityDetail.serializer.setMaxValue(1);
-                opacityDetail.serializer.setMinValue(0);
+                ((SimpleSerializer) opacityDetail.serializer).setMaxValue(1);
+                ((SimpleSerializer) opacityDetail.serializer).setMinValue(0);
             }
             if (!all)
                 opacityDetail.updated();
