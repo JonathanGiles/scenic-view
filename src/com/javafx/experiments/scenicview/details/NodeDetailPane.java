@@ -5,7 +5,7 @@
 
 package com.javafx.experiments.scenicview.details;
 
-import static com.javafx.experiments.scenicview.DisplayUtils.boundsToString;
+import static com.javafx.experiments.scenicview.connector.ConnectorUtils.boundsToString;
 import javafx.beans.value.WritableValue;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Orientation;

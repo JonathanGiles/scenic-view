@@ -23,11 +23,6 @@ public class EventLogPane extends VBox {
 
     private static final int MAX_EVENTS = 5000;
 
-    public static final String PROPERTY_CHANGED = "PROPERTY_CHANGED";
-    public static final String OTHER_EVENTS = "OTHER_EVENTS";
-    public static final String NODE_REMOVED = "NODE_REMOVED";
-    public static final String NODE_ADDED = "NODE_ADDED";
-
     TableView<ScenicViewEvent> table = new TableView<ScenicViewEvent>();
     ChoiceBox<String> showStack = new ChoiceBox<String>();
     CheckBox activateTrace = new CheckBox();

@@ -5,7 +5,7 @@ import java.util.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
 
-import com.javafx.experiments.scenicview.DisplayUtils;
+import com.javafx.experiments.scenicview.connector.ConnectorUtils;
 
 public class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
 
@@ -18,7 +18,7 @@ public class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
     }
 
     public SVRealNodeAdapter(final Node node, final boolean collapseControls, final boolean collapseContentControls) {
-        super(DisplayUtils.nodeClass(node));
+        super(ConnectorUtils.nodeClass(node));
         this.node = node;
         this.collapseControls = collapseControls;
         this.collapseContentControls = collapseContentControls;
@@ -98,11 +98,11 @@ public class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
     }
 
     @Override public String toString() {
-        return DisplayUtils.nodeDetail(this, showID);
+        return ConnectorUtils.nodeDetail(this, showID);
     }
 
     @Override public String getExtendedId() {
-        return DisplayUtils.nodeDetail(this, true);
+        return ConnectorUtils.nodeDetail(this, true);
     }
 
     @Override public boolean isRealNode() {

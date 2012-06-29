@@ -31,7 +31,7 @@ import com.javafx.experiments.scenicview.dialog.*;
  * 
  * @author aim
  */
-public class ScenicView extends Region implements SelectedNodeContainer {
+public class ScenicView extends Region implements SelectedNodeContainer, CParent {
 
     private static final String HELP_URL = "http://fxexperience.com/scenic-view/help";
     public static final String STYLESHEETS = "com/javafx/experiments/scenicview/scenicview.css";
@@ -367,25 +367,25 @@ public class ScenicView extends Region implements SelectedNodeContainer {
             @Override public void changed(final ObservableValue<? extends Number> arg0, final Number arg1, final Number newValue) {
                 configuration.setRulerSeparation((int) newValue.doubleValue());
                 configurationUpdated();
-                sliderValue.setText(DisplayUtils.format(newValue.doubleValue()));
+                sliderValue.setText(ConnectorUtils.format(newValue.doubleValue()));
             }
         });
         final HBox box = new HBox();
         sliderValue.setPrefWidth(40);
-        sliderValue.setText(DisplayUtils.format(slider.getValue()));
+        sliderValue.setText(ConnectorUtils.format(slider.getValue()));
         sliderValue.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override public void handle(final ActionEvent arg0) {
-                final double value = DisplayUtils.parse(sliderValue.getText());
+                final double value = ConnectorUtils.parse(sliderValue.getText());
                 if (value >= slider.getMin() && value <= slider.getMax()) {
                     configuration.setRulerSeparation((int) slider.getValue());
                     configurationUpdated();
                     slider.setValue(value);
                 } else if (value < slider.getMin()) {
-                    sliderValue.setText(DisplayUtils.format(slider.getMin()));
+                    sliderValue.setText(ConnectorUtils.format(slider.getMin()));
                     slider.setValue(slider.getMin());
                 } else {
-                    sliderValue.setText(DisplayUtils.format(slider.getMax()));
+                    sliderValue.setText(ConnectorUtils.format(slider.getMax()));
                     slider.setValue(slider.getMax());
                 }
             }

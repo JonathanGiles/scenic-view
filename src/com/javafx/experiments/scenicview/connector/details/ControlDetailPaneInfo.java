@@ -5,9 +5,10 @@
 
 package com.javafx.experiments.scenicview.connector.details;
 
-import static com.javafx.experiments.scenicview.DisplayUtils.formatSize;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
+
+import com.javafx.experiments.scenicview.connector.ConnectorUtils;
 
 /**
  * 
@@ -44,7 +45,7 @@ public class ControlDetailPaneInfo extends DetailPaneInfo {
             if (control != null) {
                 final double minw = control.getMinWidth();
                 final double minh = control.getMinHeight();
-                minSizeOverrideDetail.setValue(formatSize(minw) + " x " + formatSize(minh));
+                minSizeOverrideDetail.setValue(ConnectorUtils.formatSize(minw) + " x " + ConnectorUtils.formatSize(minh));
                 minSizeOverrideDetail.setIsDefault(minw == Control.USE_COMPUTED_SIZE && minh == Control.USE_COMPUTED_SIZE);
                 minSizeOverrideDetail.setSimpleSizeProperty(control.minWidthProperty(), control.minHeightProperty());
             } else {
@@ -61,7 +62,7 @@ public class ControlDetailPaneInfo extends DetailPaneInfo {
             if (control != null) {
                 final double prefw = control.getPrefWidth();
                 final double prefh = control.getPrefHeight();
-                prefSizeOverrideDetail.setValue(formatSize(prefw) + " x " + formatSize(prefh));
+                prefSizeOverrideDetail.setValue(ConnectorUtils.formatSize(prefw) + " x " + ConnectorUtils.formatSize(prefh));
                 prefSizeOverrideDetail.setIsDefault(prefw == Control.USE_COMPUTED_SIZE && prefh == Control.USE_COMPUTED_SIZE);
                 prefSizeOverrideDetail.setSimpleSizeProperty(control.prefWidthProperty(), control.prefHeightProperty());
             } else {
@@ -78,7 +79,7 @@ public class ControlDetailPaneInfo extends DetailPaneInfo {
             if (control != null) {
                 final double maxw = control.getMaxWidth();
                 final double maxh = control.getMaxHeight();
-                maxSizeOverrideDetail.setValue(formatSize(maxw) + " x " + formatSize(maxh));
+                maxSizeOverrideDetail.setValue(ConnectorUtils.formatSize(maxw) + " x " + ConnectorUtils.formatSize(maxh));
                 maxSizeOverrideDetail.setIsDefault(maxw == Control.USE_COMPUTED_SIZE && maxh == Control.USE_COMPUTED_SIZE);
                 maxSizeOverrideDetail.setSimpleSizeProperty(control.maxWidthProperty(), control.maxHeightProperty());
             } else {

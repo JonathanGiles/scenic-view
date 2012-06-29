@@ -1,4 +1,4 @@
-package com.javafx.experiments.scenicview.helper;
+package com.javafx.experiments.scenicview.connector.helper;
 
 import java.io.File;
 import java.net.URL;

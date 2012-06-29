@@ -1,7 +1,5 @@
 package com.javafx.experiments.scenicview.connector;
 
-import static com.javafx.experiments.scenicview.DisplayUtils.nodeClass;
-
 import java.util.*;
 
 import javafx.beans.*;
@@ -19,13 +17,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.stage.*;
 
-import com.javafx.experiments.scenicview.*;
 import com.javafx.experiments.scenicview.connector.details.AllDetails;
 import com.javafx.experiments.scenicview.connector.event.AppEvent.SVEventType;
 import com.javafx.experiments.scenicview.connector.event.*;
 import com.javafx.experiments.scenicview.connector.gui.*;
+import com.javafx.experiments.scenicview.connector.helper.StyleSheetRefresher;
 import com.javafx.experiments.scenicview.connector.node.*;
-import com.javafx.experiments.scenicview.helper.StyleSheetRefresher;
 
 public class StageControllerImpl implements StageController {
 
@@ -169,16 +166,16 @@ public class StageControllerImpl implements StageController {
                         while (c.next()) {
                             for (final Node dead : c.getRemoved()) {
                                 final SVNode node = createNode(dead);
-                                dispatcher.dispatchEvent(new EvLogEvent(getID(), node, EventLogPane.NODE_REMOVED, ""));
+                                dispatcher.dispatchEvent(new EvLogEvent(getID(), node, EvLogEvent.NODE_REMOVED, ""));
                                 removeNode(dead, true);
-                                difference -= DisplayUtils.getBranchCount(dead);
+                                difference -= ConnectorUtils.getBranchCount(dead);
                             }
                             for (final Node alive : c.getAddedSubList()) {
                                 final SVNode node = createNode(alive);
-                                dispatcher.dispatchEvent(new EvLogEvent(getID(), node, EventLogPane.NODE_ADDED, ""));
+                                dispatcher.dispatchEvent(new EvLogEvent(getID(), node, EvLogEvent.NODE_ADDED, ""));
 
                                 addNewNode(alive);
-                                difference += DisplayUtils.getBranchCount(alive);
+                                difference += ConnectorUtils.getBranchCount(alive);
                             }
                         }
                         setNodeCount(nodeCount + difference);
@@ -310,7 +307,7 @@ public class StageControllerImpl implements StageController {
                 final SVDummyNode subWindows = new SVDummyNode("SubWindows", "Popup", 0);
                 for (int i = 0; i < popupWindows.size(); i++) {
                     final PopupWindow window = popupWindows.get(i);
-                    final SVDummyNode subWindow = new SVDummyNode("SubWindow -" + nodeClass(window), nodeClass(window), window.hashCode());
+                    final SVDummyNode subWindow = new SVDummyNode("SubWindow -" + ConnectorUtils.nodeClass(window), ConnectorUtils.nodeClass(window), window.hashCode());
                     subWindow.getChildren().add(createNode(window.getScene().getRoot()));
                     subWindows.getChildren().add(subWindow);
                 }
@@ -324,8 +321,8 @@ public class StageControllerImpl implements StageController {
 
     private void updateSceneDetails() {
         // hack, since we can't listen for a STAGE prop change on scene
-        setNodeCount(DisplayUtils.getBranchCount(target));
-        dispatcher.dispatchEvent(new SceneDetailsEvent(getID(), nodeCount, targetScene != null ? DisplayUtils.format(targetScene.getWidth()) + " x " + DisplayUtils.format(targetScene.getHeight()) : ""));
+        setNodeCount(ConnectorUtils.getBranchCount(target));
+        dispatcher.dispatchEvent(new SceneDetailsEvent(getID(), nodeCount, targetScene != null ? ConnectorUtils.format(targetScene.getWidth()) + " x " + ConnectorUtils.format(targetScene.getHeight()) : ""));
         if (targetScene != null && targetWindow == null) {
             setTargetWindow(targetScene.getWindow());
         }
@@ -354,7 +351,7 @@ public class StageControllerImpl implements StageController {
 
     private void updateWindowDetails() {
         if (targetWindow != null) {
-            dispatcher.dispatchEvent(new WindowDetailsEvent(getID(), targetWindow.getClass().getSimpleName(), DisplayUtils.boundsToString(targetWindow.getX(), targetWindow.getY(), targetWindow.getWidth(), targetWindow.getHeight()), targetWindow.isFocused(), canStylesheetsBeRefreshed()));
+            dispatcher.dispatchEvent(new WindowDetailsEvent(getID(), targetWindow.getClass().getSimpleName(), ConnectorUtils.boundsToString(targetWindow.getX(), targetWindow.getY(), targetWindow.getWidth(), targetWindow.getHeight()), targetWindow.isFocused(), canStylesheetsBeRefreshed()));
         } else {
             dispatcher.dispatchEvent(new WindowDetailsEvent(getID(), null, "", false, false));
         }
@@ -420,8 +417,8 @@ public class StageControllerImpl implements StageController {
     private void addToNode(final Parent parent, final Node node) {
         if (parent instanceof Group) {
             ((Group) parent).getChildren().add(node);
-        } else if (parent instanceof ScenicView) {
-            ((ScenicView) parent).getChildren().add(node);
+        } else if (parent instanceof CParent) {
+            ((CParent) parent).getChildren().add(node);
         } else { // instanceof Pane
             ((Pane) parent).getChildren().add(node);
         }
@@ -430,8 +427,8 @@ public class StageControllerImpl implements StageController {
     private void removeFromNode(final Parent parent, final Node node) {
         if (parent instanceof Group) {
             ((Group) parent).getChildren().remove(node);
-        } else if (parent instanceof ScenicView) {
-            ((ScenicView) parent).getChildren().remove(node);
+        } else if (parent instanceof CParent) {
+            ((CParent) parent).getChildren().remove(node);
         } else { // instanceof Pane
             ((Pane) parent).getChildren().remove(node);
         }
@@ -689,7 +686,7 @@ public class StageControllerImpl implements StageController {
                     /**
                      * Remove the bean
                      */
-                    dispatcher.dispatchEvent(new EvLogEvent(getID(), createNode(node), EventLogPane.PROPERTY_CHANGED, propertyName + "=" + property.getValue()));
+                    dispatcher.dispatchEvent(new EvLogEvent(getID(), createNode(node), EvLogEvent.PROPERTY_CHANGED, propertyName + "=" + property.getValue()));
                 }
             };
             tracker.setTarget(node);

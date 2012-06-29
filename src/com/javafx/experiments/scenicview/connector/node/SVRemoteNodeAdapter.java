@@ -6,7 +6,7 @@ import java.util.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
 
-import com.javafx.experiments.scenicview.DisplayUtils;
+import com.javafx.experiments.scenicview.connector.ConnectorUtils;
 
 public class SVRemoteNodeAdapter extends SVNodeImpl implements Serializable {
 
@@ -31,7 +31,7 @@ public class SVRemoteNodeAdapter extends SVNodeImpl implements Serializable {
     }
 
     public SVRemoteNodeAdapter(final Node node, final boolean collapseControls, final boolean collapseContentControls, final boolean fillChildren) {
-        super(DisplayUtils.nodeClass(node));
+        super(ConnectorUtils.nodeClass(node));
         boolean mustBeExpanded = !(node instanceof Control) || !collapseControls;
         if (!mustBeExpanded && !collapseContentControls) {
             mustBeExpanded = node instanceof TabPane || node instanceof SplitPane || node instanceof ScrollPane || node instanceof Accordion || node instanceof TitledPane;
@@ -63,7 +63,7 @@ public class SVRemoteNodeAdapter extends SVNodeImpl implements Serializable {
     }
 
     @Override public String getExtendedId() {
-        return DisplayUtils.nodeDetail(this, true);
+        return ConnectorUtils.nodeDetail(this, true);
     }
 
     @Override public SVNode getParent() {
@@ -115,7 +115,7 @@ public class SVRemoteNodeAdapter extends SVNodeImpl implements Serializable {
     }
 
     @Override public String toString() {
-        return DisplayUtils.nodeDetail(this, showID);
+        return ConnectorUtils.nodeDetail(this, showID);
     }
 
     @Override public int hashCode() {

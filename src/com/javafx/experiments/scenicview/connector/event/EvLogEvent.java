@@ -1,9 +1,14 @@
 package com.javafx.experiments.scenicview.connector.event;
 
-import com.javafx.experiments.scenicview.connector.*;
+import com.javafx.experiments.scenicview.connector.StageID;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
 
 public class EvLogEvent extends AppEvent {
+
+    public static final String PROPERTY_CHANGED = "PROPERTY_CHANGED";
+    public static final String OTHER_EVENTS = "OTHER_EVENTS";
+    public static final String NODE_REMOVED = "NODE_REMOVED";
+    public static final String NODE_ADDED = "NODE_ADDED";
 
     /**
      * 

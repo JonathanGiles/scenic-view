@@ -14,8 +14,8 @@ import javafx.util.Callback;
 
 import com.javafx.experiments.scenicview.ScenicView;
 import com.javafx.experiments.scenicview.connector.*;
-import com.javafx.experiments.scenicview.helper.*;
-import com.javafx.experiments.scenicview.helper.WindowChecker.WindowFilter;
+import com.javafx.experiments.scenicview.connector.helper.*;
+import com.javafx.experiments.scenicview.connector.helper.WindowChecker.WindowFilter;
 
 public class StageSelectionBox {
     private static final int SCENE_WIDTH = 200;

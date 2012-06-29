@@ -5,10 +5,11 @@
 
 package com.javafx.experiments.scenicview.details;
 
-import static com.javafx.experiments.scenicview.DisplayUtils.formatSize;
 import javafx.scene.Node;
 import javafx.scene.layout.Region;
 import javafx.scene.text.TextAlignment;
+
+import com.javafx.experiments.scenicview.connector.ConnectorUtils;
 
 /**
  * 
@@ -78,7 +79,7 @@ public class RegionDetailPane extends DetailPane {
             if (region != null) {
                 final double minw = region.getMinWidth();
                 final double minh = region.getMinHeight();
-                minSizeOverrideDetail.valueLabel.setText(formatSize(minw) + " x " + formatSize(minh));
+                minSizeOverrideDetail.valueLabel.setText(ConnectorUtils.formatSize(minw) + " x " + ConnectorUtils.formatSize(minh));
                 minSizeOverrideDetail.setIsDefault(minw == Region.USE_COMPUTED_SIZE && minh == Region.USE_COMPUTED_SIZE);
                 minSizeOverrideDetail.setSimpleSizeProperty(region.minWidthProperty(), region.minHeightProperty());
             } else {
@@ -95,7 +96,7 @@ public class RegionDetailPane extends DetailPane {
             if (region != null) {
                 final double prefw = region.getPrefWidth();
                 final double prefh = region.getPrefHeight();
-                prefSizeOverrideDetail.valueLabel.setText(formatSize(prefw) + " x " + formatSize(prefh));
+                prefSizeOverrideDetail.valueLabel.setText(ConnectorUtils.formatSize(prefw) + " x " + ConnectorUtils.formatSize(prefh));
                 prefSizeOverrideDetail.setIsDefault(prefw == Region.USE_COMPUTED_SIZE && prefh == Region.USE_COMPUTED_SIZE);
                 prefSizeOverrideDetail.setSimpleSizeProperty(region.prefWidthProperty(), region.prefHeightProperty());
             } else {
@@ -112,7 +113,7 @@ public class RegionDetailPane extends DetailPane {
             if (region != null) {
                 final double maxw = region.getMaxWidth();
                 final double maxh = region.getMaxHeight();
-                maxSizeOverrideDetail.valueLabel.setText(formatSize(maxw) + " x " + formatSize(maxh));
+                maxSizeOverrideDetail.valueLabel.setText(ConnectorUtils.formatSize(maxw) + " x " + ConnectorUtils.formatSize(maxh));
                 maxSizeOverrideDetail.setIsDefault(maxw == Region.USE_COMPUTED_SIZE && maxh == Region.USE_COMPUTED_SIZE);
                 maxSizeOverrideDetail.setSimpleSizeProperty(region.maxWidthProperty(), region.maxHeightProperty());
             } else {

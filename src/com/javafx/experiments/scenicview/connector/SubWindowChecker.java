@@ -5,7 +5,7 @@ import java.util.*;
 import javafx.application.Platform;
 import javafx.stage.*;
 
-import com.javafx.experiments.scenicview.helper.WindowChecker;
+import com.javafx.experiments.scenicview.connector.helper.WindowChecker;
 
 @SuppressWarnings("rawtypes")
 class SubWindowChecker extends WindowChecker {

@@ -7,8 +7,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.scene.text.Text;
 
-import com.javafx.experiments.scenicview.DisplayUtils;
-import com.javafx.experiments.scenicview.connector.StageController;
+import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
 
 public class ComponentHighLighter extends Group {
@@ -44,7 +43,7 @@ public class ComponentHighLighter extends Group {
             pane.setPrefHeight(60);
             pane.setPrefWidth(100);
             final Text label = new Text();
-            label.setText("x:" + DisplayUtils.format(bounds.getMinX()) + " y:" + DisplayUtils.format(bounds.getMinY()) + "\nw:" + DisplayUtils.format(rect.getWidth()) + " h:" + DisplayUtils.format(rect.getHeight()));
+            label.setText("x:" + ConnectorUtils.format(bounds.getMinX()) + " y:" + ConnectorUtils.format(bounds.getMinY()) + "\nw:" + ConnectorUtils.format(rect.getWidth()) + " h:" + ConnectorUtils.format(rect.getHeight()));
             pane.setContent(label);
             pane.setLayoutX(bounds.getMinX() + (rect.getWidth() / 2) - (pane.getPrefWidth() / 2));
             pane.setFocusTraversable(false);
