@@ -7,6 +7,8 @@ import javafx.beans.value.*;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 
+import com.javafx.experiments.scenicview.connector.StageID;
+import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
 import com.javafx.experiments.scenicview.details.DetailPane;
 import com.sun.javafx.css.StyleableProperty;
 
@@ -15,11 +17,12 @@ public class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
 
     boolean showCSSProperties = true;
 
-    public FullPropertiesDetailPaneInfo() {
+    public FullPropertiesDetailPaneInfo(final AppEventDispatcher dispatcher, final StageID stageID) {
+        super(dispatcher, stageID, DetailPaneType.FULL);
     }
 
     Map<String, ObservableValue> orderedProperties;
-    Map<String, Detail> details;
+    Map<String, Detail> fullPropertiesDetails;
     Map<WritableValue, String> styles;
 
     @Override protected String getPaneName() {
@@ -31,7 +34,7 @@ public class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
     }
 
     @Override public boolean targetMatches(final Object candidate) {
-        return true;
+        return candidate != null;
     }
 
     @Override protected void createDetails() {
@@ -48,7 +51,7 @@ public class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
     @SuppressWarnings({ "deprecation", "unchecked" }) private void createPropertiesPanel() {
         final Node node = (Node) getTarget();
         styles = new HashMap<WritableValue, String>();
-
+        details.clear();
         if (node != null) {
             final List<StyleableProperty> list = node.impl_getStyleableProperties();
             for (final Iterator iterator = list.iterator(); iterator.hasNext();) {
@@ -59,7 +62,7 @@ public class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
         }
 
         orderedProperties = new TreeMap<String, ObservableValue>();
-        details = new HashMap<String, Detail>();
+        fullPropertiesDetails = new HashMap<String, Detail>();
         final Map<ObservableValue, String> properties = tracker.getProperties();
         for (final Iterator<ObservableValue> iterator = properties.keySet().iterator(); iterator.hasNext();) {
             final ObservableValue type = iterator.next();
@@ -69,9 +72,9 @@ public class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
             final String type = iterator.next();
             final String style = styles.get(orderedProperties.get(type));
             if (style == null || !showCSSProperties) {
-                details.put(type, addDetail(type, type + ":"));
+                fullPropertiesDetails.put(type, addDetail(type, type + ":"));
             } else {
-                details.put(type, addDetail(type, type + "(" + style + "):"));
+                fullPropertiesDetails.put(type, addDetail(type, type + "(" + style + "):"));
             }
         }
         updateAllDetails();
@@ -83,6 +86,7 @@ public class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
                 updateDetail(iterator.next(), true);
             }
         }
+        sendAllDetails();
     }
 
     @Override protected void updateDetail(final String propertyName) {
@@ -90,7 +94,7 @@ public class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
     }
 
     @SuppressWarnings("unchecked") protected void updateDetail(final String propertyName, final boolean all) {
-        final Detail detail = details.get(propertyName);
+        final Detail detail = fullPropertiesDetails.get(propertyName);
         final ObservableValue observable = orderedProperties.get(propertyName);
         final Object value = observable.getValue();
         detail.setValue(value == null ? "----" : value.toString());

@@ -8,11 +8,18 @@ package com.javafx.experiments.scenicview.connector.details;
 import static com.javafx.experiments.scenicview.connector.ConnectorUtils.getBranchCount;
 import javafx.scene.*;
 
+import com.javafx.experiments.scenicview.connector.StageID;
+import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
+
 /**
  * 
  * @author aim
  */
 public class ParentDetailPaneInfo extends DetailPaneInfo {
+
+    public ParentDetailPaneInfo(final AppEventDispatcher dispatcher, final StageID stageID) {
+        super(dispatcher, stageID, DetailPaneType.PARENT);
+    }
 
     Detail needsLayoutDetail;
     Detail childCountDetail;
@@ -41,6 +48,7 @@ public class ParentDetailPaneInfo extends DetailPaneInfo {
         // No property change events on these
         needsLayoutDetail.setValue(parent != null ? Boolean.toString(parent.isNeedsLayout()) : "-");
         needsLayoutDetail.setIsDefault(parent == null || !parent.isNeedsLayout());
+        sendAllDetails();
     }
 
     @Override protected void updateDetail(final String propertyName) {

@@ -10,6 +10,7 @@ public final class StageID implements Serializable {
     private static final long serialVersionUID = 1091256426733557091L;
     private final int appID;
     private final int stageID;
+    private String name;
 
     public StageID(final int appID, final int stageID) {
         this.appID = appID;
@@ -45,6 +46,14 @@ public final class StageID implements Serializable {
         if (stageID != other.stageID)
             return false;
         return true;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
     }
 
 }

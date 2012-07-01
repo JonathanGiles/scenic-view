@@ -6,6 +6,7 @@ import javafx.scene.paint.Color;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
 
 class CustomTreeCell extends TreeCell<SVNode> {
+
     @Override public void updateItem(final SVNode item, final boolean empty) {
         super.updateItem(item, empty);
 

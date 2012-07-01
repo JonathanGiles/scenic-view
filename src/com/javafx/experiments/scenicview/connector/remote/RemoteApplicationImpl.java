@@ -4,7 +4,8 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
-import com.javafx.experiments.scenicview.connector.Configuration;
+import com.javafx.experiments.scenicview.connector.*;
+import com.javafx.experiments.scenicview.connector.details.DetailPaneType;
 import com.javafx.experiments.scenicview.connector.event.*;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
 
@@ -104,6 +105,14 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
 
     @Override public void setSelectedNode(final SVNode value) throws RemoteException {
         application.setSelectedNode(value);
+    }
+
+    @Override public void setDetail(final StageID id, final DetailPaneType detailType, final int detailID, final String value) throws RemoteException {
+        application.setDetail(id, detailType, detailID, value);
+    }
+
+    @Override public String[] getStageNames() throws RemoteException {
+        return application.getStageNames();
     }
 
 }

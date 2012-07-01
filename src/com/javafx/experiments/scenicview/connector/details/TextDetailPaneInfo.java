@@ -9,6 +9,9 @@ import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.text.*;
 
+import com.javafx.experiments.scenicview.connector.StageID;
+import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
+
 /**
  * 
  * @author aim
@@ -25,8 +28,8 @@ public class TextDetailPaneInfo extends DetailPaneInfo {
     Detail underlineDetail;
     Detail strikethroughDetail;
 
-    public TextDetailPaneInfo() {
-        super();
+    public TextDetailPaneInfo(final AppEventDispatcher dispatcher, final StageID stageID) {
+        super(dispatcher, stageID, DetailPaneType.TEXT);
     }
 
     @Override public Class<? extends Node> getTargetClass() {
@@ -47,10 +50,6 @@ public class TextDetailPaneInfo extends DetailPaneInfo {
         wrappingWidthDetail = addDetail("wrappingWidth", "wrappingWidth:");
         underlineDetail = addDetail("underline", "underline:");
         strikethroughDetail = addDetail("strikethrough", "strikethrough:");
-    }
-
-    @Override protected void updateAllDetails() {
-        updateDetail("*");
     }
 
     @Override protected void updateDetail(final String propertyName) {
@@ -135,5 +134,7 @@ public class TextDetailPaneInfo extends DetailPaneInfo {
             if (!all)
                 strikethroughDetail.updated();
         }
+        if (all)
+            sendAllDetails();
     }
 }

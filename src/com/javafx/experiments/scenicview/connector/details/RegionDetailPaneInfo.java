@@ -8,14 +8,20 @@ package com.javafx.experiments.scenicview.connector.details;
 import javafx.scene.Node;
 import javafx.scene.layout.Region;
 
-import com.javafx.experiments.scenicview.connector.ConnectorUtils;
+import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.details.Detail.ValueType;
+import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
 
 /**
  * 
  * @author aim
  */
 public class RegionDetailPaneInfo extends DetailPaneInfo {
+    public RegionDetailPaneInfo(final AppEventDispatcher dispatcher, final StageID stageID) {
+        super(dispatcher, stageID, DetailPaneType.REGION);
+        // TODO Auto-generated constructor stub
+    }
+
     Detail snapToPixelDetail;
     Detail insetsDetail;
     Detail paddingDetail;
@@ -33,16 +39,12 @@ public class RegionDetailPaneInfo extends DetailPaneInfo {
 
     @Override protected void createDetails() {
         snapToPixelDetail = addDetail("snapToPixel", "snapToPixel:");
-        paddingDetail = addDetail("padding", "padding:", ValueType.INSECTS);
-        insetsDetail = addDetail("insets", "insets:\n(includes padding)", ValueType.INSECTS);
+        paddingDetail = addDetail("padding", "padding:", ValueType.INSETS);
+        insetsDetail = addDetail("insets", "insets:\n(includes padding)", ValueType.INSETS);
         // insetsDetail.label.setTextAlignment(TextAlignment.RIGHT);
         minSizeOverrideDetail = addDetail("minWidth", "minWidth/Height:");
         prefSizeOverrideDetail = addDetail("prefWidth", "prefWidth/Height:");
         maxSizeOverrideDetail = addDetail("maxWidth ", "maxWidth/Height:");
-    }
-
-    @Override protected void updateAllDetails() {
-        updateDetail("*");
     }
 
     @Override protected void updateDetail(final String propertyName) {
@@ -59,7 +61,7 @@ public class RegionDetailPaneInfo extends DetailPaneInfo {
                 return;
         }
         if (all || propertyName.equals("insets")) {
-            insetsDetail.setValue(region != null ? region.getInsets().toString() : null);
+            insetsDetail.setValue(region != null ? ConnectorUtils.serializeInsets(region.getInsets()) : null);
             insetsDetail.setIsDefault(region == null);
             if (!all)
                 insetsDetail.updated();
@@ -67,7 +69,7 @@ public class RegionDetailPaneInfo extends DetailPaneInfo {
                 return;
         }
         if (all || propertyName.equals("padding")) {
-            paddingDetail.setValue(region != null ? region.getPadding().toString() : null);
+            paddingDetail.setValue(region != null ? ConnectorUtils.serializeInsets(region.getPadding()) : null);
             paddingDetail.setIsDefault(region == null);
             if (!all)
                 paddingDetail.updated();
@@ -123,6 +125,8 @@ public class RegionDetailPaneInfo extends DetailPaneInfo {
             if (!all)
                 maxSizeOverrideDetail.updated();
         }
+        if (all)
+            sendAllDetails();
     }
 
 }

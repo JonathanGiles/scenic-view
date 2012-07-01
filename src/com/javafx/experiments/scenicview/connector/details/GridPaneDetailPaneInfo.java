@@ -11,13 +11,19 @@ import javafx.scene.Node;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 
+import com.javafx.experiments.scenicview.connector.StageID;
 import com.javafx.experiments.scenicview.connector.details.Detail.ValueType;
+import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
 
 /**
  * 
  * @author aim
  */
 public class GridPaneDetailPaneInfo extends DetailPaneInfo {
+    public GridPaneDetailPaneInfo(final AppEventDispatcher dispatcher, final StageID stageID) {
+        super(dispatcher, stageID, DetailPaneType.GRID_PANE);
+    }
+
     Detail gapDetail;
     Detail alignmentDetail;
     Detail gridLinesVisibleDetail;
@@ -66,9 +72,10 @@ public class GridPaneDetailPaneInfo extends DetailPaneInfo {
     }
 
     @Override protected void updateAllDetails() {
-        updateDetail("*");
+
         updateRowConstraints();
         updateColumnConstraints();
+        updateDetail("*");
     }
 
     @Override protected void updateDetail(final String propertyName) {
@@ -102,6 +109,8 @@ public class GridPaneDetailPaneInfo extends DetailPaneInfo {
             if (!all)
                 return;
         }
+        if (all)
+            sendAllDetails();
 
     }
 

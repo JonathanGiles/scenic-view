@@ -17,7 +17,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.stage.*;
 
-import com.javafx.experiments.scenicview.connector.details.AllDetails;
+import com.javafx.experiments.scenicview.connector.details.*;
 import com.javafx.experiments.scenicview.connector.event.AppEvent.SVEventType;
 import com.javafx.experiments.scenicview.connector.event.*;
 import com.javafx.experiments.scenicview.connector.gui.*;
@@ -62,7 +62,7 @@ public class StageControllerImpl implements StageController {
 
     boolean remote;
 
-    AllDetails details = new AllDetails();
+    AllDetails details;
 
     private final EventHandler<? super MouseEvent> sceneHoverListener = new EventHandler<MouseEvent>() {
 
@@ -234,6 +234,7 @@ public class StageControllerImpl implements StageController {
 
     @Override public void setEventDispatcher(final AppEventDispatcher model2gui) {
         this.dispatcher = model2gui;
+        details = new AllDetails(model2gui, getID());
         setTarget(target);
         update();
     }
@@ -345,6 +346,8 @@ public class StageControllerImpl implements StageController {
             targetWindow.heightProperty().addListener(targetWindowPropListener);
             targetWindow.focusedProperty().addListener(targetWindowPropListener);
             targetWindow.sceneProperty().addListener(targetWindowSceneListener);
+            if (targetWindow instanceof Stage)
+                stageID.setName(((Stage) targetWindow).getTitle());
         }
         updateWindowDetails();
     }
@@ -791,5 +794,9 @@ public class StageControllerImpl implements StageController {
 
     private void setNodeCount(final int value) {
         this.nodeCount = value;
+    }
+
+    @Override public void setDetail(final DetailPaneType detailType, final int detailID, final String value) {
+        details.setDetail(detailType, detailID, value);
     }
 }

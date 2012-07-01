@@ -1,25 +1,38 @@
 package com.javafx.experiments.scenicview.connector.details;
 
 import java.io.Serializable;
+import java.util.*;
 
 import javafx.beans.property.*;
 import javafx.beans.value.WritableValue;
-import javafx.collections.*;
+import javafx.collections.ObservableList;
 import javafx.geometry.*;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.Text;
 
+import com.javafx.experiments.scenicview.connector.StageID;
+import com.javafx.experiments.scenicview.connector.event.AppEvent.SVEventType;
+import com.javafx.experiments.scenicview.connector.event.*;
 import com.javafx.experiments.scenicview.details.DetailPane;
 
-class Detail implements Serializable {
+public class Detail implements Serializable {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 835749512117709621L;
 
     public enum LabelType {
         NORMAL, LAYOUT_BOUNDS, BOUNDS_PARENT, BASELINE
     }
 
     public enum ValueType {
-        NORMAL, INSECTS, CONSTRAINTS, GRID_CONSTRAINTS
+        NORMAL, INSETS, CONSTRAINTS, GRID_CONSTRAINTS
     };
+
+    public enum EditionType {
+        NONE, TEXT, COMBO, SLIDER
+    }
 
     private boolean isDefault;
     private String property;
@@ -28,10 +41,27 @@ class Detail implements Serializable {
     private String reason;
     private LabelType labelType = LabelType.NORMAL;
     private ValueType valueType = ValueType.NORMAL;
-    private boolean editable;
+    private EditionType editionType = EditionType.NONE;
     transient WritableValue<String> serializer;
 
-    public Detail() {
+    private transient final AppEventDispatcher dispatcher;
+    private final DetailPaneType detailType;
+    private final int detailID;
+    private final StageID stageID;
+    private transient final List<Detail> details;
+    private String detailName;
+    private String[] validItems;
+    private double maxValue;
+    private double minValue;
+    private String realValue;
+
+    public Detail(final AppEventDispatcher dispatcher, final StageID stageID, final DetailPaneType detailType, final int detailID) {
+        this.dispatcher = dispatcher;
+        this.stageID = stageID;
+        this.detailType = detailType;
+        this.detailID = detailID;
+        this.details = new ArrayList<Detail>(1);
+        details.add(this);
 
     }
 
@@ -48,7 +78,7 @@ class Detail implements Serializable {
     }
 
     public final void updated() {
-
+        dispatcher.dispatchEvent(new DetailsEvent(SVEventType.DETAIL_UPDATED, stageID, detailType, detailName, details));
     }
 
     public void setSimpleSizeProperty(final DoubleProperty x, final DoubleProperty y) {
@@ -66,7 +96,37 @@ class Detail implements Serializable {
 
     public void setSerializer(final WritableValue<String> serializer) {
         this.serializer = serializer;
-        this.editable = serializer != null;
+        this.editionType = EditionType.NONE;
+        if (serializer != null) {
+            realValue = serializer.getValue();
+            // Probably this should be an interface...
+            if (serializer instanceof SimpleSerializer) {
+                final com.javafx.experiments.scenicview.connector.details.SimpleSerializer.EditionType type = ((SimpleSerializer) serializer).getEditionType();
+                switch (type) {
+                case COMBO:
+                    editionType = EditionType.COMBO;
+                    validItems = ((SimpleSerializer) serializer).getValidValues();
+
+                    break;
+                case SLIDER:
+                    editionType = EditionType.SLIDER;
+                    maxValue = ((SimpleSerializer) serializer).getMaxValue();
+                    minValue = ((SimpleSerializer) serializer).getMinValue();
+
+                    break;
+                default:
+                    editionType = EditionType.TEXT;
+                    break;
+                }
+
+            } else {
+                editionType = EditionType.TEXT;
+
+            }
+        } else {
+            editionType = EditionType.NONE;
+        }
+
     }
 
     public final void setReason(final String reason) {
@@ -101,11 +161,6 @@ class Detail implements Serializable {
     }
 
     public void setConstraints(final ObservableList rowCol) {
-        // TODO Auto-generated method stub
-
-    }
-
-    public void setPropertiesMap(final ObservableMap map) {
         // TODO Auto-generated method stub
 
     }
@@ -179,8 +234,69 @@ class Detail implements Serializable {
         return reason;
     }
 
-    public boolean isEditable() {
-        return editable;
+    public DetailPaneType getDetailType() {
+        return detailType;
+    }
+
+    public String getDetailName() {
+        return detailName;
+    }
+
+    public void setDetailName(final String detailName) {
+        this.detailName = detailName;
+    }
+
+    public EditionType getEditionType() {
+        return editionType;
+    }
+
+    public String[] getValidItems() {
+        return validItems;
+    }
+
+    public double getMaxValue() {
+        return maxValue;
+    }
+
+    public double getMinValue() {
+        return minValue;
+    }
+
+    public String getRealValue() {
+        return realValue;
+    }
+
+    @Override public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + detailID;
+        result = prime * result + ((detailType == null) ? 0 : detailType.hashCode());
+        result = prime * result + ((stageID == null) ? 0 : stageID.hashCode());
+        return result;
+    }
+
+    @Override public boolean equals(final Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final Detail other = (Detail) obj;
+        if (detailID != other.detailID)
+            return false;
+        if (detailType != other.detailType)
+            return false;
+        if (stageID == null) {
+            if (other.stageID != null)
+                return false;
+        } else if (!stageID.equals(other.stageID))
+            return false;
+        return true;
+    }
+
+    public int getDetailID() {
+        return detailID;
     }
 
 }

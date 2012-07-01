@@ -8,13 +8,19 @@ package com.javafx.experiments.scenicview.connector.details;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
 
-import com.javafx.experiments.scenicview.connector.ConnectorUtils;
+import com.javafx.experiments.scenicview.connector.*;
+import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
 
 /**
  * 
  * @author aim
  */
 public class ControlDetailPaneInfo extends DetailPaneInfo {
+
+    public ControlDetailPaneInfo(final AppEventDispatcher dispatcher, final StageID stageID) {
+        super(dispatcher, stageID, DetailPaneType.CONTROL);
+    }
+
     Detail minSizeOverrideDetail;
     Detail prefSizeOverrideDetail;
     Detail maxSizeOverrideDetail;
@@ -31,10 +37,6 @@ public class ControlDetailPaneInfo extends DetailPaneInfo {
         minSizeOverrideDetail = addDetail("minWidth", "minWidth/Height:");
         prefSizeOverrideDetail = addDetail("prefWidth", "prefWidth/Height:");
         maxSizeOverrideDetail = addDetail("prefWidth", "maxWidth/Height:");
-    }
-
-    @Override protected void updateAllDetails() {
-        updateDetail("*");
     }
 
     @Override protected void updateDetail(final String propertyName) {
@@ -90,6 +92,8 @@ public class ControlDetailPaneInfo extends DetailPaneInfo {
             if (!all)
                 maxSizeOverrideDetail.updated();
         }
+        if (all)
+            sendAllDetails();
     }
 
 }

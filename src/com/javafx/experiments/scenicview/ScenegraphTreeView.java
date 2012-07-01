@@ -18,8 +18,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     private final List<NodeFilter> activeNodeFilters;
     private final SelectedNodeContainer container;
 
-    // private final Map<Integer, TreeItem<SVNode>> applications = new
-    // HashMap<Integer, TreeItem<SVNode>>();
+    private boolean secPressed;
 
     public ScenegraphTreeView(final List<NodeFilter> activeNodeFilters, final SelectedNodeContainer container) {
         this.activeNodeFilters = activeNodeFilters;
@@ -35,6 +34,20 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
 
             @Override public void handle(final MouseEvent ev) {
                 if (ev.isSecondaryButtonDown()) {
+                    secPressed = true;
+                    getSelectionModel().clearSelection();
+                }
+            }
+        });
+        /**
+         * Ugly patch for a problem that causes a reselection of the TreeItem on
+         * mouseRelease even if the selection has been cleared
+         */
+        setOnMouseReleased(new EventHandler<MouseEvent>() {
+
+            @Override public void handle(final MouseEvent ev) {
+                if (secPressed) {
+                    secPressed = false;
                     getSelectionModel().clearSelection();
                 }
             }

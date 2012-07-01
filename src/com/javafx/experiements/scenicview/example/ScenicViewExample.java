@@ -94,6 +94,8 @@ public class ScenicViewExample extends Application {
         final Rectangle rect3 = new Rectangle(75, 75, Color.AQUAMARINE);
         rect3.setId("rect3");
         rect3.setRotate(45);
+        TilePane.setAlignment(rect3, Pos.BASELINE_LEFT);
+        TilePane.setMargin(rect3, new Insets(3));
 
         final Rectangle rect4 = new Rectangle(75, 75);
         rect4.setId("rect4");

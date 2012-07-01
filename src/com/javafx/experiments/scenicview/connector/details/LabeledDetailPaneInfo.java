@@ -10,11 +10,19 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.text.TextAlignment;
 
+import com.javafx.experiments.scenicview.connector.StageID;
+import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
+
 /**
  * 
  * @author aim
  */
 public class LabeledDetailPaneInfo extends DetailPaneInfo {
+    public LabeledDetailPaneInfo(final AppEventDispatcher dispatcher, final StageID stageID) {
+        super(dispatcher, stageID, DetailPaneType.LABELED);
+        // TODO Auto-generated constructor stub
+    }
+
     Detail textDetail;
     Detail graphicDetail;
     Detail contentDisplayDetail;
@@ -46,10 +54,6 @@ public class LabeledDetailPaneInfo extends DetailPaneInfo {
         underlineDetail = addDetail("underline", "underline:");
         fontDetail = addDetail("font", "font:");
 
-    }
-
-    @Override protected void updateAllDetails() {
-        updateDetail("*");
     }
 
     @Override protected void updateDetail(final String propertyName) {
@@ -145,6 +149,8 @@ public class LabeledDetailPaneInfo extends DetailPaneInfo {
             if (!all)
                 return;
         }
+        if (all)
+            sendAllDetails();
     }
 
 }

@@ -9,6 +9,7 @@ import javafx.stage.*;
 
 import com.javafx.experiments.scenicview.ScenicView;
 import com.javafx.experiments.scenicview.connector.*;
+import com.javafx.experiments.scenicview.connector.details.DetailPaneType;
 import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
 import com.javafx.experiments.scenicview.connector.remote.*;
@@ -20,7 +21,7 @@ public class AgentTest {
         try {
             final int port = Integer.parseInt(agentArgs);
             final AppControllerImpl acontroller = new AppControllerImpl(port, "");
-            final List<StageController> controller = new ArrayList<StageController>();
+            final List<StageControllerImpl> controller = new ArrayList<StageControllerImpl>();
             @SuppressWarnings("deprecation") final Iterator<Window> it = Window.impl_getWindows();
             while (it.hasNext()) {
                 final Window window = it.next();
@@ -78,6 +79,14 @@ public class AgentTest {
                     return ids;
                 }
 
+                @Override public String[] getStageNames() throws RemoteException {
+                    final String[] ids = new String[controller.size()];
+                    for (int i = 0; i < ids.length; i++) {
+                        ids[i] = controller.get(i).getID().getName();
+                    }
+                    return ids;
+                }
+
                 @Override public void close() throws RemoteException {
                     Platform.runLater(new Runnable() {
 
@@ -100,6 +109,19 @@ public class AgentTest {
                         }
                     });
                 }
+
+                @Override public void setDetail(final StageID id, final DetailPaneType detailType, final int detailID, final String value) {
+                    Platform.runLater(new Runnable() {
+
+                        @Override public void run() {
+                            for (int i = 0; i < controller.size(); i++) {
+                                if (controller.get(i).getID().equals(id))
+                                    controller.get(i).setDetail(detailType, detailID, value);
+                            }
+                        }
+                    });
+                }
+
             };
 
             final RemoteApplicationImpl rapplication = new RemoteApplicationImpl(application, Integer.parseInt(agentArgs));

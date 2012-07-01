@@ -3,6 +3,7 @@ package com.javafx.experiments.scenicview.utils;
 import java.io.*;
 
 import com.javafx.experiements.scenicview.example.ScenicViewExample;
+import com.javafx.experiments.scenicview.connector.remote.RemoteScenicViewImpl;
 
 /**
  * 
@@ -32,7 +33,7 @@ public class ScenicViewBooter {
         }
 
         if (isAttachAPIAvailable) {
-            new JavaFXAppFinder();
+            RemoteScenicViewImpl.start();
         } else {
             ScenicViewExample.main(new String[0]);
         }

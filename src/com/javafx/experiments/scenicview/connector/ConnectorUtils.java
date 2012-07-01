@@ -1,9 +1,9 @@
 package com.javafx.experiments.scenicview.connector;
 
 import java.text.*;
-import java.util.List;
+import java.util.*;
 
-import javafx.geometry.Bounds;
+import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.layout.Region;
 
@@ -74,6 +74,83 @@ public class ConnectorUtils {
 
     public static String nodeDetail(final SVNode node, final boolean showId) {
         return node.getNodeClass() + ((showId && node.getId() != null) ? " \"" + node.getId() + "\"" : "");
+    }
+
+    public static String serializeInsets(final Insets insets) {
+        return insets.getTop() + "|" + insets.getLeft() + "|" + insets.getRight() + "|" + insets.getBottom();
+    }
+
+    public static Insets deserializeInsets(final String value) {
+        if (value == null)
+            return new Insets(0);
+        double top, left, right, bottom;
+        int pos = 0;
+        int next = 0;
+        next = value.indexOf('|', pos);
+        top = Double.parseDouble(value.substring(pos, next));
+        pos = next + 1;
+        next = value.indexOf('|', pos);
+        left = Double.parseDouble(value.substring(pos, next));
+        pos = next + 1;
+        next = value.indexOf('|', pos);
+        right = Double.parseDouble(value.substring(pos, next));
+        pos = next + 1;
+        bottom = Double.parseDouble(value.substring(pos));
+        return new Insets(top, right, bottom, left);
+    }
+
+    public static String serializePropertyMap(final Map propMap) {
+        if (propMap == null)
+            return "";
+        final StringBuilder sb = new StringBuilder();
+        final Object keys[] = propMap.keySet().toArray();
+        final int row = 0;
+        for (int i = 0; i < keys.length; i++) {
+            if (keys[i] instanceof String) {
+                final String propkey = (String) keys[i];
+                if (propkey.contains("pane-") || propkey.contains("box-")) {
+                    final Object keyvalue = propMap.get(propkey);
+                    if (sb.length() > 0) {
+                        sb.append(':');
+                    }
+                    sb.append(propkey).append('=');
+
+                    if (propkey.endsWith("margin")) {
+                        sb.append(serializeInsets((Insets) keyvalue));
+                    } else {
+                        sb.append(keyvalue.toString());
+                    }
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    public static Map<String, Object> deserializeMap(final String value) {
+        if (value.length() == 0)
+            return Collections.emptyMap();
+        int pos = 0;
+        final Map<String, Object> map = new HashMap<String, Object>();
+        do {
+            final int next = value.indexOf(':', pos);
+            String temp;
+            if (next == -1) {
+                temp = value.substring(pos);
+                pos = value.length();
+            } else {
+                temp = value.substring(pos, next);
+                pos = next + 1;
+            }
+            final String label = temp.substring(0, temp.indexOf('='));
+            final String realValue = temp.substring(temp.indexOf('=') + 1);
+
+            if (label.endsWith("margin")) {
+                map.put(label, deserializeInsets(realValue));
+            } else {
+                map.put(label, realValue);
+            }
+        } while (pos < value.length());
+        return map;
     }
 
 }

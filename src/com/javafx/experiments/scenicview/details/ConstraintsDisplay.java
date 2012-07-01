@@ -7,7 +7,6 @@ package com.javafx.experiments.scenicview.details;
 
 import java.util.Map;
 
-import javafx.collections.ObservableMap;
 import javafx.geometry.*;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
@@ -35,7 +34,7 @@ public class ConstraintsDisplay extends GridPane {
         return getChildren().size() > 1;
     }
 
-    public void setPropertiesMap(@SuppressWarnings("rawtypes") final ObservableMap value) {
+    public void setPropertiesMap(@SuppressWarnings("rawtypes") final Map value) {
         getChildren().clear();
 
         propMap = value;

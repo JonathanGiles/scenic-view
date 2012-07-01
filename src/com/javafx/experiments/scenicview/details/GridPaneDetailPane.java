@@ -8,7 +8,6 @@ package com.javafx.experiments.scenicview.details;
 import javafx.collections.*;
 import javafx.geometry.*;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 
@@ -40,8 +39,8 @@ public class GridPaneDetailPane extends DetailPane {
         gapDetail = addDetail("gap", "hgap/vgap:", row++);
         alignmentDetail = addDetail("alignment", "alignment:", row++);
         gridLinesVisibleDetail = addDetail("gridLinesVisible", "gridLinesVisible:", row++);
-        rowConstraintsDetail = addDetail("rows", "rowConstraints:", new ConstraintDisplay(), row++);
-        columnConstraintsDetail = addDetail("columns", "columnConstraints:", new ConstraintDisplay(), row++);
+        rowConstraintsDetail = addDetail("rows", "rowConstraints:", new GridConstraintDisplay(), row++);
+        columnConstraintsDetail = addDetail("columns", "columnConstraints:", new GridConstraintDisplay(), row++);
 
         rowListener = new ListChangeListener<RowConstraints>() {
             @Override public void onChanged(final Change<? extends RowConstraints> change) {
@@ -115,7 +114,7 @@ public class GridPaneDetailPane extends DetailPane {
 
     private void updateColumnConstraints() {
         final GridPane gridpane = (GridPane) getTarget();
-        final ConstraintDisplay display = (ConstraintDisplay) columnConstraintsDetail.valueNode;
+        final GridConstraintDisplay display = (GridConstraintDisplay) columnConstraintsDetail.valueNode;
 
         final ObservableList<ColumnConstraints> columns = gridpane != null ? gridpane.getColumnConstraints() : null;
         display.setConstraints(columns);
@@ -138,7 +137,7 @@ public class GridPaneDetailPane extends DetailPane {
 
     private void updateRowConstraints() {
         final GridPane gridpane = (GridPane) getTarget();
-        final ConstraintDisplay display = (ConstraintDisplay) rowConstraintsDetail.valueNode;
+        final GridConstraintDisplay display = (GridConstraintDisplay) rowConstraintsDetail.valueNode;
 
         final ObservableList<RowConstraints> rows = gridpane != null ? gridpane.getRowConstraints() : null;
         display.setConstraints(rows);
@@ -157,43 +156,5 @@ public class GridPaneDetailPane extends DetailPane {
                 display.add(new Text(Boolean.toString(rc.isFillHeight())), colIndex, rowIndex);
             }
         }
-    }
-
-    private static class ConstraintDisplay extends GridPane {
-        protected Node[] labels = { new Label("index"), new Label("min"), new Label("pref"), new Label("max"), new Label("percent"), new Label("grow"), new Label("alignment"), new Label("fill") };
-
-        public ConstraintDisplay() {
-            getStyleClass().add("gridpane-constraint-display");
-            setHgap(4);
-            setVgap(1);
-            setSnapToPixel(true);
-            final ColumnConstraints cc = new ColumnConstraints();
-            cc.setHalignment(HPos.CENTER);
-            for (int i = 0; i < 8; i++) {
-                getColumnConstraints().add(cc);
-            }
-        }
-
-        @SuppressWarnings("rawtypes") protected void setConstraints(final ObservableList c) {
-            final Node children[] = getChildren().toArray(new Node[0]);
-            for (final Node child : children) {
-                GridPane.clearConstraints(child);
-                getChildren().remove(child);
-            }
-            if (c == null || c.size() == 0) {
-                addRow(0, new Label("no constraints set"));
-            } else {
-                addRow(0, labels);
-            }
-        }
-
-        protected void addSize(final double v, final int rowIndex, final int colIndex) {
-            add(new Text(v != USE_COMPUTED_SIZE ? f.format(v) : "-"), colIndex, rowIndex);
-        }
-
-        protected void addObject(final Object v, final int rowIndex, final int colIndex) {
-            add(new Text(v != null ? v.toString() : "-"), colIndex, rowIndex);
-        }
-
     }
 }

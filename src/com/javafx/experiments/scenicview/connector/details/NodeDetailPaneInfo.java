@@ -16,8 +16,10 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Transform;
 
 import com.javafx.experiments.scenicview.DisplayUtils;
+import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.details.Detail.LabelType;
 import com.javafx.experiments.scenicview.connector.details.Detail.ValueType;
+import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
 
 /**
  * 
@@ -49,8 +51,8 @@ public class NodeDetailPaneInfo extends DetailPaneInfo {
 
     ListChangeListener<Transform> transformListener;
 
-    public NodeDetailPaneInfo() {
-        super();
+    public NodeDetailPaneInfo(final AppEventDispatcher dispatcher, final StageID stageID) {
+        super(dispatcher, stageID, DetailPaneType.NODE);
         transformListener = new ListChangeListener<Transform>() {
             @Override public void onChanged(final Change<? extends Transform> c) {
                 updateDetail("transforms");
@@ -109,8 +111,6 @@ public class NodeDetailPaneInfo extends DetailPaneInfo {
 
     @Override protected void updateAllDetails() {
         final Node node = (Node) getTarget();
-
-        updateDetail("*");
 
         // No property change events on these
         resizableDetail.setValue(node != null ? Boolean.toString(node.isResizable()) : "-");
@@ -182,8 +182,10 @@ public class NodeDetailPaneInfo extends DetailPaneInfo {
         prefSizeDetail.setIsDefault(fade);
         maxSizeDetail.setIsDefault(fade);
         final ObservableMap map = node != null && node.hasProperties() ? node.getProperties() : null;
-        constraintsDetail.setPropertiesMap(map);
+        constraintsDetail.setValue(ConnectorUtils.serializePropertyMap(map));
         constraintsDetail.setIsDefault(map == null || map.size() == 0);
+
+        updateDetail("*");
     }
 
     @Override protected void updateDetail(final String propertyName) {
@@ -241,6 +243,7 @@ public class NodeDetailPaneInfo extends DetailPaneInfo {
                 ((SimpleSerializer) opacityDetail.serializer).setMaxValue(1);
                 ((SimpleSerializer) opacityDetail.serializer).setMinValue(0);
             }
+            opacityDetail.setSerializer(opacityDetail.serializer);
             if (!all)
                 opacityDetail.updated();
             if (!all)
@@ -329,5 +332,7 @@ public class NodeDetailPaneInfo extends DetailPaneInfo {
             if (!all)
                 boundsInParentDetail.updated();
         }
+        if (all)
+            sendAllDetails();
     }
 }

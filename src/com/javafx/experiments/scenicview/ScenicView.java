@@ -22,9 +22,11 @@ import javafx.stage.*;
 
 import com.javafx.experiments.scenicview.ScenegraphTreeView.SelectedNodeContainer;
 import com.javafx.experiments.scenicview.connector.*;
+import com.javafx.experiments.scenicview.connector.details.Detail;
 import com.javafx.experiments.scenicview.connector.event.*;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
-import com.javafx.experiments.scenicview.details.AllDetailsPane;
+import com.javafx.experiments.scenicview.details.*;
+import com.javafx.experiments.scenicview.details.GDetailPane.RemotePropertySetter;
 import com.javafx.experiments.scenicview.dialog.*;
 
 /**
@@ -64,6 +66,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
     private final CheckMenuItem showNodesIdInTree;
     private final CheckMenuItem autoRefreshStyleSheets;
     private final CheckMenuItem componentSelectOnClick;
+    private MenuItem findJavaFXApps;
 
     private final Configuration configuration = new Configuration();
 
@@ -118,6 +121,21 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
 
             case ROOT_UPDATED:
                 treeView.updateStageModel(getStageController(appEvent.getStageID()), ((NodeAddRemoveEvent) appEvent).getNode(), showNodesIdInTree.isSelected(), showFilteredNodesInTree.isSelected());
+                break;
+
+            case DETAILS:
+                final DetailsEvent ev = (DetailsEvent) appEvent;
+                allDetailsPane.updateDetails(ev.getPaneType(), ev.getPaneName(), ev.getDetails(), new RemotePropertySetter() {
+
+                    @Override public void set(final Detail detail, final String value) {
+                        getStageController(appEvent.getStageID()).setDetail(detail.getDetailType(), detail.getDetailID(), value);
+                    }
+                });
+                break;
+
+            case DETAIL_UPDATED:
+                final DetailsEvent ev2 = (DetailsEvent) appEvent;
+                allDetailsPane.updateDetail(ev2.getPaneType(), ev2.getPaneName(), ev2.getDetails().get(0));
                 break;
 
             default:
@@ -254,7 +272,6 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         final CheckMenuItem showCSSProperties = buildCheckMenuItem("Show CSS Properties", "Show CSS properties", "Hide CSS properties", "showCSSProperties", Boolean.FALSE);
         showCSSProperties.selectedProperty().addListener(new InvalidationListener() {
             @Override public void invalidated(final Observable arg0) {
-                allDetailsPane.setShowCSSProperties(showCSSProperties.isSelected());
                 configuration.setCSSPropertiesDetail(showCSSProperties.isSelected());
                 configurationUpdated();
             }
@@ -438,7 +455,6 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         splitPane.setId("main-splitpane");
 
         allDetailsPane = new AllDetailsPane();
-        allDetailsPane.setShowCSSProperties(showCSSProperties.isSelected());
         final ScrollPane scrollPane = new ScrollPane();
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setFitToWidth(true);
@@ -623,6 +639,13 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
             for (int j = 0; j < stages.size(); j++) {
                 stages.get(j).configurationUpdated(configuration);
             }
+        }
+    }
+
+    public void setNewApps(final List<AppController> controllers) {
+        apps.clear();
+        for (final Iterator<AppController> iterator = controllers.iterator(); iterator.hasNext();) {
+            addNewApp(iterator.next());
         }
     }
 
@@ -815,6 +838,18 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
             }
         });
         stage.show();
+    }
+
+    public void showRemoteApps() {
+        if (findJavaFXApps == null) {
+            findJavaFXApps = new MenuItem("Find Remote JavaFX Apps");
+            findJavaFXApps.setOnAction(new EventHandler<ActionEvent>() {
+                @Override public void handle(final ActionEvent arg0) {
+                    StageSelectionBox.make("Find Stages", ScenicView.this, apps);
+                }
+            });
+            menuBar.getMenus().get(0).getItems().add(0, findJavaFXApps);
+        }
     }
 
 }
