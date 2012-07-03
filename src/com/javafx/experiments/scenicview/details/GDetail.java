@@ -1,5 +1,7 @@
 package com.javafx.experiments.scenicview.details;
 
+import java.util.*;
+
 import javafx.animation.*;
 import javafx.beans.value.*;
 import javafx.collections.FXCollections;
@@ -13,7 +15,6 @@ import com.javafx.experiments.scenicview.ScenicView;
 import com.javafx.experiments.scenicview.connector.ConnectorUtils;
 import com.javafx.experiments.scenicview.connector.details.*;
 import com.javafx.experiments.scenicview.connector.details.Detail.EditionType;
-import com.javafx.experiments.scenicview.connector.details.Detail;
 
 public class GDetail {
     public Label label;
@@ -26,7 +27,7 @@ public class GDetail {
     private boolean isDefault = true;
 
     WritableValue<String> serializer;
-    String reason = DetailPane.STATUS_NOT_SUPPORTED;
+    String reason = GDetailPane.STATUS_NOT_SUPPORTED;
     private String[] validItems;
     private double min;
     private double max;
@@ -77,8 +78,8 @@ public class GDetail {
         value.setOnMouseClicked(new EventHandler<MouseEvent>() {
 
             @Override public void handle(final MouseEvent arg0) {
-                if (DetailPane.activeDetail != null) {
-                    DetailPane.activeDetail.recover();
+                if (GDetailPane.activeDetail != null) {
+                    GDetailPane.activeDetail.recover();
                 }
 
                 if (editionType != EditionType.NONE) {
@@ -141,16 +142,16 @@ public class GDetail {
         this.isDefault = isDefault;
 
         if (label != null) {
-            label.setOpacity(isDefault ? DetailPane.FADE : 1.0);
+            label.setOpacity(isDefault ? GDetailPane.FADE : 1.0);
         }
         if (valueLabel != null) {
-            valueLabel.setOpacity(isDefault ? DetailPane.FADE : 1.0);
+            valueLabel.setOpacity(isDefault ? GDetailPane.FADE : 1.0);
         }
         if (valueNode != null) {
-            valueNode.setOpacity(isDefault ? DetailPane.FADE : 1.0);
+            valueNode.setOpacity(isDefault ? GDetailPane.FADE : 1.0);
         }
 
-        final boolean showDetail = (!AllDetailsPane.showDefaultProperties && !isDefault) || DetailPane.showDefaultProperties;
+        final boolean showDetail = (!AllDetailsPane.showDefaultProperties && !isDefault) || AllDetailsPane.showDefaultProperties;
 
         if (label != null) {
             label.setVisible(showDetail);
@@ -184,12 +185,12 @@ public class GDetail {
     }
 
     public final void updated() {
-        label.getStyleClass().remove(DetailPane.DETAIL_LABEL_STYLE);
+        label.getStyleClass().remove(GDetailPane.DETAIL_LABEL_STYLE);
         label.getStyleClass().add("updated-detail-label");
         TimelineBuilder.create().keyFrames(new KeyFrame(Duration.millis(5000), new EventHandler<ActionEvent>() {
             @Override public void handle(final ActionEvent arg0) {
                 label.getStyleClass().remove("updated-detail-label");
-                label.getStyleClass().add(DetailPane.DETAIL_LABEL_STYLE);
+                label.getStyleClass().add(GDetailPane.DETAIL_LABEL_STYLE);
             }
         })).build().play();
     }
@@ -227,6 +228,16 @@ public class GDetail {
 
         case CONSTRAINTS:
             ((ConstraintsDisplay) value).setPropertiesMap(ConnectorUtils.deserializeMap(value2));
+            break;
+
+        case GRID_CONSTRAINTS:
+            ((GridConstraintDisplay) value).setConstraints(detail.hasGridConstraints());
+            final List<GridConstraintsDetail> constraints = detail.getGridConstraintsDetails();
+            for (final Iterator<GridConstraintsDetail> iterator = constraints.iterator(); iterator.hasNext();) {
+                final GridConstraintsDetail d = iterator.next();
+                System.out.println(d);
+                ((GridConstraintDisplay) value).addObject(d.getText(), d.getRowIndex(), d.getColIndex());
+            }
             break;
         default:
             System.out.println("Value for" + value2);

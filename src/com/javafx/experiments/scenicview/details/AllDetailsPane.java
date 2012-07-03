@@ -19,7 +19,6 @@ import com.javafx.experiments.scenicview.details.GDetailPane.RemotePropertySette
  * @author aim
  */
 public class AllDetailsPane extends VBox {
-    DetailPane detailPanes[] = { new GridPaneDetailPane() };
 
     List<GDetailPane> gDetailPanes = new ArrayList<GDetailPane>();
 
@@ -27,48 +26,11 @@ public class AllDetailsPane extends VBox {
 
     public AllDetailsPane() {
         getStyleClass().add("all-details-pane");
-        getChildren().addAll(detailPanes);
         setFillWidth(true);
-    }
-
-    private Node target;
-
-    public void setTarget(final Node value) {
-        if (target == value)
-            return;
-
-        target = value;
-        updatePanes();
-    }
-
-    public Node getTarget() {
-        return target;
     }
 
     public void setShowDefaultProperties(final boolean show) {
         showDefaultProperties = show;
-    }
-
-    private void updatePanes() {
-        for (final DetailPane details : detailPanes) {
-            if (details.targetMatches(getTarget())) {
-                details.setTarget(getTarget());
-
-                boolean detailVisible = false;
-                for (final Node gridChild : details.gridpane.getChildren()) {
-                    detailVisible = gridChild.isVisible();
-                    if (detailVisible)
-                        break;
-                }
-                details.setExpanded(false);
-                details.setManaged(detailVisible);
-                details.setVisible(detailVisible);
-            } else {
-                details.setExpanded(false);
-                details.setManaged(false);
-                details.setVisible(false);
-            }
-        }
     }
 
     public void filterProperties(final String text) {

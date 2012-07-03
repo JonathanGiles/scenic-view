@@ -1,19 +1,18 @@
 package com.javafx.experiments.scenicview.connector.details;
 
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.util.*;
 
 import javafx.beans.property.*;
 import javafx.beans.value.WritableValue;
 import javafx.collections.ObservableList;
-import javafx.geometry.*;
-import javafx.scene.layout.Priority;
-import javafx.scene.text.Text;
+import javafx.scene.layout.Region;
 
 import com.javafx.experiments.scenicview.connector.StageID;
 import com.javafx.experiments.scenicview.connector.event.AppEvent.SVEventType;
 import com.javafx.experiments.scenicview.connector.event.*;
-import com.javafx.experiments.scenicview.details.DetailPane;
+import com.javafx.experiments.scenicview.details.GDetailPane;
 
 public class Detail implements Serializable {
 
@@ -49,11 +48,14 @@ public class Detail implements Serializable {
     private final int detailID;
     private final StageID stageID;
     private transient final List<Detail> details;
+    private static transient final DecimalFormat f = new DecimalFormat("0.0#");
     private String detailName;
     private String[] validItems;
     private double maxValue;
     private double minValue;
     private String realValue;
+    private boolean hasGridConstraints;
+    private final List<GridConstraintsDetail> gridConstraintsDetails = new ArrayList<GridConstraintsDetail>();
 
     public Detail(final AppEventDispatcher dispatcher, final StageID stageID, final DetailPaneType detailType, final int detailID) {
         this.dispatcher = dispatcher;
@@ -84,12 +86,12 @@ public class Detail implements Serializable {
     public void setSimpleSizeProperty(final DoubleProperty x, final DoubleProperty y) {
         if (x != null) {
             if (x.isBound() && y.isBound()) {
-                unavailableEdition(DetailPane.STATUS_BOUND);
+                unavailableEdition(GDetailPane.STATUS_BOUND);
             } else {
                 setSerializer(new SizeSerializer(x, y));
             }
         } else {
-            setReason(DetailPane.STATUS_NOT_SUPPORTED);
+            setReason(GDetailPane.STATUS_NOT_SUPPORTED);
             setSerializer(null);
         }
     }
@@ -144,14 +146,14 @@ public class Detail implements Serializable {
     private void setSimpleProperty(@SuppressWarnings("rawtypes") final Property property, @SuppressWarnings({ "rawtypes" }) final Class<? extends Enum> enumClass) {
         if (property != null) {
             if (property.isBound()) {
-                unavailableEdition(DetailPane.STATUS_BOUND);
+                unavailableEdition(GDetailPane.STATUS_BOUND);
             } else {
                 final SimpleSerializer s = new SimpleSerializer(property);
                 s.setEnumClass(enumClass);
                 setSerializer(s);
             }
         } else {
-            unavailableEdition(DetailPane.STATUS_NOT_SUPPORTED);
+            unavailableEdition(GDetailPane.STATUS_NOT_SUPPORTED);
         }
     }
 
@@ -161,33 +163,20 @@ public class Detail implements Serializable {
     }
 
     public void setConstraints(final ObservableList rowCol) {
-        // TODO Auto-generated method stub
-
+        hasGridConstraints = (rowCol != null && rowCol.size() != 0);
+        gridConstraintsDetails.clear();
     }
 
-    public void add(final Text text, final int i, final int rowIndex) {
-        // TODO Auto-generated method stub
-
+    public void add(final String text, final int colIndex, final int rowIndex) {
+        gridConstraintsDetails.add(new GridConstraintsDetail(text, colIndex, rowIndex));
     }
 
-    public void addSize(final double minWidth, final int rowIndex, final int i) {
-        // TODO Auto-generated method stub
-
+    public void addSize(final double v, final int rowIndex, final int colIndex) {
+        add(v != Region.USE_COMPUTED_SIZE ? f.format(v) : "-", colIndex, rowIndex);
     }
 
-    public void addObject(final Priority hgrow, final int rowIndex, final int i) {
-        // TODO Auto-generated method stub
-
-    }
-
-    public void addObject(final VPos valignment, final int rowIndex, final int i) {
-        // TODO Auto-generated method stub
-
-    }
-
-    public void addObject(final HPos halignment, final int rowIndex, final int i) {
-        // TODO Auto-generated method stub
-
+    public void addObject(final Object v, final int rowIndex, final int colIndex) {
+        add(v != null ? v.toString() : "-", colIndex, rowIndex);
     }
 
     public boolean isDefault() {
@@ -297,6 +286,14 @@ public class Detail implements Serializable {
 
     public int getDetailID() {
         return detailID;
+    }
+
+    public boolean hasGridConstraints() {
+        return hasGridConstraints;
+    }
+
+    public List<GridConstraintsDetail> getGridConstraintsDetails() {
+        return gridConstraintsDetails;
     }
 
 }

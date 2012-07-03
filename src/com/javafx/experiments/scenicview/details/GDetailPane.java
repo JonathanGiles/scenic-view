@@ -17,7 +17,6 @@ import javafx.scene.shape.*;
 import com.javafx.experiments.scenicview.DisplayUtils;
 import com.javafx.experiments.scenicview.connector.details.*;
 import com.javafx.experiments.scenicview.connector.details.Detail.EditionType;
-import com.javafx.experiments.scenicview.connector.details.Detail;
 
 public class GDetailPane extends TitledPane {
 
@@ -35,7 +34,7 @@ public class GDetailPane extends TitledPane {
 
     private static final Image EDIT_IMAGE = DisplayUtils.getUIImage("editclear.png");
 
-    private static final String DETAIL_LABEL_STYLE = "detail-label";
+    static final String DETAIL_LABEL_STYLE = "detail-label";
 
     DetailPaneType type;
     GridPane gridpane;
@@ -201,7 +200,7 @@ public class GDetailPane extends TitledPane {
             case NORMAL:
                 final Label valueLabel = new Label();
                 if (d.getEditionType() != EditionType.NONE) {
-                    final ImageView graphic = new ImageView(DetailPane.EDIT_IMAGE);
+                    final ImageView graphic = new ImageView(GDetailPane.EDIT_IMAGE);
                     valueLabel.setGraphic(graphic);
                 }
                 value = valueLabel;

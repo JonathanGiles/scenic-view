@@ -9,7 +9,7 @@ import javafx.scene.paint.Color;
 
 import com.javafx.experiments.scenicview.connector.StageID;
 import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
-import com.javafx.experiments.scenicview.details.DetailPane;
+import com.javafx.experiments.scenicview.details.GDetailPane;
 import com.sun.javafx.css.StyleableProperty;
 
 @SuppressWarnings("rawtypes")
@@ -107,12 +107,12 @@ public class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
                 detail.setSimpleProperty((Property) observable);
             } else {
                 detail.setSimpleProperty(null);
-                detail.unavailableEdition(DetailPane.STATUS_NOT_SUPPORTED);
+                detail.unavailableEdition(GDetailPane.STATUS_NOT_SUPPORTED);
             }
         } else {
             detail.setSimpleProperty(null);
             if (observable instanceof ReadOnlyProperty) {
-                detail.unavailableEdition(DetailPane.STATUS_READ_ONLY);
+                detail.unavailableEdition(GDetailPane.STATUS_READ_ONLY);
             } else {
                 System.out.println("Property:" + observable);
             }

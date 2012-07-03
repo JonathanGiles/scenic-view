@@ -1,6 +1,5 @@
 package com.javafx.experiments.scenicview.details;
 
-import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -22,21 +21,17 @@ class GridConstraintDisplay extends GridPane {
         }
     }
 
-    @SuppressWarnings("rawtypes") protected void setConstraints(final ObservableList c) {
+    protected void setConstraints(final boolean hasConstraints) {
         final Node children[] = getChildren().toArray(new Node[0]);
         for (final Node child : children) {
             GridPane.clearConstraints(child);
             getChildren().remove(child);
         }
-        if (c == null || c.size() == 0) {
+        if (!hasConstraints) {
             addRow(0, new Label("no constraints set"));
         } else {
             addRow(0, labels);
         }
-    }
-
-    protected void addSize(final double v, final int rowIndex, final int colIndex) {
-        add(new Text(v != USE_COMPUTED_SIZE ? GridPaneDetailPane.f.format(v) : "-"), colIndex, rowIndex);
     }
 
     protected void addObject(final Object v, final int rowIndex, final int colIndex) {

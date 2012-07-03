@@ -9,7 +9,6 @@ import javafx.collections.*;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.layout.*;
-import javafx.scene.text.Text;
 
 import com.javafx.experiments.scenicview.connector.StageID;
 import com.javafx.experiments.scenicview.connector.details.Detail.ValueType;
@@ -124,14 +123,14 @@ public class GridPaneDetailPaneInfo extends DetailPaneInfo {
             for (int rowIndex = 1; rowIndex <= columns.size(); rowIndex++) {
                 final ColumnConstraints cc = columns.get(rowIndex - 1);
                 int colIndex = 0;
-                columnConstraintsDetail.add(new Text(Integer.toString(rowIndex - 1)), colIndex++, rowIndex);
+                columnConstraintsDetail.add(Integer.toString(rowIndex - 1), colIndex++, rowIndex);
                 columnConstraintsDetail.addSize(cc.getMinWidth(), rowIndex, colIndex++);
                 columnConstraintsDetail.addSize(cc.getPrefWidth(), rowIndex, colIndex++);
                 columnConstraintsDetail.addSize(cc.getMaxWidth(), rowIndex, colIndex++);
-                columnConstraintsDetail.add(new Text(cc.getPercentWidth() != -1 ? f.format(cc.getPercentWidth()) : "-"), colIndex++, rowIndex);
+                columnConstraintsDetail.add(cc.getPercentWidth() != -1 ? f.format(cc.getPercentWidth()) : "-", colIndex++, rowIndex);
                 columnConstraintsDetail.addObject(cc.getHgrow(), rowIndex, colIndex++);
                 columnConstraintsDetail.addObject(cc.getHalignment(), rowIndex, colIndex++);
-                columnConstraintsDetail.add(new Text(Boolean.toString(cc.isFillWidth())), colIndex, rowIndex);
+                columnConstraintsDetail.add(Boolean.toString(cc.isFillWidth()), colIndex, rowIndex);
             }
         }
     }
@@ -146,14 +145,14 @@ public class GridPaneDetailPaneInfo extends DetailPaneInfo {
             for (int rowIndex = 1; rowIndex <= rows.size(); rowIndex++) {
                 final RowConstraints rc = rows.get(rowIndex - 1);
                 int colIndex = 0;
-                rowConstraintsDetail.add(new Text(Integer.toString(rowIndex - 1)), colIndex++, rowIndex);
+                rowConstraintsDetail.add(Integer.toString(rowIndex - 1), colIndex++, rowIndex);
                 rowConstraintsDetail.addSize(rc.getMinHeight(), rowIndex, colIndex++);
                 rowConstraintsDetail.addSize(rc.getPrefHeight(), rowIndex, colIndex++);
                 rowConstraintsDetail.addSize(rc.getMaxHeight(), rowIndex, colIndex++);
-                rowConstraintsDetail.add(new Text(rc.getPercentHeight() != -1 ? f.format(rc.getPercentHeight()) : "-"), colIndex++, rowIndex);
+                rowConstraintsDetail.add(rc.getPercentHeight() != -1 ? f.format(rc.getPercentHeight()) : "-", colIndex++, rowIndex);
                 rowConstraintsDetail.addObject(rc.getVgrow(), rowIndex, colIndex++);
                 rowConstraintsDetail.addObject(rc.getValignment(), rowIndex, colIndex++);
-                rowConstraintsDetail.add(new Text(Boolean.toString(rc.isFillHeight())), colIndex, rowIndex);
+                rowConstraintsDetail.add(Boolean.toString(rc.isFillHeight()), colIndex, rowIndex);
             }
         }
     }
