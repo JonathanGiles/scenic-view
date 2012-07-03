@@ -639,11 +639,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
                 if (newValue) {
                     DisplayUtils.showWebView(true);
-                    if (selectedNode == null || selectedNode.getNodeClassName() == null || !selectedNode.getNodeClassName().startsWith("javafx.")) {
-                        wview.getEngine().load("http://docs.oracle.com/javafx/2/api/index.html");
-                    } else {
-                        loadAPI(null);
-                    }
+                    loadAPI(null);
                 } else {
                     DisplayUtils.showWebView(false);
                 }
@@ -719,10 +715,15 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
             tabPane.getSelectionModel().select(javadocTab);
         }
         if (javadocTab.isSelected()) {
-            final String page = "http://docs.oracle.com/javafx/2/api/" + selectedNode.getNodeClassName().replace('.', '/') + ".html" + (property != null ? ("#" + property + "Property") : "");
-            System.out.println(page);
-            if (!wview.getEngine().getLocation().equals(page))
-                wview.getEngine().load(page);
+            if (selectedNode == null || selectedNode.getNodeClassName() == null || !selectedNode.getNodeClassName().startsWith("javafx.")) {
+                wview.getEngine().load("http://docs.oracle.com/javafx/2/api/index.html");
+            } else {
+
+                final String page = "http://docs.oracle.com/javafx/2/api/" + selectedNode.getNodeClassName().replace('.', '/') + ".html" + (property != null ? ("#" + property + "Property") : "");
+                System.out.println(page);
+                if (!wview.getEngine().getLocation().equals(page))
+                    wview.getEngine().load(page);
+            }
         }
     }
 
