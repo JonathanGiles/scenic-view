@@ -32,8 +32,8 @@ public class StageSelectionBox {
         // Find Local App
 
         final List<StageController> active = new ArrayList<StageController>();
-        for (int i = 0; i < activeApps.size(); i++) {
-            active.addAll(activeApps.get(i).getStages());
+        for (int i = 0; i < allApps.size(); i++) {
+            active.addAll(allApps.get(i).getStages());
         }
         this.windowList = new ListView<String>();
         // this.windowList.setCellFactory(new Callback<ListView<String>,
@@ -66,17 +66,27 @@ public class StageSelectionBox {
         // return cell;
         // }
         // });
-        this.windowList.setFocusTraversable(false);
-        this.windowList.setEditable(false);
-        this.windowList.setId("stageSelectionList");
-        this.windowList.setPrefHeight(221.0D);
+        windowList.setFocusTraversable(false);
+        windowList.setEditable(false);
+        windowList.setId("stageSelectionList");
+        windowList.setPrefHeight(221.0D);
+        windowList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         final ObservableList<String> stageNames = FXCollections.observableArrayList();
+        final List<Integer> selected = new ArrayList<Integer>();
         for (int i = 0; i < active.size(); i++) {
             final StageController c = active.get(i);
             stageNames.add(c.getAppController().toString() + " - " + c.getID().getName());
+            final int index = indexOf(activeApps, c.getAppController());
+            if (index != -1 && indexOf(activeApps.get(index).getStages(), c) != -1) {
+                selected.add(i);
+            }
         }
         windowList.setItems(stageNames);
+        final Integer[] selInd = selected.toArray(new Integer[selected.size()]);
+        for (int i = 0; i < selInd.length; i++) {
+            windowList.getSelectionModel().select(selInd[i]);
+        }
 
         final Label select = new Label("Select a stage");
         final Button ok = new Button("Ok");
@@ -91,12 +101,12 @@ public class StageSelectionBox {
                     controllers.add(active.get(index));
                 }
                 final List<AppController> selectedApp = new ArrayList<AppController>();
-                for (final Iterator<AppController> iterator = activeApps.iterator(); iterator.hasNext();) {
+                for (final Iterator<AppController> iterator = allApps.iterator(); iterator.hasNext();) {
                     final AppController c = iterator.next();
                     final List<StageController> sc = c.getStages();
                     for (final Iterator<StageController> iterator2 = sc.iterator(); iterator2.hasNext();) {
                         final StageController scc = iterator2.next();
-                        if (controllers.contains(scc)) {
+                        if (indexOf(controllers, scc) != -1) {
                             if (!selectedApp.contains(scc.getAppController())) {
                                 selectedApp.add(scc.getAppController());
                             }
@@ -129,6 +139,24 @@ public class StageSelectionBox {
         this.stage.show();
     }
 
+    private int indexOf(final List<StageController> stages, final StageController c) {
+        for (int i = 0; i < stages.size(); i++) {
+            if (stages.get(i).getID().equals(c.getID())) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private int indexOf(final List<AppController> apps, final AppController c) {
+        for (int i = 0; i < apps.size(); i++) {
+            if (apps.get(i).getID() == c.getID()) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     private void onSelected(final ScenicView scenicView, final List<AppController> controllers) {
         scenicView.setNewApps(controllers);
         this.stage.close();
@@ -149,11 +177,17 @@ public class StageSelectionBox {
         final AppController local = new AppControllerImpl();
         for (final Iterator<Window> iterator = stages.iterator(); iterator.hasNext();) {
             final Stage window = (Stage) iterator.next();
-            local.getStages().add(new StageControllerImpl(window.getScene().getRoot(), local));
+            final StageController c = new StageControllerImpl(window.getScene().getRoot(), local);
+            c.getID().setName(window.getTitle());
+            local.getStages().add(c);
         }
         final List<AppController> controllers = new ArrayList<AppController>();
         controllers.add(local);
+        return make(title, scenicView, active, controllers);
+    }
 
+    public static StageSelectionBox make(final String title, final ScenicView scenicView, final List<AppController> active, final List<AppController> controllers) {
+        final Stage stage = (Stage) scenicView.getScene().getWindow();
         return new StageSelectionBox(title, stage == null ? 0 : stage.getX() + (stage.getWidth() / 2) - (SCENE_WIDTH / 2), stage == null ? 0 : stage.getY() + (stage.getHeight() / 2) - (SCENE_HEIGHT / 2), stage, scenicView, active, controllers);
     }
 

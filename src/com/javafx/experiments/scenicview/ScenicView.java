@@ -7,6 +7,7 @@ package com.javafx.experiments.scenicview;
 
 import java.util.*;
 
+import javafx.application.Platform;
 import javafx.beans.*;
 import javafx.beans.Observable;
 import javafx.beans.value.*;
@@ -25,6 +26,7 @@ import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.details.Detail;
 import com.javafx.experiments.scenicview.connector.event.*;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
+import com.javafx.experiments.scenicview.connector.remote.RemoteScenicViewImpl;
 import com.javafx.experiments.scenicview.details.*;
 import com.javafx.experiments.scenicview.details.GDetailPane.RemotePropertySetter;
 import com.javafx.experiments.scenicview.dialog.*;
@@ -120,7 +122,8 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                 break;
 
             case ROOT_UPDATED:
-                treeView.updateStageModel(getStageController(appEvent.getStageID()), ((NodeAddRemoveEvent) appEvent).getNode(), showNodesIdInTree.isSelected(), showFilteredNodesInTree.isSelected());
+                if (isValid(appEvent))
+                    treeView.updateStageModel(getStageController(appEvent.getStageID()), ((NodeAddRemoveEvent) appEvent).getNode(), showNodesIdInTree.isSelected(), showFilteredNodesInTree.isSelected());
                 break;
 
             case DETAILS:
@@ -142,6 +145,21 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                 System.out.println("Unused event");
                 break;
             }
+        }
+
+        private boolean isValid(final AppEvent appEvent) {
+            for (int i = 0; i < apps.size(); i++) {
+                if (apps.get(i).getID() == appEvent.getStageID().getAppID()) {
+                    final List<StageController> stages = apps.get(i).getStages();
+                    for (int j = 0; j < stages.size(); j++) {
+                        if (stages.get(j).getID().getStageID() == appEvent.getStageID().getStageID()) {
+                            return true;
+                        }
+                    }
+                    break;
+                }
+            }
+            return false;
         }
     };
 
@@ -213,15 +231,15 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                 scenicViewStage.close();
             }
         });
-        final MenuItem findStageItem = new MenuItem("Find Stages");
-        findStageItem.setOnAction(new EventHandler<ActionEvent>() {
+        findJavaFXApps = new MenuItem("Find Stages");
+        findJavaFXApps.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(final ActionEvent arg0) {
                 StageSelectionBox.make("Find Stages", ScenicView.this, apps);
             }
         });
 
         final Menu fileMenu = new Menu("File");
-        fileMenu.getItems().addAll(findStageItem, exitItem);
+        fileMenu.getItems().addAll(findJavaFXApps, exitItem);
 
         // ---- Options Menu
         final CheckMenuItem showBoundsCheckbox = buildCheckMenuItem("Show Bounds Overlays", "Show the bound overlays on selected", "Do not show bound overlays on selected", "showBounds", Boolean.TRUE);
@@ -517,14 +535,6 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                 return !classNameFilterField.getText().equals("");
             }
         });
-        // final Button b1 = new Button();
-        // b1.setGraphic(new ImageView(DisplayUtils.CLEAR_IMAGE));
-        // b1.setOnAction(new EventHandler<ActionEvent>() {
-        // @Override public void handle(final ActionEvent arg0) {
-        // idFilterField.setText("");
-        // activeStage.update();
-        // }
-        // });
         final ImageView b1 = new ImageView(DisplayUtils.CLEAR_IMAGE);
         b1.setOnMousePressed(new EventHandler<Event>() {
 
@@ -533,14 +543,6 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                 activeStage.update();
             }
         });
-        // final Button b2 = new Button();
-        // b2.setGraphic(new ImageView(DisplayUtils.CLEAR_IMAGE));
-        // b2.setOnAction(new EventHandler<ActionEvent>() {
-        // @Override public void handle(final ActionEvent arg0) {
-        // classNameFilterField.setText("");
-        // activeStage.update();
-        // }
-        // });
         final ImageView b2 = new ImageView(DisplayUtils.CLEAR_IMAGE);
         b2.setOnMousePressed(new EventHandler<Event>() {
 
@@ -549,14 +551,6 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                 activeStage.update();
             }
         });
-        // final Button b3 = new Button();
-        // b3.setGraphic(new ImageView(DisplayUtils.CLEAR_IMAGE));
-        // b3.setOnAction(new EventHandler<ActionEvent>() {
-        // @Override public void handle(final ActionEvent arg0) {
-        // propertyFilterField.setText("");
-        // filterProperties(propertyFilterField.getText());
-        // }
-        // });
         final ImageView b3 = new ImageView(DisplayUtils.CLEAR_IMAGE);
         b3.setOnMousePressed(new EventHandler<Event>() {
 
@@ -643,7 +637,9 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
     }
 
     public void setNewApps(final List<AppController> controllers) {
+        closeApps();
         apps.clear();
+        treeView.clearAllApps();
         for (final Iterator<AppController> iterator = controllers.iterator(); iterator.hasNext();) {
             addNewApp(iterator.next());
         }
@@ -701,7 +697,6 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
 
     private void storeSelectedNode(final SVNode value) {
         selectedNode = value;
-        allDetailsPane.setTarget(selectedNode != null ? selectedNode.getImpl() : null);
         if (selectedNode != null)
             setStatusText("Click on the labels to modify its values. The panel could have different capabilities. When changed the values will be highlighted", 8000);
         activeStage.setSelectedNode(value);
@@ -744,12 +739,15 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         return filterField;
     }
 
-    public void close() {
+    private void closeApps() {
         for (final Iterator<AppController> iterator = apps.iterator(); iterator.hasNext();) {
             final AppController stage = iterator.next();
             stage.close();
         }
+    }
 
+    public void close() {
+        closeApps();
         saveProperties();
     }
 
@@ -840,16 +838,32 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         stage.show();
     }
 
-    public void showRemoteApps() {
-        if (findJavaFXApps == null) {
-            findJavaFXApps = new MenuItem("Find Remote JavaFX Apps");
+    public void showRemoteApps(final List<AppController> apps2) {
+        if (apps2 == null) {
             findJavaFXApps.setOnAction(new EventHandler<ActionEvent>() {
                 @Override public void handle(final ActionEvent arg0) {
-                    StageSelectionBox.make("Find Stages", ScenicView.this, apps);
+                    setStatusText("Finding remote applications,  this may take a while. Please wait", 10000);
+                    new Thread() {
+                        @Override public void run() {
+                            RemoteScenicViewImpl.server.connect();
+                        }
+                    }.start();
+                    ;
+
                 }
             });
-            menuBar.getMenus().get(0).getItems().add(0, findJavaFXApps);
+            Platform.runLater(new Runnable() {
+
+                @Override public void run() {
+                    setStatusText("Finding remote applications,  this may take a while. Please wait", 10000);
+                }
+            });
+
+        } else {
+            clearStatusText();
+            StageSelectionBox.make("Find Stages", ScenicView.this, apps, apps2);
         }
+
     }
 
 }

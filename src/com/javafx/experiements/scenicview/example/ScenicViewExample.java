@@ -165,11 +165,20 @@ public class ScenicViewExample extends Application {
             }
         });
 
+        final GridPane pane = new GridPane();
+        pane.setHgap(4);
+        final RowConstraints row1 = new RowConstraints();
+        row1.setPercentHeight(25);
+        final RowConstraints row2 = new RowConstraints();
+        row2.setPercentHeight(50);
+        final RowConstraints row3 = new RowConstraints();
+        row3.setPercentHeight(25);
+        pane.getRowConstraints().addAll(row1, row2, row3);
         final Group invisible = createGroup();
         invisible.setId("InvisibleGroup");
         invisible.setVisible(false);
 
-        tilepane.getChildren().addAll(rect1, rect2, rect3, new Group(rect4), b1, b2, listViewTest, new Group(b4), g1, g2, g3, comboTest, invisible);
+        tilepane.getChildren().addAll(rect1, rect2, rect3, new Group(rect4), b1, b2, listViewTest, new Group(b4), g1, g2, g3, comboTest, invisible, pane);
 
         final Scene scene = new Scene(tilepane);
         scene.getStylesheets().add(ScenicView.STYLESHEETS);

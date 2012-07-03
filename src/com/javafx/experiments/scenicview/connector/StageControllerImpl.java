@@ -104,7 +104,7 @@ public class StageControllerImpl implements StageController {
 
     public StageControllerImpl(final Parent target, final AppController appController) {
         this.appController = appController;
-        this.stageID = new StageID(appController.getID(), hashCode());
+        this.stageID = new StageID(appController.getID(), target.hashCode());
         targetScenePropListener = new InvalidationListener() {
             @Override public void invalidated(final Observable value) {
                 updateSceneDetails();

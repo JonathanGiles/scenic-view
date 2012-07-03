@@ -5,6 +5,7 @@ import java.net.Socket;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -19,12 +20,14 @@ import com.sun.tools.attach.*;
 
 public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteScenicView {
 
-    static RemoteScenicViewImpl server;
+    public static RemoteScenicViewImpl server;
     static ScenicView view;
 
     Map<Integer, String> vmInfo = new HashMap<Integer, String>();
     AppEventDispatcher dispatcher;
-    List<AppEvent> previous = new ArrayList<AppEvent>();
+    final List<AppEvent> previous = new ArrayList<AppEvent>();
+    List<AppController> apps;
+    final AtomicInteger count = new AtomicInteger();
 
     public RemoteScenicViewImpl(final ScenicView view) throws RemoteException {
         super();
@@ -134,12 +137,12 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                         });
                     }
                     if (!impl.getStages().isEmpty())
-                        view.addNewApp(impl);
+                        apps.add(impl);
                 } catch (final RemoteException e1) {
                     // TODO Auto-generated catch block
                     e1.printStackTrace();
                 }
-
+                count.decrementAndGet();
             }
         });
     }
@@ -176,11 +179,12 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
-        view.showRemoteApps();
+        view.showRemoteApps(null);
         server.connect();
     }
 
     public void connect() {
+        apps = new ArrayList<AppController>();
         vmInfo.clear();
         final List<VirtualMachine> machines = getRunningJavaFXApplications();
         for (final Iterator<VirtualMachine> iterator = machines.iterator(); iterator.hasNext();) {
@@ -188,6 +192,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
             System.out.println(virtualMachine);
 
         }
+        count.set(machines.size());
         final File f = new File("./ScenicView.jar");
         System.out.println(f.getAbsolutePath());
 
@@ -214,6 +219,21 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
         } catch (final Exception e) {
             e.printStackTrace();
         }
+        final long initial = System.currentTimeMillis();
+        while (count.get() != 0 && System.currentTimeMillis() - initial < 10000) {
+            try {
+                Thread.sleep(500);
+            } catch (final InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        Platform.runLater(new Runnable() {
+
+            @Override public void run() {
+                view.showRemoteApps(apps);
+            }
+        });
 
     }
 
