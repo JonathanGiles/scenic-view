@@ -122,6 +122,28 @@ public class AgentTest {
                     });
                 }
 
+                @Override public void animationsEnabled(final boolean enabled) throws RemoteException {
+                    Platform.runLater(new Runnable() {
+
+                        @Override public void run() {
+                            for (int i = 0; i < controller.size(); i++) {
+                                controller.get(i).animationsEnabled(enabled);
+                            }
+                        }
+                    });
+                }
+
+                @Override public void updateAnimations() throws RemoteException {
+                    Platform.runLater(new Runnable() {
+
+                        @Override public void run() {
+                            for (int i = 0; i < controller.size(); i++) {
+                                controller.get(i).updateAnimations();
+                            }
+                        }
+                    });
+                }
+
             };
 
             final RemoteApplicationImpl rapplication = new RemoteApplicationImpl(application, Integer.parseInt(agentArgs));

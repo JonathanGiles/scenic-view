@@ -41,9 +41,11 @@ public class GDetailPane extends TitledPane {
     static GDetail activeDetail;
     List<Node> paneNodes = new ArrayList<Node>();
     List<GDetail> details = new ArrayList<GDetail>();
+    APILoader loader;
 
-    public GDetailPane(final DetailPaneType type, final String name) {
+    public GDetailPane(final DetailPaneType type, final String name, final APILoader loader) {
         this.type = type;
+        this.loader = loader;
         setText(name);
         getStyleClass().add("detail-pane");
         setManaged(false);
@@ -82,6 +84,7 @@ public class GDetailPane extends TitledPane {
             label.setContentDisplay(ContentDisplay.LEFT);
         }
         final GDetail detail = new GDetail(label, valueNode);
+        detail.setAPILoader(loader);
         GridPane.setConstraints(detail.label, LABEL_COLUMN, row);
         GridPane.setHalignment(detail.label, HPos.RIGHT);
         GridPane.setValignment(detail.label, VPos.TOP);
@@ -245,8 +248,12 @@ public class GDetailPane extends TitledPane {
                 break;
             }
         }
-        doUpdateDetail(pane, detail);
-        pane.updated();
+        if (pane != null) {
+            doUpdateDetail(pane, detail);
+            pane.updated();
+        } else {
+            System.out.println("Pane not found for detail:" + detail);
+        }
     }
 
     private void doUpdateDetail(final GDetail detail, final Detail d) {

@@ -19,6 +19,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
+import javafx.scene.web.WebView;
 import javafx.stage.*;
 
 import com.javafx.experiments.scenicview.ScenegraphTreeView.SelectedNodeContainer;
@@ -57,6 +58,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
     private final ScenegraphTreeView treeView;
     private final AllDetailsPane allDetailsPane;
     private final EventLogPane eventLogPane;
+    private final AnimationsPane animationsPane;
     private static StatusBar statusBar;
     private final VBox leftPane;
 
@@ -80,70 +82,78 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
 
         @Override public void dispatchEvent(final AppEvent appEvent) {
             // System.out.println("Event:" + appEvent.getType());
-            switch (appEvent.getType()) {
-            case EVENT_LOG:
-                eventLogPane.trace((EvLogEvent) appEvent);
-                break;
-            case MOUSE_POSITION:
-                if (isActive(appEvent.getStageID()))
-                    statusBar.updateMousePosition(((MousePosEvent) appEvent).getPosition());
-                break;
+            if (isValid(appEvent)) {
+                switch (appEvent.getType()) {
+                case EVENT_LOG:
+                    eventLogPane.trace((EvLogEvent) appEvent);
+                    break;
+                case MOUSE_POSITION:
+                    if (isActive(appEvent.getStageID()))
+                        statusBar.updateMousePosition(((MousePosEvent) appEvent).getPosition());
+                    break;
 
-            case WINDOW_DETAILS:
-                final WindowDetailsEvent wevent = (WindowDetailsEvent) appEvent;
-                autoRefreshStyleSheets.setDisable(!wevent.isStylesRefreshable());
+                case WINDOW_DETAILS:
+                    final WindowDetailsEvent wevent = (WindowDetailsEvent) appEvent;
+                    autoRefreshStyleSheets.setDisable(!wevent.isStylesRefreshable());
 
-                if (isActive(wevent.getStageID()))
-                    statusBar.updateWindowDetails(wevent.getWindowType(), wevent.getBounds(), wevent.isFocused());
-                break;
-            case NODE_SELECTED:
-                componentSelectOnClick.setSelected(false);
-                treeView.nodeSelected(((NodeSelectedEvent) appEvent).getNode());
-                scenicViewStage.toFront();
-                break;
+                    if (isActive(wevent.getStageID()))
+                        statusBar.updateWindowDetails(wevent.getWindowType(), wevent.getBounds(), wevent.isFocused());
+                    break;
+                case NODE_SELECTED:
+                    componentSelectOnClick.setSelected(false);
+                    treeView.nodeSelected(((NodeSelectedEvent) appEvent).getNode());
+                    scenicViewStage.toFront();
+                    break;
 
-            case NODE_COUNT:
-                statusBar.updateNodeCount(((NodeCountEvent) appEvent).getNodeCount());
-                break;
+                case NODE_COUNT:
+                    statusBar.updateNodeCount(((NodeCountEvent) appEvent).getNodeCount());
+                    break;
 
-            case SCENE_DETAILS:
-                if (isActive(appEvent.getStageID())) {
-                    final SceneDetailsEvent sEvent = (SceneDetailsEvent) appEvent;
-                    statusBar.updateSceneDetails(sEvent.getSize(), sEvent.getNodeCount());
-                }
-                break;
-
-            case NODE_ADDED:
-                treeView.addNewNode(((NodeAddRemoveEvent) appEvent).getNode(), showNodesIdInTree.isSelected(), showFilteredNodesInTree.isSelected());
-                break;
-
-            case NODE_REMOVED:
-                treeView.removeNode(((NodeAddRemoveEvent) appEvent).getNode());
-                break;
-
-            case ROOT_UPDATED:
-                if (isValid(appEvent))
-                    treeView.updateStageModel(getStageController(appEvent.getStageID()), ((NodeAddRemoveEvent) appEvent).getNode(), showNodesIdInTree.isSelected(), showFilteredNodesInTree.isSelected());
-                break;
-
-            case DETAILS:
-                final DetailsEvent ev = (DetailsEvent) appEvent;
-                allDetailsPane.updateDetails(ev.getPaneType(), ev.getPaneName(), ev.getDetails(), new RemotePropertySetter() {
-
-                    @Override public void set(final Detail detail, final String value) {
-                        getStageController(appEvent.getStageID()).setDetail(detail.getDetailType(), detail.getDetailID(), value);
+                case SCENE_DETAILS:
+                    if (isActive(appEvent.getStageID())) {
+                        final SceneDetailsEvent sEvent = (SceneDetailsEvent) appEvent;
+                        statusBar.updateSceneDetails(sEvent.getSize(), sEvent.getNodeCount());
                     }
-                });
-                break;
+                    break;
 
-            case DETAIL_UPDATED:
-                final DetailsEvent ev2 = (DetailsEvent) appEvent;
-                allDetailsPane.updateDetail(ev2.getPaneType(), ev2.getPaneName(), ev2.getDetails().get(0));
-                break;
+                case NODE_ADDED:
+                    treeView.addNewNode(((NodeAddRemoveEvent) appEvent).getNode(), showNodesIdInTree.isSelected(), showFilteredNodesInTree.isSelected());
+                    break;
 
-            default:
+                case NODE_REMOVED:
+                    treeView.removeNode(((NodeAddRemoveEvent) appEvent).getNode());
+                    break;
+
+                case ROOT_UPDATED:
+                    if (isValid(appEvent))
+                        treeView.updateStageModel(getStageController(appEvent.getStageID()), ((NodeAddRemoveEvent) appEvent).getNode(), showNodesIdInTree.isSelected(), showFilteredNodesInTree.isSelected());
+                    break;
+
+                case DETAILS:
+                    final DetailsEvent ev = (DetailsEvent) appEvent;
+                    allDetailsPane.updateDetails(ev.getPaneType(), ev.getPaneName(), ev.getDetails(), new RemotePropertySetter() {
+
+                        @Override public void set(final Detail detail, final String value) {
+                            getStageController(appEvent.getStageID()).setDetail(detail.getDetailType(), detail.getDetailID(), value);
+                        }
+                    });
+                    break;
+
+                case DETAIL_UPDATED:
+                    final DetailsEvent ev2 = (DetailsEvent) appEvent;
+                    allDetailsPane.updateDetail(ev2.getPaneType(), ev2.getPaneName(), ev2.getDetails().get(0));
+                    break;
+
+                case ANIMATIONS_UPDATED:
+                    animationsPane.update(((AnimationsCountEvent) appEvent).getAnimations());
+                    break;
+
+                default:
+                    System.out.println("Unused event");
+                    break;
+                }
+            } else {
                 System.out.println("Unused event");
-                break;
             }
         }
 
@@ -166,6 +176,9 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
     private final List<AppController> apps = new ArrayList<AppController>();
     StageController activeStage;
     private SVNode selectedNode;
+    private WebView wview;
+    private Tab javadocTab;
+    private TabPane tabPane;
 
     public ScenicView(final List<AppController> controllers, final Stage senicViewStage) {
         Persistence.loadProperties();
@@ -318,6 +331,14 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         });
         configuration.setAutoRefreshSceneGraph(automaticScenegraphStructureRefreshing.isSelected());
 
+        final CheckMenuItem animationsEnabled = buildCheckMenuItem("Animations enabled", "Animations will run on the application", "Animations will be stopped", null, Boolean.TRUE);
+        animationsEnabled.selectedProperty().addListener(new ChangeListener<Boolean>() {
+
+            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
+                animationsEnabled(animationsEnabled.isSelected());
+            }
+        });
+
         final CheckMenuItem showInvisibleNodes = buildCheckMenuItem("Show Invisible Nodes In Tree", "Invisible nodes will be faded in the scenegraph tree", "Invisible nodes will not be shown in the scenegraph tree", "showInvisibleNodes", Boolean.FALSE);
         final ChangeListener<Boolean> visilityListener = new ChangeListener<Boolean>() {
 
@@ -390,7 +411,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         configuration.setAutoRefreshStyles(autoRefreshStyleSheets.isSelected());
 
         final Menu scenegraphMenu = new Menu("Scenegraph");
-        scenegraphMenu.getItems().addAll(automaticScenegraphStructureRefreshing, autoRefreshStyleSheets, new SeparatorMenuItem(), componentSelectOnClick, ignoreMouseTransparentNodes);
+        scenegraphMenu.getItems().addAll(automaticScenegraphStructureRefreshing, autoRefreshStyleSheets, new SeparatorMenuItem(), componentSelectOnClick, ignoreMouseTransparentNodes, new SeparatorMenuItem(), animationsEnabled);
 
         final Menu displayOptionsMenu = new Menu("Display Options");
 
@@ -472,7 +493,12 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         splitPane = new SplitPane();
         splitPane.setId("main-splitpane");
 
-        allDetailsPane = new AllDetailsPane();
+        allDetailsPane = new AllDetailsPane(new APILoader() {
+
+            @Override public void loadAPI(final String property) {
+                ScenicView.this.loadAPI(property);
+            }
+        });
         final ScrollPane scrollPane = new ScrollPane();
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setFitToWidth(true);
@@ -596,16 +622,48 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         leftPane.getChildren().addAll(filtersPane, treeViewPane);
         VBox.setVgrow(treeViewPane, Priority.ALWAYS);
 
-        final TabPane tabPane = new TabPane();
+        animationsPane = new AnimationsPane();
+
+        tabPane = new TabPane();
         final Tab detailsTab = new Tab("Details");
         detailsTab.setGraphic(new ImageView(DisplayUtils.getUIImage("details.png")));
         detailsTab.setContent(scrollPane);
         detailsTab.setClosable(false);
+        javadocTab = new Tab("JavaDoc");
+        wview = new WebView();
+        javadocTab.setContent(wview);
+        javadocTab.setGraphic(new ImageView(DisplayUtils.getUIImage("javadoc.png")));
+        javadocTab.setClosable(false);
+        javadocTab.selectedProperty().addListener(new ChangeListener<Boolean>() {
+
+            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
+                if (newValue) {
+                    DisplayUtils.showWebView(true);
+                    if (selectedNode == null || selectedNode.getNodeClassName() == null || !selectedNode.getNodeClassName().startsWith("javafx.")) {
+                        wview.getEngine().load("http://docs.oracle.com/javafx/2/api/index.html");
+                    } else {
+                        loadAPI(null);
+                    }
+                } else {
+                    DisplayUtils.showWebView(false);
+                }
+            }
+        });
         final Tab eventsTab = new Tab("Events");
         eventsTab.setContent(eventLogPane);
         eventsTab.setGraphic(new ImageView(DisplayUtils.getUIImage("flag_red.png")));
         eventsTab.setClosable(false);
-        tabPane.getTabs().addAll(detailsTab, eventsTab);
+        final Tab animationsTab = new Tab("Animations");
+        animationsTab.setContent(animationsPane);
+        animationsTab.setGraphic(new ImageView(DisplayUtils.getUIImage("cinema.png")));
+        animationsTab.setClosable(false);
+        animationsTab.selectedProperty().addListener(new ChangeListener<Boolean>() {
+
+            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean arg2) {
+                updateAnimations();
+            }
+        });
+        tabPane.getTabs().addAll(detailsTab, javadocTab, eventsTab, animationsTab);
         Persistence.loadProperty("splitPaneDividerPosition", splitPane, 0.3);
 
         splitPane.getItems().addAll(leftPane, tabPane);
@@ -633,6 +691,38 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
             for (int j = 0; j < stages.size(); j++) {
                 stages.get(j).configurationUpdated(configuration);
             }
+        }
+    }
+
+    private void animationsEnabled(final boolean enabled) {
+        for (int i = 0; i < apps.size(); i++) {
+            final List<StageController> stages = apps.get(i).getStages();
+            for (int j = 0; j < stages.size(); j++) {
+                stages.get(j).animationsEnabled(enabled);
+            }
+        }
+
+    }
+
+    private void updateAnimations() {
+        for (int i = 0; i < apps.size(); i++) {
+            /**
+             * Only first stage
+             */
+            final List<StageController> stages = apps.get(i).getStages();
+            stages.get(0).updateAnimations();
+        }
+    }
+
+    public void loadAPI(final String property) {
+        if (property != null) {
+            tabPane.getSelectionModel().select(javadocTab);
+        }
+        if (javadocTab.isSelected()) {
+            final String page = "http://docs.oracle.com/javafx/2/api/" + selectedNode.getNodeClassName().replace('.', '/') + ".html" + (property != null ? ("#" + property + "Property") : "");
+            System.out.println(page);
+            if (!wview.getEngine().getLocation().equals(page))
+                wview.getEngine().load(page);
         }
     }
 
@@ -688,6 +778,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         if (value != selectedNode) {
             storeSelectedNode(value);
             eventLogPane.setSelectedNode(value);
+            loadAPI(null);
         }
     }
 
@@ -704,13 +795,17 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
 
     private CheckMenuItem buildCheckMenuItem(final String text, final String toolTipSelected, final String toolTipNotSelected, final String property, final Boolean value) {
         final CheckMenuItem menuItem = new CheckMenuItem(text);
-        if (property != null)
+        if (property != null) {
             Persistence.loadProperty(property, menuItem, value);
+        } else if (value != null) {
+            menuItem.setSelected(value);
+        }
         menuItem.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
                 setStatusText(newValue ? toolTipSelected : toolTipNotSelected, 4000);
             }
         });
+
         return menuItem;
     }
 

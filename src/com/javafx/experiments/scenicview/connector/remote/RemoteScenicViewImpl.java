@@ -134,6 +134,24 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                                     e.printStackTrace();
                                 }
                             }
+
+                            @Override public void animationsEnabled(final boolean enabled) {
+                                try {
+                                    application.animationsEnabled(enabled);
+                                } catch (final RemoteException e) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                }
+                            }
+
+                            @Override public void updateAnimations() {
+                                try {
+                                    application.updateAnimations();
+                                } catch (final RemoteException e) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                }
+                            }
                         });
                     }
                     if (!impl.getStages().isEmpty())

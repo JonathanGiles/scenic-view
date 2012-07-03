@@ -25,4 +25,8 @@ public interface RemoteApplication extends Remote {
 
     public void setDetail(StageID id, DetailPaneType detailType, int detailID, String value) throws RemoteException;
 
+    public void animationsEnabled(boolean enabled) throws RemoteException;
+
+    public void updateAnimations() throws RemoteException;
+
 }

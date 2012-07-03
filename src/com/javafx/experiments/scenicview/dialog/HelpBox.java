@@ -1,6 +1,6 @@
 package com.javafx.experiments.scenicview.dialog;
 
-import java.util.logging.*;
+import java.util.logging.Level;
 
 import javafx.event.EventHandler;
 import javafx.scene.*;
@@ -36,8 +36,7 @@ public class HelpBox {
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
 
             @Override public void handle(final WindowEvent arg0) {
-                Logger.getLogger("com.sun.webpane").setLevel(wLevel);
-                Logger.getLogger("webcore.platform.api.SharedBufferInputStream").setLevel(wpLevel);
+                DisplayUtils.showWebView(false);
             }
         });
         stage.show();
@@ -47,18 +46,8 @@ public class HelpBox {
     static Level wpLevel;
 
     public static HelpBox make(final String title, final String url, final Stage stage) {
-        /**
-         * Ugly patch to remove the visual trace of the WebPane
-         */
-        final Logger webLogger = java.util.logging.Logger.getLogger("com.sun.webpane");
-        final Logger webPltLogger = java.util.logging.Logger.getLogger("webcore.platform.api.SharedBufferInputStream");
-        wLevel = webLogger.getLevel();
-        wpLevel = webPltLogger.getLevel();
-        webLogger.setLevel(Level.SEVERE);
-        webPltLogger.setLevel(Level.SEVERE);
-
+        DisplayUtils.showWebView(true);
         final HelpBox node = new HelpBox(title, url, stage.getX() + (stage.getWidth() / 2) - (SCENE_WIDTH / 2), stage.getY() + (stage.getHeight() / 2) - (SCENE_HEIGHT / 2));
-
         return node;
     }
 }

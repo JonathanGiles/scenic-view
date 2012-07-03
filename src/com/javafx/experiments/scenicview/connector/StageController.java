@@ -24,4 +24,8 @@ public interface StageController {
 
     void setDetail(DetailPaneType detailType, int detailID, String value);
 
+    void animationsEnabled(boolean enabled);
+
+    void updateAnimations();
+
 }

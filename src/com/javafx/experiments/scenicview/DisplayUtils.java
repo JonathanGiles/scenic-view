@@ -8,6 +8,7 @@ package com.javafx.experiments.scenicview;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.logging.*;
 
 import javafx.scene.image.Image;
 import javafx.scene.transform.*;
@@ -24,6 +25,8 @@ public class DisplayUtils {
     private static final Map<String, Image> loadedImages = new HashMap<String, Image>();
 
     public static DecimalFormat DFMT = new DecimalFormat("0.0#");
+    private static Level wLevel;
+    private static Level wpLevel;
 
     static final Image CLEAR_IMAGE = getUIImage("clear_left.png");
 
@@ -71,6 +74,23 @@ public class DisplayUtils {
             return "Affine()";
         }
         return "-";
+    }
+
+    public static void showWebView(final boolean show) {
+        if (show) {
+            /**
+             * Ugly patch to remove the visual trace of the WebPane
+             */
+            final Logger webLogger = java.util.logging.Logger.getLogger("com.sun.webpane");
+            final Logger webPltLogger = java.util.logging.Logger.getLogger("webcore.platform.api.SharedBufferInputStream");
+            wLevel = webLogger.getLevel();
+            wpLevel = webPltLogger.getLevel();
+            webLogger.setLevel(Level.SEVERE);
+            webPltLogger.setLevel(Level.SEVERE);
+        } else {
+            Logger.getLogger("com.sun.webpane").setLevel(wLevel);
+            Logger.getLogger("webcore.platform.api.SharedBufferInputStream").setLevel(wpLevel);
+        }
     }
 
 }

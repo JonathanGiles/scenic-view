@@ -9,6 +9,8 @@ public interface SVNode {
 
     String getId();
 
+    String getNodeClassName();
+
     String getNodeClass();
 
     String getExtendedId();

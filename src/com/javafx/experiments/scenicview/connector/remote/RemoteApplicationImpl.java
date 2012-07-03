@@ -115,4 +115,12 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
         return application.getStageNames();
     }
 
+    @Override public void animationsEnabled(final boolean enabled) throws RemoteException {
+        application.animationsEnabled(enabled);
+    }
+
+    @Override public void updateAnimations() throws RemoteException {
+        application.updateAnimations();
+    }
+
 }

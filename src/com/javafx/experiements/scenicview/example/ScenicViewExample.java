@@ -7,6 +7,7 @@ package com.javafx.experiements.scenicview.example;
 
 import java.util.*;
 
+import javafx.animation.*;
 import javafx.application.Application;
 import javafx.beans.property.*;
 import javafx.beans.value.*;
@@ -22,6 +23,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.stage.*;
+import javafx.util.Duration;
 
 import com.javafx.experiments.scenicview.ScenicView;
 import com.javafx.experiments.scenicview.connector.*;
@@ -142,6 +144,7 @@ public class ScenicViewExample extends Application {
         b1.translateXProperty().bind(pos);
         b1.translateYProperty().bind(pos);
         b1.setFont(f);
+
         final Button b2 = new Button("Second");
         b2.getStyleClass().add("second-button");
         b2.translateXProperty().bind(pos);
@@ -152,6 +155,12 @@ public class ScenicViewExample extends Application {
         for (int i = 0; i < 1000; i++) {
             items.add("List View content:" + i);
         }
+
+        TimelineBuilder.create().keyFrames(new KeyFrame(Duration.millis(300), new EventHandler<ActionEvent>() {
+            @Override public void handle(final ActionEvent arg0) {
+                b2.setVisible(!b2.isVisible());
+            }
+        })).cycleCount(Animation.INDEFINITE).build().play();
 
         final ListView<String> listViewTest = new ListView<String>(items);
         listViewTest.setPrefHeight(40);

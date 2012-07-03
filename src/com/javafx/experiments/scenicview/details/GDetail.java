@@ -33,9 +33,11 @@ public class GDetail {
     private double max;
     private String realValue;
     private EditionType editionType;
+    private APILoader loader;
 
     public GDetail(final Label label, final Node value) {
         this.label = label;
+
         this.value = value;
         /**
          * Initial implementation...
@@ -214,6 +216,17 @@ public class GDetail {
 
     public void setDetail(final Detail detail) {
         this.detail = detail;
+        if (detail.getDetailType() == DetailPaneType.FULL) {
+            label.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+                @Override public void handle(final MouseEvent ev) {
+                    if (ev.getClickCount() == 2) {
+                        System.out.println("DetailClicked");
+                        loader.loadAPI(label.getText().substring(0, label.getText().length() - 1));
+                    }
+                }
+            });
+        }
     }
 
     public void setValue(final String value2) {
@@ -244,5 +257,9 @@ public class GDetail {
             break;
         }
 
+    }
+
+    public void setAPILoader(final APILoader loader) {
+        this.loader = loader;
     }
 }

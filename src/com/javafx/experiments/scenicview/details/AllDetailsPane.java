@@ -11,7 +11,6 @@ import javafx.scene.Node;
 import javafx.scene.layout.VBox;
 
 import com.javafx.experiments.scenicview.connector.details.*;
-import com.javafx.experiments.scenicview.connector.details.Detail;
 import com.javafx.experiments.scenicview.details.GDetailPane.RemotePropertySetter;
 
 /**
@@ -23,8 +22,10 @@ public class AllDetailsPane extends VBox {
     List<GDetailPane> gDetailPanes = new ArrayList<GDetailPane>();
 
     static boolean showDefaultProperties = true;
+    APILoader loader;
 
-    public AllDetailsPane() {
+    public AllDetailsPane(final APILoader loader) {
+        this.loader = loader;
         getStyleClass().add("all-details-pane");
         setFillWidth(true);
     }
@@ -70,7 +71,7 @@ public class AllDetailsPane extends VBox {
             }
         }
         if (!found) {
-            pane = new GDetailPane(type, paneName);
+            pane = new GDetailPane(type, paneName, loader);
             gDetailPanes.add(pane);
             getChildren().add(pane);
         }

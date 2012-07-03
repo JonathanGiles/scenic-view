@@ -57,14 +57,6 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
 
     void nodeSelected(final SVNode nodeData) {
         if (nodeData != null && treeViewData.containsKey(nodeData)) {
-            // for (int i = 0; i < treeViewData.size(); i++) {
-            // final TreeItem<SVNode> item = treeViewData.get(i);
-            // if (item.getValue().equals(nodeData)) {
-            // getSelectionModel().select(item);
-            // scrollTo(getSelectionModel().getSelectedIndex());
-            // break;
-            // }
-            // }
             final TreeItem<SVNode> item = treeViewData.get(nodeData);
             getSelectionModel().select(item);
             scrollTo(getSelectionModel().getSelectedIndex());
@@ -138,7 +130,6 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     }
 
     void removeNode(final SVNode node) {
-        // System.out.println("removing treeItem:" + node.getExtendedId());
         if (node.getId() == null || !node.getId().startsWith(StageController.SCENIC_VIEW_BASE_ID)) {
             TreeItem<SVNode> selected = null;
             if (container.getSelectedNode() == node) {
@@ -193,7 +184,6 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     }
 
     void addNewNode(final SVNode alive, final boolean showNodesIdInTree, final boolean showFilteredNodesInTree) {
-        // System.out.println("adding treeItem:" + alive.getExtendedId());
         if (alive.getId() == null || !alive.getId().startsWith(StageController.SCENIC_VIEW_BASE_ID)) {
             final TreeItem<SVNode> selected = getSelectionModel().getSelectedItem();
             final TreeItem<SVNode> treeItem = createTreeItem(alive, showNodesIdInTree, showFilteredNodesInTree);

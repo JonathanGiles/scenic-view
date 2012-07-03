@@ -2,6 +2,7 @@ package com.javafx.experiments.scenicview.connector;
 
 import java.util.*;
 
+import javafx.animation.Animation;
 import javafx.beans.*;
 import javafx.beans.Observable;
 import javafx.beans.property.Property;
@@ -18,11 +19,12 @@ import javafx.scene.shape.*;
 import javafx.stage.*;
 
 import com.javafx.experiments.scenicview.connector.details.*;
-import com.javafx.experiments.scenicview.connector.event.AppEvent.SVEventType;
 import com.javafx.experiments.scenicview.connector.event.*;
+import com.javafx.experiments.scenicview.connector.event.AppEvent.SVEventType;
 import com.javafx.experiments.scenicview.connector.gui.*;
 import com.javafx.experiments.scenicview.connector.helper.StyleSheetRefresher;
 import com.javafx.experiments.scenicview.connector.node.*;
+import com.sun.scenario.ToolkitAccessor;
 
 public class StageControllerImpl implements StageController {
 
@@ -798,5 +800,22 @@ public class StageControllerImpl implements StageController {
 
     @Override public void setDetail(final DetailPaneType detailType, final int detailID, final String value) {
         details.setDetail(detailType, detailID, value);
+    }
+
+    @Override public void animationsEnabled(final boolean enabled) {
+        if (enabled) {
+            ToolkitAccessor.getMasterTimer().resume();
+        } else {
+            ToolkitAccessor.getMasterTimer().pause();
+        }
+    }
+
+    @Override public void updateAnimations() {
+        final List<Animation> animations = ConnectorUtils.getAnimations();
+        final List<SVAnimation> svAnimations = new ArrayList<SVAnimation>();
+        for (int i = 0; i < animations.size(); i++) {
+            svAnimations.add(new SVAnimation(animations.get(i)));
+        }
+        dispatcher.dispatchEvent(new AnimationsCountEvent(getID(), svAnimations));
     }
 }

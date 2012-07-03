@@ -1,13 +1,18 @@
 package com.javafx.experiments.scenicview.connector;
 
+import java.lang.reflect.Field;
 import java.text.*;
 import java.util.*;
 
+import javafx.animation.Animation;
 import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.layout.Region;
 
 import com.javafx.experiments.scenicview.connector.node.SVNode;
+import com.sun.scenario.ToolkitAccessor;
+import com.sun.scenario.animation.AbstractMasterTimer;
+import com.sun.scenario.animation.shared.*;
 
 public class ConnectorUtils {
 
@@ -151,6 +156,28 @@ public class ConnectorUtils {
             }
         } while (pos < value.length());
         return map;
+    }
+
+    public static List<Animation> getAnimations() {
+        final List<Animation> animationList = new ArrayList<Animation>();
+        final AbstractMasterTimer timer = ToolkitAccessor.getMasterTimer();
+        try {
+            final Field field = AbstractMasterTimer.class.getDeclaredField("receiverList");
+            field.setAccessible(true);
+            @SuppressWarnings("unchecked") final List<PulseReceiver> object = (List<PulseReceiver>) field.get(timer);
+            for (final Iterator<PulseReceiver> iterator = object.iterator(); iterator.hasNext();) {
+                final PulseReceiver pulseReceiver = iterator.next();
+                if (pulseReceiver instanceof AnimationPulseReceiver) {
+                    final Field field2 = AnimationPulseReceiver.class.getDeclaredField("animation");
+                    field2.setAccessible(true);
+                    final Animation animation = (Animation) field2.get(pulseReceiver);
+                    animationList.add(animation);
+                }
+            }
+        } catch (final Exception e) {
+            e.printStackTrace();
+        }
+        return animationList;
     }
 
 }
