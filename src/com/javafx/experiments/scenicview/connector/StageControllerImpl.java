@@ -304,6 +304,7 @@ public class StageControllerImpl implements StageController {
             }
             final SVDummyNode app = new SVDummyNode(title, "Stage", getID().getStageID());
             app.setIcon(targetStageImage);
+            app.setRemote(remote);
             app.setExpanded(true);
             app.getChildren().add(root);
             if (!popupWindows.isEmpty()) {
