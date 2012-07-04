@@ -26,7 +26,7 @@ public class AgentTest {
             while (it.hasNext()) {
                 final Window window = it.next();
                 if (window instanceof Stage && !(window.getScene().getRoot() instanceof ScenicView)) {
-                    System.out.println("Launching scenicView for:" + ((Stage) window).getTitle());
+                    System.out.println("Local JavaFX Stage found:" + ((Stage) window).getTitle());
                     final StageControllerImpl scontroller = new StageControllerImpl((Stage) window, acontroller);
                     scontroller.setRemote(true);
                     controller.add(scontroller);
@@ -151,7 +151,5 @@ public class AgentTest {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        System.out.println("Launching scenicViews with RMI!!");
-
     }
 }

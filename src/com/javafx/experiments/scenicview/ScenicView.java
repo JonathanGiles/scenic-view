@@ -410,7 +410,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         });
         configuration.setAutoRefreshStyles(autoRefreshStyleSheets.isSelected());
 
-        final Menu scenegraphMenu = new Menu("JavaFX Apps");
+        final Menu scenegraphMenu = new Menu("Scenegraph");
         scenegraphMenu.getItems().addAll(automaticScenegraphStructureRefreshing, autoRefreshStyleSheets, new SeparatorMenuItem(), componentSelectOnClick, ignoreMouseTransparentNodes, new SeparatorMenuItem(), animationsEnabled);
 
         final Menu displayOptionsMenu = new Menu("Display Options");
@@ -615,7 +615,8 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         filtersPane.setMinHeight(filtersGridPane.getPrefHeight());
 
         treeView.setMaxHeight(Double.MAX_VALUE);
-        final TitledPane treeViewPane = new TitledPane("Scenegraph", treeView);
+        final TitledPane treeViewPane = new TitledPane("JavaFX Apps", treeView);
+        treeViewPane.setCollapsible(false);
         treeViewPane.setMaxHeight(Double.MAX_VALUE);
         // This solves the resizing of filtersPane
         treeViewPane.setPrefHeight(50);

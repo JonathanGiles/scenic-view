@@ -51,7 +51,7 @@ public class RMIUtils {
 
                 while (scenicView == null) {
                     try {
-                        System.out.println("Finding ScenicView...");
+                        System.out.println("Finding RemoteScenicView connection for agent...");
                         scenicView = findScenicView("127.0.0.1", SV_SERVER_PORT);
                         sleep(1000);
                     } catch (final Exception e) {

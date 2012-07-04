@@ -57,7 +57,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
     }
 
     @Override public void onAgentStarted(final int port) {
-        System.out.println("Agent started on port:" + port);
+        System.out.println("Remote agent started on port:" + port);
         RMIUtils.findApplication(port, new Observer() {
 
             @Override public void update(final Observable o, final Object obj) {
@@ -67,7 +67,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                     final String[] names = application.getStageNames();
                     final AppControllerImpl impl = new AppControllerImpl(port, vmInfo.get(port));
                     for (int i = 0; i < ids.length; i++) {
-                        System.out.println("App:" + port + " id:" + ids[i]);
+                        System.out.println("RemoteApp connected on:" + port + " stageID:" + ids[i]);
                         final int cont = i;
                         impl.getStages().add(new StageController() {
 
@@ -206,12 +206,6 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
         vmInfo.clear();
         final List<VirtualMachine> machines = getRunningJavaFXApplications();
         System.out.println(machines.size() + " JavaFX VMs found");
-        // for (final Iterator<VirtualMachine> iterator = machines.iterator();
-        // iterator.hasNext();) {
-        // final VirtualMachine virtualMachine = iterator.next();
-        // System.out.println(virtualMachine);
-        //
-        // }
         count.set(machines.size());
         final File f = new File("./ScenicView.jar");
         System.out.println("Loading agent from file:" + f.getAbsolutePath());
