@@ -102,7 +102,7 @@ public class AgentTest {
                     Platform.runLater(new Runnable() {
 
                         @Override public void run() {
-                            System.out.println("Setting selected node:" + value + " id:" + value.getNodeId() + " class:" + value.getClass());
+                            System.out.println("Setting selected node:" + value + value != null ? (" id:" + value.getNodeId() + " class:" + value.getClass()) : "");
                             for (int i = 0; i < controller.size(); i++) {
                                 controller.get(i).setSelectedNode(value);
                             }
