@@ -1,10 +1,13 @@
 package com.javafx.experiments.scenicview.connector.node;
 
-import java.io.Serializable;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.util.*;
 
 import javafx.scene.Node;
 import javafx.scene.image.Image;
+
+import javax.imageio.ImageIO;
 
 public class SVDummyNode extends SVNodeImpl implements SVNode, Serializable {
 
@@ -16,6 +19,7 @@ public class SVDummyNode extends SVNodeImpl implements SVNode, Serializable {
     private final List<SVNode> childrens = new ArrayList<SVNode>();
     private transient Image icon;
     private int nodeID;
+    private byte[] imageInByte;
 
     public SVDummyNode() {
         super();
@@ -87,11 +91,51 @@ public class SVDummyNode extends SVNodeImpl implements SVNode, Serializable {
     }
 
     @Override public Image getIcon() {
+        if (icon == null && imageInByte != null) {
+            try {
+                final BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageInByte));
+                icon = convertToFxImage(image);
+                imageInByte = null;
+            } catch (final Exception e) {
+                e.printStackTrace();
+            }
+        }
         return icon;
     }
 
     public void setIcon(final Image icon) {
         this.icon = icon;
+    }
+
+    public void setRemote(final boolean remote) {
+        if (remote && icon != null) {
+            try {
+                final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ImageIO.write(convertToAwtImage(icon), "png", baos);
+                baos.flush();
+                imageInByte = baos.toByteArray();
+                baos.close();
+            } catch (final Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static javafx.scene.image.Image convertToFxImage(final java.awt.image.BufferedImage awtImage) {
+        if (Image.impl_isExternalFormatSupported(BufferedImage.class)) {
+            return javafx.scene.image.Image.impl_fromExternalImage(awtImage);
+        } else {
+            return null;
+        }
+    }
+
+    private static java.awt.image.BufferedImage convertToAwtImage(final javafx.scene.image.Image fxImage) {
+        if (Image.impl_isExternalFormatSupported(BufferedImage.class)) {
+            final java.awt.image.BufferedImage awtImage = new BufferedImage((int) fxImage.getWidth(), (int) fxImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
+            return (BufferedImage) fxImage.impl_toExternalImage(awtImage);
+        } else {
+            return null;
+        }
     }
 
     @Override public int hashCode() {
@@ -101,4 +145,5 @@ public class SVDummyNode extends SVNodeImpl implements SVNode, Serializable {
     @Override public boolean equals(final Object obj) {
         return equals((SVNode) obj);
     }
+
 }
