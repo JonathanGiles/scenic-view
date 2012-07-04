@@ -2,7 +2,7 @@ package com.javafx.experiments.scenicview.connector.remote;
 
 import java.io.*;
 import java.net.*;
-import java.rmi.RemoteException;
+import java.rmi.*;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -197,7 +197,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
-        view.showRemoteApps(null);
+        view.showRemoteApps(null, null);
         server.connect();
     }
 
@@ -231,8 +231,29 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                 e.printStackTrace();
             }
         }
-        view.showRemoteApps(apps);
+        view.showRemoteApps(apps, new Runnable() {
 
+            @Override public void run() {
+                server.close();
+                System.exit(0);
+            }
+        });
+
+    }
+
+    private void close() {
+        try {
+            RMIUtils.unbindScenicView();
+        } catch (final AccessException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (final RemoteException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (final NotBoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     private void loadAgent(final VirtualMachine machine, final File f) {

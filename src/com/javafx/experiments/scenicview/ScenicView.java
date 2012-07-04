@@ -52,6 +52,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
             saveProperties();
         }
     };
+    private Runnable additionalCloseActions;
 
     private final BorderPane borderPane;
     private final SplitPane splitPane;
@@ -861,6 +862,8 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
     public void close() {
         closeApps();
         saveProperties();
+        if (additionalCloseActions != null)
+            additionalCloseActions.run();
     }
 
     private void saveProperties() {
@@ -950,7 +953,9 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         stage.show();
     }
 
-    public void showRemoteApps(final List<AppController> apps2) {
+    public void showRemoteApps(final List<AppController> apps2, final Runnable additionalCloseActions) {
+        if (additionalCloseActions != null)
+            this.additionalCloseActions = additionalCloseActions;
         Platform.runLater(new Runnable() {
 
             @Override public void run() {

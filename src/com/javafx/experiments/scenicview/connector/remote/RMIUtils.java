@@ -43,6 +43,12 @@ public class RMIUtils {
         registry.unbind("AgentServer");
     }
 
+    public static final void unbindScenicView() throws AccessException, RemoteException, NotBoundException {
+        // create the registry and bind the name and object.
+        final Registry registry = LocateRegistry.getRegistry(SV_SERVER_PORT);
+        registry.unbind("ScenicView");
+    }
+
     public static final void findScenicView(final Observer observer) {
         new Thread("ScenicView.Finder") {
             @Override public void run() {
