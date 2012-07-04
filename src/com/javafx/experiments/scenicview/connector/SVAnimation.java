@@ -6,6 +6,10 @@ import javafx.animation.Animation;
 
 public class SVAnimation implements Serializable {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -619258470875560329L;
     private final String toString;
     private final double rate;
     private final double currentRate;
@@ -29,6 +33,38 @@ public class SVAnimation implements Serializable {
 
     @Override public String toString() {
         return "SVAnimation [toString=" + toString + ", rate=" + rate + ", currentRate=" + currentRate + ", status=" + status + ", cycleCount=" + cycleCount + ", currentTime=" + currentTime + ", cycleDuration=" + cycleDuration + ", totalDuration=" + totalDuration + "]";
+    }
+
+    public String getToString() {
+        return toString;
+    }
+
+    public double getRate() {
+        return rate;
+    }
+
+    public double getCurrentRate() {
+        return currentRate;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public int getCycleCount() {
+        return cycleCount;
+    }
+
+    public String getCurrentTime() {
+        return currentTime;
+    }
+
+    public String getCycleDuration() {
+        return cycleDuration;
+    }
+
+    public String getTotalDuration() {
+        return totalDuration;
     }
 
 }

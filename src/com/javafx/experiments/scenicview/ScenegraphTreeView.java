@@ -71,7 +71,6 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
             final SVDummyNode dummy = new SVDummyNode("Apps", "Java", 0);
             apps = new TreeItem<SVNode>(dummy, new ImageView(DisplayUtils.getIcon(dummy)));
             apps.setExpanded(true);
-
         }
         TreeItem<SVNode> app = null;
         final List<TreeItem<SVNode>> apps = this.apps.getChildren();
@@ -90,8 +89,9 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         if (apps.size() == 1) {
             if (app.getChildren().size() == 0 || (app.getChildren().size() == 1 && app.getChildren().get(0).getValue().equals(stageRoot.getValue()))) {
                 setRoot(stageRoot);
-            } else
+            } else {
                 setRoot(app);
+            }
         } else {
             setRoot(this.apps);
         }

@@ -26,7 +26,7 @@ import com.javafx.experiments.scenicview.ScenegraphTreeView.SelectedNodeContaine
 import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.details.Detail;
 import com.javafx.experiments.scenicview.connector.event.*;
-import com.javafx.experiments.scenicview.connector.node.SVNode;
+import com.javafx.experiments.scenicview.connector.node.*;
 import com.javafx.experiments.scenicview.connector.remote.RemoteScenicViewImpl;
 import com.javafx.experiments.scenicview.details.*;
 import com.javafx.experiments.scenicview.details.GDetailPane.RemotePropertySetter;
@@ -145,7 +145,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                     break;
 
                 case ANIMATIONS_UPDATED:
-                    animationsPane.update(((AnimationsCountEvent) appEvent).getAnimations());
+                    animationsPane.update(appEvent.getStageID(), ((AnimationsCountEvent) appEvent).getAnimations());
                     break;
 
                 default:
@@ -509,7 +509,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
 
             @Override public void changed(final ObservableValue<? extends TreeItem<SVNode>> arg0, final TreeItem<SVNode> arg1, final TreeItem<SVNode> newValue) {
                 final TreeItem<SVNode> selected = newValue;
-                setSelectedNode(selected != null ? selected.getValue() : null);
+                setSelectedNode(selected != null && !(selected.getValue() instanceof SVDummyNode) ? selected.getValue() : null);
                 propertyFilterField.setText("");
                 propertyFilterField.setDisable(selected == null);
                 filterProperties(propertyFilterField.getText());
