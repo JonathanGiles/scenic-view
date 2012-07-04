@@ -102,6 +102,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         if (getRoot() != null) {
             getRoot().getChildren().clear();
         }
+        apps = null;
     }
 
     void updateStageModel(final StageController controller, final SVNode value, final boolean showNodesIdInTree, final boolean showFilteredNodesInTree) {
