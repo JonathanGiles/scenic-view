@@ -3,11 +3,12 @@ package com.javafx.experiments.scenicview.connector.remote;
 import java.rmi.*;
 import java.rmi.registry.*;
 import java.util.Observer;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class RMIUtils {
 
     private static final int SV_SERVER_PORT = 7557;
-    private static int clientPort = 7558;
+    private static AtomicInteger clientPort = new AtomicInteger(7558);
 
     private RMIUtils() {
     }
@@ -84,7 +85,7 @@ public class RMIUtils {
     }
 
     public static int getClientPort() {
-        return clientPort++;
+        return clientPort.incrementAndGet();
     }
 
 }

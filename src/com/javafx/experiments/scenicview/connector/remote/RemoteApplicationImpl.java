@@ -34,7 +34,7 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
         });
         while (scenicView == null) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(50);
             } catch (final InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

@@ -1,7 +1,7 @@
 package com.javafx.experiments.scenicview.connector.remote;
 
 import java.io.*;
-import java.net.Socket;
+import java.net.*;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
@@ -184,7 +184,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
         });
         while (view == null) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(50);
             } catch (final InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -205,34 +205,25 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
         apps = new ArrayList<AppController>();
         vmInfo.clear();
         final List<VirtualMachine> machines = getRunningJavaFXApplications();
-        for (final Iterator<VirtualMachine> iterator = machines.iterator(); iterator.hasNext();) {
-            final VirtualMachine virtualMachine = iterator.next();
-            System.out.println(virtualMachine);
-
-        }
+        System.out.println(machines.size() + " JavaFX VMs found");
+        // for (final Iterator<VirtualMachine> iterator = machines.iterator();
+        // iterator.hasNext();) {
+        // final VirtualMachine virtualMachine = iterator.next();
+        // System.out.println(virtualMachine);
+        //
+        // }
         count.set(machines.size());
         final File f = new File("./ScenicView.jar");
-        System.out.println(f.getAbsolutePath());
+        System.out.println("Loading agent from file:" + f.getAbsolutePath());
 
         try {
             for (final VirtualMachine machine : machines) {
-                boolean valid = false;
-                int port = RMIUtils.getClientPort();
-                do {
-                    try {
-                        final Socket socket = new Socket("127.0.0.1", port);
-                        socket.close();
-                        valid = true;
-                        port = RMIUtils.getClientPort();
-                    } catch (final Exception e) {
-                        valid = false;
+                final VirtualMachine temp = machine;
+                new Thread() {
+                    @Override public void run() {
+                        loadAgent(temp, f);
                     }
-
-                } while (valid);
-                System.out.println("Loading agent for:" + machine + " on port:" + port);
-                addVMInfo(port, machine.id());
-                machine.loadAgent(f.getAbsolutePath(), Integer.toString(port));
-                machine.detach();
+                }.start();
             }
         } catch (final Exception e) {
             e.printStackTrace();
@@ -240,7 +231,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
         final long initial = System.currentTimeMillis();
         while (count.get() != 0 && System.currentTimeMillis() - initial < 10000) {
             try {
-                Thread.sleep(500);
+                Thread.sleep(50);
             } catch (final InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -248,6 +239,33 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
         }
         view.showRemoteApps(apps);
 
+    }
+
+    private void loadAgent(final VirtualMachine machine, final File f) {
+        try {
+
+            boolean valid = false;
+            final long start = System.currentTimeMillis();
+            int port = RMIUtils.getClientPort();
+            do {
+                try {
+                    final Socket socket = new Socket();
+                    socket.connect(new InetSocketAddress("127.0.0.1", port), 100);
+                    socket.close();
+                    valid = true;
+                    port = RMIUtils.getClientPort();
+                } catch (final Exception e) {
+                    valid = false;
+                }
+
+            } while (valid);
+            System.out.println("Loading agent for:" + machine + " on port:" + port + " took:" + (System.currentTimeMillis() - start) + "ms");
+            addVMInfo(port, machine.id());
+            machine.loadAgent(f.getAbsolutePath(), Integer.toString(port));
+            machine.detach();
+        } catch (final Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private static final String JAVAFX_SYSTEM_PROPERTIES_KEY = "javafx.version";
