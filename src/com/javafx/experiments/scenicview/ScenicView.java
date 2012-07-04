@@ -410,7 +410,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         });
         configuration.setAutoRefreshStyles(autoRefreshStyleSheets.isSelected());
 
-        final Menu scenegraphMenu = new Menu("Scenegraph");
+        final Menu scenegraphMenu = new Menu("JavaFX Apps");
         scenegraphMenu.getItems().addAll(automaticScenegraphStructureRefreshing, autoRefreshStyleSheets, new SeparatorMenuItem(), componentSelectOnClick, ignoreMouseTransparentNodes, new SeparatorMenuItem(), animationsEnabled);
 
         final Menu displayOptionsMenu = new Menu("Display Options");
@@ -659,7 +659,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                 updateAnimations();
             }
         });
-        tabPane.getTabs().addAll(detailsTab, javadocTab, eventsTab, animationsTab);
+        tabPane.getTabs().addAll(detailsTab, eventsTab, animationsTab, javadocTab);
         Persistence.loadProperty("splitPaneDividerPosition", splitPane, 0.3);
 
         splitPane.getItems().addAll(leftPane, tabPane);
@@ -716,14 +716,29 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         }
         if (javadocTab.isSelected()) {
             if (selectedNode == null || selectedNode.getNodeClassName() == null || !selectedNode.getNodeClassName().startsWith("javafx.")) {
-                wview.getEngine().load("http://docs.oracle.com/javafx/2/api/index.html");
+                wview.getEngine().load("http://docs.oracle.com/javafx/2/api/overview-summary.html");
             } else {
-
-                final String page = "http://docs.oracle.com/javafx/2/api/" + selectedNode.getNodeClassName().replace('.', '/') + ".html" + (property != null ? ("#" + property + "Property") : "");
+                String baseClass = selectedNode.getNodeClassName();
+                if (property != null) {
+                    baseClass = findProperty(baseClass, property);
+                }
+                final String page = "http://docs.oracle.com/javafx/2/api/" + baseClass.replace('.', '/') + ".html" + (property != null ? ("#" + property + "Property") : "");
                 System.out.println(page);
                 if (!wview.getEngine().getLocation().equals(page))
                     wview.getEngine().load(page);
             }
+        }
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" }) private String findProperty(final String className, final String property) {
+        Class node = null;
+        try {
+            node = Class.forName(className);
+            node.getDeclaredMethod(property + "Property");
+
+            return className;
+        } catch (final Exception e) {
+            return findProperty(node.getSuperclass().getName(), property);
         }
     }
 
@@ -935,30 +950,32 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
     }
 
     public void showRemoteApps(final List<AppController> apps2) {
-        if (apps2 == null) {
-            findJavaFXApps.setOnAction(new EventHandler<ActionEvent>() {
-                @Override public void handle(final ActionEvent arg0) {
-                    setStatusText("Finding remote applications,  this may take a while. Please wait", 10000);
-                    new Thread() {
-                        @Override public void run() {
-                            RemoteScenicViewImpl.server.connect();
+        Platform.runLater(new Runnable() {
+
+            @Override public void run() {
+                if (apps2 == null) {
+                    findJavaFXApps.setOnAction(new EventHandler<ActionEvent>() {
+                        @Override public void handle(final ActionEvent arg0) {
+                            setStatusText("Finding remote applications,  this may take a while. Please wait", 10000);
+                            new Thread() {
+                                @Override public void run() {
+                                    RemoteScenicViewImpl.server.connect();
+                                }
+                            }.start();
+                            ;
+
                         }
-                    }.start();
-                    ;
+                    });
 
-                }
-            });
-            Platform.runLater(new Runnable() {
-
-                @Override public void run() {
                     setStatusText("Finding remote applications,  this may take a while. Please wait", 10000);
-                }
-            });
 
-        } else {
-            clearStatusText();
-            StageSelectionBox.make("Find Stages", ScenicView.this, apps, apps2);
-        }
+                } else {
+
+                    StageSelectionBox.make("Find Stages", ScenicView.this, apps, apps2);
+                    clearStatusText();
+                }
+            }
+        });
 
     }
 
