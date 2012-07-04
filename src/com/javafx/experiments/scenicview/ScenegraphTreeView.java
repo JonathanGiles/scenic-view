@@ -66,25 +66,32 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         }
     }
 
-    TreeItem<SVNode> findStageRoot(final StageController controller) {
+    TreeItem<SVNode> findStageRoot(final StageController controller, final TreeItem<SVNode> stageRoot) {
         if (apps == null) {
             final SVDummyNode dummy = new SVDummyNode("Apps", "Java", 0);
             apps = new TreeItem<SVNode>(dummy, new ImageView(DisplayUtils.getIcon(dummy)));
             apps.setExpanded(true);
 
         }
+        TreeItem<SVNode> app = null;
         final List<TreeItem<SVNode>> apps = this.apps.getChildren();
         for (int i = 0; i < apps.size(); i++) {
             if (apps.get(i).getValue().getNodeId() == controller.getAppController().getID()) {
-                return apps.get(i);
+                app = apps.get(i);
+                break;
             }
         }
-        final SVDummyNode dummy = new SVDummyNode("VM - " + controller.getAppController(), "Java", controller.getAppController().getID());
-        final TreeItem<SVNode> app = new TreeItem<SVNode>(dummy, new ImageView(DisplayUtils.getIcon(dummy)));
-        app.setExpanded(true);
-        this.apps.getChildren().add(app);
+        if (app == null) {
+            final SVDummyNode dummy = new SVDummyNode("VM - " + controller.getAppController(), "Java", controller.getAppController().getID());
+            app = new TreeItem<SVNode>(dummy, new ImageView(DisplayUtils.getIcon(dummy)));
+            app.setExpanded(true);
+            this.apps.getChildren().add(app);
+        }
         if (apps.size() == 1) {
-            setRoot(app);
+            if (app.getChildren().size() == 0 || (app.getChildren().size() == 1 && app.getChildren().get(0).getValue().equals(stageRoot.getValue()))) {
+                setRoot(stageRoot);
+            } else
+                setRoot(app);
         } else {
             setRoot(this.apps);
         }
@@ -104,7 +111,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         removeForNode(getTreeItem(value));
         final TreeItem<SVNode> root = createTreeItem(value, showNodesIdInTree, showFilteredNodesInTree);
 
-        final TreeItem<SVNode> applicationRoot = findStageRoot(controller);
+        final TreeItem<SVNode> applicationRoot = findStageRoot(controller, root);
 
         /**
          * Check if the application was already present
