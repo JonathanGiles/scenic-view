@@ -18,12 +18,15 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     private final List<NodeFilter> activeNodeFilters;
     private final SelectedNodeContainer container;
 
+    TreeItem<SVNode> apps;
+
     private boolean secPressed;
 
     public ScenegraphTreeView(final List<NodeFilter> activeNodeFilters, final SelectedNodeContainer container) {
         this.activeNodeFilters = activeNodeFilters;
         this.container = container;
         setId("main-treeview");
+        setShowRoot(false);
         setPrefSize(200, 500);
         setCellFactory(new Callback<TreeView<SVNode>, TreeCell<SVNode>>() {
             @Override public TreeCell<SVNode> call(final TreeView<SVNode> node) {
@@ -64,14 +67,13 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     }
 
     TreeItem<SVNode> findStageRoot(final StageController controller) {
-        if (getRoot() == null) {
+        if (apps == null) {
             final SVDummyNode dummy = new SVDummyNode("Apps", "Java", 0);
-            final TreeItem<SVNode> root = new TreeItem<SVNode>(dummy, new ImageView(DisplayUtils.getIcon(dummy)));
-            root.setExpanded(true);
-            setRoot(root);
+            apps = new TreeItem<SVNode>(dummy, new ImageView(DisplayUtils.getIcon(dummy)));
+            apps.setExpanded(true);
 
         }
-        final List<TreeItem<SVNode>> apps = getRoot().getChildren();
+        final List<TreeItem<SVNode>> apps = this.apps.getChildren();
         for (int i = 0; i < apps.size(); i++) {
             if (apps.get(i).getValue().getNodeId() == controller.getAppController().getID()) {
                 return apps.get(i);
@@ -80,7 +82,12 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         final SVDummyNode dummy = new SVDummyNode("VM - " + controller.getAppController(), "Java", controller.getAppController().getID());
         final TreeItem<SVNode> app = new TreeItem<SVNode>(dummy, new ImageView(DisplayUtils.getIcon(dummy)));
         app.setExpanded(true);
-        getRoot().getChildren().add(app);
+        this.apps.getChildren().add(app);
+        if (apps.size() == 1) {
+            setRoot(app);
+        } else {
+            setRoot(this.apps);
+        }
         return app;
     }
 
