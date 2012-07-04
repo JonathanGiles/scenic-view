@@ -31,6 +31,9 @@ import com.javafx.experiments.scenicview.connector.remote.RemoteScenicViewImpl;
 import com.javafx.experiments.scenicview.details.*;
 import com.javafx.experiments.scenicview.details.GDetailPane.RemotePropertySetter;
 import com.javafx.experiments.scenicview.dialog.*;
+import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
+import javafx.util.Duration;
 
 /**
  * 
@@ -633,11 +636,51 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         detailsTab.setClosable(false);
         javadocTab = new Tab("JavaDoc");
         wview = new WebView();
-        javadocTab.setContent(wview);
+        
+        final StackPane javadocTabStackPane = new StackPane();
+        javadocTabStackPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        javadocTab.setContent(javadocTabStackPane);
+        final ProgressIndicator progressIndicator = new ProgressIndicator();
+        progressIndicator.setMaxSize(300, 300);
+        wview.getEngine().getLoadWorker().progressProperty().addListener(new ChangeListener<Number>() {
+            private final double DURATION = 1000;
+            private final FadeTransition fadeIn = new FadeTransition(Duration.millis(DURATION));
+            private final FadeTransition fadeOut = new FadeTransition(Duration.millis(DURATION));
+            private final ParallelTransition fader = new ParallelTransition(fadeIn, fadeOut);
+            
+            {
+                fadeOut.setFromValue(1.0);
+                fadeOut.setToValue(0.0);
+                
+                fadeIn.setFromValue(0.0);
+                fadeIn.setToValue(1.0);
+            }
+            
+            @Override public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number progress) {
+                double progressValue = progress.doubleValue();
+                
+                if (progressValue == 0) {
+                    javadocTabStackPane.getChildren().setAll(progressIndicator);
+                    doFade(wview, progressIndicator);
+                } else if (progressValue == 1.0) {
+                    javadocTabStackPane.getChildren().setAll(wview);
+                    doFade(progressIndicator, wview);
+                }
+                
+                progressIndicator.setProgress(progressValue);
+            }
+            
+            private void doFade(Node n1, Node n2) {
+                fader.stop();
+                fadeOut.setNode(n1);
+                fadeIn.setNode(n2);
+                fader.play();
+            }
+        });
+        
         javadocTab.setGraphic(new ImageView(DisplayUtils.getUIImage("javadoc.png")));
         javadocTab.setClosable(false);
         javadocTab.selectedProperty().addListener(new ChangeListener<Boolean>() {
-
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
                 if (newValue) {
                     DisplayUtils.showWebView(true);
@@ -726,8 +769,9 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                 }
                 final String page = "http://docs.oracle.com/javafx/2/api/" + baseClass.replace('.', '/') + ".html" + (property != null ? ("#" + property + "Property") : "");
                 System.out.println(page);
-                if (!wview.getEngine().getLocation().equals(page))
+                if (!wview.getEngine().getLocation().equals(page)) {
                     wview.getEngine().load(page);
+                }
             }
         }
     }
