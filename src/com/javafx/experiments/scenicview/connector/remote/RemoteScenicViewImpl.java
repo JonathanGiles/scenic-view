@@ -246,12 +246,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                 e.printStackTrace();
             }
         }
-        Platform.runLater(new Runnable() {
-
-            @Override public void run() {
-                view.showRemoteApps(apps);
-            }
-        });
+        view.showRemoteApps(apps);
 
     }
 
