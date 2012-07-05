@@ -7,11 +7,13 @@ package com.javafx.experiments.scenicview;
 
 import java.util.*;
 
+import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.beans.*;
 import javafx.beans.Observable;
 import javafx.beans.value.*;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Worker.State;
 import javafx.event.*;
 import javafx.geometry.*;
 import javafx.scene.*;
@@ -21,6 +23,7 @@ import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.web.WebView;
 import javafx.stage.*;
+import javafx.util.Duration;
 
 import com.javafx.experiments.scenicview.ScenegraphTreeView.SelectedNodeContainer;
 import com.javafx.experiments.scenicview.connector.*;
@@ -31,9 +34,6 @@ import com.javafx.experiments.scenicview.connector.remote.RemoteScenicViewImpl;
 import com.javafx.experiments.scenicview.details.*;
 import com.javafx.experiments.scenicview.details.GDetailPane.RemotePropertySetter;
 import com.javafx.experiments.scenicview.dialog.*;
-import javafx.animation.FadeTransition;
-import javafx.animation.ParallelTransition;
-import javafx.util.Duration;
 
 /**
  * 
@@ -183,6 +183,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
     private WebView wview;
     private Tab javadocTab;
     private TabPane tabPane;
+    private String loadedPage;
 
     public ScenicView(final List<AppController> controllers, final Stage senicViewStage) {
         Persistence.loadProperties();
@@ -636,29 +637,46 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         detailsTab.setClosable(false);
         javadocTab = new Tab("JavaDoc");
         wview = new WebView();
-        
+
         final StackPane javadocTabStackPane = new StackPane();
         javadocTabStackPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         javadocTab.setContent(javadocTabStackPane);
         final ProgressIndicator progressIndicator = new ProgressIndicator();
         progressIndicator.setMaxSize(300, 300);
+        wview.getEngine().getLoadWorker().stateProperty().addListener(new ChangeListener<State>() {
+            Animation anim;
+
+            @Override public void changed(final ObservableValue<? extends State> arg0, final State old, final State newValue) {
+                if (newValue == State.READY) {
+                    anim = TimelineBuilder.create().keyFrames(new KeyFrame(Duration.seconds(2), new EventHandler<ActionEvent>() {
+                        @Override public void handle(final ActionEvent arg0) {
+                            doLoad(loadedPage);
+                        }
+                    })).build();
+                    anim.play();
+                } else if (anim != null) {
+                    anim.stop();
+                    anim = null;
+                }
+            }
+        });
         wview.getEngine().getLoadWorker().progressProperty().addListener(new ChangeListener<Number>() {
             private final double DURATION = 1000;
             private final FadeTransition fadeIn = new FadeTransition(Duration.millis(DURATION));
             private final FadeTransition fadeOut = new FadeTransition(Duration.millis(DURATION));
             private final ParallelTransition fader = new ParallelTransition(fadeIn, fadeOut);
-            
+
             {
                 fadeOut.setFromValue(1.0);
                 fadeOut.setToValue(0.0);
-                
+
                 fadeIn.setFromValue(0.0);
                 fadeIn.setToValue(1.0);
             }
-            
-            @Override public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number progress) {
-                double progressValue = progress.doubleValue();
-                
+
+            @Override public void changed(final ObservableValue<? extends Number> arg0, final Number arg1, final Number progress) {
+                final double progressValue = progress.doubleValue();
+
                 if (progressValue == 0) {
                     javadocTabStackPane.getChildren().setAll(progressIndicator);
                     doFade(wview, progressIndicator);
@@ -666,18 +684,17 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                     javadocTabStackPane.getChildren().setAll(wview);
                     doFade(progressIndicator, wview);
                 }
-                
                 progressIndicator.setProgress(progressValue);
             }
-            
-            private void doFade(Node n1, Node n2) {
+
+            private void doFade(final Node n1, final Node n2) {
                 fader.stop();
                 fadeOut.setNode(n1);
                 fadeIn.setNode(n2);
                 fader.play();
             }
         });
-        
+
         javadocTab.setGraphic(new ImageView(DisplayUtils.getUIImage("javadoc.png")));
         javadocTab.setClosable(false);
         javadocTab.selectedProperty().addListener(new ChangeListener<Boolean>() {
@@ -761,7 +778,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         }
         if (javadocTab.isSelected()) {
             if (selectedNode == null || selectedNode.getNodeClassName() == null || !selectedNode.getNodeClassName().startsWith("javafx.")) {
-                wview.getEngine().load("http://docs.oracle.com/javafx/2/api/overview-summary.html");
+                doLoad("http://docs.oracle.com/javafx/2/api/overview-summary.html");
             } else {
                 String baseClass = selectedNode.getNodeClassName();
                 if (property != null) {
@@ -770,10 +787,15 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                 final String page = "http://docs.oracle.com/javafx/2/api/" + baseClass.replace('.', '/') + ".html" + (property != null ? ("#" + property + "Property") : "");
                 System.out.println(page);
                 if (!wview.getEngine().getLocation().equals(page)) {
-                    wview.getEngine().load(page);
+                    doLoad(page);
                 }
             }
         }
+    }
+
+    private void doLoad(final String page) {
+        loadedPage = page;
+        wview.getEngine().load(page);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" }) private String findProperty(final String className, final String property) {
