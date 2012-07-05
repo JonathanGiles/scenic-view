@@ -19,7 +19,10 @@ public class AgentTest {
 
         System.out.println("Launching agent server on:" + agentArgs);
         try {
-            final int port = Integer.parseInt(agentArgs);
+            final String[] ports = agentArgs.split(":");
+
+            final int port = Integer.parseInt(ports[0]);
+            final int serverPort = Integer.parseInt(ports[1]);
             final AppControllerImpl acontroller = new AppControllerImpl(port, "");
             final List<StageControllerImpl> controller = new ArrayList<StageControllerImpl>();
             @SuppressWarnings("deprecation") final Iterator<Window> it = Window.impl_getWindows();
@@ -146,7 +149,7 @@ public class AgentTest {
 
             };
 
-            final RemoteApplicationImpl rapplication = new RemoteApplicationImpl(application, Integer.parseInt(agentArgs));
+            final RemoteApplicationImpl rapplication = new RemoteApplicationImpl(application, port, serverPort);
         } catch (final RemoteException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

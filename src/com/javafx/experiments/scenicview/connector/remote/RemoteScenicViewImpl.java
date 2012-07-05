@@ -28,11 +28,13 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
     final List<AppEvent> previous = new ArrayList<AppEvent>();
     List<AppController> apps;
     final AtomicInteger count = new AtomicInteger();
+    private final int port;
 
     public RemoteScenicViewImpl(final ScenicView view) throws RemoteException {
         super();
         this.view = view;
-        RMIUtils.bindScenicView(this);
+        this.port = getValidPort();
+        RMIUtils.bindScenicView(this, port);
     }
 
     @Override public void dispatchEvent(final AppEvent event) {
@@ -243,7 +245,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
 
     private void close() {
         try {
-            RMIUtils.unbindScenicView();
+            RMIUtils.unbindScenicView(port);
         } catch (final AccessException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -256,27 +258,31 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
         }
     }
 
+    private int getValidPort() {
+        int port = RMIUtils.getClientPort();
+        boolean valid = false;
+        do {
+            try {
+                final Socket socket = new Socket();
+                socket.connect(new InetSocketAddress("127.0.0.1", port), 100);
+                socket.close();
+                valid = true;
+                port = RMIUtils.getClientPort();
+            } catch (final Exception e) {
+                valid = false;
+            }
+
+        } while (valid);
+        return port;
+    }
+
     private void loadAgent(final VirtualMachine machine, final File f) {
         try {
-
-            boolean valid = false;
             final long start = System.currentTimeMillis();
-            int port = RMIUtils.getClientPort();
-            do {
-                try {
-                    final Socket socket = new Socket();
-                    socket.connect(new InetSocketAddress("127.0.0.1", port), 100);
-                    socket.close();
-                    valid = true;
-                    port = RMIUtils.getClientPort();
-                } catch (final Exception e) {
-                    valid = false;
-                }
-
-            } while (valid);
+            final int port = getValidPort();
             System.out.println("Loading agent for:" + machine + " on port:" + port + " took:" + (System.currentTimeMillis() - start) + "ms");
             addVMInfo(port, machine.id());
-            machine.loadAgent(f.getAbsolutePath(), Integer.toString(port));
+            machine.loadAgent(f.getAbsolutePath(), Integer.toString(port) + ":" + this.port);
             machine.detach();
         } catch (final Exception e) {
             e.printStackTrace();

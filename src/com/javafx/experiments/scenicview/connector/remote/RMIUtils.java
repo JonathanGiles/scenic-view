@@ -7,8 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class RMIUtils {
 
-    private static final int SV_SERVER_PORT = 7557;
-    private static AtomicInteger clientPort = new AtomicInteger(7558);
+    private static AtomicInteger rmiPort = new AtomicInteger(7557);
 
     private RMIUtils() {
     }
@@ -25,9 +24,9 @@ public class RMIUtils {
         return (RemoteApplication) (registry.lookup("AgentServer"));
     }
 
-    public static final void bindScenicView(final RemoteScenicView view) throws AccessException, RemoteException {
+    public static final void bindScenicView(final RemoteScenicView view, final int port) throws AccessException, RemoteException {
         // create the registry and bind the name and object.
-        final Registry registry = LocateRegistry.createRegistry(SV_SERVER_PORT);
+        final Registry registry = LocateRegistry.createRegistry(port);
         registry.rebind("ScenicView", view);
     }
 
@@ -43,13 +42,13 @@ public class RMIUtils {
         registry.unbind("AgentServer");
     }
 
-    public static final void unbindScenicView() throws AccessException, RemoteException, NotBoundException {
+    public static final void unbindScenicView(final int port) throws AccessException, RemoteException, NotBoundException {
         // create the registry and bind the name and object.
-        final Registry registry = LocateRegistry.getRegistry(SV_SERVER_PORT);
+        final Registry registry = LocateRegistry.getRegistry(port);
         registry.unbind("ScenicView");
     }
 
-    public static final void findScenicView(final Observer observer) {
+    public static final void findScenicView(final int port, final Observer observer) {
         new Thread("ScenicView.Finder") {
             @Override public void run() {
 
@@ -58,8 +57,10 @@ public class RMIUtils {
                 while (scenicView == null) {
                     try {
                         System.out.println("Finding RemoteScenicView connection for agent...");
-                        scenicView = findScenicView("127.0.0.1", SV_SERVER_PORT);
-                        sleep(1000);
+                        scenicView = findScenicView("127.0.0.1", port);
+                        if (scenicView == null) {
+                            sleep(50);
+                        }
                     } catch (final Exception e) {
 
                     }
@@ -79,7 +80,9 @@ public class RMIUtils {
                 while (application == null) {
                     try {
                         application = RMIUtils.findApplication("127.0.0.1", port);
-                        sleep(1000);
+                        if (application != null) {
+                            sleep(50);
+                        }
                     } catch (final Exception e) {
 
                     }
@@ -91,7 +94,7 @@ public class RMIUtils {
     }
 
     public static int getClientPort() {
-        return clientPort.incrementAndGet();
+        return rmiPort.incrementAndGet();
     }
 
 }

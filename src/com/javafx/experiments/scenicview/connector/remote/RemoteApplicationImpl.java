@@ -18,7 +18,7 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
     RemoteApplication application;
     private RemoteScenicView scenicView;
 
-    public RemoteApplicationImpl(final RemoteApplication application, final int port) throws RemoteException {
+    public RemoteApplicationImpl(final RemoteApplication application, final int port, final int serverPort) throws RemoteException {
         this.application = application;
         try {
             RMIUtils.bindApplication(this, port);
@@ -26,7 +26,7 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
             throw new RemoteException("Error starting agent", e);
         }
 
-        RMIUtils.findScenicView(new Observer() {
+        RMIUtils.findScenicView(serverPort, new Observer() {
 
             @Override public void update(final Observable o, final Object obj) {
                 scenicView = (RemoteScenicView) obj;
