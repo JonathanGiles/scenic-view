@@ -66,7 +66,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         }
     }
 
-    TreeItem<SVNode> findStageRoot(final StageController controller, final TreeItem<SVNode> stageRoot) {
+    void placeStageRoot(final StageController controller, final TreeItem<SVNode> stageRoot) {
         if (apps == null) {
             final SVDummyNode dummy = new SVDummyNode("Apps", "Java", 0);
             apps = new TreeItem<SVNode>(dummy, new ImageView(DisplayUtils.getIcon(dummy)));
@@ -86,16 +86,35 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
             app.setExpanded(true);
             this.apps.getChildren().add(app);
         }
+        /**
+         * Check if the application was already present
+         */
+        boolean added = false;
+        final List<TreeItem<SVNode>> apps2 = app.getChildren();
+        for (int i = 0; i < apps2.size(); i++) {
+            if (apps2.get(i).getValue().getNodeId() == controller.getID().getStageID()) {
+                apps2.remove(i);
+                apps2.add(i, stageRoot);
+                added = true;
+                break;
+            }
+        }
+        if (!added) {
+            app.getChildren().add(stageRoot);
+        }
         if (apps.size() == 1) {
             if (app.getChildren().size() == 0 || (app.getChildren().size() == 1 && app.getChildren().get(0).getValue().equals(stageRoot.getValue()))) {
-                setRoot(stageRoot);
+                final TreeItem<SVNode> real = new TreeItem<SVNode>(stageRoot.getValue(), stageRoot.getGraphic());
+                real.getChildren().addAll(stageRoot.getChildren());
+                setRoot(real);
             } else {
-                setRoot(app);
+                final TreeItem<SVNode> real = new TreeItem<SVNode>(app.getValue(), app.getGraphic());
+                real.getChildren().addAll(app.getChildren());
+                setRoot(real);
             }
         } else {
             setRoot(this.apps);
         }
-        return app;
     }
 
     void clearAllApps() {
@@ -112,24 +131,8 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         removeForNode(getTreeItem(value));
         final TreeItem<SVNode> root = createTreeItem(value, showNodesIdInTree, showFilteredNodesInTree);
 
-        final TreeItem<SVNode> applicationRoot = findStageRoot(controller, root);
+        placeStageRoot(controller, root);
 
-        /**
-         * Check if the application was already present
-         */
-        boolean added = false;
-        final List<TreeItem<SVNode>> apps = applicationRoot.getChildren();
-        for (int i = 0; i < apps.size(); i++) {
-            if (apps.get(i).getValue().getNodeId() == controller.getID().getStageID()) {
-                apps.remove(i);
-                apps.add(i, root);
-                added = true;
-                break;
-            }
-        }
-        if (!added) {
-            applicationRoot.getChildren().add(root);
-        }
         if (previouslySelectedItem != null) {
             /**
              * TODO Why this is not working??
