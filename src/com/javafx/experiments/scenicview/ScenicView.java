@@ -650,7 +650,9 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                 if (newValue == State.READY) {
                     anim = TimelineBuilder.create().keyFrames(new KeyFrame(Duration.seconds(2), new EventHandler<ActionEvent>() {
                         @Override public void handle(final ActionEvent arg0) {
-                            doLoad(loadedPage);
+                            if (wview.getEngine().getLoadWorker().getProgress() == -1) {
+                                doLoad(loadedPage);
+                            }
                         }
                     })).build();
                     anim.play();
