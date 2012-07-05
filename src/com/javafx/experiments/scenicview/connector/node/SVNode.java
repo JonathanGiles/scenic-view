@@ -21,11 +21,7 @@ public interface SVNode {
 
     boolean equals(SVNode node);
 
-    /**
-     * @deprecated
-     * @return
-     */
-    @Deprecated Node getImpl();
+    Node getImpl();
 
     int getNodeId();
 

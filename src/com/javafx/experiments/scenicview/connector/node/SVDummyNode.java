@@ -121,7 +121,7 @@ public class SVDummyNode extends SVNodeImpl implements SVNode, Serializable {
         }
     }
 
-    private static javafx.scene.image.Image convertToFxImage(final java.awt.image.BufferedImage awtImage) {
+    @SuppressWarnings("deprecation") private static javafx.scene.image.Image convertToFxImage(final java.awt.image.BufferedImage awtImage) {
         if (Image.impl_isExternalFormatSupported(BufferedImage.class)) {
             return javafx.scene.image.Image.impl_fromExternalImage(awtImage);
         } else {
@@ -129,7 +129,7 @@ public class SVDummyNode extends SVNodeImpl implements SVNode, Serializable {
         }
     }
 
-    private static java.awt.image.BufferedImage convertToAwtImage(final javafx.scene.image.Image fxImage) {
+    @SuppressWarnings("deprecation") private static java.awt.image.BufferedImage convertToAwtImage(final javafx.scene.image.Image fxImage) {
         if (Image.impl_isExternalFormatSupported(BufferedImage.class)) {
             final java.awt.image.BufferedImage awtImage = new BufferedImage((int) fxImage.getWidth(), (int) fxImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
             return (BufferedImage) fxImage.impl_toExternalImage(awtImage);

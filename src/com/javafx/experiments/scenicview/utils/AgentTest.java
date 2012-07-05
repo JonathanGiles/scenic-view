@@ -149,7 +149,7 @@ public class AgentTest {
 
             };
 
-            final RemoteApplicationImpl rapplication = new RemoteApplicationImpl(application, port, serverPort);
+            new RemoteApplicationImpl(application, port, serverPort);
         } catch (final RemoteException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

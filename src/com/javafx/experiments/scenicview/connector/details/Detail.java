@@ -162,7 +162,7 @@ public class Detail implements Serializable {
         setSerializer(null);
     }
 
-    public void setConstraints(final ObservableList rowCol) {
+    public void setConstraints(@SuppressWarnings("rawtypes") final ObservableList rowCol) {
         hasGridConstraints = (rowCol != null && rowCol.size() != 0);
         gridConstraintsDetails.clear();
     }

@@ -104,12 +104,11 @@ public class ConnectorUtils {
         return new Insets(top, right, bottom, left);
     }
 
-    public static String serializePropertyMap(final Map propMap) {
+    public static String serializePropertyMap(@SuppressWarnings("rawtypes") final Map propMap) {
         if (propMap == null)
             return "";
         final StringBuilder sb = new StringBuilder();
         final Object keys[] = propMap.keySet().toArray();
-        final int row = 0;
         for (int i = 0; i < keys.length; i++) {
             if (keys[i] instanceof String) {
                 final String propkey = (String) keys[i];

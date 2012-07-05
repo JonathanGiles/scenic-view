@@ -24,7 +24,7 @@ public class AnimationsPane extends VBox {
         // TODO Auto-generated constructor stub
     }
 
-    public void update(final StageID stageID, final List<SVAnimation> animations) {
+    @SuppressWarnings("unchecked") public void update(final StageID stageID, final List<SVAnimation> animations) {
 
         appsAnimations.put(stageID.getAppID(), animations);
 

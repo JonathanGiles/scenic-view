@@ -9,6 +9,10 @@ import com.javafx.experiments.scenicview.connector.ConnectorUtils;
 
 public class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 4958550915826454155L;
     private final Node node;
     private final boolean collapseControls;
     private final boolean collapseContentControls;

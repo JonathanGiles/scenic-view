@@ -169,7 +169,7 @@ public class GDetailPane extends TitledPane {
         clearPane();
         for (int i = 0; i < details.size(); i++) {
             final Detail d = details.get(i);
-            Node labelGraphic = null;
+            Node labelGraphic;
             switch (d.getLabelType()) {
             case LAYOUT_BOUNDS:
                 final Rectangle layoutBoundsIcon = new Rectangle(12, 12);
@@ -196,6 +196,10 @@ public class GDetailPane extends TitledPane {
                 line.setStrokeWidth(1);
                 baselineIcon.getChildren().addAll(new Rectangle(10, 10, Color.TRANSPARENT), line);
                 labelGraphic = baselineIcon;
+                break;
+
+            default:
+                labelGraphic = null;
                 break;
             }
             Node value = null;

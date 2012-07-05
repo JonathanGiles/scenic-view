@@ -20,19 +20,22 @@ import com.sun.tools.attach.*;
 
 public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteScenicView {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -8263538629805832734L;
     public static RemoteScenicViewImpl server;
-    static ScenicView view;
+    private static ScenicView view;
 
-    Map<Integer, String> vmInfo = new HashMap<Integer, String>();
-    AppEventDispatcher dispatcher;
-    final List<AppEvent> previous = new ArrayList<AppEvent>();
-    List<AppController> apps;
-    final AtomicInteger count = new AtomicInteger();
+    private final Map<Integer, String> vmInfo = new HashMap<Integer, String>();
+    private AppEventDispatcher dispatcher;
+    private final List<AppEvent> previous = new ArrayList<AppEvent>();
+    private List<AppController> apps;
+    private final AtomicInteger count = new AtomicInteger();
     private final int port;
 
     public RemoteScenicViewImpl(final ScenicView view) throws RemoteException {
         super();
-        this.view = view;
         this.port = getValidPort();
         RMIUtils.bindScenicView(this, port);
     }
@@ -43,18 +46,23 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
             Platform.runLater(new Runnable() {
 
                 @Override public void run() {
-                    if (!previous.isEmpty()) {
-                        for (int i = 0; i < previous.size(); i++) {
-                            dispatcher.dispatchEvent(previous.get(i));
+                    synchronized (previous) {
+                        if (!previous.isEmpty()) {
+                            for (int i = 0; i < previous.size(); i++) {
+                                dispatcher.dispatchEvent(previous.get(i));
+                            }
+                            previous.clear();
                         }
-                        previous.clear();
                     }
                     dispatcher.dispatchEvent(event);
                 }
             });
 
         } else {
-            previous.add(event);
+            synchronized (previous) {
+                previous.add(event);
+            }
+
         }
     }
 
@@ -74,7 +82,6 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                         impl.getStages().add(new StageController() {
 
                             StageID id = new StageID(port, ids[cont]);
-
                             {
                                 id.setName(names[cont]);
                             }
@@ -87,7 +94,6 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                                 try {
                                     application.update();
                                 } catch (final RemoteException e) {
-                                    // TODO Auto-generated catch block
                                     e.printStackTrace();
                                 }
                             }
@@ -96,7 +102,6 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                                 try {
                                     application.configurationUpdated(configuration);
                                 } catch (final RemoteException e) {
-                                    // TODO Auto-generated catch block
                                     e.printStackTrace();
                                 }
                             }
@@ -105,7 +110,6 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                                 try {
                                     application.close();
                                 } catch (final RemoteException e) {
-                                    // TODO Auto-generated catch block
                                     e.printStackTrace();
                                 }
                             }
@@ -119,7 +123,6 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                                 try {
                                     application.setSelectedNode(value);
                                 } catch (final RemoteException e) {
-                                    // TODO Auto-generated catch block
                                     e.printStackTrace();
                                 }
                             }
@@ -132,7 +135,6 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                                 try {
                                     application.setDetail(getID(), detailType, detailID, value);
                                 } catch (final RemoteException e) {
-                                    // TODO Auto-generated catch block
                                     e.printStackTrace();
                                 }
                             }
@@ -141,7 +143,6 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                                 try {
                                     application.animationsEnabled(enabled);
                                 } catch (final RemoteException e) {
-                                    // TODO Auto-generated catch block
                                     e.printStackTrace();
                                 }
                             }
@@ -150,7 +151,6 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                                 try {
                                     application.updateAnimations();
                                 } catch (final RemoteException e) {
-                                    // TODO Auto-generated catch block
                                     e.printStackTrace();
                                 }
                             }
@@ -159,7 +159,6 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                     if (!impl.getStages().isEmpty())
                         apps.add(impl);
                 } catch (final RemoteException e1) {
-                    // TODO Auto-generated catch block
                     e1.printStackTrace();
                 }
                 count.decrementAndGet();
@@ -188,7 +187,6 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
             try {
                 Thread.sleep(50);
             } catch (final InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }

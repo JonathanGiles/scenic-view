@@ -181,7 +181,7 @@ public class NodeDetailPaneInfo extends DetailPaneInfo {
         minSizeDetail.setIsDefault(fade);
         prefSizeDetail.setIsDefault(fade);
         maxSizeDetail.setIsDefault(fade);
-        final ObservableMap map = node != null && node.hasProperties() ? node.getProperties() : null;
+        @SuppressWarnings("rawtypes") final ObservableMap map = node != null && node.hasProperties() ? node.getProperties() : null;
         constraintsDetail.setValue(ConnectorUtils.serializePropertyMap(map));
         constraintsDetail.setIsDefault(map == null || map.size() == 0);
 
