@@ -21,6 +21,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     TreeItem<SVNode> apps;
 
     private boolean secPressed;
+    private boolean blockSelection;
 
     public ScenegraphTreeView(final List<NodeFilter> activeNodeFilters, final SelectedNodeContainer container) {
         this.activeNodeFilters = activeNodeFilters;
@@ -148,6 +149,13 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     }
 
     void removeNode(final SVNode node) {
+        blockSelection = true;
+        doRemoveNode(node);
+        blockSelection = false;
+    }
+
+    void doRemoveNode(final SVNode node) {
+
         if (node.getId() == null || !node.getId().startsWith(StageController.SCENIC_VIEW_BASE_ID)) {
             TreeItem<SVNode> selected = null;
             if (container.getSelectedNode() == node) {
@@ -180,7 +188,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                  */
                 @SuppressWarnings("unchecked") final TreeItem<SVNode> children[] = treeItemChildren.toArray(new TreeItem[treeItemChildren.size()]);
                 for (int i = 0; i < children.length; i++) {
-                    removeNode(children[i].getValue());
+                    doRemoveNode(children[i].getValue());
                 }
             }
 
@@ -199,9 +207,16 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                 getSelectionModel().select(selected);
             }
         }
+
     }
 
     void addNewNode(final SVNode alive, final boolean showNodesIdInTree, final boolean showFilteredNodesInTree) {
+        blockSelection = true;
+        doAddNewNode(alive, showNodesIdInTree, showFilteredNodesInTree);
+        blockSelection = false;
+    }
+
+    private void doAddNewNode(final SVNode alive, final boolean showNodesIdInTree, final boolean showFilteredNodesInTree) {
         if (alive.getId() == null || !alive.getId().startsWith(StageController.SCENIC_VIEW_BASE_ID)) {
             final TreeItem<SVNode> selected = getSelectionModel().getSelectedItem();
             final TreeItem<SVNode> treeItem = createTreeItem(alive, showNodesIdInTree, showFilteredNodesInTree);
@@ -389,6 +404,10 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
             treeViewData.remove(treeItem.getValue());
         }
 
+    }
+
+    public boolean isBlockSelection() {
+        return blockSelection;
     }
 
 }

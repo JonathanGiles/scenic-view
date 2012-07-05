@@ -513,11 +513,13 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         treeView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<SVNode>>() {
 
             @Override public void changed(final ObservableValue<? extends TreeItem<SVNode>> arg0, final TreeItem<SVNode> arg1, final TreeItem<SVNode> newValue) {
-                final TreeItem<SVNode> selected = newValue;
-                setSelectedNode(selected != null && !(selected.getValue() instanceof SVDummyNode) ? selected.getValue() : null);
-                propertyFilterField.setText("");
-                propertyFilterField.setDisable(selected == null);
-                filterProperties(propertyFilterField.getText());
+                if (!treeView.isBlockSelection()) {
+                    final TreeItem<SVNode> selected = newValue;
+                    setSelectedNode(selected != null && !(selected.getValue() instanceof SVDummyNode) ? selected.getValue() : null);
+                    propertyFilterField.setText("");
+                    propertyFilterField.setDisable(selected == null);
+                    filterProperties(propertyFilterField.getText());
+                }
             }
         });
 
