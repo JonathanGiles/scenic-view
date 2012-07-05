@@ -28,7 +28,7 @@ public class DisplayUtils {
     private static Level wLevel;
     private static Level wpLevel;
 
-    static final Image CLEAR_IMAGE = getUIImage("clear_left.png");
+    static final Image CLEAR_IMAGE = getUIImage("clear.gif");
 
     public static Image getUIImage(final String image) {
         return new Image(ScenicView.class.getResource("images/ui/" + image).toString());
