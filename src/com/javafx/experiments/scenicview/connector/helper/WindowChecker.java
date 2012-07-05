@@ -4,6 +4,8 @@ import java.util.*;
 
 import javafx.stage.Window;
 
+import com.javafx.experiments.scenicview.connector.StageController;
+
 public abstract class WindowChecker extends Thread {
 
     private boolean running = true;
@@ -12,7 +14,8 @@ public abstract class WindowChecker extends Thread {
     private final WindowFilter filter;
     private boolean verbose = false;
 
-    public WindowChecker(final WindowFilter filter) {
+    public WindowChecker(final WindowFilter filter, final String name) {
+        super(StageController.SCENIC_VIEW_BASE_ID + "SubWindowChecker." + name);
         this.filter = filter;
     }
 

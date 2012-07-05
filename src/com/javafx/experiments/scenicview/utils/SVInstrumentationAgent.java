@@ -28,7 +28,7 @@ public class SVInstrumentationAgent implements WindowFilter {
     private SVInstrumentationAgent() {
         System.out.println("Starting Scenic View Instrumentation Agent");
 
-        final WindowChecker agentThread = new WindowChecker(this) {
+        final WindowChecker agentThread = new WindowChecker(this, "SVInstrumentationAgent") {
 
             @Override protected void onWindowsFound(final List<Window> windowList) {
 

@@ -18,7 +18,7 @@ class SubWindowChecker extends WindowChecker {
             @Override public boolean accept(final Window window) {
                 return window instanceof PopupWindow;
             }
-        });
+        }, model.getID().toString());
         this.model = model;
     }
 
