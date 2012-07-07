@@ -46,11 +46,12 @@ abstract class DetailPaneInfo {
     }
 
     void clear() {
+        doSetTarget(null);
         final List<Detail> empty = Collections.emptyList();
         dispatcher.dispatchEvent(new DetailsEvent(SVEventType.DETAILS, stageID, type, getPaneName(), empty));
     }
 
-    protected boolean doSetTarget(final Object value) {
+    protected final boolean doSetTarget(final Object value) {
         if (target == value)
             return false;
 
