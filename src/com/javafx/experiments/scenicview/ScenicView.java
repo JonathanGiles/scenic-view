@@ -29,7 +29,7 @@ import com.javafx.experiments.scenicview.ScenegraphTreeView.SelectedNodeContaine
 import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.details.Detail;
 import com.javafx.experiments.scenicview.connector.event.*;
-import com.javafx.experiments.scenicview.connector.node.*;
+import com.javafx.experiments.scenicview.connector.node.SVNode;
 import com.javafx.experiments.scenicview.connector.remote.RemoteScenicViewImpl;
 import com.javafx.experiments.scenicview.details.*;
 import com.javafx.experiments.scenicview.details.GDetailPane.RemotePropertySetter;
@@ -65,6 +65,8 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
     private final AnimationsPane animationsPane;
     private static StatusBar statusBar;
     private final VBox leftPane;
+
+    TextField propertyFilterField;
 
     /**
      * Menu Options
@@ -217,7 +219,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
             }
         });
 
-        final TextField propertyFilterField = createFilterField("Property name or value", null);
+        propertyFilterField = createFilterField("Property name or value", null);
         propertyFilterField.setOnKeyReleased(new EventHandler<KeyEvent>() {
             @Override public void handle(final KeyEvent arg0) {
                 filterProperties(propertyFilterField.getText());
@@ -281,7 +283,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         });
         final InvalidationListener menuTreeChecksListener = new InvalidationListener() {
             @Override public void invalidated(final Observable arg0) {
-                activeStage.update();
+                update();
             }
         };
         final CheckMenuItem collapseControls = buildCheckMenuItem("Collapse controls In Tree", "Controls will be collapsed", "Controls will be expanded", "collapseControls", Boolean.TRUE);
@@ -510,18 +512,6 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         scrollPane.setContent(allDetailsPane);
 
         treeView = new ScenegraphTreeView(activeNodeFilters, this);
-        treeView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<SVNode>>() {
-
-            @Override public void changed(final ObservableValue<? extends TreeItem<SVNode>> arg0, final TreeItem<SVNode> arg1, final TreeItem<SVNode> newValue) {
-                if (!treeView.isBlockSelection()) {
-                    final TreeItem<SVNode> selected = newValue;
-                    setSelectedNode(selected != null && !(selected.getValue() instanceof SVDummyNode) ? selected.getValue() : null);
-                    propertyFilterField.setText("");
-                    propertyFilterField.setDisable(selected == null);
-                    filterProperties(propertyFilterField.getText());
-                }
-            }
-        });
 
         leftPane = new VBox();
         leftPane.setId("main-nodeStructure");
@@ -573,7 +563,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
 
             @Override public void handle(final Event arg0) {
                 idFilterField.setText("");
-                activeStage.update();
+                update();
             }
         });
         final ImageView b2 = new ImageView(DisplayUtils.CLEAR_IMAGE);
@@ -581,7 +571,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
 
             @Override public void handle(final Event arg0) {
                 classNameFilterField.setText("");
-                activeStage.update();
+                update();
             }
         });
         final ImageView b3 = new ImageView(DisplayUtils.CLEAR_IMAGE);
@@ -763,7 +753,6 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                 stages.get(j).animationsEnabled(enabled);
             }
         }
-
     }
 
     private void updateAnimations() {
@@ -862,11 +851,21 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         allDetailsPane.filterProperties(text);
     }
 
-    @Override public void setSelectedNode(final SVNode value) {
+    @Override public void setSelectedNode(final StageController controller, final SVNode value) {
         if (value != selectedNode) {
+            if (controller != null && activeStage != controller) {
+                /**
+                 * Remove selected from previous active
+                 */
+                activeStage.setSelectedNode(null);
+                activeStage = controller;
+            }
             storeSelectedNode(value);
             eventLogPane.setSelectedNode(value);
             loadAPI(null);
+            propertyFilterField.setText("");
+            propertyFilterField.setDisable(value == null);
+            filterProperties(propertyFilterField.getText());
         }
     }
 
@@ -900,7 +899,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
     private TextField createFilterField(final String prompt) {
         return createFilterField(prompt, new EventHandler<KeyEvent>() {
             @Override public void handle(final KeyEvent arg0) {
-                activeStage.update();
+                update();
             }
         });
     }

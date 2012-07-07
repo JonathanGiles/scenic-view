@@ -20,15 +20,21 @@ public class SVDummyNode extends SVNodeImpl implements SVNode, Serializable {
     private transient Image icon;
     private int nodeID;
     private byte[] imageInByte;
+    private NodeType nodeType;
+
+    public enum NodeType {
+        VMS_ROOT, VM, STAGE, SUBWINDOWS_ROOT, SUBWINDOW
+    }
 
     public SVDummyNode() {
         super();
     }
 
-    public SVDummyNode(final String name, final String nodeClass, final int nodeID) {
+    public SVDummyNode(final String name, final String nodeClass, final int nodeID, final NodeType nodeType) {
         super(nodeClass, null);
         this.name = name;
         this.nodeID = nodeID;
+        this.nodeType = nodeType;
     }
 
     @Override public String getId() {
@@ -52,7 +58,7 @@ public class SVDummyNode extends SVNodeImpl implements SVNode, Serializable {
          * Only equal to another dummyNode
          */
         if (node instanceof SVDummyNode) {
-            return getNodeId() == node.getNodeId();
+            return nodeID == node.getNodeId() && nodeType == ((SVDummyNode) node).nodeType;
         }
         return false;
     }
@@ -139,11 +145,19 @@ public class SVDummyNode extends SVNodeImpl implements SVNode, Serializable {
     }
 
     @Override public int hashCode() {
-        return nodeID;
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + nodeID;
+        result = prime * result + ((nodeType == null) ? 0 : nodeType.hashCode());
+        return result;
     }
 
     @Override public boolean equals(final Object obj) {
         return equals((SVNode) obj);
+    }
+
+    public NodeType getNodeType() {
+        return nodeType;
     }
 
 }

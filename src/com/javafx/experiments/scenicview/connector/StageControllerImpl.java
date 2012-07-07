@@ -24,6 +24,7 @@ import com.javafx.experiments.scenicview.connector.event.AppEvent.SVEventType;
 import com.javafx.experiments.scenicview.connector.gui.*;
 import com.javafx.experiments.scenicview.connector.helper.StyleSheetRefresher;
 import com.javafx.experiments.scenicview.connector.node.*;
+import com.javafx.experiments.scenicview.connector.node.SVDummyNode.NodeType;
 import com.sun.scenario.ToolkitAccessor;
 
 public class StageControllerImpl implements StageController {
@@ -302,16 +303,16 @@ public class StageControllerImpl implements StageController {
                 }
                 title = s.getTitle() != null ? s.getTitle() : "App";
             }
-            final SVDummyNode app = new SVDummyNode(title, "Stage", getID().getStageID());
+            final SVDummyNode app = new SVDummyNode(title, "Stage", getID().getStageID(), NodeType.STAGE);
             app.setIcon(targetStageImage);
             app.setRemote(remote);
             app.setExpanded(true);
             app.getChildren().add(root);
             if (!popupWindows.isEmpty()) {
-                final SVDummyNode subWindows = new SVDummyNode("SubWindows", "Popup", 0);
+                final SVDummyNode subWindows = new SVDummyNode("SubWindows", "Popup", getID().getStageID(), NodeType.SUBWINDOWS_ROOT);
                 for (int i = 0; i < popupWindows.size(); i++) {
                     final PopupWindow window = popupWindows.get(i);
-                    final SVDummyNode subWindow = new SVDummyNode("SubWindow -" + ConnectorUtils.nodeClass(window), ConnectorUtils.nodeClass(window), window.hashCode());
+                    final SVDummyNode subWindow = new SVDummyNode("SubWindow -" + ConnectorUtils.nodeClass(window), ConnectorUtils.nodeClass(window), window.hashCode(), NodeType.SUBWINDOW);
                     subWindow.getChildren().add(createNode(window.getScene().getRoot()));
                     subWindows.getChildren().add(subWindow);
                 }

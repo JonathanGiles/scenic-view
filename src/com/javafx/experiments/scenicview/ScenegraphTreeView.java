@@ -2,6 +2,7 @@ package com.javafx.experiments.scenicview;
 
 import java.util.*;
 
+import javafx.beans.value.*;
 import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
@@ -10,6 +11,7 @@ import javafx.util.Callback;
 
 import com.javafx.experiments.scenicview.connector.StageController;
 import com.javafx.experiments.scenicview.connector.node.*;
+import com.javafx.experiments.scenicview.connector.node.SVDummyNode.NodeType;
 
 public class ScenegraphTreeView extends TreeView<SVNode> {
 
@@ -17,6 +19,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     private final Map<SVNode, TreeItem<SVNode>> treeViewData = new HashMap<SVNode, TreeItem<SVNode>>();
     private final List<NodeFilter> activeNodeFilters;
     private final SelectedNodeContainer container;
+    private final Map<SVNode, StageController> stages = new HashMap<SVNode, StageController>();
 
     TreeItem<SVNode> apps;
 
@@ -29,6 +32,15 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         setId("main-treeview");
         setShowRoot(false);
         setPrefSize(200, 500);
+        getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<SVNode>>() {
+
+            @Override public void changed(final ObservableValue<? extends TreeItem<SVNode>> arg0, final TreeItem<SVNode> arg1, final TreeItem<SVNode> newValue) {
+                if (!blockSelection) {
+                    final TreeItem<SVNode> selected = newValue;
+                    setSelectedNode(selected != null && !(selected.getValue() instanceof SVDummyNode) ? selected : null);
+                }
+            }
+        });
         setCellFactory(new Callback<TreeView<SVNode>, TreeCell<SVNode>>() {
             @Override public TreeCell<SVNode> call(final TreeView<SVNode> node) {
                 return new CustomTreeCell();
@@ -59,6 +71,23 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
 
     }
 
+    protected void setSelectedNode(final TreeItem<SVNode> item) {
+        // TODO Auto-generated method stub
+        if (item != null) {
+            container.setSelectedNode(stages.get(findStageForNode(item).getValue()), item.getValue());
+        } else {
+            container.setSelectedNode(null, null);
+        }
+    }
+
+    TreeItem<SVNode> findStageForNode(final TreeItem<SVNode> item) {
+        if (item.getValue() instanceof SVDummyNode && ((SVDummyNode) item.getValue()).getNodeType() == NodeType.STAGE) {
+            return item;
+        } else {
+            return findStageForNode(item.getParent());
+        }
+    }
+
     void nodeSelected(final SVNode nodeData) {
         if (nodeData != null && treeViewData.containsKey(nodeData)) {
             final TreeItem<SVNode> item = treeViewData.get(nodeData);
@@ -69,7 +98,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
 
     void placeStageRoot(final StageController controller, final TreeItem<SVNode> stageRoot) {
         if (apps == null) {
-            final SVDummyNode dummy = new SVDummyNode("Apps", "Java", 0);
+            final SVDummyNode dummy = new SVDummyNode("Apps", "Java", 0, NodeType.VMS_ROOT);
             apps = new TreeItem<SVNode>(dummy, new ImageView(DisplayUtils.getIcon(dummy)));
             apps.setExpanded(true);
         }
@@ -82,7 +111,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
             }
         }
         if (app == null) {
-            final SVDummyNode dummy = new SVDummyNode("VM - " + controller.getAppController(), "Java", controller.getAppController().getID());
+            final SVDummyNode dummy = new SVDummyNode("VM - " + controller.getAppController(), "Java", controller.getAppController().getID(), NodeType.VM);
             app = new TreeItem<SVNode>(dummy, new ImageView(DisplayUtils.getIcon(dummy)));
             app.setExpanded(true);
             this.apps.getChildren().add(app);
@@ -128,6 +157,8 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     void updateStageModel(final StageController controller, final SVNode value, final boolean showNodesIdInTree, final boolean showFilteredNodesInTree) {
         final SVNode previouslySelected = container.getSelectedNode();
         // treeViewData.clear();
+        stages.put(value, controller);
+        System.out.println("Stages size:" + stages.size());
         previouslySelectedItem = null;
         removeForNode(getTreeItem(value));
         final TreeItem<SVNode> root = createTreeItem(value, showNodesIdInTree, showFilteredNodesInTree);
@@ -143,7 +174,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
             /**
              * TODO Remove
              */
-            container.setSelectedNode(previouslySelected);
+            setSelectedNode(previouslySelectedItem);
 
         }
     }
@@ -160,7 +191,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
             TreeItem<SVNode> selected = null;
             if (container.getSelectedNode() == node) {
                 getSelectionModel().clearSelection();
-                container.setSelectedNode(null);
+                setSelectedNode(null);
             } else {
                 // Ugly workaround
                 selected = getSelectionModel().getSelectedItem();
@@ -373,7 +404,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
      * 
      */
     interface SelectedNodeContainer {
-        void setSelectedNode(SVNode node);
+        void setSelectedNode(StageController controller, SVNode node);
 
         SVNode getSelectedNode();
     }
@@ -403,11 +434,5 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
             }
             treeViewData.remove(treeItem.getValue());
         }
-
     }
-
-    public boolean isBlockSelection() {
-        return blockSelection;
-    }
-
 }
