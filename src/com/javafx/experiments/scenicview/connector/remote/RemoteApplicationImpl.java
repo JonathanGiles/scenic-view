@@ -8,6 +8,7 @@ import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.details.DetailPaneType;
 import com.javafx.experiments.scenicview.connector.event.*;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
+import com.javafx.experiments.scenicview.utils.AgentTest;
 
 public class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplication {
 
@@ -40,7 +41,8 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
                 e.printStackTrace();
             }
         }
-        System.out.println("ScenicView found:" + scenicView);
+        if (AgentTest.first)
+            System.out.println("ScenicView found:" + scenicView);
         application.setEventDispatcher(new AppEventDispatcher() {
 
             @Override public void dispatchEvent(final AppEvent appEvent) {

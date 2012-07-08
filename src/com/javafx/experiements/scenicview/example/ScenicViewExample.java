@@ -26,7 +26,8 @@ import javafx.stage.*;
 import javafx.util.Duration;
 
 import com.javafx.experiments.scenicview.ScenicView;
-import com.javafx.experiments.scenicview.connector.*;
+import com.javafx.experiments.scenicview.connector.AppController;
+import com.javafx.experiments.scenicview.update.LocalVMUpdateStrategy;
 
 /**
  * 
@@ -156,7 +157,7 @@ public class ScenicViewExample extends Application {
             items.add("List View content:" + i);
         }
 
-        TimelineBuilder.create().keyFrames(new KeyFrame(Duration.millis(300), new EventHandler<ActionEvent>() {
+        TimelineBuilder.create().keyFrames(new KeyFrame(Duration.millis(5000), new EventHandler<ActionEvent>() {
             @Override public void handle(final ActionEvent arg0) {
                 b2.setVisible(!b2.isVisible());
             }
@@ -208,11 +209,13 @@ public class ScenicViewExample extends Application {
         stages.setHeight(800);
         final List<AppController> controllers = new ArrayList<AppController>();
 
-        final AppController aController = new AppControllerImpl();
-        aController.getStages().add(new StageControllerImpl(scene.getRoot(), aController));
-        aController.getStages().add(new StageControllerImpl(scene2.getRoot(), aController));
-        controllers.add(aController);
-        ScenicView.show(new ScenicView(controllers, stages), stages);
+        // final AppController aController = new AppControllerImpl();
+        // aController.getStages().add(new StageControllerImpl(scene.getRoot(),
+        // aController));
+        // aController.getStages().add(new StageControllerImpl(scene2.getRoot(),
+        // aController));
+        // controllers.add(aController);
+        ScenicView.show(new ScenicView(new LocalVMUpdateStrategy(), stages), stages);
     }
 
     public static void main(final String[] args) {

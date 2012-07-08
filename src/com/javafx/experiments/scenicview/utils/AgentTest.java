@@ -15,21 +15,27 @@ import com.javafx.experiments.scenicview.connector.node.SVNode;
 import com.javafx.experiments.scenicview.connector.remote.*;
 
 public class AgentTest {
+
+    public static boolean first = true;
+
     public static void agentmain(final String agentArgs, final Instrumentation instrumentation) {
 
-        System.out.println("Launching agent server on:" + agentArgs);
+        if (first)
+            System.out.println("Launching agent server on:" + agentArgs);
         try {
-            final String[] ports = agentArgs.split(":");
+            final String[] args = agentArgs.split(":");
 
-            final int port = Integer.parseInt(ports[0]);
-            final int serverPort = Integer.parseInt(ports[1]);
-            final AppControllerImpl acontroller = new AppControllerImpl(port, "");
+            final int port = Integer.parseInt(args[0]);
+            final int serverPort = Integer.parseInt(args[1]);
+            final int appID = Integer.parseInt(args[2]);
+            final AppControllerImpl acontroller = new AppControllerImpl(appID, args[2]);
             final List<StageControllerImpl> controller = new ArrayList<StageControllerImpl>();
             @SuppressWarnings("deprecation") final Iterator<Window> it = Window.impl_getWindows();
             while (it.hasNext()) {
                 final Window window = it.next();
                 if (window instanceof Stage && !(window.getScene().getRoot() instanceof ScenicView)) {
-                    System.out.println("Local JavaFX Stage found:" + ((Stage) window).getTitle());
+                    if (first)
+                        System.out.println("Local JavaFX Stage found:" + ((Stage) window).getTitle());
                     final StageControllerImpl scontroller = new StageControllerImpl((Stage) window, acontroller);
                     scontroller.setRemote(true);
                     controller.add(scontroller);
@@ -148,7 +154,7 @@ public class AgentTest {
                 }
 
             };
-
+            first = false;
             new RemoteApplicationImpl(application, port, serverPort);
         } catch (final RemoteException e) {
             // TODO Auto-generated catch block

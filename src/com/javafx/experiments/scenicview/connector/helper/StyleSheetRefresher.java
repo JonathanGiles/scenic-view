@@ -7,18 +7,14 @@ import java.util.*;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 
-public class StyleSheetRefresher extends Thread {
+public class StyleSheetRefresher extends WorkerThread {
     final Scene scene;
-    private boolean running = true;
+    long lastModified = System.currentTimeMillis();
 
     public StyleSheetRefresher(final Scene scene) {
-        super("StyleSheetRefresher");
+        super("StyleSheetRefresher", 2000);
         this.scene = scene;
         start();
-    }
-
-    public void finish() {
-        this.running = false;
     }
 
     /**
@@ -36,39 +32,36 @@ public class StyleSheetRefresher extends Thread {
         return false;
     }
 
-    @Override public void run() {
+    @Override public void work() {
         /**
          * Do not allow previous modifications to force a refresh
          */
-        long lastModified = System.currentTimeMillis();
-        while (running) {
-            try {
-                Thread.sleep(2000);
-                final List<String> sheets = scene.getStylesheets();
-                boolean needsRefresh = false;
-                for (final String sheet : sheets) {
-                    if (sheet.startsWith("file")) {
-                        final File file = new File(new URL(sheet).getFile());
-                        if (file.lastModified() > lastModified) {
-                            lastModified = file.lastModified();
-                            needsRefresh = true;
-                        }
+
+        try {
+            final List<String> sheets = scene.getStylesheets();
+            boolean needsRefresh = false;
+            for (final String sheet : sheets) {
+                if (sheet.startsWith("file")) {
+                    final File file = new File(new URL(sheet).getFile());
+                    if (file.lastModified() > lastModified) {
+                        lastModified = file.lastModified();
+                        needsRefresh = true;
                     }
                 }
-                if (needsRefresh) {
-                    final List<String> styleSheets = new ArrayList<String>(sheets);
-                    Platform.runLater(new Runnable() {
-
-                        @Override public void run() {
-                            scene.getStylesheets().clear();
-                            scene.getStylesheets().addAll(styleSheets);
-                        }
-
-                    });
-                }
-            } catch (final Exception e) {
-                e.printStackTrace();
             }
+            if (needsRefresh) {
+                final List<String> styleSheets = new ArrayList<String>(sheets);
+                Platform.runLater(new Runnable() {
+
+                    @Override public void run() {
+                        scene.getStylesheets().clear();
+                        scene.getStylesheets().addAll(styleSheets);
+                    }
+
+                });
+            }
+        } catch (final Exception e) {
+            e.printStackTrace();
         }
     }
 

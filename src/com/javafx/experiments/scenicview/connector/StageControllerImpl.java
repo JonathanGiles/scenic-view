@@ -192,7 +192,6 @@ public class StageControllerImpl implements StageController {
         };
 
         windowChecker = new SubWindowChecker(this);
-        windowChecker.start();
         boundsInParentRect = new Rectangle();
         boundsInParentRect.setId(StageController.SCENIC_VIEW_BASE_ID + "boundsInParentRect");
         boundsInParentRect.setFill(Color.YELLOW);
@@ -237,6 +236,7 @@ public class StageControllerImpl implements StageController {
 
     @Override public void setEventDispatcher(final AppEventDispatcher model2gui) {
         this.dispatcher = model2gui;
+        windowChecker.start();
         details = new AllDetails(model2gui, getID());
         setTarget(target);
         update();

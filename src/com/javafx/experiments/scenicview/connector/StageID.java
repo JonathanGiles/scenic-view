@@ -56,4 +56,8 @@ public final class StageID implements Serializable {
         this.name = name;
     }
 
+    @Override public String toString() {
+        return "StageID [appID=" + appID + ", stageID=" + stageID + ", name=" + name + "]";
+    }
+
 }

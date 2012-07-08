@@ -6,21 +6,15 @@ import javafx.stage.Window;
 
 import com.javafx.experiments.scenicview.connector.StageController;
 
-public abstract class WindowChecker extends Thread {
+public abstract class WindowChecker extends WorkerThread {
 
-    private boolean running = true;
-    private final long sleepTime = 1000; // 1 sec
     private long maxWaitTime = -1;
     private final WindowFilter filter;
     private boolean verbose = false;
 
     public WindowChecker(final WindowFilter filter, final String name) {
-        super(StageController.SCENIC_VIEW_BASE_ID + "SubWindowChecker." + name);
+        super(StageController.SCENIC_VIEW_BASE_ID + "SubWindowChecker." + name, 1000);
         this.filter = filter;
-    }
-
-    public void finish() {
-        this.running = false;
     }
 
     public void verbose() {
@@ -77,6 +71,11 @@ public abstract class WindowChecker extends Thread {
 
     public void setMaxWaitTime(final long maxWaitTime) {
         this.maxWaitTime = maxWaitTime;
+    }
+
+    @Override protected void work() {
+        // TODO Auto-generated method stub
+
     }
 
 }

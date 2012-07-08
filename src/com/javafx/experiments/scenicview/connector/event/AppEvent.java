@@ -31,4 +31,8 @@ public class AppEvent implements Serializable {
         return stageID;
     }
 
+    @Override public String toString() {
+        return "AppEvent [type=" + type + ", stageID=" + stageID + "]";
+    }
+
 }

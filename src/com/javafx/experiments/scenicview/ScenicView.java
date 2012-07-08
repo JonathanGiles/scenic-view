@@ -30,10 +30,10 @@ import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.details.Detail;
 import com.javafx.experiments.scenicview.connector.event.*;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
-import com.javafx.experiments.scenicview.connector.remote.RemoteScenicViewImpl;
 import com.javafx.experiments.scenicview.details.*;
 import com.javafx.experiments.scenicview.details.GDetailPane.RemotePropertySetter;
 import com.javafx.experiments.scenicview.dialog.*;
+import com.javafx.experiments.scenicview.update.*;
 
 /**
  * 
@@ -55,7 +55,6 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
             saveProperties();
         }
     };
-    private Runnable additionalCloseActions;
 
     private final BorderPane borderPane;
     private final SplitPane splitPane;
@@ -76,9 +75,10 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
     private final CheckMenuItem showNodesIdInTree;
     private final CheckMenuItem autoRefreshStyleSheets;
     private final CheckMenuItem componentSelectOnClick;
-    private MenuItem findJavaFXApps;
 
     private final Configuration configuration = new Configuration();
+
+    private UpdateStrategy updateStrategy;
 
     private final AppEventDispatcher stageModelListener = new AppEventDispatcher() {
 
@@ -155,11 +155,11 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                     break;
 
                 default:
-                    System.out.println("Unused event");
+                    System.out.println("Unused event for type " + appEvent);
                     break;
                 }
             } else {
-                System.out.println("Unused event");
+                System.out.println("Unused event " + appEvent);
             }
         }
 
@@ -187,7 +187,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
     private TabPane tabPane;
     private String loadedPage;
 
-    public ScenicView(final List<AppController> controllers, final Stage senicViewStage) {
+    public ScenicView(final UpdateStrategy updateStrategy, final Stage senicViewStage) {
         Persistence.loadProperties();
         Runtime.getRuntime().addShutdownHook(shutdownHook);
         setId("scenic-view");
@@ -251,15 +251,9 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                 scenicViewStage.close();
             }
         });
-        findJavaFXApps = new MenuItem("Find Stages");
-        findJavaFXApps.setOnAction(new EventHandler<ActionEvent>() {
-            @Override public void handle(final ActionEvent arg0) {
-                StageSelectionBox.make("Find Stages", ScenicView.this, apps);
-            }
-        });
 
         final Menu fileMenu = new Menu("File");
-        fileMenu.getItems().addAll(findJavaFXApps, exitItem);
+        fileMenu.getItems().addAll(exitItem);
 
         // ---- Options Menu
         final CheckMenuItem showBoundsCheckbox = buildCheckMenuItem("Show Bounds Overlays", "Show the bound overlays on selected", "Do not show bound overlays on selected", "showBounds", Boolean.TRUE);
@@ -728,13 +722,10 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
 
         getChildren().add(borderPane);
 
-        for (int i = 0; i < controllers.size(); i++) {
-            addNewApp(controllers.get(i));
-        }
-
         this.scenicViewStage = senicViewStage;
         Persistence.loadProperty("stageWidth", senicViewStage, 640);
         Persistence.loadProperty("stageHeight", senicViewStage, 800);
+        setUpdateStrategy(updateStrategy);
     }
 
     protected void configurationUpdated() {
@@ -801,27 +792,6 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         } catch (final Exception e) {
             return findProperty(node.getSuperclass().getName(), property);
         }
-    }
-
-    public void setNewApps(final List<AppController> controllers) {
-        closeApps();
-        apps.clear();
-        treeView.clearAllApps();
-        for (final Iterator<AppController> iterator = controllers.iterator(); iterator.hasNext();) {
-            addNewApp(iterator.next());
-        }
-    }
-
-    public void addNewApp(final AppController appController) {
-        if (!apps.contains(appController)) {
-            activeStage = appController.getStages().get(0);
-            apps.add(appController);
-        }
-        final List<StageController> stages = appController.getStages();
-        for (int j = 0; j < stages.size(); j++) {
-            stages.get(j).setEventDispatcher(stageModelListener);
-        }
-        configurationUpdated();
     }
 
     void update() {
@@ -931,8 +901,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
     public void close() {
         closeApps();
         saveProperties();
-        if (additionalCloseActions != null)
-            additionalCloseActions.run();
+        updateStrategy.finish();
     }
 
     private void saveProperties() {
@@ -1001,8 +970,8 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         stage.setWidth(640);
         stage.setHeight(800);
         stage.setTitle("Scenic View v" + VERSION);
-
-        show(new ScenicView(buildAppController(target), stage), stage);
+        final DummyUpdateStrategy updateStrategy = new DummyUpdateStrategy(buildAppController(target));
+        show(new ScenicView(updateStrategy, stage), stage);
     }
 
     public static void show(final ScenicView scenicview, final Stage stage) {
@@ -1022,36 +991,92 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         stage.show();
     }
 
-    public void showRemoteApps(final List<AppController> apps2, final Runnable additionalCloseActions) {
-        if (additionalCloseActions != null)
-            this.additionalCloseActions = additionalCloseActions;
-        Platform.runLater(new Runnable() {
+    public void setUpdateStrategy(final UpdateStrategy updateStrategy) {
+        this.updateStrategy = updateStrategy;
+        this.updateStrategy.start(new AppsRepository() {
 
-            @Override public void run() {
-                if (apps2 == null) {
-                    findJavaFXApps.setOnAction(new EventHandler<ActionEvent>() {
-                        @Override public void handle(final ActionEvent arg0) {
-                            setStatusText("Finding remote applications,  this may take a while. Please wait", 10000);
-                            new Thread() {
-                                @Override public void run() {
-                                    RemoteScenicViewImpl.server.connect();
-                                }
-                            }.start();
-                            ;
-
-                        }
-                    });
-
-                    setStatusText("Finding remote applications,  this may take a while. Please wait", 10000);
-
-                } else {
-
-                    StageSelectionBox.make("Find Stages", ScenicView.this, apps, apps2);
-                    clearStatusText();
+            private void dumpStatus(final String operation, final int id) {
+                System.out.println(operation + ":" + id);
+                for (int i = 0; i < apps.size(); i++) {
+                    System.out.println("App:" + apps.get(i).getID());
+                    final List<StageController> scs = apps.get(i).getStages();
+                    for (int j = 0; j < scs.size(); j++) {
+                        System.out.println("\tStage:" + scs.get(j).getID().getStageID());
+                    }
                 }
             }
+
+            int findAppControllerIndex(final int appID) {
+                for (int i = 0; i < apps.size(); i++) {
+                    if (apps.get(i).getID() == appID) {
+                        return i;
+                    }
+                }
+                return -1;
+            }
+
+            @Override public void stageRemoved(final StageController stageController) {
+                Platform.runLater(new Runnable() {
+
+                    @Override public void run() {
+                        dumpStatus("stageRemovedStart", stageController.getID().getStageID());
+                        stageController.close();
+                        apps.get(findAppControllerIndex(stageController.getID().getAppID())).getStages().remove(stageController);
+                        treeView.clearStage(stageController);
+                        dumpStatus("stageRemovedStop", stageController.getID().getStageID());
+                    }
+                });
+            }
+
+            @Override public void stageAdded(final StageController stageController) {
+                Platform.runLater(new Runnable() {
+
+                    @Override public void run() {
+                        dumpStatus("stageAddedStart", stageController.getID().getStageID());
+                        apps.get(findAppControllerIndex(stageController.getID().getAppID())).getStages().add(stageController);
+                        stageController.setEventDispatcher(stageModelListener);
+                        configurationUpdated();
+                        dumpStatus("stageAddedStop", stageController.getID().getStageID());
+                    }
+                });
+
+            }
+
+            @Override public void appRemoved(final AppController appController) {
+                Platform.runLater(new Runnable() {
+
+                    @Override public void run() {
+                        dumpStatus("appRemovedStart", appController.getID());
+                        appController.close();
+                        apps.remove(appController);
+                        treeView.clearApp(appController);
+                        dumpStatus("appRemovedStop", appController.getID());
+                    }
+                });
+
+            }
+
+            @Override public void appAdded(final AppController appController) {
+                Platform.runLater(new Runnable() {
+
+                    @Override public void run() {
+                        dumpStatus("appAddedStart", appController.getID());
+                        if (!apps.contains(appController)) {
+                            if (apps.isEmpty()) {
+                                activeStage = appController.getStages().get(0);
+                            }
+                            apps.add(appController);
+                        }
+                        final List<StageController> stages = appController.getStages();
+                        for (int j = 0; j < stages.size(); j++) {
+                            stages.get(j).setEventDispatcher(stageModelListener);
+                        }
+                        configurationUpdated();
+                        dumpStatus("appAddedStop", appController.getID());
+                    }
+                });
+
+            }
         });
-
     }
-
 }

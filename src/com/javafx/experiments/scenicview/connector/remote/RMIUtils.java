@@ -5,6 +5,8 @@ import java.rmi.registry.*;
 import java.util.Observer;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.javafx.experiments.scenicview.utils.AgentTest;
+
 public class RMIUtils {
 
     private static AtomicInteger rmiPort = new AtomicInteger(7557);
@@ -56,7 +58,8 @@ public class RMIUtils {
 
                 while (scenicView == null) {
                     try {
-                        System.out.println("Finding RemoteScenicView connection for agent...");
+                        if (AgentTest.first)
+                            System.out.println("Finding RemoteScenicView connection for agent...");
                         scenicView = findScenicView("127.0.0.1", port);
                         if (scenicView == null) {
                             sleep(50);

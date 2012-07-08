@@ -9,7 +9,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
 
-import com.javafx.experiments.scenicview.connector.StageController;
+import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.node.*;
 import com.javafx.experiments.scenicview.connector.node.SVDummyNode.NodeType;
 
@@ -147,18 +147,35 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         }
     }
 
-    void clearAllApps() {
-        if (getRoot() != null) {
-            getRoot().getChildren().clear();
+    void clearApp(final AppController appController) {
+        for (final Iterator<TreeItem<SVNode>> iterator = apps.getChildren().iterator(); iterator.hasNext();) {
+            final TreeItem<SVNode> type = iterator.next();
+            if (type.getValue().getNodeId() == appController.getID()) {
+                iterator.remove();
+                break;
+            }
         }
-        apps = null;
+    }
+
+    void clearStage(final StageController stageController) {
+        for (final Iterator<TreeItem<SVNode>> iterator = apps.getChildren().iterator(); iterator.hasNext();) {
+            final TreeItem<SVNode> type = iterator.next();
+            if (type.getValue().getNodeId() == stageController.getID().getAppID()) {
+                for (final Iterator<TreeItem<SVNode>> iterator2 = type.getChildren().iterator(); iterator.hasNext();) {
+                    final TreeItem<SVNode> type2 = iterator2.next();
+                    if (type2.getValue().getNodeId() == stageController.getID().getStageID()) {
+                        iterator2.remove();
+                        return;
+                    }
+                }
+            }
+        }
     }
 
     void updateStageModel(final StageController controller, final SVNode value, final boolean showNodesIdInTree, final boolean showFilteredNodesInTree) {
         final SVNode previouslySelected = container.getSelectedNode();
         // treeViewData.clear();
         stages.put(value, controller);
-        System.out.println("Stages size:" + stages.size());
         previouslySelectedItem = null;
         removeForNode(getTreeItem(value));
         final TreeItem<SVNode> root = createTreeItem(value, showNodesIdInTree, showFilteredNodesInTree);
@@ -435,4 +452,5 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
             treeViewData.remove(treeItem.getValue());
         }
     }
+
 }

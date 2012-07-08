@@ -3,6 +3,7 @@ package com.javafx.experiments.scenicview.connector.remote;
 import java.io.*;
 import java.net.*;
 import java.rmi.*;
+import java.rmi.ConnectException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -15,6 +16,7 @@ import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.details.DetailPaneType;
 import com.javafx.experiments.scenicview.connector.event.*;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
+import com.javafx.experiments.scenicview.update.RemoteVMsUpdateStrategy;
 import com.sun.javafx.application.PlatformImpl;
 import com.sun.tools.attach.*;
 
@@ -26,6 +28,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
     private static final long serialVersionUID = -8263538629805832734L;
     public static RemoteScenicViewImpl server;
     private static ScenicView view;
+    private static RemoteVMsUpdateStrategy strategy;
 
     private final Map<Integer, String> vmInfo = new HashMap<Integer, String>();
     private AppEventDispatcher dispatcher;
@@ -33,6 +36,8 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
     private List<AppController> apps;
     private final AtomicInteger count = new AtomicInteger();
     private final int port;
+
+    public boolean first = true;
 
     public RemoteScenicViewImpl(final ScenicView view) throws RemoteException {
         super();
@@ -67,21 +72,24 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
     }
 
     @Override public void onAgentStarted(final int port) {
-        System.out.println("Remote agent started on port:" + port);
+        if (first)
+            System.out.println("Remote agent started on port:" + port);
         RMIUtils.findApplication(port, new Observer() {
 
             @Override public void update(final Observable o, final Object obj) {
                 final RemoteApplication application = (RemoteApplication) obj;
                 try {
+                    final int appsID = Integer.parseInt(vmInfo.get(port));
                     final int[] ids = application.getStageIDs();
                     final String[] names = application.getStageNames();
-                    final AppControllerImpl impl = new AppControllerImpl(port, vmInfo.get(port));
+                    final AppControllerImpl impl = new AppControllerImpl(appsID, vmInfo.get(port));
                     for (int i = 0; i < ids.length; i++) {
-                        System.out.println("RemoteApp connected on:" + port + " stageID:" + ids[i]);
+                        if (first)
+                            System.out.println("RemoteApp connected on:" + port + " stageID:" + ids[i]);
                         final int cont = i;
                         impl.getStages().add(new StageController() {
 
-                            StageID id = new StageID(port, ids[cont]);
+                            StageID id = new StageID(appsID, ids[cont]);
                             {
                                 id.setName(names[cont]);
                             }
@@ -109,9 +117,12 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                             @Override public void close() {
                                 try {
                                     application.close();
-                                } catch (final RemoteException e) {
+                                } catch (final ConnectException e2) {
+                                    // Nothing to do
+                                } catch (final Exception e) {
                                     e.printStackTrace();
                                 }
+
                             }
 
                             @Override public void setEventDispatcher(final AppEventDispatcher dispatcher) {
@@ -171,6 +182,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
     }
 
     public static void start() {
+        strategy = new RemoteVMsUpdateStrategy();
         PlatformImpl.startup(new Runnable() {
 
             @Override public void run() {
@@ -179,7 +191,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                 stage.setWidth(640);
                 stage.setHeight(800);
                 stage.setTitle("Scenic View v" + ScenicView.VERSION);
-                view = new ScenicView(new ArrayList<AppController>(), stage);
+                view = new ScenicView(strategy, stage);
                 ScenicView.show(view, stage);
             }
         });
@@ -197,18 +209,18 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
-        view.showRemoteApps(null, null);
-        server.connect();
     }
 
-    public void connect() {
+    public List<AppController> connect() {
         apps = new ArrayList<AppController>();
         vmInfo.clear();
         final List<VirtualMachine> machines = getRunningJavaFXApplications();
-        System.out.println(machines.size() + " JavaFX VMs found");
+        if (first)
+            System.out.println(machines.size() + " JavaFX VMs found");
         count.set(machines.size());
         final File f = new File("./ScenicView.jar");
-        System.out.println("Loading agent from file:" + f.getAbsolutePath());
+        if (first)
+            System.out.println("Loading agent from file:" + f.getAbsolutePath());
 
         try {
             for (final VirtualMachine machine : machines) {
@@ -231,17 +243,11 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                 e.printStackTrace();
             }
         }
-        view.showRemoteApps(apps, new Runnable() {
-
-            @Override public void run() {
-                server.close();
-                System.exit(0);
-            }
-        });
-
+        first = false;
+        return apps;
     }
 
-    private void close() {
+    public void close() {
         try {
             RMIUtils.unbindScenicView(port);
         } catch (final AccessException e) {
@@ -278,9 +284,10 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
         try {
             final long start = System.currentTimeMillis();
             final int port = getValidPort();
-            System.out.println("Loading agent for:" + machine + " on port:" + port + " took:" + (System.currentTimeMillis() - start) + "ms");
+            if (first)
+                System.out.println("Loading agent for:" + machine + " on port:" + port + " took:" + (System.currentTimeMillis() - start) + "ms");
             addVMInfo(port, machine.id());
-            machine.loadAgent(f.getAbsolutePath(), Integer.toString(port) + ":" + this.port);
+            machine.loadAgent(f.getAbsolutePath(), Integer.toString(port) + ":" + this.port + ":" + machine.id());
             machine.detach();
         } catch (final Exception e) {
             e.printStackTrace();
