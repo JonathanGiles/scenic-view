@@ -45,7 +45,8 @@ public abstract class WindowChecker extends WorkerThread {
                     finish();
                 }
             } catch (final InterruptedException ex) {
-                ex.printStackTrace();
+                if (running)
+                    ex.printStackTrace();
             }
 
             windows = getValidWindows(filter);

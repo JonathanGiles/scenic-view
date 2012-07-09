@@ -147,6 +147,25 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         }
     }
 
+    void updateRoot() {
+        final List<TreeItem<SVNode>> apps = this.apps.getChildren();
+        if (apps.isEmpty() || apps.size() > 1) {
+            setRoot(this.apps);
+        } else {
+            final TreeItem<SVNode> app = apps.get(0);
+            if (app.getChildren().size() == 1) {
+                final TreeItem<SVNode> stageRoot = app.getChildren().get(0);
+                final TreeItem<SVNode> real = new TreeItem<SVNode>(stageRoot.getValue(), stageRoot.getGraphic());
+                real.getChildren().addAll(stageRoot.getChildren());
+                setRoot(real);
+            } else {
+                final TreeItem<SVNode> real = new TreeItem<SVNode>(app.getValue(), app.getGraphic());
+                real.getChildren().addAll(app.getChildren());
+                setRoot(real);
+            }
+        }
+    }
+
     void clearApp(final AppController appController) {
         for (final Iterator<TreeItem<SVNode>> iterator = apps.getChildren().iterator(); iterator.hasNext();) {
             final TreeItem<SVNode> type = iterator.next();
@@ -155,13 +174,14 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                 break;
             }
         }
+        updateRoot();
     }
 
     void clearStage(final StageController stageController) {
         for (final Iterator<TreeItem<SVNode>> iterator = apps.getChildren().iterator(); iterator.hasNext();) {
             final TreeItem<SVNode> type = iterator.next();
             if (type.getValue().getNodeId() == stageController.getID().getAppID()) {
-                for (final Iterator<TreeItem<SVNode>> iterator2 = type.getChildren().iterator(); iterator.hasNext();) {
+                for (final Iterator<TreeItem<SVNode>> iterator2 = type.getChildren().iterator(); iterator2.hasNext();) {
                     final TreeItem<SVNode> type2 = iterator2.next();
                     if (type2.getValue().getNodeId() == stageController.getID().getStageID()) {
                         iterator2.remove();
@@ -170,6 +190,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                 }
             }
         }
+        updateRoot();
     }
 
     void updateStageModel(final StageController controller, final SVNode value, final boolean showNodesIdInTree, final boolean showFilteredNodesInTree) {

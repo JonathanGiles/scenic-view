@@ -61,7 +61,7 @@ abstract class CommonUpdateStrategy extends WorkerThread implements UpdateStrate
                 }
                 for (int j = 0; j < previousStages.size(); j++) {
                     if (!isStageOnArray(previousStages.get(j), stages)) {
-                        repository.stageRemoved(stages.get(j));
+                        repository.stageRemoved(previousStages.get(j));
                         modifications = true;
                     }
                 }
