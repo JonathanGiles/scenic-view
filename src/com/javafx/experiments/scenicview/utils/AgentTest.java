@@ -43,26 +43,21 @@ public class AgentTest {
             }
             final RemoteApplication application = new RemoteApplication() {
 
-                @Override public void update() {
+                @Override public void update(final StageID id) {
                     Platform.runLater(new Runnable() {
 
                         @Override public void run() {
-                            for (int i = 0; i < controller.size(); i++) {
-                                controller.get(i).update();
-                            }
+                            getSC(id).update();
                         }
                     });
 
                 }
 
-                @Override public void configurationUpdated(final Configuration configuration) throws RemoteException {
+                @Override public void configurationUpdated(final StageID id, final Configuration configuration) throws RemoteException {
                     Platform.runLater(new Runnable() {
 
                         @Override public void run() {
-                            System.out.println(configuration);
-                            for (int i = 0; i < controller.size(); i++) {
-                                controller.get(i).configurationUpdated(configuration);
-                            }
+                            getSC(id).configurationUpdated(configuration);
                         }
                     });
 
@@ -96,25 +91,30 @@ public class AgentTest {
                     return ids;
                 }
 
-                @Override public void close() throws RemoteException {
+                @Override public void close(final StageID id) throws RemoteException {
                     Platform.runLater(new Runnable() {
 
                         @Override public void run() {
-                            for (int i = 0; i < controller.size(); i++) {
-                                controller.get(i).close();
+                            /**
+                             * Special for closing the server
+                             */
+                            if (id == null) {
+                                for (int i = 0; i < controller.size(); i++) {
+                                    controller.get(i).close();
+                                }
+                            } else {
+                                getSC(id).close();
                             }
                         }
                     });
                 }
 
-                @Override public void setSelectedNode(final SVNode value) throws RemoteException {
+                @Override public void setSelectedNode(final StageID id, final SVNode value) throws RemoteException {
                     Platform.runLater(new Runnable() {
 
                         @Override public void run() {
                             System.out.println("Setting selected node:" + value + value != null ? (" id:" + value.getNodeId() + " class:" + value.getClass()) : "");
-                            for (int i = 0; i < controller.size(); i++) {
-                                controller.get(i).setSelectedNode(value);
-                            }
+                            getSC(id).setSelectedNode(value);
                         }
                     });
                 }
@@ -123,34 +123,35 @@ public class AgentTest {
                     Platform.runLater(new Runnable() {
 
                         @Override public void run() {
-                            for (int i = 0; i < controller.size(); i++) {
-                                if (controller.get(i).getID().equals(id))
-                                    controller.get(i).setDetail(detailType, detailID, value);
-                            }
+                            getSC(id).setDetail(detailType, detailID, value);
                         }
                     });
                 }
 
-                @Override public void animationsEnabled(final boolean enabled) throws RemoteException {
+                @Override public void animationsEnabled(final StageID id, final boolean enabled) throws RemoteException {
                     Platform.runLater(new Runnable() {
 
                         @Override public void run() {
-                            for (int i = 0; i < controller.size(); i++) {
-                                controller.get(i).animationsEnabled(enabled);
-                            }
+                            getSC(id).animationsEnabled(enabled);
                         }
                     });
                 }
 
-                @Override public void updateAnimations() throws RemoteException {
+                @Override public void updateAnimations(final StageID id) throws RemoteException {
                     Platform.runLater(new Runnable() {
 
                         @Override public void run() {
-                            for (int i = 0; i < controller.size(); i++) {
-                                controller.get(i).updateAnimations();
-                            }
+                            getSC(id).updateAnimations();
                         }
                     });
+                }
+
+                private StageController getSC(final StageID id) {
+                    for (int i = 0; i < controller.size(); i++) {
+                        if (controller.get(i).getID().equals(id))
+                            return controller.get(i);
+                    }
+                    return null;
                 }
 
             };

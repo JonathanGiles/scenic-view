@@ -56,7 +56,7 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                     try {
-                        close();
+                        close(null);
                         scenicView = null;
                         // UnicastRemoteObject.unexportObject(application,
                         // true);
@@ -84,29 +84,27 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
 
     }
 
-    @Override public void configurationUpdated(final Configuration configuration) throws RemoteException {
-        application.configurationUpdated(configuration);
+    @Override public void configurationUpdated(final StageID id, final Configuration configuration) throws RemoteException {
+        application.configurationUpdated(id, configuration);
     }
 
-    @Override public void update() throws RemoteException {
-        application.update();
+    @Override public void update(final StageID id) throws RemoteException {
+        application.update(id);
     }
 
     @Override public void setEventDispatcher(final AppEventDispatcher dispatcher) throws RemoteException {
-        // TODO Auto-generated method stub
-
     }
 
     @Override public int[] getStageIDs() throws RemoteException {
         return application.getStageIDs();
     }
 
-    @Override public void close() throws RemoteException {
-        application.close();
+    @Override public void close(final StageID id) throws RemoteException {
+        application.close(id);
     }
 
-    @Override public void setSelectedNode(final SVNode value) throws RemoteException {
-        application.setSelectedNode(value);
+    @Override public void setSelectedNode(final StageID id, final SVNode value) throws RemoteException {
+        application.setSelectedNode(id, value);
     }
 
     @Override public void setDetail(final StageID id, final DetailPaneType detailType, final int detailID, final String value) throws RemoteException {
@@ -117,12 +115,12 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
         return application.getStageNames();
     }
 
-    @Override public void animationsEnabled(final boolean enabled) throws RemoteException {
-        application.animationsEnabled(enabled);
+    @Override public void animationsEnabled(final StageID id, final boolean enabled) throws RemoteException {
+        application.animationsEnabled(id, enabled);
     }
 
-    @Override public void updateAnimations() throws RemoteException {
-        application.updateAnimations();
+    @Override public void updateAnimations(final StageID id) throws RemoteException {
+        application.updateAnimations(id);
     }
 
 }

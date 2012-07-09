@@ -100,7 +100,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
 
                             @Override public void update() {
                                 try {
-                                    application.update();
+                                    application.update(getID());
                                 } catch (final RemoteException e) {
                                     e.printStackTrace();
                                 }
@@ -108,7 +108,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
 
                             @Override public void configurationUpdated(final Configuration configuration) {
                                 try {
-                                    application.configurationUpdated(configuration);
+                                    application.configurationUpdated(getID(), configuration);
                                 } catch (final RemoteException e) {
                                     e.printStackTrace();
                                 }
@@ -116,7 +116,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
 
                             @Override public void close() {
                                 try {
-                                    application.close();
+                                    application.close(getID());
                                 } catch (final ConnectException e2) {
                                     // Nothing to do
                                 } catch (final Exception e) {
@@ -132,7 +132,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
 
                             @Override public void setSelectedNode(final SVNode value) {
                                 try {
-                                    application.setSelectedNode(value);
+                                    application.setSelectedNode(getID(), value);
                                 } catch (final RemoteException e) {
                                     e.printStackTrace();
                                 }
@@ -152,7 +152,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
 
                             @Override public void animationsEnabled(final boolean enabled) {
                                 try {
-                                    application.animationsEnabled(enabled);
+                                    application.animationsEnabled(getID(), enabled);
                                 } catch (final RemoteException e) {
                                     e.printStackTrace();
                                 }
@@ -160,7 +160,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
 
                             @Override public void updateAnimations() {
                                 try {
-                                    application.updateAnimations();
+                                    application.updateAnimations(getID());
                                 } catch (final RemoteException e) {
                                     e.printStackTrace();
                                 }

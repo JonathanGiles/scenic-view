@@ -9,9 +9,9 @@ import com.javafx.experiments.scenicview.connector.node.SVNode;
 
 public interface RemoteApplication extends Remote {
 
-    public void configurationUpdated(Configuration configuration) throws RemoteException;
+    public void configurationUpdated(final StageID id, Configuration configuration) throws RemoteException;
 
-    public void update() throws RemoteException;
+    public void update(final StageID id) throws RemoteException;
 
     public void setEventDispatcher(AppEventDispatcher dispatcher) throws RemoteException;
 
@@ -19,14 +19,14 @@ public interface RemoteApplication extends Remote {
 
     public String[] getStageNames() throws RemoteException;
 
-    public void close() throws RemoteException;
+    public void close(final StageID id) throws RemoteException;
 
-    public void setSelectedNode(SVNode value) throws RemoteException;
+    public void setSelectedNode(final StageID id, SVNode value) throws RemoteException;
 
     public void setDetail(StageID id, DetailPaneType detailType, int detailID, String value) throws RemoteException;
 
-    public void animationsEnabled(boolean enabled) throws RemoteException;
+    public void animationsEnabled(final StageID id, boolean enabled) throws RemoteException;
 
-    public void updateAnimations() throws RemoteException;
+    public void updateAnimations(final StageID id) throws RemoteException;
 
 }
