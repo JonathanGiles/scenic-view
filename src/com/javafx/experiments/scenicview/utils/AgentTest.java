@@ -63,13 +63,11 @@ public class AgentTest {
 
                 }
 
-                @Override public void setEventDispatcher(final AppEventDispatcher dispatcher) throws RemoteException {
+                @Override public void setEventDispatcher(final StageID id, final AppEventDispatcher dispatcher) throws RemoteException {
                     Platform.runLater(new Runnable() {
 
                         @Override public void run() {
-                            for (int i = 0; i < controller.size(); i++) {
-                                controller.get(i).setEventDispatcher(dispatcher);
-                            }
+                            getSC(id).setEventDispatcher(dispatcher);
                         }
                     });
 
@@ -113,7 +111,7 @@ public class AgentTest {
                     Platform.runLater(new Runnable() {
 
                         @Override public void run() {
-                            System.out.println("Setting selected node:" + value + value != null ? (" id:" + value.getNodeId() + " class:" + value.getClass()) : "");
+                            System.out.println("Setting selected node:" + (value != null ? (" id:" + value.getNodeId() + " class:" + value.getClass()) : ""));
                             getSC(id).setSelectedNode(value);
                         }
                     });

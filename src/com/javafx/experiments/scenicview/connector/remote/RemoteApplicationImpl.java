@@ -18,9 +18,11 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
     private static final long serialVersionUID = 1L;
     RemoteApplication application;
     private RemoteScenicView scenicView;
+    private final int port;
 
     public RemoteApplicationImpl(final RemoteApplication application, final int port, final int serverPort) throws RemoteException {
         this.application = application;
+        this.port = port;
         try {
             RMIUtils.bindApplication(this, port);
         } catch (final Exception e) {
@@ -43,32 +45,7 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
         }
         if (AgentTest.first)
             System.out.println("ScenicView found:" + scenicView);
-        application.setEventDispatcher(new AppEventDispatcher() {
 
-            @Override public void dispatchEvent(final AppEvent appEvent) {
-                try {
-                    if (scenicView != null)
-                        scenicView.dispatchEvent(appEvent);
-                    else {
-                        System.out.println("Cannot dispatch event:" + appEvent);
-                    }
-                } catch (final RemoteException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                    try {
-                        close(null);
-                        scenicView = null;
-                        // UnicastRemoteObject.unexportObject(application,
-                        // true);
-                        RMIUtils.unbindApplication(port);
-
-                    } catch (final Exception e1) {
-                        // TODO Auto-generated catch block
-                        e1.printStackTrace();
-                    }
-                }
-            }
-        });
         try {
             scenicView.onAgentStarted(port);
         } catch (final RemoteException e) {
@@ -92,7 +69,34 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
         application.update(id);
     }
 
-    @Override public void setEventDispatcher(final AppEventDispatcher dispatcher) throws RemoteException {
+    @Override public void setEventDispatcher(final StageID id, final AppEventDispatcher dispatcher) throws RemoteException {
+        System.out.println("Remote application setEventDispatcher!!!");
+        application.setEventDispatcher(id, new AppEventDispatcher() {
+
+            @Override public void dispatchEvent(final AppEvent appEvent) {
+                try {
+                    if (scenicView != null)
+                        scenicView.dispatchEvent(appEvent);
+                    else {
+                        System.out.println("Cannot dispatch event:" + appEvent);
+                    }
+                } catch (final RemoteException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                    try {
+                        close(id);
+                        scenicView = null;
+                        // UnicastRemoteObject.unexportObject(application,
+                        // true);
+                        RMIUtils.unbindApplication(port);
+
+                    } catch (final Exception e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
+                }
+            }
+        });
     }
 
     @Override public int[] getStageIDs() throws RemoteException {

@@ -45,7 +45,6 @@ public class StageControllerImpl implements StageController {
     private final Rectangle boundsInParentRect;
     private final Rectangle layoutBoundsRect;
     private final Line baselineLine;
-    private Rectangle componentSelector;
     private Node componentHighLighter;
     private RuleGrid grid;
 
@@ -70,7 +69,19 @@ public class StageControllerImpl implements StageController {
     private final EventHandler<? super MouseEvent> sceneHoverListener = new EventHandler<MouseEvent>() {
 
         @Override public void handle(final MouseEvent ev) {
-            highlightHovered(ev.getX(), ev.getY());
+            try {
+                highlightHovered(ev.getX(), ev.getY());
+            } catch (final Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+    };
+
+    private final EventHandler<? super MouseEvent> scenePressListener = new EventHandler<MouseEvent>() {
+
+        @Override public void handle(final MouseEvent ev) {
+            dispatcher.dispatchEvent(new NodeSelectedEvent(getID(), createNode(getHoveredNode(ev.getX(), ev.getY()))));
         }
 
     };
@@ -171,18 +182,24 @@ public class StageControllerImpl implements StageController {
                                 final SVNode node = createNode(dead);
                                 dispatcher.dispatchEvent(new EvLogEvent(getID(), node, EvLogEvent.NODE_REMOVED, ""));
                                 removeNode(dead, true);
-                                difference -= ConnectorUtils.getBranchCount(dead);
+                                if (isNormalNode(dead)) {
+                                    difference -= ConnectorUtils.getBranchCount(dead);
+                                }
                             }
                             for (final Node alive : c.getAddedSubList()) {
                                 final SVNode node = createNode(alive);
                                 dispatcher.dispatchEvent(new EvLogEvent(getID(), node, EvLogEvent.NODE_ADDED, ""));
 
                                 addNewNode(alive);
-                                difference += ConnectorUtils.getBranchCount(alive);
+                                if (isNormalNode(alive)) {
+                                    difference += ConnectorUtils.getBranchCount(alive);
+                                }
                             }
                         }
-                        setNodeCount(nodeCount + difference);
-                        dispatcher.dispatchEvent(new NodeCountEvent(getID(), nodeCount));
+                        if (difference != 0) {
+                            setNodeCount(nodeCount + difference);
+                            dispatcher.dispatchEvent(new NodeCountEvent(getID(), nodeCount));
+                        }
                     }
                 } catch (final Exception e) {
                     // Protect the application from ScenicView problems
@@ -220,8 +237,9 @@ public class StageControllerImpl implements StageController {
     @Override public void close() {
         removeScenicViewComponents(target);
         if (targetScene != null) {
-            targetScene.removeEventHandler(MouseEvent.MOUSE_MOVED, sceneHoverListener);
-            targetScene.removeEventHandler(MouseEvent.MOUSE_MOVED, mousePosListener);
+            targetScene.removeEventFilter(MouseEvent.MOUSE_MOVED, sceneHoverListener);
+            targetScene.removeEventFilter(MouseEvent.MOUSE_MOVED, mousePosListener);
+            targetScene.removeEventFilter(MouseEvent.MOUSE_PRESSED, scenePressListener);
         }
         /**
          * Remove the window listeners
@@ -270,7 +288,7 @@ public class StageControllerImpl implements StageController {
                 final List<Node> nodes = ((Group) target).getChildren();
                 for (final Iterator<Node> iterator = nodes.iterator(); iterator.hasNext();) {
                     final Node node = iterator.next();
-                    if (node.getId() != null && node.getId().startsWith(StageController.SCENIC_VIEW_BASE_ID)) {
+                    if (!isNormalNode(node)) {
                         iterator.remove();
                     }
                 }
@@ -279,7 +297,7 @@ public class StageControllerImpl implements StageController {
                 final List<Node> nodes = ((Pane) target).getChildren();
                 for (final Iterator<Node> iterator = nodes.iterator(); iterator.hasNext();) {
                     final Node node = iterator.next();
-                    if (node.getId() != null && node.getId().startsWith(StageController.SCENIC_VIEW_BASE_ID)) {
+                    if (!isNormalNode(node)) {
                         iterator.remove();
                     }
                 }
@@ -320,6 +338,7 @@ public class StageControllerImpl implements StageController {
             }
             root = app;
         }
+        System.out.println("Updating root");
         dispatcher.dispatchEvent(new NodeAddRemoveEvent(SVEventType.ROOT_UPDATED, getID(), root));
         updateSceneDetails();
     }
@@ -357,10 +376,12 @@ public class StageControllerImpl implements StageController {
     }
 
     private void updateWindowDetails() {
-        if (targetWindow != null) {
-            dispatcher.dispatchEvent(new WindowDetailsEvent(getID(), targetWindow.getClass().getSimpleName(), ConnectorUtils.boundsToString(targetWindow.getX(), targetWindow.getY(), targetWindow.getWidth(), targetWindow.getHeight()), targetWindow.isFocused(), canStylesheetsBeRefreshed()));
-        } else {
-            dispatcher.dispatchEvent(new WindowDetailsEvent(getID(), null, "", false, false));
+        if (dispatcher != null) {
+            if (targetWindow != null) {
+                dispatcher.dispatchEvent(new WindowDetailsEvent(getID(), targetWindow.getClass().getSimpleName(), ConnectorUtils.boundsToString(targetWindow.getX(), targetWindow.getY(), targetWindow.getWidth(), targetWindow.getHeight()), targetWindow.isFocused(), canStylesheetsBeRefreshed()));
+            } else {
+                dispatcher.dispatchEvent(new WindowDetailsEvent(getID(), null, "", false, false));
+            }
         }
     }
 
@@ -373,6 +394,7 @@ public class StageControllerImpl implements StageController {
             removeFromNode(overlayParent, baselineLine);
         }
         overlayParent = findFertileParent(value);
+        System.out.println("Overlay parent:" + overlayParent + " value:" + value);
         if (overlayParent == null) {
             System.out.println("warning: could not find writable parent to add overlay nodes; overlays disabled.");
             /**
@@ -443,29 +465,16 @@ public class StageControllerImpl implements StageController {
 
     private void componentSelectOnClick(final boolean newValue) {
         if (newValue) {
-            targetScene.addEventHandler(MouseEvent.MOUSE_MOVED, sceneHoverListener);
-            final Rectangle rect = new Rectangle();
-            rect.setFill(Color.TRANSPARENT);
-            rect.setWidth(targetWindow.getWidth());
-            rect.setHeight(targetWindow.getHeight());
-            rect.setId(StageController.SCENIC_VIEW_BASE_ID + "componentSelectorRect");
-            rect.setOnMousePressed(new EventHandler<MouseEvent>() {
-                @Override public void handle(final MouseEvent ev) {
-                    dispatcher.dispatchEvent(new NodeSelectedEvent(getID(), createNode(getHoveredNode(ev.getX(), ev.getY()))));
+            targetScene.addEventFilter(MouseEvent.MOUSE_MOVED, sceneHoverListener);
+            targetScene.addEventFilter(MouseEvent.MOUSE_PRESSED, scenePressListener);
 
-                }
-            });
-            rect.setManaged(false);
-            componentSelector = rect;
-            addToNode(target, componentSelector);
             ((Stage) targetWindow).toFront();
         } else {
-            targetScene.removeEventHandler(MouseEvent.MOUSE_MOVED, sceneHoverListener);
+            targetScene.removeEventFilter(MouseEvent.MOUSE_MOVED, sceneHoverListener);
+            targetScene.removeEventFilter(MouseEvent.MOUSE_PRESSED, scenePressListener);
             if (componentHighLighter != null) {
                 removeFromNode(target, componentHighLighter);
             }
-            if (componentSelector != null)
-                removeFromNode(target, componentSelector);
         }
     }
 
@@ -519,8 +528,8 @@ public class StageControllerImpl implements StageController {
             setTargetWindow(targetScene.getWindow());
             targetScene.widthProperty().addListener(targetScenePropListener);
             targetScene.heightProperty().addListener(targetScenePropListener);
-            targetScene.removeEventHandler(MouseEvent.MOUSE_MOVED, mousePosListener);
-            targetScene.addEventHandler(MouseEvent.MOUSE_MOVED, mousePosListener);
+            targetScene.removeEventFilter(MouseEvent.MOUSE_MOVED, mousePosListener);
+            targetScene.addEventFilter(MouseEvent.MOUSE_MOVED, mousePosListener);
             final boolean canBeRefreshed = StyleSheetRefresher.canStylesBeRefreshed(targetScene);
 
             if (refresher == null || refresher.getScene() != value) {
@@ -554,7 +563,8 @@ public class StageControllerImpl implements StageController {
     }
 
     private Node getHoveredNode(final Node target, final double x, final double y) {
-        if (target.getId() != null && target.getId().startsWith(StageController.SCENIC_VIEW_BASE_ID))
+
+        if (!isNormalNode(target))
             return null;
         if (target instanceof Parent) {
             final List<Node> childrens = ((Parent) target).getChildrenUnmodifiable();
@@ -566,7 +576,7 @@ public class StageControllerImpl implements StageController {
             }
         }
         final Point2D localPoint = target.sceneToLocal(x, y);
-        if (target.contains(localPoint) && (!configuration.isIgnoreMouseTransparent() || !SVNodeImpl.isMouseTransparent(target)) && SVNodeImpl.isNodeVisible(target)) {
+        if (target.contains(localPoint) && ((!configuration.isIgnoreMouseTransparent() || !SVNodeImpl.isMouseTransparent(target)) && SVNodeImpl.isNodeVisible(target))) {
             return target;
         }
 
@@ -574,7 +584,7 @@ public class StageControllerImpl implements StageController {
     }
 
     private Node findNode(final Node target, final int hashCode) {
-        if (target.getId() != null && target.getId().startsWith(StageController.SCENIC_VIEW_BASE_ID))
+        if (!isNormalNode(target))
             return null;
         if (target instanceof Parent) {
             final List<Node> childrens = ((Parent) target).getChildrenUnmodifiable();
@@ -728,19 +738,23 @@ public class StageControllerImpl implements StageController {
     }
 
     private void addNewNode(final Node node) {
-        updateListeners(node, true, false);
-        final SVNode svNode = createNode(node);
-        dispatcher.dispatchEvent(new NodeAddRemoveEvent(SVEventType.NODE_ADDED, getID(), svNode));
+        if (isNormalNode(node)) {
+            updateListeners(node, true, false);
+            final SVNode svNode = createNode(node);
+            dispatcher.dispatchEvent(new NodeAddRemoveEvent(SVEventType.NODE_ADDED, getID(), svNode));
+        }
     }
 
     private void removeNode(final Node node, final boolean removeVisibilityListener) {
-        updateListeners(node, false, removeVisibilityListener);
-        dispatcher.dispatchEvent(new NodeAddRemoveEvent(SVEventType.NODE_REMOVED, getID(), createNode(node)));
+        if (isNormalNode(node)) {
+            updateListeners(node, false, removeVisibilityListener);
+            dispatcher.dispatchEvent(new NodeAddRemoveEvent(SVEventType.NODE_REMOVED, getID(), createNode(node)));
+        }
     }
 
     private void updateListeners(final Node node, final boolean add, final boolean removeVisibilityListener) {
         if (add) {
-            if (node.getId() == null || !node.getId().startsWith(StageController.SCENIC_VIEW_BASE_ID)) {
+            if (isNormalNode(node)) {
                 node.visibleProperty().removeListener(visibilityInvalidationListener);
                 node.visibleProperty().addListener(visibilityInvalidationListener);
                 propertyTracker(node, true);
@@ -819,5 +833,13 @@ public class StageControllerImpl implements StageController {
             svAnimations.add(new SVAnimation(animations.get(i)));
         }
         dispatcher.dispatchEvent(new AnimationsCountEvent(getID(), svAnimations));
+    }
+
+    public static final boolean isNormalNode(final SVNode node) {
+        return (node.getId() == null || !node.getId().startsWith(StageController.SCENIC_VIEW_BASE_ID));
+    }
+
+    private final boolean isNormalNode(final Node node) {
+        return ConnectorUtils.isNormalNode(node);
     }
 }

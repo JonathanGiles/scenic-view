@@ -46,7 +46,6 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
     }
 
     @Override public void dispatchEvent(final AppEvent event) {
-
         if (dispatcher != null) {
             Platform.runLater(new Runnable() {
 
@@ -127,7 +126,12 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
 
                             @Override public void setEventDispatcher(final AppEventDispatcher dispatcher) {
                                 RemoteScenicViewImpl.this.dispatcher = dispatcher;
-                                update();
+                                try {
+                                    application.setEventDispatcher(getID(), null);
+                                } catch (final RemoteException e) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                }
                             }
 
                             @Override public void setSelectedNode(final SVNode value) {

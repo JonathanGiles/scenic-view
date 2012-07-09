@@ -207,7 +207,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
 
             @Override public boolean accept(final SVNode node) {
                 // do not create tree nodes for our bounds rectangles
-                return node.getId() == null || !node.getId().startsWith(StageController.SCENIC_VIEW_BASE_ID);
+                return StageControllerImpl.isNormalNode(node);
             }
 
             @Override public boolean ignoreShowFilteredNodesInTree() {
@@ -1015,13 +1015,23 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                 return -1;
             }
 
+            int findStageIndex(final List<StageController> stages, final int stageID) {
+                for (int i = 0; i < stages.size(); i++) {
+                    if (stages.get(i).getID().getStageID() == stageID) {
+                        return i;
+                    }
+                }
+                return -1;
+            }
+
             @Override public void stageRemoved(final StageController stageController) {
                 Platform.runLater(new Runnable() {
 
                     @Override public void run() {
                         dumpStatus("stageRemovedStart", stageController.getID().getStageID());
-                        stageController.close();
-                        apps.get(findAppControllerIndex(stageController.getID().getAppID())).getStages().remove(stageController);
+                        final List<StageController> stages = apps.get(findAppControllerIndex(stageController.getID().getAppID())).getStages();
+                        // Remove and close
+                        stages.remove(findStageIndex(stages, stageController.getID().getStageID())).close();
                         treeView.clearStage(stageController);
                         dumpStatus("stageRemovedStop", stageController.getID().getStageID());
                     }
@@ -1047,8 +1057,8 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
 
                     @Override public void run() {
                         dumpStatus("appRemovedStart", appController.getID());
-                        appController.close();
-                        apps.remove(appController);
+                        // Remove and close
+                        apps.remove(findAppControllerIndex(appController.getID())).close();
                         treeView.clearApp(appController);
                         dumpStatus("appRemovedStop", appController.getID());
                     }

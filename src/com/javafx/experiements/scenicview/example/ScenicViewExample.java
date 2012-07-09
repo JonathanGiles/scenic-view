@@ -150,7 +150,7 @@ public class ScenicViewExample extends Application {
         b2.getStyleClass().add("second-button");
         b2.translateXProperty().bind(pos);
         b2.setFont(f);
-        b2.setMouseTransparent(true);
+        b2.setMouseTransparent(false);
         final ObservableList<String> items = FXCollections.observableArrayList();
         b2.setEffect(shadow);
         for (int i = 0; i < 1000; i++) {
@@ -171,7 +171,7 @@ public class ScenicViewExample extends Application {
         b4.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override public void handle(final ActionEvent arg0) {
-                b4.setVisible(false);
+                tilepane.getChildren().remove(b4);
             }
         });
 

@@ -13,7 +13,7 @@ public interface RemoteApplication extends Remote {
 
     public void update(final StageID id) throws RemoteException;
 
-    public void setEventDispatcher(AppEventDispatcher dispatcher) throws RemoteException;
+    public void setEventDispatcher(final StageID id, AppEventDispatcher dispatcher) throws RemoteException;
 
     public int[] getStageIDs() throws RemoteException;
 

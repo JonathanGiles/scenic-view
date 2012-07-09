@@ -25,6 +25,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
 
     private boolean secPressed;
     private boolean blockSelection;
+    private TreeItem<SVNode> patchedNode;
 
     public ScenegraphTreeView(final List<NodeFilter> activeNodeFilters, final SelectedNodeContainer container) {
         this.activeNodeFilters = activeNodeFilters;
@@ -97,12 +98,20 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     }
 
     void placeStageRoot(final StageController controller, final TreeItem<SVNode> stageRoot) {
+        final TreeItem<SVNode> previousRoot = getRoot();
+        /**
+         * Create the main root which will not be visible
+         */
         if (apps == null) {
             final SVDummyNode dummy = new SVDummyNode("Apps", "Java", 0, NodeType.VMS_ROOT);
-            apps = new TreeItem<SVNode>(dummy, new ImageView(DisplayUtils.getIcon(dummy)));
+            apps = new TreeItem<SVNode>(dummy);
             apps.setExpanded(true);
         }
         TreeItem<SVNode> app = null;
+        /**
+         * Find if the application related with this stage (VM - XXXX) was
+         * previously present
+         */
         final List<TreeItem<SVNode>> apps = this.apps.getChildren();
         for (int i = 0; i < apps.size(); i++) {
             if (apps.get(i).getValue().getNodeId() == controller.getAppController().getID()) {
@@ -110,6 +119,9 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                 break;
             }
         }
+        /**
+         * Create the application node (VM - XXXX)
+         */
         if (app == null) {
             final SVDummyNode dummy = new SVDummyNode("VM - " + controller.getAppController(), "Java", controller.getAppController().getID(), NodeType.VM);
             app = new TreeItem<SVNode>(dummy, new ImageView(DisplayUtils.getIcon(dummy)));
@@ -117,12 +129,15 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
             this.apps.getChildren().add(app);
         }
         /**
-         * Check if the application was already present
+         * Check if the stage was already present
          */
         boolean added = false;
         final List<TreeItem<SVNode>> apps2 = app.getChildren();
         for (int i = 0; i < apps2.size(); i++) {
             if (apps2.get(i).getValue().getNodeId() == controller.getID().getStageID()) {
+                /**
+                 * If it was present remove the old one and insert the new one
+                 */
                 apps2.remove(i);
                 apps2.add(i, stageRoot);
                 added = true;
@@ -130,38 +145,76 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
             }
         }
         if (!added) {
+            // Not previously found, include
             app.getChildren().add(stageRoot);
         }
+        /**
+         * If only one VM is present
+         */
         if (apps.size() == 1) {
+            /**
+             * If there were no stages present in the VM or the was only one but
+             * was the same the root node will be root node the Stage
+             */
             if (app.getChildren().size() == 0 || (app.getChildren().size() == 1 && app.getChildren().get(0).getValue().equals(stageRoot.getValue()))) {
-                final TreeItem<SVNode> real = new TreeItem<SVNode>(stageRoot.getValue(), stageRoot.getGraphic());
-                real.getChildren().addAll(stageRoot.getChildren());
-                setRoot(real);
+                placeNewRoot(stageRoot);
             } else {
-                final TreeItem<SVNode> real = new TreeItem<SVNode>(app.getValue(), app.getGraphic());
-                real.getChildren().addAll(app.getChildren());
-                setRoot(real);
+                /**
+                 * More than one Stage is present, the root node will be the VM
+                 * - XXXX node
+                 */
+                placeNewRoot(app);
             }
         } else {
-            setRoot(this.apps);
+            // More than one VM are running "Apps" node is the root
+            placeNewRoot(this.apps);
         }
+    }
+
+    /**
+     * This is a patch for TreeView indentation issue
+     * 
+     * @param realNode
+     */
+    void patchRoot(final TreeItem<SVNode> realNode) {
+        // System.out.println("PatchRoot:" + realNode);
+        this.patchedNode = realNode;
+        final TreeItem<SVNode> real = new TreeItem<SVNode>(realNode.getValue(), realNode.getGraphic());
+        real.getChildren().addAll(realNode.getChildren());
+        setRoot(real);
+    }
+
+    void unpatchRoot(final TreeItem<SVNode> newRoot) {
+        /**
+         * Another ugly patch for solving the indentation issue in this case
+         * when a node that was root node is inside the tree
+         */
+        if (this.patchedNode != null && ((SVDummyNode) getRoot().getValue()).getNodeType() != ((SVDummyNode) newRoot.getValue()).getNodeType()) {
+            // System.out.println("Unpatching node:" + this.patchedNode);
+            final TreeItem[] items = this.patchedNode.getChildren().toArray(new TreeItem[0]);
+            this.patchedNode.getChildren().setAll(items);
+
+        }
+        // System.out.println("Unpatched");
+        this.patchedNode = null;
+    }
+
+    void placeNewRoot(final TreeItem<SVNode> newRoot) {
+        unpatchRoot(newRoot);
+        patchRoot(newRoot);
     }
 
     void updateRoot() {
         final List<TreeItem<SVNode>> apps = this.apps.getChildren();
         if (apps.isEmpty() || apps.size() > 1) {
-            setRoot(this.apps);
+            placeNewRoot(this.apps);
         } else {
             final TreeItem<SVNode> app = apps.get(0);
             if (app.getChildren().size() == 1) {
                 final TreeItem<SVNode> stageRoot = app.getChildren().get(0);
-                final TreeItem<SVNode> real = new TreeItem<SVNode>(stageRoot.getValue(), stageRoot.getGraphic());
-                real.getChildren().addAll(stageRoot.getChildren());
-                setRoot(real);
+                placeNewRoot(stageRoot);
             } else {
-                final TreeItem<SVNode> real = new TreeItem<SVNode>(app.getValue(), app.getGraphic());
-                real.getChildren().addAll(app.getChildren());
-                setRoot(real);
+                placeNewRoot(app);
             }
         }
     }
@@ -185,12 +238,13 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                     final TreeItem<SVNode> type2 = iterator2.next();
                     if (type2.getValue().getNodeId() == stageController.getID().getStageID()) {
                         iterator2.remove();
+                        updateRoot();
                         return;
                     }
                 }
             }
         }
-        updateRoot();
+
     }
 
     void updateStageModel(final StageController controller, final SVNode value, final boolean showNodesIdInTree, final boolean showFilteredNodesInTree) {
@@ -224,57 +278,62 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     }
 
     void doRemoveNode(final SVNode node) {
-
-        if (node.getId() == null || !node.getId().startsWith(StageController.SCENIC_VIEW_BASE_ID)) {
-            TreeItem<SVNode> selected = null;
-            if (container.getSelectedNode() == node) {
-                getSelectionModel().clearSelection();
-                setSelectedNode(null);
-            } else {
-                // Ugly workaround
-                selected = getSelectionModel().getSelectedItem();
-            }
-            final TreeItem<SVNode> treeItem = getTreeItem(node);
-            /**
-             * TODO Analyze this problem:
-             * 
-             * In some situations a parent node could be removed by visibility
-             * and after that a children could also change its visibility to
-             * false triggering a removal that actually does not exist. In those
-             * situations we should keep visibility listener on the parent and
-             * remove it to its childrens. Anyway this need to be tested deeply
-             * and this protection is not so dangerous
-             */
-            if (treeItem == null) {
-                System.out.println("Removing unfound treeItem:" + node.getExtendedId());
-                return;
-            }
-            final List<TreeItem<SVNode>> treeItemChildren = treeItem.getChildren();
-            if (treeItemChildren != null) {
+        try {
+            if (StageControllerImpl.isNormalNode(node)) {
+                TreeItem<SVNode> selected = null;
+                if (container.getSelectedNode() == node) {
+                    getSelectionModel().clearSelection();
+                    setSelectedNode(null);
+                } else {
+                    // Ugly workaround
+                    selected = getSelectionModel().getSelectedItem();
+                }
+                final TreeItem<SVNode> treeItem = getTreeItem(node);
                 /**
-                 * Do not use directly the list as it will suffer concurrent
-                 * modifications
+                 * TODO Analyze this problem:
+                 * 
+                 * In some situations a parent node could be removed by
+                 * visibility and after that a children could also change its
+                 * visibility to false triggering a removal that actually does
+                 * not exist. In those situations we should keep visibility
+                 * listener on the parent and remove it to its childrens. Anyway
+                 * this need to be tested deeply and this protection is not so
+                 * dangerous
                  */
-                @SuppressWarnings("unchecked") final TreeItem<SVNode> children[] = treeItemChildren.toArray(new TreeItem[treeItemChildren.size()]);
-                for (int i = 0; i < children.length; i++) {
-                    doRemoveNode(children[i].getValue());
+                if (treeItem == null) {
+                    System.out.println("Removing unfound treeItem:" + node.getExtendedId());
+                    return;
+                }
+                final List<TreeItem<SVNode>> treeItemChildren = treeItem.getChildren();
+                if (treeItemChildren != null) {
+                    /**
+                     * Do not use directly the list as it will suffer concurrent
+                     * modifications
+                     */
+                    @SuppressWarnings("unchecked") final TreeItem<SVNode> children[] = treeItemChildren.toArray(new TreeItem[treeItemChildren.size()]);
+                    for (int i = 0; i < children.length; i++) {
+                        doRemoveNode(children[i].getValue());
+                    }
+                }
+
+                // This does not seem to delete the TreeItem from the tree --
+                // only
+                // moves
+                // it up a level visually
+                /**
+                 * I don't know why this protection is needed
+                 */
+                if (treeItem.getParent() != null) {
+                    treeItem.getParent().getChildren().remove(treeItem);
+                }
+                treeViewData.remove(treeItem.getValue());
+                if (selected != null) {
+                    // Ugly workaround
+                    getSelectionModel().select(selected);
                 }
             }
-
-            // This does not seem to delete the TreeItem from the tree -- only
-            // moves
-            // it up a level visually
-            /**
-             * I don't know why this protection is needed
-             */
-            if (treeItem.getParent() != null) {
-                treeItem.getParent().getChildren().remove(treeItem);
-            }
-            treeViewData.remove(treeItem.getValue());
-            if (selected != null) {
-                // Ugly workaround
-                getSelectionModel().select(selected);
-            }
+        } catch (final NullPointerException e2) {
+            throw new RuntimeException("Error while removing node:" + node.getExtendedId(), e2);
         }
 
     }
@@ -286,51 +345,70 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     }
 
     private void doAddNewNode(final SVNode alive, final boolean showNodesIdInTree, final boolean showFilteredNodesInTree) {
-        if (alive.getId() == null || !alive.getId().startsWith(StageController.SCENIC_VIEW_BASE_ID)) {
-            final TreeItem<SVNode> selected = getSelectionModel().getSelectedItem();
-            final TreeItem<SVNode> treeItem = createTreeItem(alive, showNodesIdInTree, showFilteredNodesInTree);
-            // childItems[x] could be null because of bounds
-            // rectangles or filtered nodes
-            if (treeItem != null) {
-                final SVNode parent = alive.getParent();
-                final TreeItem<SVNode> parentTreeItem = getTreeItem(parent);
-                /**
-                 * In some situations node could be previously added
-                 */
-                final boolean found = findInTree(parentTreeItem, alive);
-
-                if (!found) {
+        try {
+            if (StageControllerImpl.isNormalNode(alive)) {
+                final TreeItem<SVNode> selected = getSelectionModel().getSelectedItem();
+                final TreeItem<SVNode> treeItem = createTreeItem(alive, showNodesIdInTree, showFilteredNodesInTree);
+                // childItems[x] could be null because of bounds
+                // rectangles or filtered nodes
+                if (treeItem != null) {
+                    final SVNode parent = alive.getParent();
+                    final TreeItem<SVNode> parentTreeItem = getTreeItem(parent);
                     /**
-                     * We try to insert the treeItem in the real position of the
-                     * parent
+                     * In some situations node could be previously added
                      */
-                    boolean posFound = false;
-                    int previousPos = -1;
-                    final List<SVNode> childrens = parent.getChildren();
-                    final int pos = childrens.indexOf(alive);
-                    final List<TreeItem<SVNode>> items = parentTreeItem.getChildren();
-                    for (int i = 0; i < items.size(); i++) {
-                        final TreeItem<SVNode> node = items.get(i);
-                        final int actualPos = childrens.indexOf(node.getValue());
-                        if (previousPos > actualPos) {
-                            System.out.println("This should never happen :" + parent.getExtendedId() + " node:" + node.getValue().getExtendedId());
+                    final boolean found = findInTree(parentTreeItem, alive);
+
+                    if (!found) {
+                        /**
+                         * We try to insert the treeItem in the real position of
+                         * the parent
+                         */
+                        boolean posFound = false;
+                        int previousPos = -1;
+                        List<SVNode> childrens = parent.getChildren();
+
+                        while (childrens == null) {
+                            try {
+                                Thread.sleep(100);
+                            } catch (final InterruptedException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                            System.out.println("Retrying childrens for node:" + parent);
+                            childrens = parent.getChildren();
                         }
-                        if (pos > previousPos && pos < actualPos) {
-                            parentTreeItem.getChildren().add(i, treeItem);
-                            posFound = true;
-                            break;
+
+                        final int pos = childrens.indexOf(alive);
+                        final List<TreeItem<SVNode>> items = parentTreeItem.getChildren();
+                        for (int i = 0; i < items.size(); i++) {
+                            final TreeItem<SVNode> node = items.get(i);
+                            final int actualPos = childrens.indexOf(node.getValue());
+                            if (previousPos > actualPos) {
+                                System.out.println("This should never happen :" + parent.getExtendedId() + " node:" + node.getValue().getExtendedId());
+                            }
+                            if (pos > previousPos && pos < actualPos) {
+                                parentTreeItem.getChildren().add(i, treeItem);
+                                posFound = true;
+                                break;
+                            }
+                            previousPos = actualPos;
                         }
-                        previousPos = actualPos;
-                    }
-                    if (!posFound) {
-                        parentTreeItem.getChildren().add(treeItem);
+                        if (!posFound) {
+                            parentTreeItem.getChildren().add(treeItem);
+                        }
                     }
                 }
+                if (selected != null) {
+                    // Ugly workaround
+                    getSelectionModel().select(selected);
+                }
             }
-            if (selected != null) {
-                // Ugly workaround
-                getSelectionModel().select(selected);
-            }
+
+        } catch (final NullPointerException e) {
+            final TreeItem<SVNode> parentItem = getTreeItem(alive.getParent());
+            System.out.println("TreeItem:" + parentItem);
+            throw new RuntimeException("Error while adding new node:" + alive.getExtendedId() + " parent:" + alive.getParent() + " treeParent:" + (alive.getParent() == null ? "null" : getTreeItem(alive.getParent())), e);
         }
     }
 

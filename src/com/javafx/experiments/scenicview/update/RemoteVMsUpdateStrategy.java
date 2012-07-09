@@ -39,9 +39,9 @@ public class RemoteVMsUpdateStrategy extends CommonUpdateStrategy {
     }
 
     @Override protected void closeUnused(final List<StageController> unused) {
-        for (int i = 0; i < unused.size(); i++) {
-            unused.get(i).close();
-        }
+        // for (int i = 0; i < unused.size(); i++) {
+        // unused.get(i).close();
+        // }
     }
 
 }

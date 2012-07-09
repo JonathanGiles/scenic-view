@@ -22,7 +22,8 @@ public abstract class WorkerThread extends Thread {
                 Thread.sleep(sleepTime);
                 work();
             } catch (final Exception e) {
-                e.printStackTrace();
+                if (running)
+                    e.printStackTrace();
             }
             sleepTime = this.sleepTime;
         }
