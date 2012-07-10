@@ -147,6 +147,7 @@ public class ScenicViewExample extends Application {
         b1.setFont(f);
 
         final Button b2 = new Button("Second");
+        b2.setId("Second");
         b2.getStyleClass().add("second-button");
         b2.translateXProperty().bind(pos);
         b2.setFont(f);
@@ -162,6 +163,9 @@ public class ScenicViewExample extends Application {
                 b2.setVisible(!b2.isVisible());
             }
         })).cycleCount(Animation.INDEFINITE).build().play();
+
+        final Group gb2 = new Group();
+        gb2.getChildren().add(b2);
 
         final ListView<String> listViewTest = new ListView<String>(items);
         listViewTest.setPrefHeight(40);
@@ -188,7 +192,7 @@ public class ScenicViewExample extends Application {
         invisible.setId("InvisibleGroup");
         invisible.setVisible(false);
 
-        tilepane.getChildren().addAll(rect1, rect2, rect3, new Group(rect4), b1, b2, listViewTest, new Group(b4), g1, g2, g3, comboTest, invisible, pane);
+        tilepane.getChildren().addAll(rect1, rect2, rect3, new Group(rect4), b1, gb2, listViewTest, new Group(b4), g1, g2, g3, comboTest, invisible, pane);
 
         final Scene scene = new Scene(tilepane);
         scene.getStylesheets().add(ScenicView.STYLESHEETS);

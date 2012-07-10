@@ -195,4 +195,8 @@ public class ConnectorUtils {
         return false;
     }
 
+    public static int getAnimationUniqueID(final Animation animation) {
+        return animation.hashCode();
+    }
+
 }

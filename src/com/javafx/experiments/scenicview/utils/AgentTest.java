@@ -151,6 +151,15 @@ public class AgentTest {
                     });
                 }
 
+                @Override public void pauseAnimation(final StageID id, final int animationID) throws RemoteException {
+                    Platform.runLater(new Runnable() {
+
+                        @Override public void run() {
+                            getSC(id).pauseAnimation(animationID);
+                        }
+                    });
+                }
+
                 private StageController getSC(final StageID id) {
                     return getSC(id, false);
                 }

@@ -123,4 +123,8 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
         application.updateAnimations(id);
     }
 
+    @Override public void pauseAnimation(final StageID id, final int animationID) throws RemoteException {
+        application.pauseAnimation(id, animationID);
+    }
+
 }

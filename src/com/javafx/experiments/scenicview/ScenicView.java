@@ -614,7 +614,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         leftPane.getChildren().addAll(filtersPane, treeViewPane);
         VBox.setVgrow(treeViewPane, Priority.ALWAYS);
 
-        animationsPane = new AnimationsPane();
+        animationsPane = new AnimationsPane(this);
 
         tabPane = new TabPane();
         final Tab detailsTab = new Tab("Details");
@@ -747,6 +747,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
     }
 
     private void updateAnimations() {
+        animationsPane.clear();
         for (int i = 0; i < apps.size(); i++) {
             /**
              * Only first stage
@@ -754,6 +755,18 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
             final List<StageController> stages = apps.get(i).getStages();
             stages.get(0).updateAnimations();
         }
+    }
+
+    void pauseAnimation(final StageID id, final int animationID) {
+        for (int i = 0; i < apps.size(); i++) {
+            final List<StageController> stages = apps.get(i).getStages();
+            for (int j = 0; j < stages.size(); j++) {
+                if (stages.get(j).getID().equals(id)) {
+                    stages.get(j).pauseAnimation(animationID);
+                }
+            }
+        }
+        updateAnimations();
     }
 
     public void loadAPI(final String property) {

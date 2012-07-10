@@ -20,8 +20,14 @@ public class AnimationsPane extends VBox {
 
     private static final Image PAUSE = DisplayUtils.getUIImage("pause.png");
 
-    public AnimationsPane() {
-        // TODO Auto-generated constructor stub
+    ScenicView view;
+
+    public AnimationsPane(final ScenicView view) {
+        this.view = view;
+    }
+
+    void clear() {
+        appsAnimations.clear();
     }
 
     @SuppressWarnings("unchecked") public void update(final StageID stageID, final List<SVAnimation> animations) {
@@ -57,22 +63,23 @@ public class AnimationsPane extends VBox {
             final TableColumn<SVAnimation, String> momentCol = new TableColumn<SVAnimation, String>("Current time");
             momentCol.setCellValueFactory(new PropertyValueFactory<SVAnimation, String>("currentTime"));
             momentCol.prefWidthProperty().bind(widthProperty().multiply(0.15));
-            final TableColumn<SVAnimation, String> pauseCol = new TableColumn<SVAnimation, String>("Pause");
-            pauseCol.setCellValueFactory(new PropertyValueFactory<SVAnimation, String>("toString"));
-            pauseCol.setCellFactory(new Callback<TableColumn<SVAnimation, String>, TableCell<SVAnimation, String>>() {
+            final TableColumn<SVAnimation, Integer> pauseCol = new TableColumn<SVAnimation, Integer>("Pause");
+            pauseCol.setCellValueFactory(new PropertyValueFactory<SVAnimation, Integer>("id"));
+            pauseCol.setCellFactory(new Callback<TableColumn<SVAnimation, Integer>, TableCell<SVAnimation, Integer>>() {
 
-                @Override public TableCell<SVAnimation, String> call(final TableColumn<SVAnimation, String> arg0) {
-                    final TableCell<SVAnimation, String> cell = new TableCell<SVAnimation, String>() {
-                        @Override public void updateItem(final String item, final boolean empty) {
+                @Override public TableCell<SVAnimation, Integer> call(final TableColumn<SVAnimation, Integer> arg0) {
+                    final TableCell<SVAnimation, Integer> cell = new TableCell<SVAnimation, Integer>() {
+                        @Override public void updateItem(final Integer item, final boolean empty) {
                             if (item != null) {
                                 setGraphic(new ImageView(PAUSE));
+                                setId(Integer.toString(item));
                             }
                         }
                     };
                     cell.setOnMousePressed(new EventHandler<MouseEvent>() {
 
                         @Override public void handle(final MouseEvent arg0) {
-                            System.out.println("Pause animation");
+                            view.pauseAnimation(stageID, Integer.parseInt(cell.getId()));
                         }
                     });
                     return cell;

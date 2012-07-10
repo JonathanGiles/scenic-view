@@ -10,6 +10,7 @@ public class SVAnimation implements Serializable {
      * 
      */
     private static final long serialVersionUID = -619258470875560329L;
+    private final int id;
     private final String toString;
     private final double rate;
     private final double currentRate;
@@ -19,16 +20,16 @@ public class SVAnimation implements Serializable {
     private final String cycleDuration;
     private final String totalDuration;
 
-    public SVAnimation(final Animation animation) {
+    public SVAnimation(final int id, final Animation animation) {
+        this.id = id;
         this.toString = animation.toString();
         this.rate = animation.getRate();
         this.currentRate = animation.getCurrentRate();
         this.status = animation.getStatus().toString();
         this.cycleCount = animation.getCycleCount();
         this.cycleDuration = animation.getCycleDuration().toString();
-        this.currentTime = animation.getCurrentTime().toString();
-        this.totalDuration = animation.getTotalDuration().toString();
-
+        this.currentTime = ((int) animation.getCurrentTime().toMillis()) + "ms";
+        this.totalDuration = ((int) animation.getTotalDuration().toMillis()) + "ms";
     }
 
     @Override public String toString() {
@@ -51,8 +52,8 @@ public class SVAnimation implements Serializable {
         return status;
     }
 
-    public int getCycleCount() {
-        return cycleCount;
+    public String getCycleCount() {
+        return cycleCount == Animation.INDEFINITE ? "INDEFINITE" : Integer.toString(cycleCount);
     }
 
     public String getCurrentTime() {
@@ -65,6 +66,10 @@ public class SVAnimation implements Serializable {
 
     public String getTotalDuration() {
         return totalDuration;
+    }
+
+    public int getId() {
+        return id;
     }
 
 }

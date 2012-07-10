@@ -27,4 +27,6 @@ public interface RemoteApplication extends Remote {
 
     public void updateAnimations(final StageID id) throws RemoteException;
 
+    public void pauseAnimation(StageID id, int animationID) throws RemoteException;
+
 }

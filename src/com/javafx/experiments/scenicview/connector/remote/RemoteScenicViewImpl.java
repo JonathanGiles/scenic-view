@@ -180,6 +180,14 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                         e.printStackTrace();
                     }
                 }
+
+                @Override public void pauseAnimation(final int animationID) {
+                    try {
+                        application.pauseAnimation(getID(), animationID);
+                    } catch (final RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
             });
         }
         if (!impl.getStages().isEmpty())

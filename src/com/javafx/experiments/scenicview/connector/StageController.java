@@ -28,4 +28,6 @@ public interface StageController {
 
     void updateAnimations();
 
+    void pauseAnimation(int animationID);
+
 }

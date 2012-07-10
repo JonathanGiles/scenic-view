@@ -830,9 +830,21 @@ public class StageControllerImpl implements StageController {
         final List<Animation> animations = ConnectorUtils.getAnimations();
         final List<SVAnimation> svAnimations = new ArrayList<SVAnimation>();
         for (int i = 0; i < animations.size(); i++) {
-            svAnimations.add(new SVAnimation(animations.get(i)));
+            final Animation a = animations.get(i);
+            svAnimations.add(new SVAnimation(ConnectorUtils.getAnimationUniqueID(a), animations.get(i)));
         }
         dispatcher.dispatchEvent(new AnimationsCountEvent(getID(), svAnimations));
+    }
+
+    @Override public void pauseAnimation(final int animationID) {
+        final List<Animation> animations = ConnectorUtils.getAnimations();
+        for (final Iterator<Animation> iterator = animations.iterator(); iterator.hasNext();) {
+            final Animation animation = iterator.next();
+            if (ConnectorUtils.getAnimationUniqueID(animation) == animationID) {
+                animation.pause();
+            }
+        }
+
     }
 
     public static final boolean isNormalNode(final SVNode node) {
@@ -842,4 +854,5 @@ public class StageControllerImpl implements StageController {
     private final boolean isNormalNode(final Node node) {
         return ConnectorUtils.isNormalNode(node);
     }
+
 }
