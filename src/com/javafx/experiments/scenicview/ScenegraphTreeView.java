@@ -367,22 +367,22 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                         boolean posFound = false;
                         int previousPos = -1;
                         final List<SVNode> childrens = parent.getChildren();
-                        if (childrens != null) {
-                            final int pos = childrens.indexOf(alive);
-                            final List<TreeItem<SVNode>> items = parentTreeItem.getChildren();
-                            for (int i = 0; i < items.size(); i++) {
-                                final TreeItem<SVNode> node = items.get(i);
-                                final int actualPos = childrens.indexOf(node.getValue());
-                                if (previousPos > actualPos) {
-                                    System.out.println("This should never happen :" + parent.getExtendedId() + " node:" + node.getValue().getExtendedId());
-                                }
-                                if (pos > previousPos && pos < actualPos) {
-                                    parentTreeItem.getChildren().add(i, treeItem);
-                                    posFound = true;
-                                    break;
-                                }
-                                previousPos = actualPos;
+                        // if (childrens != null) {
+                        final int pos = childrens.indexOf(alive);
+                        final List<TreeItem<SVNode>> items = parentTreeItem.getChildren();
+                        for (int i = 0; i < items.size(); i++) {
+                            final TreeItem<SVNode> node = items.get(i);
+                            final int actualPos = childrens.indexOf(node.getValue());
+                            if (previousPos > actualPos) {
+                                System.out.println("This should never happen :" + parent.getExtendedId() + " node:" + node.getValue().getExtendedId());
                             }
+                            if (pos > previousPos && pos < actualPos) {
+                                parentTreeItem.getChildren().add(i, treeItem);
+                                posFound = true;
+                                break;
+                            }
+                            previousPos = actualPos;
+                            // }
                         }
                         if (!posFound) {
                             parentTreeItem.getChildren().add(treeItem);

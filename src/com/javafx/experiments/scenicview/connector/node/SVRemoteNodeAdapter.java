@@ -27,10 +27,10 @@ public class SVRemoteNodeAdapter extends SVNodeImpl implements Serializable {
     }
 
     public SVRemoteNodeAdapter(final Node node, final boolean collapseControls, final boolean collapseContentControls) {
-        this(node, collapseControls, collapseContentControls, true);
+        this(node, collapseControls, collapseContentControls, true, null);
     }
 
-    public SVRemoteNodeAdapter(final Node node, final boolean collapseControls, final boolean collapseContentControls, final boolean fillChildren) {
+    public SVRemoteNodeAdapter(final Node node, final boolean collapseControls, final boolean collapseContentControls, final boolean fillChildren, final SVRemoteNodeAdapter parent) {
         super(ConnectorUtils.nodeClass(node), node.getClass().getName());
         boolean mustBeExpanded = !(node instanceof Control) || !collapseControls;
         if (!mustBeExpanded && !collapseContentControls) {
@@ -49,13 +49,16 @@ public class SVRemoteNodeAdapter extends SVNodeImpl implements Serializable {
             nodes = new ArrayList<SVNode>();
             final List<Node> realNodes = ((Parent) node).getChildrenUnmodifiable();
             for (int i = 0; i < realNodes.size(); i++) {
-                nodes.add(new SVRemoteNodeAdapter(realNodes.get(i), collapseControls, collapseContentControls));
+                nodes.add(new SVRemoteNodeAdapter(realNodes.get(i), collapseControls, collapseContentControls, true, this));
             }
         } else if (fillChildren) {
             nodes = Collections.emptyList();
         }
-        if (node.getParent() != null)
-            this.parent = new SVRemoteNodeAdapter(node.getParent(), collapseControls, collapseContentControls, false);
+        if (node.getParent() != null && parent == null) {
+            this.parent = new SVRemoteNodeAdapter(node.getParent(), collapseControls, collapseContentControls, false, null);
+        } else if (parent != null) {
+            this.parent = parent;
+        }
     }
 
     @Override public String getId() {
