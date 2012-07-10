@@ -118,7 +118,7 @@ public class StageControllerImpl implements StageController {
 
     public StageControllerImpl(final Parent target, final AppController appController) {
         this.appController = appController;
-        this.stageID = new StageID(appController.getID(), target.hashCode());
+        this.stageID = new StageID(appController.getID(), ConnectorUtils.getNodeUniqueID(target));
         targetScenePropListener = new InvalidationListener() {
             @Override public void invalidated(final Observable value) {
                 updateSceneDetails();
@@ -338,7 +338,6 @@ public class StageControllerImpl implements StageController {
             }
             root = app;
         }
-        System.out.println("Updating root");
         dispatcher.dispatchEvent(new NodeAddRemoveEvent(SVEventType.ROOT_UPDATED, getID(), root));
         updateSceneDetails();
     }
@@ -394,7 +393,6 @@ public class StageControllerImpl implements StageController {
             removeFromNode(overlayParent, baselineLine);
         }
         overlayParent = findFertileParent(value);
-        System.out.println("Overlay parent:" + overlayParent + " value:" + value);
         if (overlayParent == null) {
             System.out.println("warning: could not find writable parent to add overlay nodes; overlays disabled.");
             /**
@@ -583,19 +581,19 @@ public class StageControllerImpl implements StageController {
         return null;
     }
 
-    private Node findNode(final Node target, final int hashCode) {
+    private Node findNode(final Node target, final int nodeUniqueID) {
         if (!isNormalNode(target))
             return null;
         if (target instanceof Parent) {
             final List<Node> childrens = ((Parent) target).getChildrenUnmodifiable();
             for (int i = childrens.size() - 1; i >= 0; i--) {
                 final Node node = childrens.get(i);
-                final Node child = findNode(node, hashCode);
+                final Node child = findNode(node, nodeUniqueID);
                 if (child != null)
                     return child;
             }
         }
-        if (target.hashCode() == hashCode) {
+        if (ConnectorUtils.getNodeUniqueID(target) == nodeUniqueID) {
             return target;
         }
 

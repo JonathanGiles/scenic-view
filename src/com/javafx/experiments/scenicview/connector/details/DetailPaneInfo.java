@@ -123,7 +123,6 @@ abstract class DetailPaneInfo {
         for (int i = 0; i < details.size(); i++) {
             final Detail d = details.get(i);
             if (d.getDetailID() == detailID && d.serializer != null) {
-                System.out.println("Setting " + d.getLabel());
                 d.serializer.setValue(value);
                 break;
             }

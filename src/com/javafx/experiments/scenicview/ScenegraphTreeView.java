@@ -396,8 +396,6 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
             }
 
         } catch (final NullPointerException e) {
-            final TreeItem<SVNode> parentItem = getTreeItem(alive.getParent());
-            System.out.println("TreeItem:" + parentItem + " Class:" + parentItem.getClass().getName() + " Parent:" + parentItem.getParent() + " Value:" + parentItem.getValue().getExtendedId() + " Children:" + parentItem.getChildren());
             throw new RuntimeException("Error while adding new node:" + alive.getExtendedId() + " parent:" + alive.getParent() + " treeParent:" + (alive.getParent() == null ? "null" : getTreeItem(alive.getParent())), e);
         }
     }

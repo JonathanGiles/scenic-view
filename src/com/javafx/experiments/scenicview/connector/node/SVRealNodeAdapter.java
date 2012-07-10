@@ -86,7 +86,7 @@ public class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
     }
 
     @Override public int getNodeId() {
-        return node.hashCode();
+        return ConnectorUtils.getNodeUniqueID(node);
     }
 
     @Override public boolean isVisible() {

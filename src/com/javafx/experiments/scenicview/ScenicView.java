@@ -87,7 +87,6 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         }
 
         @Override public void dispatchEvent(final AppEvent appEvent) {
-            // System.out.println("Event:" + appEvent.getType());
             if (isValid(appEvent)) {
                 switch (appEvent.getType()) {
                 case EVENT_LOG:
@@ -186,6 +185,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
     private Tab javadocTab;
     private TabPane tabPane;
     private String loadedPage;
+    private Tab detailsTab;
 
     public ScenicView(final UpdateStrategy updateStrategy, final Stage senicViewStage) {
         Persistence.loadProperties();
@@ -617,7 +617,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         animationsPane = new AnimationsPane(this);
 
         tabPane = new TabPane();
-        final Tab detailsTab = new Tab("Details");
+        detailsTab = new Tab("Details");
         detailsTab.setGraphic(new ImageView(DisplayUtils.getUIImage("details.png")));
         detailsTab.setContent(scrollPane);
         detailsTab.setClosable(false);
@@ -782,7 +782,6 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                     baseClass = findProperty(baseClass, property);
                 }
                 final String page = "http://docs.oracle.com/javafx/2/api/" + baseClass.replace('.', '/') + ".html" + (property != null ? ("#" + property + "Property") : "");
-                System.out.println(page);
                 if (!wview.getEngine().getLocation().equals(page)) {
                     doLoad(page);
                 }
@@ -858,7 +857,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
 
     private void storeSelectedNode(final SVNode value) {
         selectedNode = value;
-        if (selectedNode != null)
+        if (selectedNode != null && detailsTab.isSelected())
             setStatusText("Click on the labels to modify its values. The panel could have different capabilities. When changed the values will be highlighted", 8000);
         activeStage.setSelectedNode(value);
     }

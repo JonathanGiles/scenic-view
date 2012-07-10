@@ -199,4 +199,8 @@ public class ConnectorUtils {
         return animation.hashCode();
     }
 
+    public static int getNodeUniqueID(final Node node) {
+        return node.hashCode();
+    }
+
 }

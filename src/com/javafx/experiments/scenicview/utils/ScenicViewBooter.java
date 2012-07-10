@@ -2,8 +2,8 @@ package com.javafx.experiments.scenicview.utils;
 
 import java.io.*;
 
-import com.javafx.experiements.scenicview.example.ScenicViewExample;
 import com.javafx.experiments.scenicview.connector.remote.RemoteScenicViewImpl;
+import com.javafx.experiments.scenicview.example.ScenicViewExample;
 
 /**
  * 

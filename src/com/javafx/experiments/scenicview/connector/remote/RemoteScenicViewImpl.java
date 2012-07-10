@@ -254,7 +254,6 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                 if (!connected) {
                     new Thread() {
                         @Override public void run() {
-                            System.out.println("Loading agent!!!!");
                             loadAgent(temp, f);
                         }
                     }.start();

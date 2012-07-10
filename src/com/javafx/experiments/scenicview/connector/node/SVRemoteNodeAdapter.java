@@ -38,7 +38,7 @@ public class SVRemoteNodeAdapter extends SVNodeImpl implements Serializable {
         }
         setExpanded(mustBeExpanded);
         this.id = node.getId();
-        this.nodeId = node.hashCode();
+        this.nodeId = ConnectorUtils.getNodeUniqueID(node);
         this.visible = isNodeVisible(node);
         this.mouseTransparent = isMouseTransparent(node);
         this.focused = node.isFocused();
@@ -84,9 +84,10 @@ public class SVRemoteNodeAdapter extends SVNodeImpl implements Serializable {
     @Override public boolean equals(final Object node) {
         if (node instanceof SVNode) {
             return equals((SVNode) node);
-        } else {
-            return getNodeId() == node.hashCode();
+        } else if (node instanceof Node) {
+            return getNodeId() == ConnectorUtils.getNodeUniqueID((Node) node);
         }
+        return false;
     }
 
     @Override @Deprecated public Node getImpl() {

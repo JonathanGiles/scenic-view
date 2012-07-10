@@ -221,7 +221,6 @@ public class GDetail {
 
                 @Override public void handle(final MouseEvent ev) {
                     if (ev.getClickCount() == 2) {
-                        System.out.println("DetailClicked");
                         loader.loadAPI(label.getText().substring(0, label.getText().length() - 1));
                     }
                 }
@@ -248,7 +247,6 @@ public class GDetail {
             final List<GridConstraintsDetail> constraints = detail.getGridConstraintsDetails();
             for (final Iterator<GridConstraintsDetail> iterator = constraints.iterator(); iterator.hasNext();) {
                 final GridConstraintsDetail d = iterator.next();
-                System.out.println(d);
                 ((GridConstraintDisplay) value).addObject(d.getText(), d.getRowIndex(), d.getColIndex());
             }
             break;

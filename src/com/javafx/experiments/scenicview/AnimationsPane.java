@@ -46,24 +46,25 @@ public class AnimationsPane extends VBox {
 
             final VBox box = new VBox();
             box.prefWidthProperty().bind(pane.widthProperty());
-            final ObservableList<SVAnimation> filteredEvents = FXCollections.observableArrayList();
-            filteredEvents.addAll(animationsApp);
+            final ObservableList<SVAnimation> animationsItems = FXCollections.observableArrayList();
+            animationsItems.addAll(animationsApp);
             final TableView<SVAnimation> table = new TableView<SVAnimation>();
             table.setEditable(false);
-            table.getStyleClass().add("trace-text-area");
+            table.getStyleClass().add("animations-table-view");
             final TableColumn<SVAnimation, String> sourceCol = new TableColumn<SVAnimation, String>("Animation ID");
             sourceCol.setCellValueFactory(new PropertyValueFactory<SVAnimation, String>("toString"));
             sourceCol.prefWidthProperty().bind(widthProperty().multiply(0.40));
-            final TableColumn<SVAnimation, String> eventTypeCol = new TableColumn<SVAnimation, String>("Rate");
-            eventTypeCol.setCellValueFactory(new PropertyValueFactory<SVAnimation, String>("rate"));
-            eventTypeCol.prefWidthProperty().bind(widthProperty().multiply(0.2));
-            final TableColumn<SVAnimation, String> eventValueCol = new TableColumn<SVAnimation, String>("Cycle count");
-            eventValueCol.prefWidthProperty().bind(widthProperty().multiply(0.2));
-            eventValueCol.setCellValueFactory(new PropertyValueFactory<SVAnimation, String>("cycleCount"));
-            final TableColumn<SVAnimation, String> momentCol = new TableColumn<SVAnimation, String>("Current time");
-            momentCol.setCellValueFactory(new PropertyValueFactory<SVAnimation, String>("currentTime"));
-            momentCol.prefWidthProperty().bind(widthProperty().multiply(0.15));
-            final TableColumn<SVAnimation, Integer> pauseCol = new TableColumn<SVAnimation, Integer>("Pause");
+            final TableColumn<SVAnimation, String> rateCol = new TableColumn<SVAnimation, String>("Rate");
+            rateCol.setCellValueFactory(new PropertyValueFactory<SVAnimation, String>("rate"));
+            rateCol.prefWidthProperty().bind(widthProperty().multiply(0.1));
+            final TableColumn<SVAnimation, String> cycleCountCol = new TableColumn<SVAnimation, String>("Cycle count");
+            cycleCountCol.prefWidthProperty().bind(widthProperty().multiply(0.2));
+
+            cycleCountCol.setCellValueFactory(new PropertyValueFactory<SVAnimation, String>("cycleCount"));
+            final TableColumn<SVAnimation, String> currentTimeCol = new TableColumn<SVAnimation, String>("Current time");
+            currentTimeCol.setCellValueFactory(new PropertyValueFactory<SVAnimation, String>("currentTime"));
+            currentTimeCol.prefWidthProperty().bind(widthProperty().multiply(0.25));
+            final TableColumn<SVAnimation, Integer> pauseCol = new TableColumn<SVAnimation, Integer>("");
             pauseCol.setCellValueFactory(new PropertyValueFactory<SVAnimation, Integer>("id"));
             pauseCol.setCellFactory(new Callback<TableColumn<SVAnimation, Integer>, TableCell<SVAnimation, Integer>>() {
 
@@ -85,11 +86,12 @@ public class AnimationsPane extends VBox {
                     return cell;
                 }
             });
-            pauseCol.prefWidthProperty().bind(widthProperty().multiply(0.1));
+            pauseCol.setPrefWidth(PAUSE.getWidth() + 7);
+            pauseCol.setResizable(false);
 
-            table.getColumns().addAll(sourceCol, eventTypeCol, eventValueCol, momentCol, pauseCol);
+            table.getColumns().addAll(sourceCol, rateCol, cycleCountCol, currentTimeCol, pauseCol);
             table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-            table.setItems(filteredEvents);
+            table.setItems(animationsItems);
             table.setFocusTraversable(false);
             box.getChildren().add(table);
             VBox.setMargin(table, new Insets(5, 5, 5, 5));
