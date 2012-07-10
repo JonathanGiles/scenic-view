@@ -1,4 +1,4 @@
-package com.javafx.experiements.scenicview.example;
+package com.javafx.experiments.scenicview.example;
 
 /*
  * To change this template, choose Tools | Templates
