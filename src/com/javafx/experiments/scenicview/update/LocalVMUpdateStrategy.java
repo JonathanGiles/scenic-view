@@ -28,10 +28,7 @@ public class LocalVMUpdateStrategy extends CommonUpdateStrategy implements Windo
 
     @Override public boolean accept(final Window window) {
         if (window instanceof Stage) {
-            if (window.getScene() != null && window.getScene().getRoot() != null && !window.getScene().getRoot().getClass().getName().startsWith("com.javafx.experiments.scenicview")) {
-                return true;
-            }
-            return false;
+            return ConnectorUtils.acceptWindow(window);
         } else {
             System.out.println("Scenic View only supports Stages right now, but found a " + window.getClass());
             return false;

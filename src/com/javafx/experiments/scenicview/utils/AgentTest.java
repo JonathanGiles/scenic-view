@@ -7,7 +7,6 @@ import java.util.*;
 import javafx.application.Platform;
 import javafx.stage.*;
 
-import com.javafx.experiments.scenicview.ScenicView;
 import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.details.DetailPaneType;
 import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
@@ -29,19 +28,11 @@ public class AgentTest {
             final int serverPort = Integer.parseInt(args[1]);
             final int appID = Integer.parseInt(args[2]);
             final AppControllerImpl acontroller = new AppControllerImpl(appID, args[2]);
-            final List<StageControllerImpl> controller = new ArrayList<StageControllerImpl>();
-            @SuppressWarnings("deprecation") final Iterator<Window> it = Window.impl_getWindows();
-            while (it.hasNext()) {
-                final Window window = it.next();
-                if (window instanceof Stage && !(window.getScene().getRoot() instanceof ScenicView)) {
-                    if (first)
-                        System.out.println("Local JavaFX Stage found:" + ((Stage) window).getTitle());
-                    final StageControllerImpl scontroller = new StageControllerImpl((Stage) window, acontroller);
-                    scontroller.setRemote(true);
-                    controller.add(scontroller);
-                }
-            }
+
             final RemoteApplication application = new RemoteApplication() {
+
+                final List<StageControllerImpl> finded = new ArrayList<StageControllerImpl>();
+                final List<StageControllerImpl> controller = new ArrayList<StageControllerImpl>();
 
                 @Override public void update(final StageID id) {
                     Platform.runLater(new Runnable() {
@@ -67,24 +58,38 @@ public class AgentTest {
                     Platform.runLater(new Runnable() {
 
                         @Override public void run() {
+                            /**
+                             * Move from finded to controllers
+                             */
+                            for (int i = 0; i < finded.size(); i++) {
+                                if (finded.get(i).getID().equals(id)) {
+                                    controller.add(finded.get(i));
+                                    break;
+                                }
+                            }
                             getSC(id).setEventDispatcher(dispatcher);
                         }
                     });
 
                 }
 
-                @Override public int[] getStageIDs() throws RemoteException {
-                    final int[] ids = new int[controller.size()];
-                    for (int i = 0; i < ids.length; i++) {
-                        ids[i] = controller.get(i).getID().getStageID();
+                @Override public StageID[] getStageIDs() throws RemoteException {
+                    finded.clear();
+                    @SuppressWarnings("deprecation") final Iterator<Window> it = Window.impl_getWindows();
+                    while (it.hasNext()) {
+                        final Window window = it.next();
+                        if (ConnectorUtils.acceptWindow(window)) {
+                            if (first)
+                                System.out.println("Local JavaFX Stage found:" + ((Stage) window).getTitle());
+                            final StageControllerImpl scontroller = new StageControllerImpl((Stage) window, acontroller);
+                            scontroller.setRemote(true);
+                            finded.add(scontroller);
+                        }
                     }
-                    return ids;
-                }
 
-                @Override public String[] getStageNames() throws RemoteException {
-                    final String[] ids = new String[controller.size()];
+                    final StageID[] ids = new StageID[finded.size()];
                     for (int i = 0; i < ids.length; i++) {
-                        ids[i] = controller.get(i).getID().getName();
+                        ids[i] = finded.get(i).getID();
                     }
                     return ids;
                 }
@@ -100,8 +105,10 @@ public class AgentTest {
                                 for (int i = 0; i < controller.size(); i++) {
                                     controller.get(i).close();
                                 }
+                                controller.clear();
                             } else {
-                                getSC(id).close();
+                                getSC(id, true).close();
+
                             }
                         }
                     });
@@ -145,9 +152,18 @@ public class AgentTest {
                 }
 
                 private StageController getSC(final StageID id) {
+                    return getSC(id, false);
+                }
+
+                private StageController getSC(final StageID id, final boolean remove) {
                     for (int i = 0; i < controller.size(); i++) {
-                        if (controller.get(i).getID().equals(id))
-                            return controller.get(i);
+                        if (controller.get(i).getID().equals(id)) {
+                            if (remove) {
+                                return controller.remove(i);
+                            } else {
+                                return controller.get(i);
+                            }
+                        }
                     }
                     return null;
                 }

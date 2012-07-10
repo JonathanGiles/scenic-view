@@ -8,6 +8,7 @@ import javafx.animation.Animation;
 import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.layout.Region;
+import javafx.stage.*;
 
 import com.javafx.experiments.scenicview.connector.node.SVNode;
 import com.sun.scenario.ToolkitAccessor;
@@ -183,6 +184,15 @@ public class ConnectorUtils {
             e.printStackTrace();
         }
         return animationList;
+    }
+
+    public static boolean acceptWindow(final Window window) {
+        if (window instanceof Stage) {
+            if (window.getScene() != null && window.getScene().getRoot() != null && !window.getScene().getRoot().getClass().getName().startsWith("com.javafx.experiments.scenicview")) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

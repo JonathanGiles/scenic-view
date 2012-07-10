@@ -31,6 +31,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
     private static RemoteVMsUpdateStrategy strategy;
 
     private final Map<Integer, String> vmInfo = new HashMap<Integer, String>();
+    private final Map<String, RemoteApplication> applications = new HashMap<String, RemoteApplication>();
     private AppEventDispatcher dispatcher;
     private final List<AppEvent> previous = new ArrayList<AppEvent>();
     private List<AppController> apps;
@@ -77,102 +78,11 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
 
             @Override public void update(final Observable o, final Object obj) {
                 final RemoteApplication application = (RemoteApplication) obj;
+                applications.put(vmInfo.get(port), application);
                 try {
                     final int appsID = Integer.parseInt(vmInfo.get(port));
-                    final int[] ids = application.getStageIDs();
-                    final String[] names = application.getStageNames();
-                    final AppControllerImpl impl = new AppControllerImpl(appsID, vmInfo.get(port));
-                    for (int i = 0; i < ids.length; i++) {
-                        if (first)
-                            System.out.println("RemoteApp connected on:" + port + " stageID:" + ids[i]);
-                        final int cont = i;
-                        impl.getStages().add(new StageController() {
-
-                            StageID id = new StageID(appsID, ids[cont]);
-                            {
-                                id.setName(names[cont]);
-                            }
-
-                            @Override public StageID getID() {
-                                return id;
-                            }
-
-                            @Override public void update() {
-                                try {
-                                    application.update(getID());
-                                } catch (final RemoteException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-                            @Override public void configurationUpdated(final Configuration configuration) {
-                                try {
-                                    application.configurationUpdated(getID(), configuration);
-                                } catch (final RemoteException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-                            @Override public void close() {
-                                try {
-                                    application.close(getID());
-                                } catch (final ConnectException e2) {
-                                    // Nothing to do
-                                } catch (final Exception e) {
-                                    e.printStackTrace();
-                                }
-
-                            }
-
-                            @Override public void setEventDispatcher(final AppEventDispatcher dispatcher) {
-                                RemoteScenicViewImpl.this.dispatcher = dispatcher;
-                                try {
-                                    application.setEventDispatcher(getID(), null);
-                                } catch (final RemoteException e) {
-                                    // TODO Auto-generated catch block
-                                    e.printStackTrace();
-                                }
-                            }
-
-                            @Override public void setSelectedNode(final SVNode value) {
-                                try {
-                                    application.setSelectedNode(getID(), value);
-                                } catch (final RemoteException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-                            @Override public AppController getAppController() {
-                                return impl;
-                            }
-
-                            @Override public void setDetail(final DetailPaneType detailType, final int detailID, final String value) {
-                                try {
-                                    application.setDetail(getID(), detailType, detailID, value);
-                                } catch (final RemoteException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-                            @Override public void animationsEnabled(final boolean enabled) {
-                                try {
-                                    application.animationsEnabled(getID(), enabled);
-                                } catch (final RemoteException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-                            @Override public void updateAnimations() {
-                                try {
-                                    application.updateAnimations(getID());
-                                } catch (final RemoteException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-                    }
-                    if (!impl.getStages().isEmpty())
-                        apps.add(impl);
+                    final StageID[] ids = application.getStageIDs();
+                    addStages(appsID, ids, application);
                 } catch (final RemoteException e1) {
                     e1.printStackTrace();
                 }
@@ -181,8 +91,99 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
         });
     }
 
-    public void addVMInfo(final int port, final String id) {
-        vmInfo.put(port, id);
+    private void addStages(final int appsID, final StageID[] ids, final RemoteApplication application) {
+        final AppControllerImpl impl = new AppControllerImpl(appsID, Integer.toString(appsID));
+        for (int i = 0; i < ids.length; i++) {
+            if (first)
+                System.out.println("RemoteApp connected on:" + port + " stageID:" + ids[i]);
+            final int cont = i;
+            impl.getStages().add(new StageController() {
+
+                StageID id = new StageID(appsID, ids[cont].getStageID());
+                {
+                    id.setName(ids[cont].getName());
+                }
+
+                @Override public StageID getID() {
+                    return id;
+                }
+
+                @Override public void update() {
+                    try {
+                        application.update(getID());
+                    } catch (final RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override public void configurationUpdated(final Configuration configuration) {
+                    try {
+                        application.configurationUpdated(getID(), configuration);
+                    } catch (final RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override public void close() {
+                    try {
+                        application.close(getID());
+                    } catch (final ConnectException e2) {
+                        // Nothing to do
+                    } catch (final Exception e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+                @Override public void setEventDispatcher(final AppEventDispatcher dispatcher) {
+                    RemoteScenicViewImpl.this.dispatcher = dispatcher;
+                    try {
+                        application.setEventDispatcher(getID(), null);
+                    } catch (final RemoteException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override public void setSelectedNode(final SVNode value) {
+                    try {
+                        application.setSelectedNode(getID(), value);
+                    } catch (final RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override public AppController getAppController() {
+                    return impl;
+                }
+
+                @Override public void setDetail(final DetailPaneType detailType, final int detailID, final String value) {
+                    try {
+                        application.setDetail(getID(), detailType, detailID, value);
+                    } catch (final RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override public void animationsEnabled(final boolean enabled) {
+                    try {
+                        application.animationsEnabled(getID(), enabled);
+                    } catch (final RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override public void updateAnimations() {
+                    try {
+                        application.updateAnimations(getID());
+                    } catch (final RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+        if (!impl.getStages().isEmpty())
+            apps.add(impl);
     }
 
     public static void start() {
@@ -229,11 +230,27 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
         try {
             for (final VirtualMachine machine : machines) {
                 final VirtualMachine temp = machine;
-                new Thread() {
-                    @Override public void run() {
-                        loadAgent(temp, f);
+                boolean connected = false;
+                if (applications.containsKey(temp.id())) {
+                    final RemoteApplication application = applications.get(temp.id());
+                    try {
+                        final int appsID = Integer.parseInt(temp.id());
+                        final StageID[] ids = application.getStageIDs();
+                        addStages(appsID, ids, application);
+                        connected = true;
+                        count.decrementAndGet();
+                    } catch (final Exception e) {
+                        applications.remove(temp.id());
                     }
-                }.start();
+                }
+                if (!connected) {
+                    new Thread() {
+                        @Override public void run() {
+                            System.out.println("Loading agent!!!!");
+                            loadAgent(temp, f);
+                        }
+                    }.start();
+                }
             }
         } catch (final Exception e) {
             e.printStackTrace();
@@ -290,7 +307,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
             final int port = getValidPort();
             if (first)
                 System.out.println("Loading agent for:" + machine + " on port:" + port + " took:" + (System.currentTimeMillis() - start) + "ms");
-            addVMInfo(port, machine.id());
+            vmInfo.put(port, machine.id());
             machine.loadAgent(f.getAbsolutePath(), Integer.toString(port) + ":" + this.port + ":" + machine.id());
             machine.detach();
         } catch (final Exception e) {

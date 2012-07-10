@@ -15,9 +15,7 @@ public interface RemoteApplication extends Remote {
 
     public void setEventDispatcher(final StageID id, AppEventDispatcher dispatcher) throws RemoteException;
 
-    public int[] getStageIDs() throws RemoteException;
-
-    public String[] getStageNames() throws RemoteException;
+    public StageID[] getStageIDs() throws RemoteException;
 
     public void close(final StageID id) throws RemoteException;
 

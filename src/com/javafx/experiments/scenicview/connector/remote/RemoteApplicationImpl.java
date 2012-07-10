@@ -99,7 +99,7 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
         });
     }
 
-    @Override public int[] getStageIDs() throws RemoteException {
+    @Override public StageID[] getStageIDs() throws RemoteException {
         return application.getStageIDs();
     }
 
@@ -113,10 +113,6 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
 
     @Override public void setDetail(final StageID id, final DetailPaneType detailType, final int detailID, final String value) throws RemoteException {
         application.setDetail(id, detailType, detailID, value);
-    }
-
-    @Override public String[] getStageNames() throws RemoteException {
-        return application.getStageNames();
     }
 
     @Override public void animationsEnabled(final StageID id, final boolean enabled) throws RemoteException {

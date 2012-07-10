@@ -366,18 +366,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                          */
                         boolean posFound = false;
                         int previousPos = -1;
-                        List<SVNode> childrens = parent.getChildren();
-
-                        while (childrens == null) {
-                            try {
-                                Thread.sleep(100);
-                            } catch (final InterruptedException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            }
-                            System.out.println("Retrying childrens for node:" + parent);
-                            childrens = parent.getChildren();
-                        }
+                        final List<SVNode> childrens = parent.getChildren();
 
                         final int pos = childrens.indexOf(alive);
                         final List<TreeItem<SVNode>> items = parentTreeItem.getChildren();
