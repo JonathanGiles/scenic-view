@@ -367,21 +367,22 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                         boolean posFound = false;
                         int previousPos = -1;
                         final List<SVNode> childrens = parent.getChildren();
-
-                        final int pos = childrens.indexOf(alive);
-                        final List<TreeItem<SVNode>> items = parentTreeItem.getChildren();
-                        for (int i = 0; i < items.size(); i++) {
-                            final TreeItem<SVNode> node = items.get(i);
-                            final int actualPos = childrens.indexOf(node.getValue());
-                            if (previousPos > actualPos) {
-                                System.out.println("This should never happen :" + parent.getExtendedId() + " node:" + node.getValue().getExtendedId());
+                        if (childrens != null) {
+                            final int pos = childrens.indexOf(alive);
+                            final List<TreeItem<SVNode>> items = parentTreeItem.getChildren();
+                            for (int i = 0; i < items.size(); i++) {
+                                final TreeItem<SVNode> node = items.get(i);
+                                final int actualPos = childrens.indexOf(node.getValue());
+                                if (previousPos > actualPos) {
+                                    System.out.println("This should never happen :" + parent.getExtendedId() + " node:" + node.getValue().getExtendedId());
+                                }
+                                if (pos > previousPos && pos < actualPos) {
+                                    parentTreeItem.getChildren().add(i, treeItem);
+                                    posFound = true;
+                                    break;
+                                }
+                                previousPos = actualPos;
                             }
-                            if (pos > previousPos && pos < actualPos) {
-                                parentTreeItem.getChildren().add(i, treeItem);
-                                posFound = true;
-                                break;
-                            }
-                            previousPos = actualPos;
                         }
                         if (!posFound) {
                             parentTreeItem.getChildren().add(treeItem);
@@ -396,7 +397,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
 
         } catch (final NullPointerException e) {
             final TreeItem<SVNode> parentItem = getTreeItem(alive.getParent());
-            System.out.println("TreeItem:" + parentItem);
+            System.out.println("TreeItem:" + parentItem + " Class:" + parentItem.getClass().getName() + " Parent:" + parentItem.getParent() + " Value:" + parentItem.getValue().getExtendedId() + " Children:" + parentItem.getChildren());
             throw new RuntimeException("Error while adding new node:" + alive.getExtendedId() + " parent:" + alive.getParent() + " treeParent:" + (alive.getParent() == null ? "null" : getTreeItem(alive.getParent())), e);
         }
     }
