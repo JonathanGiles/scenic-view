@@ -12,7 +12,6 @@ public class NodeCountEvent extends AppEvent {
 
     public NodeCountEvent(final StageID id, final int nodeCount) {
         this(SVEventType.NODE_COUNT, id, nodeCount);
-        new Exception("NodeCount:" + nodeCount).printStackTrace();
     }
 
     protected NodeCountEvent(final SVEventType type, final StageID id, final int nodeCount) {
