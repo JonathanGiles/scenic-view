@@ -137,7 +137,7 @@ public class SVDummyNode extends SVNodeImpl implements SVNode, Serializable {
 
     @SuppressWarnings("deprecation") private static java.awt.image.BufferedImage convertToAwtImage(final javafx.scene.image.Image fxImage) {
         if (Image.impl_isExternalFormatSupported(BufferedImage.class)) {
-            final java.awt.image.BufferedImage awtImage = new BufferedImage((int) fxImage.getWidth(), (int) fxImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
+            final java.awt.image.BufferedImage awtImage = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
             return (BufferedImage) fxImage.impl_toExternalImage(awtImage);
         } else {
             return null;
