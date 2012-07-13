@@ -50,7 +50,7 @@ public class StageControllerImpl implements StageController {
 
     private AppEventDispatcher dispatcher;
 
-    private final SubWindowChecker windowChecker;
+    private SubWindowChecker windowChecker;
 
     private final InvalidationListener targetScenePropListener;
     private final InvalidationListener targetWindowPropListener;
@@ -208,7 +208,6 @@ public class StageControllerImpl implements StageController {
             }
         };
 
-        windowChecker = new SubWindowChecker(this);
         boundsInParentRect = new Rectangle();
         boundsInParentRect.setId(StageController.SCENIC_VIEW_BASE_ID + "boundsInParentRect");
         boundsInParentRect.setFill(Color.YELLOW);
@@ -250,14 +249,20 @@ public class StageControllerImpl implements StageController {
             refresher.finish();
         if (windowChecker != null)
             windowChecker.finish();
+        dispatcher = null;
     }
 
     @Override public void setEventDispatcher(final AppEventDispatcher model2gui) {
         this.dispatcher = model2gui;
+        windowChecker = new SubWindowChecker(this);
         windowChecker.start();
         details = new AllDetails(model2gui, getID());
         setTarget(target);
         update();
+    }
+
+    @Override public boolean isOpened() {
+        return dispatcher != null;
     }
 
     private void startRefresher() {

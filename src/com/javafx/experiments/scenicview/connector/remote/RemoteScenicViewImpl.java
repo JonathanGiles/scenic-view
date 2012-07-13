@@ -112,6 +112,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
             impl.getStages().add(new StageController() {
 
                 StageID id = new StageID(appsID, ids[cont].getStageID());
+                private boolean isOpened;
                 {
                     id.setName(ids[cont].getName());
                 }
@@ -138,6 +139,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
 
                 @Override public void close() {
                     try {
+                        isOpened = false;
                         application.close(getID());
                     } catch (final ConnectException e2) {
                         // Nothing to do
@@ -147,7 +149,12 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
 
                 }
 
+                @Override public boolean isOpened() {
+                    return isOpened;
+                }
+
                 @Override public void setEventDispatcher(final AppEventDispatcher dispatcher) {
+                    isOpened = true;
                     RemoteScenicViewImpl.this.dispatcher = dispatcher;
                     try {
                         application.setEventDispatcher(getID(), null);

@@ -5,6 +5,7 @@ import java.util.*;
 import javafx.beans.value.*;
 import javafx.event.EventHandler;
 import javafx.scene.control.*;
+import javafx.scene.control.TreeItem.TreeModificationEvent;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
@@ -17,6 +18,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
 
     private TreeItem<SVNode> previouslySelectedItem;
     private final Map<SVNode, TreeItem<SVNode>> treeViewData = new HashMap<SVNode, TreeItem<SVNode>>();
+    private final Map<StageController, StageCollapsingListener> listeners = new HashMap<StageController, ScenegraphTreeView.StageCollapsingListener>();
     private final List<NodeFilter> activeNodeFilters;
     private final SelectedNodeContainer container;
     private final Map<SVNode, StageController> stages = new HashMap<SVNode, StageController>();
@@ -138,6 +140,10 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                 /**
                  * If it was present remove the old one and insert the new one
                  */
+                if (listeners.containsKey(controller)) {
+                    apps2.get(i).removeEventHandler(TreeItem.branchCollapsedEvent(), listeners.get(controller));
+                    apps2.get(i).removeEventHandler(TreeItem.branchExpandedEvent(), listeners.get(controller));
+                }
                 apps2.remove(i);
                 apps2.add(i, stageRoot);
                 added = true;
@@ -237,6 +243,9 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                 for (final Iterator<TreeItem<SVNode>> iterator2 = type.getChildren().iterator(); iterator2.hasNext();) {
                     final TreeItem<SVNode> type2 = iterator2.next();
                     if (type2.getValue().getNodeId() == stageController.getID().getStageID()) {
+                        type2.removeEventHandler(TreeItem.branchCollapsedEvent(), listeners.get(stageController));
+                        type2.removeEventHandler(TreeItem.branchExpandedEvent(), listeners.get(stageController));
+                        listeners.remove(stageController);
                         iterator2.remove();
                         updateRoot();
                         return;
@@ -254,7 +263,10 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         previouslySelectedItem = null;
         removeForNode(getTreeItem(value));
         final TreeItem<SVNode> root = createTreeItem(value, showNodesIdInTree, showFilteredNodesInTree);
-
+        final StageCollapsingListener listener = new StageCollapsingListener(root, controller);
+        root.addEventHandler(TreeItem.branchCollapsedEvent(), listener);
+        root.addEventHandler(TreeItem.branchExpandedEvent(), listener);
+        this.listeners.put(controller, listener);
         placeStageRoot(controller, root);
 
         if (previouslySelectedItem != null) {
@@ -537,6 +549,28 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                 treeItem.getParent().getChildren().remove(treeItem);
             }
             treeViewData.remove(treeItem.getValue());
+        }
+    }
+
+    class StageCollapsingListener implements EventHandler<TreeModificationEvent<Object>> {
+
+        TreeItem<SVNode> root;
+        StageController controller;
+
+        public StageCollapsingListener(final TreeItem<SVNode> root, final StageController controller) {
+            this.root = root;
+            this.controller = controller;
+        }
+
+        @Override public void handle(final TreeModificationEvent<Object> ev) {
+            System.out.println("Collapsed" + ev);
+            if (!root.isExpanded() && controller.isOpened()) {
+                // Closing controller
+                controller.close();
+            } else if (root.isExpanded() && !controller.isOpened()) {
+                // Opening controller
+                ((ScenicView) container).openStage(controller);
+            }
         }
     }
 

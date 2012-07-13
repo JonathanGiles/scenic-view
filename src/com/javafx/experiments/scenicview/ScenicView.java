@@ -87,6 +87,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         }
 
         @Override public void dispatchEvent(final AppEvent appEvent) {
+            System.out.println("Event" + appEvent);
             if (isValid(appEvent)) {
                 switch (appEvent.getType()) {
                 case EVENT_LOG:
@@ -1100,5 +1101,10 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
 
             }
         });
+    }
+
+    void openStage(final StageController controller) {
+        controller.setEventDispatcher(stageModelListener);
+        controller.configurationUpdated(configuration);
     }
 }

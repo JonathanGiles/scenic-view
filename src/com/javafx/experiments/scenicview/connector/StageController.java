@@ -18,6 +18,8 @@ public interface StageController {
 
     void setEventDispatcher(AppEventDispatcher stageModelListener);
 
+    boolean isOpened();
+
     void setSelectedNode(SVNode value);
 
     AppController getAppController();
