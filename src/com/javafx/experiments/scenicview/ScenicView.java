@@ -733,7 +733,9 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         for (int i = 0; i < apps.size(); i++) {
             final List<StageController> stages = apps.get(i).getStages();
             for (int j = 0; j < stages.size(); j++) {
-                stages.get(j).configurationUpdated(configuration);
+                if (stages.get(j).isOpened()) {
+                    stages.get(j).configurationUpdated(configuration);
+                }
             }
         }
     }
@@ -742,7 +744,9 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         for (int i = 0; i < apps.size(); i++) {
             final List<StageController> stages = apps.get(i).getStages();
             for (int j = 0; j < stages.size(); j++) {
-                stages.get(j).animationsEnabled(enabled);
+                if (stages.get(j).isOpened()) {
+                    stages.get(j).animationsEnabled(enabled);
+                }
             }
         }
     }
@@ -754,7 +758,12 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
              * Only first stage
              */
             final List<StageController> stages = apps.get(i).getStages();
-            stages.get(0).updateAnimations();
+            for (int j = 0; j < stages.size(); j++) {
+                if (stages.get(j).isOpened()) {
+                    stages.get(j).updateAnimations();
+                    break;
+                }
+            }
         }
     }
 
@@ -811,7 +820,9 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         for (int i = 0; i < apps.size(); i++) {
             final List<StageController> stages = apps.get(i).getStages();
             for (int j = 0; j < stages.size(); j++) {
-                stages.get(j).update();
+                if (stages.get(j).isOpened()) {
+                    stages.get(j).update();
+                }
             }
         }
     }
@@ -825,7 +836,6 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                 }
             }
         }
-        System.out.println("Returning dummy!!!!!!");
         return apps.get(0).getStages().get(0);
         // return null;
     }
