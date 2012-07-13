@@ -19,6 +19,8 @@ public interface RemoteApplication extends Remote {
 
     public void close(final StageID id) throws RemoteException;
 
+    public void close() throws RemoteException;
+
     public void setSelectedNode(final StageID id, SVNode value) throws RemoteException;
 
     public void setDetail(StageID id, DetailPaneType detailType, int detailID, String value) throws RemoteException;

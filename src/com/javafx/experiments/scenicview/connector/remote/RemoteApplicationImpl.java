@@ -1,6 +1,6 @@
 package com.javafx.experiments.scenicview.connector.remote;
 
-import java.rmi.RemoteException;
+import java.rmi.*;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
@@ -59,6 +59,23 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
             e1.printStackTrace();
         }
 
+    }
+
+    public void close() {
+        try {
+
+            RMIUtils.unbindApplication(port);
+            UnicastRemoteObject.unexportObject(this, true);
+        } catch (final AccessException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (final RemoteException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (final NotBoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     @Override public void configurationUpdated(final StageID id, final Configuration configuration) throws RemoteException {

@@ -92,7 +92,19 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
     }
 
     private void addStages(final int appsID, final StageID[] ids, final RemoteApplication application) {
-        final AppControllerImpl impl = new AppControllerImpl(appsID, Integer.toString(appsID));
+        final AppControllerImpl impl = new AppControllerImpl(appsID, Integer.toString(appsID)) {
+
+            @Override public void close() {
+                // TODO Auto-generated method stub
+                super.close();
+                try {
+                    application.close();
+                } catch (final RemoteException e) {
+                    // Nothing to do
+                }
+            }
+
+        };
         for (int i = 0; i < ids.length; i++) {
             if (first)
                 System.out.println("RemoteApp connected on:" + port + " stageID:" + ids[i]);
@@ -190,8 +202,13 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                 }
             });
         }
-        if (!impl.getStages().isEmpty())
+        if (!impl.getStages().isEmpty()) {
             apps.add(impl);
+        } else {
+            // The application has no stages, close agent
+            impl.close();
+            applications.remove(Integer.toString(impl.getID()));
+        }
     }
 
     public static void start() {

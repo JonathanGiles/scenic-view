@@ -2,6 +2,7 @@ package com.javafx.experiments.scenicview.connector.remote;
 
 import java.rmi.*;
 import java.rmi.registry.*;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.Observer;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -10,6 +11,7 @@ import com.javafx.experiments.scenicview.utils.AgentTest;
 public class RMIUtils {
 
     private static AtomicInteger rmiPort = new AtomicInteger(7557);
+    static Registry localRegistry;
 
     private RMIUtils() {
     }
@@ -34,14 +36,14 @@ public class RMIUtils {
 
     public static final void bindApplication(final RemoteApplication application, final int port) throws AccessException, RemoteException {
         // create the registry and bind the name and object.
-        final Registry registry = LocateRegistry.createRegistry(port);
-        registry.rebind("AgentServer", application);
+        localRegistry = LocateRegistry.createRegistry(port);
+        localRegistry.rebind("AgentServer", application);
     }
 
     public static final void unbindApplication(final int port) throws AccessException, RemoteException, NotBoundException {
         // create the registry and bind the name and object.
-        final Registry registry = LocateRegistry.getRegistry(port);
-        registry.unbind("AgentServer");
+        localRegistry.unbind("AgentServer");
+        UnicastRemoteObject.unexportObject(localRegistry, true);
     }
 
     public static final void unbindScenicView(final int port) throws AccessException, RemoteException, NotBoundException {

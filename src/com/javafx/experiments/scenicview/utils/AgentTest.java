@@ -17,6 +17,8 @@ public class AgentTest {
 
     public static boolean first = true;
 
+    private static RemoteApplicationImpl application;
+
     public static void agentmain(final String agentArgs, final Instrumentation instrumentation) {
 
         if (first)
@@ -177,9 +179,13 @@ public class AgentTest {
                     return null;
                 }
 
+                @Override public void close() throws RemoteException {
+                    AgentTest.application.close();
+                }
+
             };
             first = false;
-            new RemoteApplicationImpl(application, port, serverPort);
+            AgentTest.application = new RemoteApplicationImpl(application, port, serverPort);
         } catch (final RemoteException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
