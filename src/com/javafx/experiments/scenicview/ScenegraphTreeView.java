@@ -100,7 +100,6 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     }
 
     void placeStageRoot(final StageController controller, final TreeItem<SVNode> stageRoot) {
-        final TreeItem<SVNode> previousRoot = getRoot();
         /**
          * Create the main root which will not be visible
          */
@@ -197,7 +196,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
          */
         if (this.patchedNode != null && ((SVDummyNode) getRoot().getValue()).getNodeType() != ((SVDummyNode) newRoot.getValue()).getNodeType()) {
             // System.out.println("Unpatching node:" + this.patchedNode);
-            final TreeItem[] items = this.patchedNode.getChildren().toArray(new TreeItem[0]);
+            @SuppressWarnings("rawtypes") final TreeItem[] items = this.patchedNode.getChildren().toArray(new TreeItem[0]);
             this.patchedNode.getChildren().setAll(items);
 
         }
@@ -257,7 +256,6 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     }
 
     void updateStageModel(final StageController controller, final SVNode value, final boolean showNodesIdInTree, final boolean showFilteredNodesInTree) {
-        final SVNode previouslySelected = container.getSelectedNode();
         // treeViewData.clear();
         stages.put(value, controller);
         previouslySelectedItem = null;
