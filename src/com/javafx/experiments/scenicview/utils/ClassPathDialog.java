@@ -108,14 +108,14 @@ public class ClassPathDialog extends JDialog {
         checkValid(launch, toolsField, jfxField, textArea);
         bottom.add(launch);
         add(bottom, BorderLayout.SOUTH);
-        setSize(600, 200);
+        setSize(600, 300);
     }
 
     private void checkValid(final JButton launch, final JTextField tools, final JTextField jfx, final JTextArea textArea) {
         launch.setEnabled(new File(tools.getText()).exists() && new File(jfx.getText()).exists());
         final boolean windows = System.getProperty("os.name").toLowerCase().indexOf("windows") != -1;
         final char separator = windows ? ';' : ':';
-        textArea.setText("This dialog will not be shown if you launch ScenicView with this command:\njava -cp=ScenicView.jar" + separator + "\"" + tools.getText() + "\"" + separator + "\"" + jfx.getText() + "\"");
+        textArea.setText("This dialog will not be shown if you launch ScenicView with this command:\njava -cp ScenicView.jar" + separator + "\"" + tools.getText() + "\"" + separator + "\"" + jfx.getText() + "\"");
     }
 
     private static void makeMultilineLabel(final JTextComponent area) {
