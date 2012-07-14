@@ -451,7 +451,10 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
             expand |= filter.expandAllNodes();
         }
         node.setShowId(showNodesIdInTree);
-        final TreeItem<SVNode> treeItem = new TreeItem<SVNode>(node, new ImageView(DisplayUtils.getIcon(node)));
+        ImageView graphic = new ImageView(DisplayUtils.getIcon(node));
+        graphic.setFitHeight(16);
+        graphic.setFitWidth(16);
+        final TreeItem<SVNode> treeItem = new TreeItem<SVNode>(node, graphic);
         if (node.equals(container.getSelectedNode())) {
             previouslySelectedItem = treeItem;
         }
