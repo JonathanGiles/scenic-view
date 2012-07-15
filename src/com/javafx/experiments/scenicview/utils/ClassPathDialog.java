@@ -41,8 +41,8 @@ public class ClassPathDialog extends JFrame {
     private PathChangeListener pathChangeListener;
     
     public ClassPathDialog(final String toolsPath, final String jfxPath, boolean isBootTime) {
-        System.out.println("toolsPath: " + toolsPath);
-        System.out.println("jfxPath: " + jfxPath);
+//        System.out.println("toolsPath: " + toolsPath);
+//        System.out.println("jfxPath: " + jfxPath);
         // install a native look and feel
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
