@@ -54,7 +54,7 @@ public class ClassPathDialog extends JFrame {
         
         outerPanel.add(new JLabel("Please find the following jar files on your system:"), BorderLayout.NORTH);
 
-        actionButton = new JButton(isBootTime ? "Launch ScenicView" : "Save");
+        actionButton = new JButton(isBootTime ? "Launch Scenic View" : "Save");
 
         final JPanel form = new JPanel();
         form.setLayout(new GridBagLayout());

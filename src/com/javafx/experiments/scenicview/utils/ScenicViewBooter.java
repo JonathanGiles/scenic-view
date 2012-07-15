@@ -55,9 +55,9 @@ public class ScenicViewBooter {
                     needAttachAPI = ! checkPath(attachPath);
                 }
                 
-                if (! needAttachAPI) {
-                    updateClassPath(attachPath);
-                }
+//                if (! needAttachAPI) {
+//                    updateClassPath(attachPath);
+//                }
             }
             
             if (needJFXAPI) {
@@ -72,9 +72,9 @@ public class ScenicViewBooter {
                     needJFXAPI = ! checkPath(jfxPath);
                 }
                 
-                if (! needJFXAPI) {
-                    updateClassPath(jfxPath);
-                }
+//                if (! needJFXAPI) {
+//                    updateClassPath(jfxPath);
+//                }
             }
             
             if (needAttachAPI || needJFXAPI) {
