@@ -17,6 +17,16 @@ public class ClassPathDialog extends JFrame {
     private static final Color INVALID_COLOR = new Color(246, 157, 160);
     private static final Color VALID_COLOR = new Color(188,222,172);
     
+    private static final String TOOLS_JAR_TOOLTIP = 
+            "<html>The tools.jar file is located within your Java JDK folder.<br/><br/>" +
+            "<b>For example</b>: a common location for the tools.jar file in a Java 7u5 install is:<br/>" +
+            "C:\\Program Files (x86)\\Java\\jdk1.7.0_05\\lib\\tools.jar";
+    
+    private static final String JFXRT_JAR_TOOLTIP = 
+            "<html>The jfxrt.jar file is located within your JavaFX runtime folder.<br/><br/>" +
+            "<b>For example</b>: a common location for the jfxrt.jar file in a JavaFX install is:<br/>" +
+            "rt\\lib";
+    
     private final ImageIcon buttonImage = new ImageIcon(Images.class.getResource("mglass.gif"));
     
     private final JTextField toolsField;
@@ -62,9 +72,12 @@ public class ClassPathDialog extends JFrame {
         c.insets = new Insets(5, 5, 5, 5);
         c.gridx = 0;
         c.gridwidth = 2;
-        form.add(new JLabel("tools.jar classpath:"), c);
+        JLabel label = new JLabel("tools.jar classpath:");
+        label.setToolTipText(TOOLS_JAR_TOOLTIP);
+        form.add(label, c);
         
         toolsField = new JTextField();
+        toolsField.setToolTipText(TOOLS_JAR_TOOLTIP);
         toolsField.setEditable(false);
         toolsField.addMouseListener(new MouseAdapter() {
             @Override public void mouseClicked(MouseEvent e) {
@@ -77,6 +90,7 @@ public class ClassPathDialog extends JFrame {
         c.gridwidth = 5;
         form.add(toolsField, c);
         final JButton toolsChange = new JButton(buttonImage);
+        toolsChange.setToolTipText(TOOLS_JAR_TOOLTIP);
         toolsChange.addActionListener(new ActionListener() {
             @Override public void actionPerformed(final ActionEvent e) {
                 show("tools.jar", toolsField);
@@ -88,12 +102,15 @@ public class ClassPathDialog extends JFrame {
         c.gridwidth = 2;
         c.gridx = 0;
         c.gridy = 1;
-        form.add(new JLabel("jfxrt.jar classpath:"), c);
+        label = new JLabel("jfxrt.jar classpath:");
+        label.setToolTipText(JFXRT_JAR_TOOLTIP);
+        form.add(label, c);
         c.gridx = 2;
         c.gridwidth = 5;
 
         jfxField = new JTextField();
         jfxField.setEditable(false);
+        jfxField.setToolTipText(JFXRT_JAR_TOOLTIP);
         jfxField.addMouseListener(new MouseAdapter() {
             @Override public void mouseClicked(MouseEvent e) {
                 show("jfxrt.jar", jfxField);
@@ -103,6 +120,7 @@ public class ClassPathDialog extends JFrame {
         jfxField.setPreferredSize(new Dimension(300, 25));
         form.add(jfxField, c);
         final JButton jfxChange = new JButton(buttonImage);
+        jfxChange.setToolTipText(JFXRT_JAR_TOOLTIP);
         jfxChange.addActionListener(new ActionListener() {
             @Override public void actionPerformed(final ActionEvent e) {
                 show("jfxrt.jar", jfxField);

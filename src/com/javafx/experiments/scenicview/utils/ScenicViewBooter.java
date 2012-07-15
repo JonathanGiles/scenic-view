@@ -7,6 +7,7 @@ import com.javafx.experiments.scenicview.connector.remote.RemoteScenicViewImpl;
 import java.util.Map;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 /**
  * 
