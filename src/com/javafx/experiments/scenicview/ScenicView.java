@@ -30,10 +30,17 @@ import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.details.Detail;
 import com.javafx.experiments.scenicview.connector.event.*;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
+import com.javafx.experiments.scenicview.connector.remote.RemoteScenicViewImpl;
 import com.javafx.experiments.scenicview.details.*;
 import com.javafx.experiments.scenicview.details.GDetailPane.RemotePropertySetter;
 import com.javafx.experiments.scenicview.dialog.*;
 import com.javafx.experiments.scenicview.update.*;
+import com.javafx.experiments.scenicview.utils.ClassPathDialog;
+import com.javafx.experiments.scenicview.utils.PathChangeListener;
+import com.javafx.experiments.scenicview.utils.PropertiesUtils;
+import com.javafx.experiments.scenicview.utils.ScenicViewBooter;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 /**
  * 
@@ -241,6 +248,35 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         // menuBar.setId("main-menubar");
 
         // ---- File Menu
+        final MenuItem classpathItem = new MenuItem("Configure Classpath");
+        classpathItem.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(final ActionEvent arg0) {
+                final Properties properties = PropertiesUtils.loadProperties();
+                
+                String toolsPath = properties.getProperty(ScenicViewBooter.TOOLS_JAR_PATH_KEY);
+                String jfxPath = properties.getProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY);
+                
+                final ClassPathDialog dialog = new ClassPathDialog(toolsPath, jfxPath, false);
+                dialog.setPathChangeListener(new PathChangeListener() {
+                    public void onPathChanged(Map<String, String> map) {
+                        String toolsPath = map.get(PathChangeListener.TOOLS_JAR_KEY);
+                        String jfxPath = map.get(PathChangeListener.JFXRT_JAR_KEY);
+
+                        properties.setProperty(ScenicViewBooter.TOOLS_JAR_PATH_KEY, toolsPath);
+                        properties.setProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY, jfxPath);
+                        PropertiesUtils.saveProperties();
+                        
+                        JOptionPane.showMessageDialog(null, "Updated classpath will be used on next Scenic View boot", "Classpath Saved", JOptionPane.INFORMATION_MESSAGE);
+                        dialog.setVisible(false);
+                        dialog.dispose();
+                    }
+                });
+                
+                dialog.setVisible(true);
+                dialog.requestFocus();
+            }
+        });
+        
         final MenuItem exitItem = new MenuItem("E_xit Scenic View");
         exitItem.setAccelerator(KeyCombination.keyCombination("CTRL+Q"));
         exitItem.setOnAction(new EventHandler<ActionEvent>() {
@@ -254,7 +290,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         });
 
         final Menu fileMenu = new Menu("File");
-        fileMenu.getItems().addAll(exitItem);
+        fileMenu.getItems().addAll(classpathItem, new SeparatorMenuItem(), exitItem);
 
         // ---- Options Menu
         final CheckMenuItem showBoundsCheckbox = buildCheckMenuItem("Show Bounds Overlays", "Show the bound overlays on selected", "Do not show bound overlays on selected", "showBounds", Boolean.TRUE);
@@ -928,8 +964,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
     }
 
     private void saveProperties() {
-        final Properties properties = new Properties();
-        Persistence.saveProperties(properties);
+        Persistence.saveProperties();
     }
 
     public static void setStatusText(final String text) {

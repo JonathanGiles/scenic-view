@@ -6,13 +6,18 @@ import java.util.Properties;
 public class PropertiesUtils {
 
     private static final String SCENIC_VIEW_PROPERTIES_FILE = "scenicView.properties";
+    
+    private static Properties properties;
 
     private PropertiesUtils() {
-        // TODO Auto-generated constructor stub
+        
     }
 
     public static Properties loadProperties() {
-        final Properties properties = new Properties();
+        if (properties == null) {
+            properties = new Properties();
+        }
+        
         try {
             final File propertiesFile = new File(SCENIC_VIEW_PROPERTIES_FILE);
             if (propertiesFile.exists()) {
@@ -29,7 +34,7 @@ public class PropertiesUtils {
         return properties;
     }
 
-    public static void saveProperties(final Properties properties) {
+    public static void saveProperties() {
         try {
             final File propertiesFile = new File(SCENIC_VIEW_PROPERTIES_FILE);
             final FileOutputStream out = new FileOutputStream(propertiesFile);

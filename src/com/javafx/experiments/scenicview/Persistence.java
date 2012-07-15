@@ -9,8 +9,12 @@ import com.javafx.experiments.scenicview.utils.PropertiesUtils;
 
 class Persistence {
 
-    private static Properties properties;
+    private static Properties properties;// = PropertiesUtils.loadProperties();
     private static final Map<String, Object> persistentComponents = new HashMap<String, Object>();
+    
+    static void loadProperties() {
+        properties = PropertiesUtils.loadProperties();
+    }
 
     static void loadProperty(final String propertyName, final Object component, final Object defaultValue) {
         final String property = properties.getProperty(propertyName, defaultValue.toString());
@@ -40,11 +44,7 @@ class Persistence {
         persistentComponents.put(propertyName, component);
     }
 
-    static void loadProperties() {
-        properties = PropertiesUtils.loadProperties();
-    }
-
-    static void saveProperties(final Properties properties) {
+    static void saveProperties() {
         for (final Iterator<String> iterator = persistentComponents.keySet().iterator(); iterator.hasNext();) {
             final String propertyName = iterator.next();
             final Object component = persistentComponents.get(propertyName);
@@ -71,7 +71,7 @@ class Persistence {
                 }
             }
         }
-        PropertiesUtils.saveProperties(properties);
+        PropertiesUtils.saveProperties();
     }
 
 }

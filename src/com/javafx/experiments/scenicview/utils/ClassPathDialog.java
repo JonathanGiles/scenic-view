@@ -1,21 +1,60 @@
 package com.javafx.experiments.scenicview.utils;
 
+import com.javafx.experiments.scenicview.images.ui.Images;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.text.JTextComponent;
 
-public class ClassPathDialog extends JDialog {
-
-    public ClassPathDialog(final PathChangeListener listener, final String toolsPath, final String jfxPath) {
+public class ClassPathDialog extends JFrame {
+    
+    private static final int PADDING = 10;
+    private static final Color INVALID_COLOR = new Color(246, 157, 160);
+    private static final Color VALID_COLOR = new Color(188,222,172);
+    
+    private final ImageIcon buttonImage = new ImageIcon(Images.class.getResource("mglass.gif"));
+    
+    private final JTextField toolsField;
+    private final JTextField jfxField;
+    
+    private final JButton actionButton;
+    
+    private PathChangeListener pathChangeListener;
+    
+    public ClassPathDialog(final String toolsPath, final String jfxPath, boolean isBootTime) {
+        // install a native look and feel
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(ClassPathDialog.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            Logger.getLogger(ClassPathDialog.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            Logger.getLogger(ClassPathDialog.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (UnsupportedLookAndFeelException ex) {
+            Logger.getLogger(ClassPathDialog.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setTitle("Scenic View :: Required Libraries");
         setLayout(new BorderLayout());
-        add(new JLabel("Please check/fill the following classpath entries"), BorderLayout.NORTH);
+        setIconImage(buttonImage.getImage());
+        
+        JPanel outerPanel = new JPanel(new BorderLayout());
+        outerPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING), 
+                BorderFactory.createCompoundBorder(
+                    BorderFactory.createTitledBorder("Required Libraries"),
+                    BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING))));
+        
+        outerPanel.add(new JLabel("Please find the following jar files on your system:"), BorderLayout.NORTH);
 
-        final JButton launch = new JButton("Launch ScenicView");
-        final JTextArea textArea = new JTextArea();
+        actionButton = new JButton(isBootTime ? "Launch ScenicView" : "Save");
 
         final JPanel form = new JPanel();
         form.setLayout(new GridBagLayout());
@@ -23,34 +62,24 @@ public class ClassPathDialog extends JDialog {
         c.insets = new Insets(5, 5, 5, 5);
         c.gridx = 0;
         c.gridwidth = 2;
-        form.add(new JLabel("Tools.jar classpath:"), c);
-        final JFileChooser toolsChooser = new JFileChooser();
-        toolsChooser.setFileFilter(new FileFilter() {
-
-            @Override public String getDescription() {
-                return "tools.jar";
-            }
-
-            @Override public boolean accept(final File f) {
-                return f.getName().equals("tools.jar") || f.isDirectory();
+        form.add(new JLabel("tools.jar classpath:"), c);
+        
+        toolsField = new JTextField();
+        toolsField.setEditable(false);
+        toolsField.addMouseListener(new MouseAdapter() {
+            @Override public void mouseClicked(MouseEvent e) {
+                show("tools.jar", toolsField);
             }
         });
-        final JTextField toolsField = new JTextField();
         toolsField.setPreferredSize(new Dimension(300, 25));
         toolsField.setText(toolsPath);
         c.gridx = 2;
         c.gridwidth = 5;
         form.add(toolsField, c);
-        final JTextField jfxField = new JTextField();
-        final JButton toolsChange = new JButton("Change");
+        final JButton toolsChange = new JButton(buttonImage);
         toolsChange.addActionListener(new ActionListener() {
-
             @Override public void actionPerformed(final ActionEvent e) {
-                final int option = toolsChooser.showOpenDialog(ClassPathDialog.this);
-                if (option == JFileChooser.APPROVE_OPTION) {
-                    toolsField.setText(toolsChooser.getSelectedFile().getAbsolutePath());
-                    checkValid(launch, toolsField, jfxField, textArea);
-                }
+                show("tools.jar", toolsField);
             }
         });
         c.gridx = 7;
@@ -62,85 +91,75 @@ public class ClassPathDialog extends JDialog {
         form.add(new JLabel("jfxrt.jar classpath:"), c);
         c.gridx = 2;
         c.gridwidth = 5;
-        final JFileChooser jfxChooser = new JFileChooser();
-        jfxChooser.setFileFilter(new FileFilter() {
 
-            @Override public String getDescription() {
-                return "jfxrt.jar";
-            }
-
-            @Override public boolean accept(final File f) {
-                return f.getName().equals("jfxrt.jar") || f.isDirectory();
+        jfxField = new JTextField();
+        jfxField.setEditable(false);
+        jfxField.addMouseListener(new MouseAdapter() {
+            @Override public void mouseClicked(MouseEvent e) {
+                show("jfxrt.jar", jfxField);
             }
         });
-
         jfxField.setText(jfxPath);
         jfxField.setPreferredSize(new Dimension(300, 25));
         form.add(jfxField, c);
-        final JButton jfxChange = new JButton("Change");
+        final JButton jfxChange = new JButton(buttonImage);
         jfxChange.addActionListener(new ActionListener() {
-
             @Override public void actionPerformed(final ActionEvent e) {
-                final int option = jfxChooser.showOpenDialog(ClassPathDialog.this);
-                if (option == JFileChooser.APPROVE_OPTION) {
-                    jfxField.setText(jfxChooser.getSelectedFile().getAbsolutePath());
-                    checkValid(launch, toolsField, jfxField, textArea);
-                }
+                show("jfxrt.jar", jfxField);
             }
         });
         c.gridx = 7;
         c.gridwidth = 1;
         form.add(jfxChange, c);
-        add(form, BorderLayout.CENTER);
+        outerPanel.add(form, BorderLayout.CENTER);
 
-        final JPanel bottom = new JPanel();
-        bottom.setLayout(new GridLayout(2, 1));
-
-        makeMultilineLabel(textArea);
-        bottom.add(textArea);
-
-        launch.addActionListener(new ActionListener() {
-
+        actionButton.addActionListener(new ActionListener() {
             @Override public void actionPerformed(final ActionEvent e) {
-                listener.onPathChanged(toolsField.getText(), jfxField.getText());
+                HashMap<String, String> map = new HashMap<String, String>();
+                map.put(PathChangeListener.TOOLS_JAR_KEY, toolsField.getText());
+                map.put(PathChangeListener.JFXRT_JAR_KEY, jfxField.getText());
+                pathChangeListener.onPathChanged(map);
             }
         });
-        checkValid(launch, toolsField, jfxField, textArea);
-        bottom.add(launch);
-        add(bottom, BorderLayout.SOUTH);
-        setSize(600, 300);
+        checkValid();
+        outerPanel.add(actionButton, BorderLayout.SOUTH);
+        
+        add(outerPanel, BorderLayout.CENTER);
+        setSize(600, 220);
+        setResizable(false);
+        setLocationRelativeTo(null);
     }
-
-    private void checkValid(final JButton launch, final JTextField tools, final JTextField jfx, final JTextArea textArea) {
-        launch.setEnabled(new File(tools.getText()).exists() && new File(jfx.getText()).exists());
-        final boolean windows = System.getProperty("os.name").toLowerCase().indexOf("windows") != -1;
-        final char separator = windows ? ';' : ':';
-        textArea.setText("This dialog will not be shown if you launch ScenicView with this command:\njava -cp ScenicView.jar" + separator + "\"" + tools.getText() + "\"" + separator + "\"" + jfx.getText() + "\"");
+    
+    public void setPathChangeListener(final PathChangeListener listener) {
+        this.pathChangeListener = listener;
     }
+    
+    private void show(final String desiredFile, final JTextField textField) {
+        final JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(new FileFilter() {
+            @Override public String getDescription() {
+                return desiredFile;
+            }
 
-    private static void makeMultilineLabel(final JTextComponent area) {
-        area.setFont(UIManager.getFont("Label.font"));
-        area.setEditable(false);
-        area.setOpaque(false);
-        if (area instanceof JTextArea) {
-            ((JTextArea) area).setWrapStyleWord(true);
-            ((JTextArea) area).setLineWrap(true);
+            @Override public boolean accept(final File f) {
+                return f.getName().equals(desiredFile) || f.isDirectory();
+            }
+        });
+        
+        final int option = fileChooser.showOpenDialog(ClassPathDialog.this);
+        if (option == JFileChooser.APPROVE_OPTION) {
+            textField.setText(fileChooser.getSelectedFile().getAbsolutePath());
+            checkValid();
         }
     }
 
-    interface PathChangeListener {
-        public void onPathChanged(String toolsPath, String jfxPath);
+    private void checkValid() {
+        boolean toolsJarExists = new File(toolsField.getText()).exists();
+        boolean javafxJarExists = new File(jfxField.getText()).exists();
+        actionButton.setEnabled(toolsJarExists && javafxJarExists);
+        
+        // update the UI to indicate whether the selected paths are valid
+        toolsField.setBackground(toolsJarExists ? VALID_COLOR : INVALID_COLOR);
+        jfxField.setBackground(javafxJarExists ? VALID_COLOR : INVALID_COLOR);
     }
-
-    public static void main(final String[] args) {
-        final PathChangeListener l = new PathChangeListener() {
-
-            @Override public void onPathChanged(final String toolsPath, final String jfxPath) {
-                // TODO Auto-generated method stub
-
-            }
-        };
-        new ClassPathDialog(l, "c:\\Archivos de programa\\java\\jdk", "c:\\Archivos de programa\\java\\jdk").setVisible(true);
-    }
-
 }

@@ -9,10 +9,13 @@ import javafx.scene.layout.*;
 import javafx.stage.*;
 
 import com.javafx.experiments.scenicview.*;
+import com.javafx.experiments.scenicview.utils.PropertiesUtils;
+import com.javafx.experiments.scenicview.utils.ScenicViewBooter;
+import java.util.Properties;
 
 public class AboutBox {
     private static final int SCENE_WIDTH = 476;
-    private static final int SCENE_HEIGHT = 464;
+    private static final int SCENE_HEIGHT = 474;
     private static final int LEFT_AND_RIGHT_MARGIN = 30;
     private static final int SPACER_Y = 38;
     private final VBox panel;
@@ -45,7 +48,7 @@ public class AboutBox {
         this.textArea.setId("aboutDialogDetails");
         this.textArea.setText(getAboutText());
         this.textArea.setWrapText(true);
-        this.textArea.setPrefHeight(221.0D);
+        this.textArea.setPrefHeight(250.0D);
         VBox.setMargin(this.textArea, new Insets(SPACER_Y, LEFT_AND_RIGHT_MARGIN, 0.0D, LEFT_AND_RIGHT_MARGIN));
         VBox.setVgrow(this.textArea, Priority.ALWAYS);
         this.panel.setAlignment(Pos.TOP_CENTER);
@@ -68,7 +71,29 @@ public class AboutBox {
     }
 
     private static String getAboutText() {
-        final String text = "JavaFX Scenic View " + ScenicView.VERSION + "\n" + "\n" + "JavaFX Build Information:" + "\n" + "Java FX " + System.getProperty("javafx.runtime.version") + "\n" + "\n" + "Operating System\n" + System.getProperty("os.name") + ", " + System.getProperty("os.arch") + ", " + System.getProperty("os.version") + "\n\nJava Version\n" + System.getProperty("java.version") + ", " + System.getProperty("java.vendor") + ", " + System.getProperty("java.runtime.version");
+        final Properties properties = PropertiesUtils.loadProperties();
+        String toolsPath = properties.getProperty(ScenicViewBooter.TOOLS_JAR_PATH_KEY);
+        toolsPath = toolsPath == null ? "Included in runtime classpath" : toolsPath;
+        String jfxPath = properties.getProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY);
+        jfxPath = jfxPath == null ? "Included in runtime classpath" : jfxPath;
+        
+        final String text = "JavaFX Scenic View " + ScenicView.VERSION + 
+                "\n" + "\n" + 
+                "JavaFX Build Information:" + "\n" + 
+                "Java FX " + System.getProperty("javafx.runtime.version") + "\n" + "\n" + 
+                
+                "Required Libraries:\n" +
+                "jfxrt.jar Home: " + jfxPath + "\n" +
+                "tools.jar Home: " + toolsPath + "\n\n" +
+                
+                "Operating System\n" + 
+                System.getProperty("os.name") + ", " + 
+                System.getProperty("os.arch") + ", " + 
+                System.getProperty("os.version") + 
+                
+                "\n\nJava Version\n" + System.getProperty("java.version") + ", " + 
+                System.getProperty("java.vendor") + ", " + 
+                System.getProperty("java.runtime.version");
 
         return text;
     }
