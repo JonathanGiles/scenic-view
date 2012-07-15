@@ -4,6 +4,10 @@ import com.javafx.experiments.scenicview.images.ui.Images;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,6 +41,8 @@ public class ClassPathDialog extends JFrame {
     private PathChangeListener pathChangeListener;
     
     public ClassPathDialog(final String toolsPath, final String jfxPath, boolean isBootTime) {
+        System.out.println("toolsPath: " + toolsPath);
+        System.out.println("jfxPath: " + jfxPath);
         // install a native look and feel
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -133,9 +139,9 @@ public class ClassPathDialog extends JFrame {
 
         actionButton.addActionListener(new ActionListener() {
             @Override public void actionPerformed(final ActionEvent e) {
-                HashMap<String, String> map = new HashMap<String, String>();
-                map.put(PathChangeListener.TOOLS_JAR_KEY, toolsField.getText());
-                map.put(PathChangeListener.JFXRT_JAR_KEY, jfxField.getText());
+                HashMap<String, URI> map = new HashMap<String, URI>();
+                map.put(PathChangeListener.TOOLS_JAR_KEY, encodePath(toolsField.getText()));
+                map.put(PathChangeListener.JFXRT_JAR_KEY, encodePath(jfxField.getText()));
                 pathChangeListener.onPathChanged(map);
             }
         });
@@ -179,5 +185,17 @@ public class ClassPathDialog extends JFrame {
         // update the UI to indicate whether the selected paths are valid
         toolsField.setBackground(toolsJarExists ? VALID_COLOR : INVALID_COLOR);
         jfxField.setBackground(javafxJarExists ? VALID_COLOR : INVALID_COLOR);
+    }
+    
+    private URI encodePath(String path) {
+        try {
+            URL url = new File(path).toURL();
+            return new URI(url.getProtocol(), url.getHost(), url.getPath(), null);
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(ClassPathDialog.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (MalformedURLException ex) {
+            Logger.getLogger(ClassPathDialog.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 }

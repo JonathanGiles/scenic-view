@@ -4,7 +4,12 @@ import java.io.*;
 import java.util.Properties;
 
 import com.javafx.experiments.scenicview.connector.remote.RemoteScenicViewImpl;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -56,9 +61,9 @@ public class ScenicViewBooter {
                     needAttachAPI = ! checkPath(attachPath);
                 }
                 
-//                if (! needAttachAPI) {
-//                    updateClassPath(attachPath);
-//                }
+                if (! needAttachAPI) {
+                    updateClassPath(attachPath);
+                }
             }
             
             if (needJFXAPI) {
@@ -73,21 +78,21 @@ public class ScenicViewBooter {
                     needJFXAPI = ! checkPath(jfxPath);
                 }
                 
-//                if (! needJFXAPI) {
-//                    updateClassPath(jfxPath);
-//                }
+                if (! needJFXAPI) {
+                    updateClassPath(jfxPath);
+                }
             }
             
             if (needAttachAPI || needJFXAPI) {
                 ClassPathDialog dialog = new ClassPathDialog(attachPath, jfxPath, true);
                 dialog.setPathChangeListener(new PathChangeListener() {
-                    public void onPathChanged(Map<String, String> map) {
-                        String toolsPath = map.get(PathChangeListener.TOOLS_JAR_KEY);
-                        String jfxPath = map.get(PathChangeListener.JFXRT_JAR_KEY);
+                    public void onPathChanged(Map<String, URI> map) {
+                        URI toolsPath = map.get(PathChangeListener.TOOLS_JAR_KEY);
+                        URI jfxPath = map.get(PathChangeListener.JFXRT_JAR_KEY);
                         updateClassPath(toolsPath);
                         updateClassPath(jfxPath);
-                        properties.setProperty(TOOLS_JAR_PATH_KEY, toolsPath);
-                        properties.setProperty(JFXRT_JAR_PATH_KEY, jfxPath);
+                        properties.setProperty(TOOLS_JAR_PATH_KEY, toolsPath.toASCIIString());
+                        properties.setProperty(JFXRT_JAR_PATH_KEY, jfxPath.toASCIIString());
                         PropertiesUtils.saveProperties();
                         RemoteScenicViewImpl.start();
                     }
@@ -100,8 +105,16 @@ public class ScenicViewBooter {
     }
 
     private boolean checkPath(final String path) {
-        if (path != null && !path.equals("")) {
-            return new File(path).exists();
+        try {
+            if (path != null && !path.equals("")) {
+                if (new File(path).exists()) {
+                    return true;
+                } else if (new File(new URI(path)).exists()) {
+                    return true;
+                }
+            }
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
         }
         return false;
     }
@@ -143,10 +156,19 @@ public class ScenicViewBooter {
         return path;
     }
     
-    private void updateClassPath(final String path) {
+    private void updateClassPath(final String uriPath) {
         try {
-            System.out.println("Adding to classpath: " + path);
-            ClassPathHacker.addFile(new File(path));
+            updateClassPath(new URI(uriPath));
+        } catch (URISyntaxException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    private void updateClassPath(final URI uri) {
+        try {
+            URL url = uri.toURL();
+            System.out.println("Adding to classpath: " + url);
+            ClassPathHacker.addURL(url);
         } catch (final IOException ex) {
             ex.printStackTrace();
         }
