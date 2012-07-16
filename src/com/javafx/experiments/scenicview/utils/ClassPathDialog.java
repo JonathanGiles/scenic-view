@@ -33,16 +33,47 @@ public class ClassPathDialog extends JFrame {
     
     private final ImageIcon buttonImage = new ImageIcon(Images.class.getResource("mglass.gif"));
     
-    private final JTextField toolsField;
-    private final JTextField jfxField;
+    private JTextField toolsField;
+    private JTextField jfxField;
     
-    private final JButton actionButton;
+    private JButton actionButton;
     
     private PathChangeListener pathChangeListener;
     
-    public ClassPathDialog(final String toolsPath, final String jfxPath, boolean isBootTime) {
-//        System.out.println("toolsPath: " + toolsPath);
-//        System.out.println("jfxPath: " + jfxPath);
+    private static ClassPathDialog instance;
+    
+    static void init() {
+        if (SwingUtilities.isEventDispatchThread()) {
+            instance = new ClassPathDialog();
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override public void run() {
+                    instance = new ClassPathDialog();
+                }
+            });
+        }
+    }
+    
+    public static void showDialog(final String toolsPath, final String jfxPath, final boolean isBootTime, final PathChangeListener listener) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override public void run() {
+                instance.configure(toolsPath, jfxPath, isBootTime, listener);
+                instance.setVisible(true);
+                instance.toFront();
+                instance.requestFocus();
+            }
+        });
+    }
+    
+    public static void hideDialog() {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override public void run() {
+                instance.setVisible(false);
+            }
+        });
+    }
+    
+    private ClassPathDialog() {
         // install a native look and feel
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -70,7 +101,7 @@ public class ClassPathDialog extends JFrame {
         
         outerPanel.add(new JLabel("Please find the following jar files on your system:"), BorderLayout.NORTH);
 
-        actionButton = new JButton(isBootTime ? "Launch Scenic View" : "Save");
+        actionButton = new JButton();
 
         final JPanel form = new JPanel();
         form.setLayout(new GridBagLayout());
@@ -91,7 +122,6 @@ public class ClassPathDialog extends JFrame {
             }
         });
         toolsField.setPreferredSize(new Dimension(300, 25));
-        toolsField.setText(toolsPath);
         c.gridx = 2;
         c.gridwidth = 5;
         form.add(toolsField, c);
@@ -122,7 +152,6 @@ public class ClassPathDialog extends JFrame {
                 show("jfxrt.jar", jfxField);
             }
         });
-        jfxField.setText(jfxPath);
         jfxField.setPreferredSize(new Dimension(300, 25));
         form.add(jfxField, c);
         final JButton jfxChange = new JButton(buttonImage);
@@ -142,7 +171,9 @@ public class ClassPathDialog extends JFrame {
                 HashMap<String, URI> map = new HashMap<String, URI>();
                 map.put(PathChangeListener.TOOLS_JAR_KEY, Utils.encodePath(toolsField.getText()));
                 map.put(PathChangeListener.JFXRT_JAR_KEY, Utils.encodePath(jfxField.getText()));
-                pathChangeListener.onPathChanged(map);
+                if (pathChangeListener != null) {
+                    pathChangeListener.onPathChanged(map);
+                }
             }
         });
         checkValid();
@@ -154,8 +185,12 @@ public class ClassPathDialog extends JFrame {
         setLocationRelativeTo(null);
     }
     
-    public void setPathChangeListener(final PathChangeListener listener) {
-        this.pathChangeListener = listener;
+    private void configure(final String toolsPath, final String jfxPath, boolean isBootTime, final PathChangeListener listener) {
+        toolsField.setText(toolsPath);
+        jfxField.setText(jfxPath);
+        actionButton.setText(isBootTime ? "Launch Scenic View" : "Save");
+        pathChangeListener = listener;
+        checkValid();
     }
     
     private void show(final String desiredFile, final JTextField textField) {

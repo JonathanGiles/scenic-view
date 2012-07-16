@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 /**
  * 
@@ -25,6 +26,14 @@ public class ScenicViewBooter {
     public static final String JFXRT_JAR_PATH_KEY = "jfxPath";
 
     public static void main(final String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override public void run() {
+                // instatiate the ClassPathDialog at startup to workaround issues
+                // if it is created after JavaFX has started.
+                ClassPathDialog.init();
+            }
+        });
+        
         new ScenicViewBooter();
     }
 
@@ -85,8 +94,10 @@ public class ScenicViewBooter {
             }
             
             if (needAttachAPI || needJFXAPI) {
-                ClassPathDialog dialog = new ClassPathDialog(attachPath, jfxPath, true);
-                dialog.setPathChangeListener(new PathChangeListener() {
+                final String _attachPath = attachPath;
+                final String _jfxPath = jfxPath;
+                
+                ClassPathDialog.showDialog(_attachPath, _jfxPath, true, new PathChangeListener() {
                     public void onPathChanged(Map<String, URI> map) {
                         URI toolsPath = map.get(PathChangeListener.TOOLS_JAR_KEY);
                         URI jfxPath = map.get(PathChangeListener.JFXRT_JAR_KEY);
@@ -98,7 +109,6 @@ public class ScenicViewBooter {
                         RemoteScenicViewImpl.start();
                     }
                 });
-                dialog.setVisible(true);
             } else {
                 RemoteScenicViewImpl.start();
             }
@@ -189,7 +199,7 @@ public class ScenicViewBooter {
             Class.forName("com.sun.tools.attach.AttachNotSupportedException").newInstance();
             isAttachAPIAvailable = true;
         } catch (final Exception e) {
-            System.out.println("tools.jar not found");
+            System.out.println("Java Attach API was not found");
         }
         
         // Test if we can load a class from jfxrt.jar
@@ -197,7 +207,7 @@ public class ScenicViewBooter {
             Class.forName("javafx.beans.property.SimpleBooleanProperty").newInstance();
             isJFXAvailable = true;
         } catch (final Exception e) {
-            System.out.println("jfxrt.jar not found");
+            System.out.println("JavaFX API was not found");
         }
         
         return new boolean[] { isAttachAPIAvailable, isJFXAvailable};

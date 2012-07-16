@@ -17,6 +17,7 @@ import javafx.concurrent.Worker.State;
 import javafx.event.*;
 import javafx.geometry.*;
 import javafx.scene.*;
+import javafx.embed.swing.*;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
@@ -30,7 +31,6 @@ import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.details.Detail;
 import com.javafx.experiments.scenicview.connector.event.*;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
-import com.javafx.experiments.scenicview.connector.remote.RemoteScenicViewImpl;
 import com.javafx.experiments.scenicview.details.*;
 import com.javafx.experiments.scenicview.details.GDetailPane.RemotePropertySetter;
 import com.javafx.experiments.scenicview.dialog.*;
@@ -40,8 +40,8 @@ import com.javafx.experiments.scenicview.utils.PathChangeListener;
 import com.javafx.experiments.scenicview.utils.PropertiesUtils;
 import com.javafx.experiments.scenicview.utils.ScenicViewBooter;
 import java.net.URI;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 /**
  * 
@@ -254,11 +254,10 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
             @Override public void handle(final ActionEvent arg0) {
                 final Properties properties = PropertiesUtils.loadProperties();
                 
-                String toolsPath = properties.getProperty(ScenicViewBooter.TOOLS_JAR_PATH_KEY);
-                String jfxPath = properties.getProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY);
+                final String toolsPath = properties.getProperty(ScenicViewBooter.TOOLS_JAR_PATH_KEY);
+                final String jfxPath = properties.getProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY);
                 
-                final ClassPathDialog dialog = new ClassPathDialog(toolsPath, jfxPath, false);
-                dialog.setPathChangeListener(new PathChangeListener() {
+                ClassPathDialog.showDialog(toolsPath, jfxPath, false, new PathChangeListener() {
                     public void onPathChanged(Map<String, URI> map) {
                         URI toolsPath = map.get(PathChangeListener.TOOLS_JAR_KEY);
                         URI jfxPath = map.get(PathChangeListener.JFXRT_JAR_KEY);
@@ -266,15 +265,11 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                         properties.setProperty(ScenicViewBooter.TOOLS_JAR_PATH_KEY, toolsPath.toASCIIString());
                         properties.setProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY, jfxPath.toASCIIString());
                         PropertiesUtils.saveProperties();
-                        
+
                         JOptionPane.showMessageDialog(null, "Updated classpath will be used on next Scenic View boot", "Classpath Saved", JOptionPane.INFORMATION_MESSAGE);
-                        dialog.setVisible(false);
-                        dialog.dispose();
+                        ClassPathDialog.hideDialog();
                     }
                 });
-                
-                dialog.setVisible(true);
-                dialog.requestFocus();
             }
         });
         
