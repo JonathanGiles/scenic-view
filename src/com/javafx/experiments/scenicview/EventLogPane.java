@@ -119,6 +119,7 @@ public class EventLogPane extends VBox {
         filtersGridPane.setId("structure-trace-grid-pane");
 
         idFilterField = new TextField();
+        idFilterField.setMinHeight(20);
         idFilterField.setPromptText("Insert text to filter (logical operations supported)");
         idFilterField.focusedProperty().addListener(new ChangeListener<Boolean>() {
 
