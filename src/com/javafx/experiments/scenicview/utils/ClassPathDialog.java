@@ -29,7 +29,7 @@ public class ClassPathDialog extends JFrame {
     private static final String JFXRT_JAR_TOOLTIP = 
             "<html>The jfxrt.jar file is located within your JavaFX runtime folder.<br/><br/>" +
             "<b>For example</b>: a common location for the jfxrt.jar file in a JavaFX install is:<br/>" +
-            "rt\\lib";
+            "C:\\Program Files (x86)\\Oracle\\JavaFX 2.1 Runtime\\lib";
     
     private final ImageIcon buttonImage = new ImageIcon(Images.class.getResource("mglass.gif"));
     

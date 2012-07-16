@@ -139,6 +139,7 @@ public class ScenicViewBooter {
     private String getToolsClassPath() {
         final String javaHome = System.getProperty("java.home");
         if (!javaHome.contains("jdk")) {
+//            JOptionPane.showMessageDialog(null, "No JDK found");
             System.out.println("Error: No JDK found on system");
             return null;
         }
@@ -151,6 +152,7 @@ public class ScenicViewBooter {
 
         final File toolsJar = new File(javaHome + "/../lib/tools.jar");
         if (!toolsJar.exists()) {
+//            JOptionPane.showMessageDialog(null, "No tools.jar found at\n" + toolsJar);
             System.out.println("Error: Can not find tools.jar on system - disabling VM lookup");
             return null;
         }
