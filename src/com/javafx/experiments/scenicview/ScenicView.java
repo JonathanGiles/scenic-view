@@ -39,6 +39,7 @@ import com.javafx.experiments.scenicview.utils.ClassPathDialog;
 import com.javafx.experiments.scenicview.utils.PathChangeListener;
 import com.javafx.experiments.scenicview.utils.PropertiesUtils;
 import com.javafx.experiments.scenicview.utils.ScenicViewBooter;
+import java.net.URI;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -258,12 +259,12 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                 
                 final ClassPathDialog dialog = new ClassPathDialog(toolsPath, jfxPath, false);
                 dialog.setPathChangeListener(new PathChangeListener() {
-                    public void onPathChanged(Map<String, String> map) {
-                        String toolsPath = map.get(PathChangeListener.TOOLS_JAR_KEY);
-                        String jfxPath = map.get(PathChangeListener.JFXRT_JAR_KEY);
+                    public void onPathChanged(Map<String, URI> map) {
+                        URI toolsPath = map.get(PathChangeListener.TOOLS_JAR_KEY);
+                        URI jfxPath = map.get(PathChangeListener.JFXRT_JAR_KEY);
 
-                        properties.setProperty(ScenicViewBooter.TOOLS_JAR_PATH_KEY, toolsPath);
-                        properties.setProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY, jfxPath);
+                        properties.setProperty(ScenicViewBooter.TOOLS_JAR_PATH_KEY, toolsPath.toASCIIString());
+                        properties.setProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY, jfxPath.toASCIIString());
                         PropertiesUtils.saveProperties();
                         
                         JOptionPane.showMessageDialog(null, "Updated classpath will be used on next Scenic View boot", "Classpath Saved", JOptionPane.INFORMATION_MESSAGE);

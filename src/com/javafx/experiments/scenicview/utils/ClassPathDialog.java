@@ -140,8 +140,8 @@ public class ClassPathDialog extends JFrame {
         actionButton.addActionListener(new ActionListener() {
             @Override public void actionPerformed(final ActionEvent e) {
                 HashMap<String, URI> map = new HashMap<String, URI>();
-                map.put(PathChangeListener.TOOLS_JAR_KEY, encodePath(toolsField.getText()));
-                map.put(PathChangeListener.JFXRT_JAR_KEY, encodePath(jfxField.getText()));
+                map.put(PathChangeListener.TOOLS_JAR_KEY, Utils.encodePath(toolsField.getText()));
+                map.put(PathChangeListener.JFXRT_JAR_KEY, Utils.encodePath(jfxField.getText()));
                 pathChangeListener.onPathChanged(map);
             }
         });
@@ -159,7 +159,9 @@ public class ClassPathDialog extends JFrame {
     }
     
     private void show(final String desiredFile, final JTextField textField) {
-        final JFileChooser fileChooser = new JFileChooser();
+        File currentPath = new File(textField.getText());
+        File startPath = currentPath.exists() ? currentPath : File.listRoots()[0];
+        final JFileChooser fileChooser = new JFileChooser(startPath);
         fileChooser.setFileFilter(new FileFilter() {
             @Override public String getDescription() {
                 return desiredFile;
@@ -185,17 +187,5 @@ public class ClassPathDialog extends JFrame {
         // update the UI to indicate whether the selected paths are valid
         toolsField.setBackground(toolsJarExists ? VALID_COLOR : INVALID_COLOR);
         jfxField.setBackground(javafxJarExists ? VALID_COLOR : INVALID_COLOR);
-    }
-    
-    private URI encodePath(String path) {
-        try {
-            URL url = new File(path).toURL();
-            return new URI(url.getProtocol(), url.getHost(), url.getPath(), null);
-        } catch (URISyntaxException ex) {
-            Logger.getLogger(ClassPathDialog.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (MalformedURLException ex) {
-            Logger.getLogger(ClassPathDialog.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
     }
 }

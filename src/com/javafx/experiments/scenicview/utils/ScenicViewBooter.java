@@ -7,6 +7,7 @@ import com.javafx.experiments.scenicview.connector.remote.RemoteScenicViewImpl;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -120,12 +121,19 @@ public class ScenicViewBooter {
     }
 
     private String getJFXClassPath() {
-        // see if we can find JavaFX at the runtime path
-        String path = System.getProperty("javafx.runtime.path");
-        path = path == null ? "" : path;
+        List<String> results = JfxrtFinder.findJfxrt();
+//        // see if we can find JavaFX at the runtime path
+//        String path = System.getProperty("javafx.runtime.path");
+//        path = path == null ? "" : path;
         
-        properties.setProperty(JFXRT_JAR_PATH_KEY, path);
-        return path; 
+        for (String path : results) {
+            if (new File(path).exists()) {
+                properties.setProperty(JFXRT_JAR_PATH_KEY, path);
+                return path;
+            }
+        }
+        
+        return ""; 
     }
 
     private String getToolsClassPath() {
@@ -157,11 +165,7 @@ public class ScenicViewBooter {
     }
     
     private void updateClassPath(final String uriPath) {
-        try {
-            updateClassPath(new URI(uriPath));
-        } catch (URISyntaxException ex) {
-            ex.printStackTrace();
-        }
+        updateClassPath(Utils.encodePath(uriPath));
     }
     
     private void updateClassPath(final URI uri) {
