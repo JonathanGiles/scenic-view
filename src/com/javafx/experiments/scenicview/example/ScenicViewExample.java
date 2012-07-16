@@ -207,6 +207,12 @@ public class ScenicViewExample extends Application {
         stage2.setScene(scene2);
         stage2.show();
 
+        TimelineBuilder.create().keyFrames(new KeyFrame(Duration.millis(10000), new EventHandler<ActionEvent>() {
+            @Override public void handle(final ActionEvent arg0) {
+                scene2.setRoot(new TilePane());
+            }
+        })).cycleCount(1).build().play();
+
         final Stage stages = new Stage();
         // workaround for RT-10714
         stages.setWidth(640);

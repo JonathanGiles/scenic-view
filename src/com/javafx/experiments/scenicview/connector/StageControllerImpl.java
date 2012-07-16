@@ -55,6 +55,7 @@ public class StageControllerImpl implements StageController {
     private final InvalidationListener targetScenePropListener;
     private final InvalidationListener targetWindowPropListener;
     private final InvalidationListener targetWindowSceneListener;
+    private final InvalidationListener targetSceneRootListener;
 
     private final InvalidationListener selectedNodePropListener;
 
@@ -112,12 +113,15 @@ public class StageControllerImpl implements StageController {
         }
     };
 
+    private final boolean realStageController;
+
     public StageControllerImpl(final Stage stage, final AppController appController) {
-        this(stage.getScene().getRoot(), appController);
+        this(stage.getScene().getRoot(), appController, true);
     }
 
-    public StageControllerImpl(final Parent target, final AppController appController) {
+    public StageControllerImpl(final Parent target, final AppController appController, final boolean realStageController) {
         this.appController = appController;
+        this.realStageController = realStageController;
         this.stageID = new StageID(appController.getID(), ConnectorUtils.getNodeUniqueID(target));
         targetScenePropListener = new InvalidationListener() {
             @Override public void invalidated(final Observable value) {
@@ -133,8 +137,17 @@ public class StageControllerImpl implements StageController {
         targetWindowSceneListener = new InvalidationListener() {
 
             @Override public void invalidated(final Observable arg0) {
-                if (targetScene.getRoot() == StageControllerImpl.this.target) {
+                if (realStageController) {
                     setTarget(targetWindow.getScene().getRoot());
+                    update();
+                }
+            }
+        };
+        targetSceneRootListener = new InvalidationListener() {
+
+            @Override public void invalidated(final Observable arg0) {
+                if (realStageController) {
+                    setTarget(targetScene.getRoot());
                     update();
                 }
             }
@@ -525,12 +538,14 @@ public class StageControllerImpl implements StageController {
         if (targetScene != null) {
             targetScene.widthProperty().removeListener(targetScenePropListener);
             targetScene.heightProperty().removeListener(targetScenePropListener);
+            targetScene.rootProperty().removeListener(targetSceneRootListener);
         }
         targetScene = value;
         if (targetScene != null) {
             setTargetWindow(targetScene.getWindow());
             targetScene.widthProperty().addListener(targetScenePropListener);
             targetScene.heightProperty().addListener(targetScenePropListener);
+            targetScene.rootProperty().addListener(targetSceneRootListener);
             targetScene.removeEventFilter(MouseEvent.MOUSE_MOVED, mousePosListener);
             targetScene.addEventFilter(MouseEvent.MOUSE_MOVED, mousePosListener);
             final boolean canBeRefreshed = StyleSheetRefresher.canStylesBeRefreshed(targetScene);

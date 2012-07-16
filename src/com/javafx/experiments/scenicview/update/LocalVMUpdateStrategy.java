@@ -18,7 +18,7 @@ public class LocalVMUpdateStrategy extends CommonUpdateStrategy implements Windo
         final AppController local = new AppControllerImpl();
         final List<Window> stages = WindowChecker.getValidWindows(this);
         for (int i = 0; i < stages.size(); i++) {
-            final StageController sc = new StageControllerImpl(stages.get(i).getScene().getRoot(), local);
+            final StageController sc = new StageControllerImpl((Stage) stages.get(i), local);
             local.getStages().add(sc);
         }
         final List<AppController> controllers = new ArrayList<AppController>(1);

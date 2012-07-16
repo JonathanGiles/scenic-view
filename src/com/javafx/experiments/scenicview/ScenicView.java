@@ -5,6 +5,7 @@
 
 package com.javafx.experiments.scenicview;
 
+import java.net.URI;
 import java.util.*;
 
 import javafx.animation.*;
@@ -17,7 +18,6 @@ import javafx.concurrent.Worker.State;
 import javafx.event.*;
 import javafx.geometry.*;
 import javafx.scene.*;
-import javafx.embed.swing.*;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
@@ -25,6 +25,8 @@ import javafx.scene.layout.*;
 import javafx.scene.web.WebView;
 import javafx.stage.*;
 import javafx.util.Duration;
+
+import javax.swing.JOptionPane;
 
 import com.javafx.experiments.scenicview.ScenegraphTreeView.SelectedNodeContainer;
 import com.javafx.experiments.scenicview.connector.*;
@@ -35,13 +37,7 @@ import com.javafx.experiments.scenicview.details.*;
 import com.javafx.experiments.scenicview.details.GDetailPane.RemotePropertySetter;
 import com.javafx.experiments.scenicview.dialog.*;
 import com.javafx.experiments.scenicview.update.*;
-import com.javafx.experiments.scenicview.utils.ClassPathDialog;
-import com.javafx.experiments.scenicview.utils.PathChangeListener;
-import com.javafx.experiments.scenicview.utils.PropertiesUtils;
-import com.javafx.experiments.scenicview.utils.ScenicViewBooter;
-import java.net.URI;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
+import com.javafx.experiments.scenicview.utils.*;
 
 /**
  * 
@@ -252,14 +248,14 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         classpathItem.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(final ActionEvent arg0) {
                 final Properties properties = PropertiesUtils.loadProperties();
-                
+
                 final String toolsPath = properties.getProperty(ScenicViewBooter.TOOLS_JAR_PATH_KEY);
                 final String jfxPath = properties.getProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY);
-                
+
                 ClassPathDialog.showDialog(toolsPath, jfxPath, false, new PathChangeListener() {
-                    public void onPathChanged(Map<String, URI> map) {
-                        URI toolsPath = map.get(PathChangeListener.TOOLS_JAR_KEY);
-                        URI jfxPath = map.get(PathChangeListener.JFXRT_JAR_KEY);
+                    @Override public void onPathChanged(final Map<String, URI> map) {
+                        final URI toolsPath = map.get(PathChangeListener.TOOLS_JAR_KEY);
+                        final URI jfxPath = map.get(PathChangeListener.JFXRT_JAR_KEY);
 
                         properties.setProperty(ScenicViewBooter.TOOLS_JAR_PATH_KEY, toolsPath.toASCIIString());
                         properties.setProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY, jfxPath.toASCIIString());
@@ -271,7 +267,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                 });
             }
         });
-        
+
         final MenuItem exitItem = new MenuItem("E_xit Scenic View");
         exitItem.setAccelerator(KeyCombination.keyCombination("CTRL+Q"));
         exitItem.setOnAction(new EventHandler<ActionEvent>() {
@@ -1005,7 +1001,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         final List<AppController> controllers = new ArrayList<AppController>();
         if (target != null) {
             final AppController aController = new AppControllerImpl();
-            final StageControllerImpl sController = new StageControllerImpl(target, aController);
+            final StageControllerImpl sController = new StageControllerImpl(target, aController, false);
 
             aController.getStages().add(sController);
             controllers.add(aController);
