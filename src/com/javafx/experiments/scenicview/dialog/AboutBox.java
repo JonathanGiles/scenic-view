@@ -1,5 +1,7 @@
 package com.javafx.experiments.scenicview.dialog;
 
+import java.util.Properties;
+
 import javafx.event.*;
 import javafx.geometry.*;
 import javafx.scene.*;
@@ -9,9 +11,8 @@ import javafx.scene.layout.*;
 import javafx.stage.*;
 
 import com.javafx.experiments.scenicview.*;
-import com.javafx.experiments.scenicview.utils.PropertiesUtils;
-import com.javafx.experiments.scenicview.utils.ScenicViewBooter;
-import java.util.Properties;
+import com.javafx.experiments.scenicview.connector.StageController;
+import com.javafx.experiments.scenicview.utils.*;
 
 public class AboutBox {
     private static final int SCENE_WIDTH = 476;
@@ -27,6 +28,7 @@ public class AboutBox {
 
     private AboutBox(final String title, final double x, final double y) {
         this.panel = new VBox();
+        this.panel.setId(StageController.SCENIC_VIEW_BASE_ID + "AboutBox");
         this.panel.getStyleClass().add("about");
 
         this.footer = new Button("Close");
@@ -76,24 +78,14 @@ public class AboutBox {
         toolsPath = toolsPath == null ? "Included in runtime classpath" : toolsPath;
         String jfxPath = properties.getProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY);
         jfxPath = jfxPath == null ? "Included in runtime classpath" : jfxPath;
-        
-        final String text = "JavaFX Scenic View " + ScenicView.VERSION + 
-                "\n" + "\n" + 
-                "JavaFX Build Information:" + "\n" + 
-                "Java FX " + System.getProperty("javafx.runtime.version") + "\n" + "\n" + 
-                
-                "Required Libraries:\n" +
-                "jfxrt.jar Home: " + jfxPath + "\n" +
-                "tools.jar Home: " + toolsPath + "\n\n" +
-                
-                "Operating System\n" + 
-                System.getProperty("os.name") + ", " + 
-                System.getProperty("os.arch") + ", " + 
-                System.getProperty("os.version") + 
-                
-                "\n\nJava Version\n" + System.getProperty("java.version") + ", " + 
-                System.getProperty("java.vendor") + ", " + 
-                System.getProperty("java.runtime.version");
+
+        final String text = "JavaFX Scenic View " + ScenicView.VERSION + "\n" + "\n" + "JavaFX Build Information:" + "\n" + "Java FX " + System.getProperty("javafx.runtime.version") + "\n" + "\n" +
+
+        "Required Libraries:\n" + "jfxrt.jar Home: " + jfxPath + "\n" + "tools.jar Home: " + toolsPath + "\n\n" +
+
+        "Operating System\n" + System.getProperty("os.name") + ", " + System.getProperty("os.arch") + ", " + System.getProperty("os.version") +
+
+        "\n\nJava Version\n" + System.getProperty("java.version") + ", " + System.getProperty("java.vendor") + ", " + System.getProperty("java.runtime.version");
 
         return text;
     }

@@ -10,6 +10,7 @@ import javafx.scene.web.WebView;
 import javafx.stage.*;
 
 import com.javafx.experiments.scenicview.*;
+import com.javafx.experiments.scenicview.connector.StageController;
 
 public class HelpBox {
 
@@ -22,6 +23,7 @@ public class HelpBox {
 
     public HelpBox(final String title, final String url, final double x, final double y) {
         final BorderPane pane = new BorderPane();
+        pane.setId(StageController.SCENIC_VIEW_BASE_ID + "HelpBox");
         pane.setPrefWidth(SCENE_WIDTH);
         pane.setPrefHeight(SCENE_HEIGHT);
         final WebView wview = new WebView();

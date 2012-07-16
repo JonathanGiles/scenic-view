@@ -188,7 +188,8 @@ public class ConnectorUtils {
 
     public static boolean acceptWindow(final Window window) {
         if (window instanceof Stage) {
-            if (window.getScene() != null && window.getScene().getRoot() != null && !window.getScene().getRoot().getClass().getName().startsWith("com.javafx.experiments.scenicview")) {
+            final Node root = window.getScene() != null ? window.getScene().getRoot() : null;
+            if (root != null && (root.getId() == null || !root.getId().startsWith(StageController.SCENIC_VIEW_BASE_ID))) {
                 return true;
             }
         }

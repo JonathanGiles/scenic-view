@@ -95,7 +95,6 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         }
 
         @Override public void dispatchEvent(final AppEvent appEvent) {
-            System.out.println("Event" + appEvent);
             if (isValid(appEvent)) {
                 switch (appEvent.getType()) {
                 case EVENT_LOG:
@@ -199,7 +198,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
     public ScenicView(final UpdateStrategy updateStrategy, final Stage senicViewStage) {
         Persistence.loadProperties();
         Runtime.getRuntime().addShutdownHook(shutdownHook);
-        setId("scenic-view");
+        setId(StageController.SCENIC_VIEW_BASE_ID + "scenic-view");
 
         borderPane = new BorderPane();
         borderPane.setId("main-borderpane");
