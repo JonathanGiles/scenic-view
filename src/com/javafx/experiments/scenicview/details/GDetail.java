@@ -221,7 +221,7 @@ public class GDetail {
 
                 @Override public void handle(final MouseEvent ev) {
                     if (ev.getClickCount() == 2) {
-                        loader.loadAPI(label.getText().substring(0, label.getText().length() - 1));
+                        loader.loadAPI(detail.getProperty());
                     }
                 }
             });
