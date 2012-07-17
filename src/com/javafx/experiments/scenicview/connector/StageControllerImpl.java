@@ -113,15 +113,12 @@ public class StageControllerImpl implements StageController {
         }
     };
 
-    private final boolean realStageController;
-
     public StageControllerImpl(final Stage stage, final AppController appController) {
         this(stage.getScene().getRoot(), appController, true);
     }
 
     public StageControllerImpl(final Parent target, final AppController appController, final boolean realStageController) {
         this.appController = appController;
-        this.realStageController = realStageController;
         this.stageID = new StageID(appController.getID(), ConnectorUtils.getNodeUniqueID(target));
         targetScenePropListener = new InvalidationListener() {
             @Override public void invalidated(final Observable value) {

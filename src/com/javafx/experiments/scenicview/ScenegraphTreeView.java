@@ -193,7 +193,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         setRoot(real);
     }
 
-    void unpatchRoot(final TreeItem<SVNode> newRoot) {
+    @SuppressWarnings("unchecked") void unpatchRoot(final TreeItem<SVNode> newRoot) {
         /**
          * Another ugly patch for solving the indentation issue in this case
          * when a node that was root node is inside the tree

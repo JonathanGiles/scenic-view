@@ -1,39 +1,32 @@
 package com.javafx.experiments.scenicview.utils;
 
 import java.io.*;
-import java.util.Properties;
+import java.net.*;
+import java.util.*;
+
+import javax.swing.SwingUtilities;
 
 import com.javafx.experiments.scenicview.connector.remote.RemoteScenicViewImpl;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 
 /**
  * 
  * @author Jonathan
  */
 public class ScenicViewBooter {
-    
+
     public static final String TOOLS_JAR_PATH_KEY = "attachPath";
     public static final String JFXRT_JAR_PATH_KEY = "jfxPath";
 
     public static void main(final String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override public void run() {
-                // instatiate the ClassPathDialog at startup to workaround issues
+                // instatiate the ClassPathDialog at startup to workaround
+                // issues
                 // if it is created after JavaFX has started.
                 ClassPathDialog.init();
             }
         });
-        
+
         new ScenicViewBooter();
     }
 
@@ -41,9 +34,9 @@ public class ScenicViewBooter {
 
     private ScenicViewBooter() {
         // first we check if the classes are already on the classpath
-        boolean[] checks = testClassPathRequirements();
-        boolean isAttachAPIAvailable = checks[0];
-        boolean isJFXAvailable = checks[1];
+        final boolean[] checks = testClassPathRequirements();
+        final boolean isAttachAPIAvailable = checks[0];
+        final boolean isJFXAvailable = checks[1];
 
         if (isAttachAPIAvailable && isJFXAvailable) {
             // Launch ScenicView directly
@@ -52,55 +45,55 @@ public class ScenicViewBooter {
             // If we are here, the classes are not on the classpath.
             // First, we read the properties file to find previous entries
             properties = PropertiesUtils.loadProperties();
-            
+
             String attachPath = "";
             String jfxPath = "";
-            
-            boolean needAttachAPI = ! isAttachAPIAvailable;
-            boolean needJFXAPI = ! isJFXAvailable;
+
+            boolean needAttachAPI = !isAttachAPIAvailable;
+            boolean needJFXAPI = !isJFXAvailable;
 
             if (needAttachAPI) {
                 // the tools.jar file
                 // firstly we try the properties reference
                 attachPath = properties.getProperty(TOOLS_JAR_PATH_KEY);
-                needAttachAPI = ! checkPath(attachPath);
+                needAttachAPI = !checkPath(attachPath);
                 if (needAttachAPI) {
-                    // If we can't get it from the properties file, we try to 
+                    // If we can't get it from the properties file, we try to
                     // find it on the users operating system
                     attachPath = getToolsClassPath();
-                    needAttachAPI = ! checkPath(attachPath);
+                    needAttachAPI = !checkPath(attachPath);
                 }
-                
-                if (! needAttachAPI) {
+
+                if (!needAttachAPI) {
                     updateClassPath(attachPath);
                 }
             }
-            
+
             if (needJFXAPI) {
                 // the jfxrt.jar file
                 // firstly we try the properties reference
                 jfxPath = properties.getProperty("jfxPath");
-                needJFXAPI = ! checkPath(jfxPath);
+                needJFXAPI = !checkPath(jfxPath);
                 if (needJFXAPI) {
-                    // If we can't get it from the properties file, we try to 
+                    // If we can't get it from the properties file, we try to
                     // find it on the users operating system
                     jfxPath = getJFXClassPath();
-                    needJFXAPI = ! checkPath(jfxPath);
+                    needJFXAPI = !checkPath(jfxPath);
                 }
-                
-                if (! needJFXAPI) {
+
+                if (!needJFXAPI) {
                     updateClassPath(jfxPath);
                 }
             }
-            
+
             if (needAttachAPI || needJFXAPI) {
                 final String _attachPath = attachPath;
                 final String _jfxPath = jfxPath;
-                
+
                 ClassPathDialog.showDialog(_attachPath, _jfxPath, true, new PathChangeListener() {
-                    public void onPathChanged(Map<String, URI> map) {
-                        URI toolsPath = map.get(PathChangeListener.TOOLS_JAR_KEY);
-                        URI jfxPath = map.get(PathChangeListener.JFXRT_JAR_KEY);
+                    @Override public void onPathChanged(final Map<String, URI> map) {
+                        final URI toolsPath = map.get(PathChangeListener.TOOLS_JAR_KEY);
+                        final URI jfxPath = map.get(PathChangeListener.JFXRT_JAR_KEY);
                         updateClassPath(toolsPath);
                         updateClassPath(jfxPath);
                         properties.setProperty(TOOLS_JAR_PATH_KEY, toolsPath.toASCIIString());
@@ -124,32 +117,32 @@ public class ScenicViewBooter {
                     return true;
                 }
             }
-        } catch (URISyntaxException e) {
+        } catch (final URISyntaxException e) {
             e.printStackTrace();
         }
         return false;
     }
 
     private String getJFXClassPath() {
-        List<String> results = JfxrtFinder.findJfxrt();
-//        // see if we can find JavaFX at the runtime path
-//        String path = System.getProperty("javafx.runtime.path");
-//        path = path == null ? "" : path;
-        
-        for (String path : results) {
+        final List<String> results = JfxrtFinder.findJfxrt();
+        // // see if we can find JavaFX at the runtime path
+        // String path = System.getProperty("javafx.runtime.path");
+        // path = path == null ? "" : path;
+
+        for (final String path : results) {
             if (new File(path).exists()) {
                 properties.setProperty(JFXRT_JAR_PATH_KEY, path);
                 return path;
             }
         }
-        
-        return ""; 
+
+        return "";
     }
 
     private String getToolsClassPath() {
         final String javaHome = System.getProperty("java.home");
         if (!javaHome.contains("jdk")) {
-//            JOptionPane.showMessageDialog(null, "No JDK found");
+            // JOptionPane.showMessageDialog(null, "No JDK found");
             System.out.println("Error: No JDK found on system");
             return null;
         }
@@ -162,27 +155,28 @@ public class ScenicViewBooter {
 
         final File toolsJar = new File(javaHome + "/../lib/tools.jar");
         if (!toolsJar.exists()) {
-//            JOptionPane.showMessageDialog(null, "No tools.jar found at\n" + toolsJar);
+            // JOptionPane.showMessageDialog(null, "No tools.jar found at\n" +
+            // toolsJar);
             System.out.println("Error: Can not find tools.jar on system - disabling VM lookup");
             return null;
         }
 
-//        System.out.println("Attempting to load tools.jar file from here:");
-//        System.out.println(toolsJar.getAbsolutePath());
+        // System.out.println("Attempting to load tools.jar file from here:");
+        // System.out.println(toolsJar.getAbsolutePath());
 
-        String path = toolsJar.getAbsolutePath();
+        final String path = toolsJar.getAbsolutePath();
         properties.setProperty(TOOLS_JAR_PATH_KEY, path);
-        
+
         return path;
     }
-    
+
     private void updateClassPath(final String uriPath) {
         updateClassPath(Utils.encodePath(uriPath));
     }
-    
+
     private void updateClassPath(final URI uri) {
         try {
-            URL url = uri.toURL();
+            final URL url = uri.toURL();
             System.out.println("Adding to classpath: " + url);
             ClassPathHacker.addURL(url);
         } catch (final IOException ex) {
@@ -193,7 +187,7 @@ public class ScenicViewBooter {
     private boolean[] testClassPathRequirements() {
         boolean isAttachAPIAvailable = false;
         boolean isJFXAvailable = false;
-        
+
         // Test if we can load a class from tools.jar
         try {
             Class.forName("com.sun.tools.attach.AttachNotSupportedException").newInstance();
@@ -201,7 +195,7 @@ public class ScenicViewBooter {
         } catch (final Exception e) {
             System.out.println("Java Attach API was not found");
         }
-        
+
         // Test if we can load a class from jfxrt.jar
         try {
             Class.forName("javafx.beans.property.SimpleBooleanProperty").newInstance();
@@ -209,7 +203,7 @@ public class ScenicViewBooter {
         } catch (final Exception e) {
             System.out.println("JavaFX API was not found");
         }
-        
-        return new boolean[] { isAttachAPIAvailable, isJFXAvailable};
+
+        return new boolean[] { isAttachAPIAvailable, isJFXAvailable };
     }
 }

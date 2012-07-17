@@ -5,27 +5,31 @@
 package com.javafx.experiments.scenicview.utils;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.net.*;
+import java.util.logging.*;
 
 /**
- *
+ * 
  * @author Jonathan
  */
 public class Utils {
-    public static URI encodePath(String path) {
+    public static URI encodePath(final String path) {
         try {
-            URL url = new File(path).toURL();
+            final URL url = new File(path).toURL();
             return new URI(url.getProtocol(), url.getHost(), url.getPath(), null);
-        } catch (URISyntaxException ex) {
+        } catch (final URISyntaxException ex) {
             Logger.getLogger(ClassPathDialog.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (MalformedURLException ex) {
+        } catch (final MalformedURLException ex) {
             Logger.getLogger(ClassPathDialog.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
+    }
+
+    public static boolean isMac() {
+
+        final String os = System.getProperty("os.name").toLowerCase();
+        // Mac
+        return (os.indexOf("mac") >= 0);
+
     }
 }
