@@ -131,7 +131,7 @@ public class ScenicViewBooter {
 
         for (final String path : results) {
             if (new File(path).exists()) {
-                properties.setProperty(JFXRT_JAR_PATH_KEY, path);
+                // properties.setProperty(JFXRT_JAR_PATH_KEY, path);
                 return path;
             }
         }
@@ -153,25 +153,40 @@ public class ScenicViewBooter {
         // lib directory to find tools.jar
         System.out.println("JDK found at: " + javaHome);
 
-        final File toolsJar = new File(javaHome + "/../lib/tools.jar");
+        File toolsJar = new File(javaHome + "/../lib/tools.jar");
         if (!toolsJar.exists()) {
             // JOptionPane.showMessageDialog(null, "No tools.jar found at\n" +
             // toolsJar);
-            System.out.println("Error: Can not find tools.jar on system - disabling VM lookup");
-            return null;
+            boolean found = false;
+            if (Utils.isMac()) {
+                toolsJar = getToolsClassPathOnMAC();
+                if (toolsJar != null) {
+                    found = true;
+                }
+            }
+            if (!found) {
+                System.out.println("Error: Can not find tools.jar on system - disabling VM lookup");
+                return null;
+            }
         }
 
         // System.out.println("Attempting to load tools.jar file from here:");
         // System.out.println(toolsJar.getAbsolutePath());
 
         final String path = toolsJar.getAbsolutePath();
-        properties.setProperty(TOOLS_JAR_PATH_KEY, path);
+        // properties.setProperty(TOOLS_JAR_PATH_KEY, path);
 
         return path;
     }
 
     private void updateClassPath(final String uriPath) {
-        updateClassPath(Utils.encodePath(uriPath));
+        System.out.println(uriPath);
+        try {
+            updateClassPath(new URI(uriPath));
+        } catch (final URISyntaxException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }// Utils.encodePath(uriPath));
     }
 
     private void updateClassPath(final URI uri) {
@@ -205,5 +220,45 @@ public class ScenicViewBooter {
         }
 
         return new boolean[] { isAttachAPIAvailable, isJFXAvailable };
+    }
+
+    private File getToolsClassPathOnMAC() {
+        final File jvmsRoot = new File("/Library/Java/JavaVirtualMachines/");
+        final File[] jdks = jvmsRoot.listFiles(new FileFilter() {
+
+            @Override public boolean accept(final File dir) {
+                return (dir.isDirectory() && dir.getName().indexOf(".jdk") != -1);
+            }
+        });
+        for (int i = 0; i < jdks.length; i++) {
+            System.out.println("Valid JDKs:" + jdks[i].getName());
+        }
+        final String javaVersion = System.getProperty("java.version");
+        /**
+         * If we are using JDK6 using classes.jar otherwise tools.jar
+         */
+        if (javaVersion.indexOf("1.6") != -1) {
+            for (int i = 0; i < jdks.length; i++) {
+                if (jdks[i].getName().indexOf("1.6") != -1) {
+                    final File classesFile = new File(jdks[i], "Contents/Classes/classes.jar");
+                    if (classesFile.exists()) {
+                        System.out.println("Classes file found on MAC in:" + classesFile.getAbsolutePath());
+                        return classesFile;
+                    }
+                }
+            }
+        }
+        if (javaVersion.indexOf("1.7") != -1) {
+            for (int i = 0; i < jdks.length; i++) {
+                if (jdks[i].getName().indexOf("1.7") != -1) {
+                    final File toolsFile = new File(jdks[i], "Contents/Home/lib/tools.jar");
+                    if (toolsFile.exists()) {
+                        System.out.println("Tools file found on MAC in:" + toolsFile.getAbsolutePath());
+                        return toolsFile;
+                    }
+                }
+            }
+        }
+        return null;
     }
 }
