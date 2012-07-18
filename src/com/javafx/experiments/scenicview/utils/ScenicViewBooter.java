@@ -99,6 +99,7 @@ public class ScenicViewBooter {
                         properties.setProperty(TOOLS_JAR_PATH_KEY, toolsPath.toASCIIString());
                         properties.setProperty(JFXRT_JAR_PATH_KEY, jfxPath.toASCIIString());
                         PropertiesUtils.saveProperties();
+                        ClassPathDialog.hideDialog();
                         RemoteScenicViewImpl.start();
                     }
                 });
