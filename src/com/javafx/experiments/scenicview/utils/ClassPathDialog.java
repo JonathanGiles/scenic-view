@@ -157,8 +157,16 @@ public class ClassPathDialog extends JFrame {
         actionButton.addActionListener(new ActionListener() {
             @Override public void actionPerformed(final ActionEvent e) {
                 final HashMap<String, URI> map = new HashMap<String, URI>();
-                map.put(PathChangeListener.TOOLS_JAR_KEY, Utils.encodePath(toolsField.getText()));
-                map.put(PathChangeListener.JFXRT_JAR_KEY, Utils.encodePath(jfxField.getText()));
+                if (new File(toolsField.getText()).exists()) {
+                    map.put(PathChangeListener.TOOLS_JAR_KEY, Utils.encodePath(toolsField.getText()));
+                } else {
+                    map.put(PathChangeListener.TOOLS_JAR_KEY, Utils.toURI(toolsField.getText()));
+                }
+                if (new File(jfxField.getText()).exists()) {
+                    map.put(PathChangeListener.JFXRT_JAR_KEY, Utils.encodePath(jfxField.getText()));
+                } else {
+                    map.put(PathChangeListener.JFXRT_JAR_KEY, Utils.toURI(jfxField.getText()));
+                }
                 if (pathChangeListener != null) {
                     pathChangeListener.onPathChanged(map);
                 }
@@ -203,8 +211,8 @@ public class ClassPathDialog extends JFrame {
     }
 
     private void checkValid() {
-        final boolean toolsJarExists = new File(toolsField.getText()).exists();
-        final boolean javafxJarExists = new File(jfxField.getText()).exists();
+        final boolean toolsJarExists = Utils.checkPath(toolsField.getText());
+        final boolean javafxJarExists = Utils.checkPath(jfxField.getText());
         actionButton.setEnabled(toolsJarExists && javafxJarExists);
 
         // update the UI to indicate whether the selected paths are valid

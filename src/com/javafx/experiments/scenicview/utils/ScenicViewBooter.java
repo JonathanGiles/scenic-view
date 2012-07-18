@@ -56,12 +56,12 @@ public class ScenicViewBooter {
                 // the tools.jar file
                 // firstly we try the properties reference
                 attachPath = properties.getProperty(TOOLS_JAR_PATH_KEY);
-                needAttachAPI = !checkPath(attachPath);
+                needAttachAPI = !Utils.checkPath(attachPath);
                 if (needAttachAPI) {
                     // If we can't get it from the properties file, we try to
                     // find it on the users operating system
                     attachPath = getToolsClassPath();
-                    needAttachAPI = !checkPath(attachPath);
+                    needAttachAPI = !Utils.checkPath(attachPath);
                 }
 
                 if (!needAttachAPI) {
@@ -73,12 +73,12 @@ public class ScenicViewBooter {
                 // the jfxrt.jar file
                 // firstly we try the properties reference
                 jfxPath = properties.getProperty("jfxPath");
-                needJFXAPI = !checkPath(jfxPath);
+                needJFXAPI = !Utils.checkPath(jfxPath);
                 if (needJFXAPI) {
                     // If we can't get it from the properties file, we try to
                     // find it on the users operating system
                     jfxPath = getJFXClassPath();
-                    needJFXAPI = !checkPath(jfxPath);
+                    needJFXAPI = !Utils.checkPath(jfxPath);
                 }
 
                 if (!needJFXAPI) {
@@ -107,21 +107,6 @@ public class ScenicViewBooter {
                 RemoteScenicViewImpl.start();
             }
         }
-    }
-
-    private boolean checkPath(final String path) {
-        try {
-            if (path != null && !path.equals("")) {
-                if (new File(path).exists()) {
-                    return true;
-                } else if (new File(new URI(path)).exists()) {
-                    return true;
-                }
-            }
-        } catch (final URISyntaxException e) {
-            e.printStackTrace();
-        }
-        return false;
     }
 
     private String getJFXClassPath() {
@@ -181,12 +166,7 @@ public class ScenicViewBooter {
     }
 
     private void updateClassPath(final String uriPath) {
-        try {
-            updateClassPath(new URI(uriPath));
-        } catch (final URISyntaxException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }// Utils.encodePath(uriPath));
+        updateClassPath(Utils.toURI(uriPath));
     }
 
     private void updateClassPath(final URI uri) {
