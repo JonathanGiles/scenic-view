@@ -360,7 +360,9 @@ public class StageControllerImpl implements StageController {
     private void updateSceneDetails() {
         // hack, since we can't listen for a STAGE prop change on scene
         setNodeCount(ConnectorUtils.getBranchCount(target));
-        dispatcher.dispatchEvent(new SceneDetailsEvent(getID(), nodeCount, targetScene != null ? ConnectorUtils.format(targetScene.getWidth()) + " x " + ConnectorUtils.format(targetScene.getHeight()) : ""));
+        if (dispatcher != null) {
+            dispatcher.dispatchEvent(new SceneDetailsEvent(getID(), nodeCount, targetScene != null ? ConnectorUtils.format(targetScene.getWidth()) + " x " + ConnectorUtils.format(targetScene.getHeight()) : ""));
+        }
         if (targetScene != null && targetWindow == null) {
             setTargetWindow(targetScene.getWindow());
         }
