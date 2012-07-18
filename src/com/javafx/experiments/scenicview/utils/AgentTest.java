@@ -109,7 +109,9 @@ public class AgentTest {
                                 }
                                 controller.clear();
                             } else {
-                                getSC(id, true).close();
+                                final StageController c = getSC(id, true);
+                                if (c != null)
+                                    c.close();
 
                             }
                         }

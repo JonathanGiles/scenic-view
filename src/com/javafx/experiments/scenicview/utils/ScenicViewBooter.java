@@ -180,7 +180,6 @@ public class ScenicViewBooter {
     }
 
     private void updateClassPath(final String uriPath) {
-        System.out.println(uriPath);
         try {
             updateClassPath(new URI(uriPath));
         } catch (final URISyntaxException e) {
