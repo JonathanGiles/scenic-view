@@ -87,6 +87,24 @@ public class ScenicViewBooter {
             }
 
             if (needAttachAPI || needJFXAPI) {
+
+                /**
+                 * This needs to be improved, in this situation we already have
+                 * attachAPI but not because it was saved in the file, try to
+                 * fill the path by finding it
+                 */
+                if (!needAttachAPI && (attachPath == null || attachPath.equals(""))) {
+                    attachPath = getToolsClassPath();
+                }
+                /**
+                 * This needs to be improved, in this situation we already have
+                 * jfxAPI but not because it was saved in the file, try to fill
+                 * the path by finding it
+                 */
+                if (!needJFXAPI && (jfxPath == null || attachPath.equals(""))) {
+                    jfxPath = getJFXClassPath();
+                }
+
                 final String _attachPath = attachPath;
                 final String _jfxPath = jfxPath;
 
@@ -203,7 +221,19 @@ public class ScenicViewBooter {
     }
 
     private File getToolsClassPathOnMAC() {
-        final File jvmsRoot = new File("/Library/Java/JavaVirtualMachines/");
+        /**
+         * Apparently tools.jar can be on: a) /Library/Java/JavaVirtualMachines/
+         * b) System/Library/Java/JavaVirtualMachines/
+         */
+        File toolsFile = getToolsClassPathOnMAC(new File("/Library/Java/JavaVirtualMachines/"));
+        if (toolsFile == null) {
+            toolsFile = getToolsClassPathOnMAC(new File("/System/Library/Java/JavaVirtualMachines/"));
+        }
+        return toolsFile;
+    }
+
+    private File getToolsClassPathOnMAC(final File jvmsRoot) {
+        System.out.println("Testing tools classPath on MAC:" + jvmsRoot.getAbsolutePath());
         final File[] jdks = jvmsRoot.listFiles(new FileFilter() {
 
             @Override public boolean accept(final File dir) {
