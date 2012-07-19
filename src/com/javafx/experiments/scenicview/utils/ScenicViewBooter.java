@@ -101,7 +101,7 @@ public class ScenicViewBooter {
                  * jfxAPI but not because it was saved in the file, try to fill
                  * the path by finding it
                  */
-                if (!needJFXAPI && (jfxPath == null || attachPath.equals(""))) {
+                if (!needJFXAPI && (jfxPath == null || jfxPath.equals(""))) {
                     jfxPath = getJFXClassPath();
                 }
 
@@ -134,7 +134,7 @@ public class ScenicViewBooter {
         // path = path == null ? "" : path;
 
         for (final String path : results) {
-            if (new File(path).exists()) {
+            if (path != null && new File(path).exists()) {
                 // properties.setProperty(JFXRT_JAR_PATH_KEY, path);
                 return path;
             }

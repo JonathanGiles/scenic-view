@@ -50,6 +50,9 @@ class Utils {
 
     static URI toURI(final String uri) {
         try {
+            if (new File(uri).exists()) {
+                return encodePath(new File(uri).getAbsolutePath());
+            }
             return new URI(uri);
         } catch (final URISyntaxException e) {
             // TODO Auto-generated catch block
