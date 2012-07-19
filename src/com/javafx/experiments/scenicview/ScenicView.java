@@ -737,7 +737,11 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                 updateAnimations();
             }
         });
-        tabPane.getTabs().addAll(detailsTab, eventsTab, animationsTab, javadocTab);
+        tabPane.getTabs().addAll(detailsTab/**
+         * , eventsTab, animationsTab,
+         * javadocTab
+         */
+        );
         Persistence.loadProperty("splitPaneDividerPosition", splitPane, 0.3);
 
         splitPane.getItems().addAll(leftPane, tabPane);
@@ -807,20 +811,22 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
     }
 
     public void loadAPI(final String property) {
-        if (property != null) {
-            tabPane.getSelectionModel().select(javadocTab);
-        }
-        if (javadocTab.isSelected()) {
-            if (selectedNode == null || selectedNode.getNodeClassName() == null || !selectedNode.getNodeClassName().startsWith("javafx.")) {
-                doLoad("http://docs.oracle.com/javafx/2/api/overview-summary.html");
-            } else {
-                String baseClass = selectedNode.getNodeClassName();
-                if (property != null) {
-                    baseClass = findProperty(baseClass, property);
-                }
-                final String page = "http://docs.oracle.com/javafx/2/api/" + baseClass.replace('.', '/') + ".html" + (property != null ? ("#" + property + "Property") : "");
-                if (!wview.getEngine().getLocation().equals(page)) {
-                    doLoad(page);
+        if (tabPane.getTabs().contains(javadocTab)) {
+            if (property != null) {
+                tabPane.getSelectionModel().select(javadocTab);
+            }
+            if (javadocTab.isSelected()) {
+                if (selectedNode == null || selectedNode.getNodeClassName() == null || !selectedNode.getNodeClassName().startsWith("javafx.")) {
+                    doLoad("http://docs.oracle.com/javafx/2/api/overview-summary.html");
+                } else {
+                    String baseClass = selectedNode.getNodeClassName();
+                    if (property != null) {
+                        baseClass = findProperty(baseClass, property);
+                    }
+                    final String page = "http://docs.oracle.com/javafx/2/api/" + baseClass.replace('.', '/') + ".html" + (property != null ? ("#" + property + "Property") : "");
+                    if (!wview.getEngine().getLocation().equals(page)) {
+                        doLoad(page);
+                    }
                 }
             }
         }
