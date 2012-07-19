@@ -220,9 +220,30 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
 
     public static void start() {
         strategy = new RemoteVMsUpdateStrategy();
+        final Thread current = Thread.currentThread();
+        new Thread() {
+            @Override public void run() {
+                while (view == null) {
+                    try {
+                        Thread.sleep(20000);
+                    } catch (final InterruptedException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    if (view == null) {
+                        System.out.println("ScenicView blocked?, stackTrace:");
+                        final StackTraceElement[] trace = current.getStackTrace();
+                        for (int i = 0; i < trace.length; i++) {
+                            System.out.println(trace[i]);
+                        }
+                    }
+                }
+            }
+        }.start();
         PlatformImpl.startup(new Runnable() {
 
             @Override public void run() {
+                System.out.println("Platform running");
                 final Stage stage = new Stage();
                 // workaround for RT-10714
                 stage.setWidth(640);
@@ -232,20 +253,23 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                 ScenicView.show(view, stage);
             }
         });
+        System.out.println("Startup done");
         while (view == null) {
             try {
-                Thread.sleep(50);
+                Thread.sleep(500);
             } catch (final InterruptedException e) {
                 e.printStackTrace();
             }
         }
 
+        System.out.println("Creating server");
         try {
             server = new RemoteScenicViewImpl(view);
         } catch (final RemoteException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
+        System.out.println("Server done");
     }
 
     public List<AppController> connect() {
