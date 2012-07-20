@@ -17,6 +17,7 @@ import com.javafx.experiments.scenicview.connector.details.DetailPaneType;
 import com.javafx.experiments.scenicview.connector.event.*;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
 import com.javafx.experiments.scenicview.update.RemoteVMsUpdateStrategy;
+import com.sun.javafx.Utils;
 import com.sun.javafx.application.PlatformImpl;
 import com.sun.tools.attach.*;
 
@@ -311,7 +312,11 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
             e.printStackTrace();
         }
         final long initial = System.currentTimeMillis();
-        while (count.get() != 0 && System.currentTimeMillis() - initial < 10000) {
+        /**
+         * MAC Seems to be slower using attach API
+         */
+        final long timeout = Utils.isMac() ? 30000 : 10000;
+        while (count.get() != 0 && System.currentTimeMillis() - initial < timeout) {
             try {
                 Thread.sleep(50);
             } catch (final InterruptedException e) {
@@ -361,7 +366,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
             final long start = System.currentTimeMillis();
             final int port = getValidPort();
             if (first)
-                System.out.println("Loading agent for:" + machine + " on port:" + port + " took:" + (System.currentTimeMillis() - start) + "ms");
+                System.out.println("Loading agent for:" + machine + " ID:" + machine.id() + " on port:" + port + " took:" + (System.currentTimeMillis() - start) + "ms");
             vmInfo.put(port, machine.id());
             machine.loadAgent(f.getAbsolutePath(), Integer.toString(port) + ":" + this.port + ":" + machine.id());
             machine.detach();
