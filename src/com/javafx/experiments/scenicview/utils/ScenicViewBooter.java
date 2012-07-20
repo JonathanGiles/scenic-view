@@ -4,8 +4,6 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import javax.swing.SwingUtilities;
-
 import com.javafx.experiments.scenicview.connector.remote.RemoteScenicViewImpl;
 
 /**
@@ -18,14 +16,6 @@ public class ScenicViewBooter {
     public static final String JFXRT_JAR_PATH_KEY = "jfxPath";
 
     public static void main(final String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override public void run() {
-                // instatiate the ClassPathDialog at startup to workaround
-                // issues
-                // if it is created after JavaFX has started.
-                ClassPathDialog.init();
-            }
-        });
 
         new ScenicViewBooter();
     }
@@ -108,6 +98,16 @@ public class ScenicViewBooter {
                 final String _attachPath = attachPath;
                 final String _jfxPath = jfxPath;
 
+                javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                    @Override public void run() {
+                        // instatiate the ClassPathDialog at startup to
+                        // workaround
+                        // issues
+                        // if it is created after JavaFX has started.
+                        ClassPathDialog.init();
+                    }
+                });
+
                 ClassPathDialog.showDialog(_attachPath, _jfxPath, true, new PathChangeListener() {
                     @Override public void onPathChanged(final Map<String, URI> map) {
                         final URI toolsPath = map.get(PathChangeListener.TOOLS_JAR_KEY);
@@ -118,7 +118,12 @@ public class ScenicViewBooter {
                         properties.setProperty(JFXRT_JAR_PATH_KEY, jfxPath.toASCIIString());
                         PropertiesUtils.saveProperties();
                         ClassPathDialog.hideDialog();
-                        RemoteScenicViewImpl.start();
+                        new Thread() {
+                            @Override public void run() {
+                                RemoteScenicViewImpl.start();
+                            }
+                        }.start();
+
                     }
                 });
             } else {
