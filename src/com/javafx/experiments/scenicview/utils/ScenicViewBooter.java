@@ -97,7 +97,9 @@ public class ScenicViewBooter {
 
                 final String _attachPath = attachPath;
                 final String _jfxPath = jfxPath;
-
+                if (Utils.isMac()) {
+                    System.setProperty("javafx.macosx.embedded", "true");
+                }
                 javax.swing.SwingUtilities.invokeLater(new Runnable() {
                     @Override public void run() {
                         // instatiate the ClassPathDialog at startup to
