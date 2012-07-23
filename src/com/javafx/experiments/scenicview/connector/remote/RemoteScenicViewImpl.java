@@ -73,8 +73,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
     }
 
     @Override public void onAgentStarted(final int port) {
-        if (first)
-            System.out.println("Remote agent started on port:" + port);
+        debug("Remote agent started on port:" + port);
         RMIUtils.findApplication(port, new Observer() {
 
             @Override public void update(final Observable o, final Object obj) {
@@ -107,8 +106,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
 
         };
         for (int i = 0; i < ids.length; i++) {
-            if (first)
-                System.out.println("RemoteApp connected on:" + port + " stageID:" + ids[i]);
+            debug("RemoteApp connected on:" + port + " stageID:" + ids[i]);
             final int cont = i;
             impl.getStages().add(new StageController() {
 
@@ -277,12 +275,10 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
         apps = new ArrayList<AppController>();
         vmInfo.clear();
         final List<VirtualMachine> machines = getRunningJavaFXApplications();
-        if (first)
-            System.out.println(machines.size() + " JavaFX VMs found");
+        debug(machines.size() + " JavaFX VMs found");
         count.set(machines.size());
         final File f = new File("./ScenicView.jar");
-        if (first)
-            System.out.println("Loading agent from file:" + f.getAbsolutePath());
+        debug("Loading agent from file:" + f.getAbsolutePath());
 
         try {
             for (final VirtualMachine machine : machines) {
@@ -365,8 +361,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
         try {
             final long start = System.currentTimeMillis();
             final int port = getValidPort();
-            if (first)
-                System.out.println("Loading agent for:" + machine + " ID:" + machine.id() + " on port:" + port + " took:" + (System.currentTimeMillis() - start) + "ms");
+            debug("Loading agent for:" + machine + " ID:" + machine.id() + " on port:" + port + " took:" + (System.currentTimeMillis() - start) + "ms");
             vmInfo.put(port, machine.id());
             machine.loadAgent(f.getAbsolutePath(), Integer.toString(port) + ":" + this.port + ":" + machine.id());
             machine.detach();
@@ -379,26 +374,55 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
 
     private List<VirtualMachine> getRunningJavaFXApplications() {
         final List<VirtualMachineDescriptor> machines = VirtualMachine.list();
+        debug("Number of JVMs:" + machines.size());
         final List<VirtualMachine> javaFXMachines = new ArrayList<VirtualMachine>();
 
+        final Map<String, Properties> vmsProperties = new HashMap<String, Properties>(machines.size());
         for (int i = 0; i < machines.size(); i++) {
             final VirtualMachineDescriptor vmd = machines.get(i);
             try {
                 final VirtualMachine virtualMachine = VirtualMachine.attach(vmd);
+                debug("Obtaining properties for JVM:" + virtualMachine.id());
                 final Properties sysPropertiesMap = virtualMachine.getSystemProperties();
-                if (sysPropertiesMap.containsKey(JAVAFX_SYSTEM_PROPERTIES_KEY)) {
+                vmsProperties.put(virtualMachine.id(), sysPropertiesMap);
+                if (sysPropertiesMap != null && sysPropertiesMap.containsKey(JAVAFX_SYSTEM_PROPERTIES_KEY)) {
                     javaFXMachines.add(virtualMachine);
                 } else {
                     virtualMachine.detach();
                 }
+                debug("JVM:" + virtualMachine.id() + " detection finished");
             } catch (final AttachNotSupportedException ex) {
                 ex.printStackTrace();
             } catch (final IOException ex) {
                 ex.printStackTrace();
             }
         }
+        /**
+         * We always have at least one JFX VM
+         */
+        if (first && javaFXMachines.size() <= 1 && machines.size() > 1) {
+            debug("No JavaFX VM found? dumping properties");
+            for (final Iterator<String> iterator = vmsProperties.keySet().iterator(); iterator.hasNext();) {
+                final String id = iterator.next();
+
+                final Properties properties = vmsProperties.get(id);
+                if (!properties.containsKey(JAVAFX_SYSTEM_PROPERTIES_KEY)) {
+                    debug("ID:" + id);
+                    for (@SuppressWarnings("rawtypes") final Iterator iterator2 = properties.keySet().iterator(); iterator2.hasNext();) {
+                        final String value = (String) iterator2.next();
+                        debug("\t" + value + "=" + properties.getProperty(value));
+                    }
+                }
+
+            }
+        }
 
         return javaFXMachines;
     }
 
+    private void debug(final String data) {
+        if (first) {
+            System.out.println(data);
+        }
+    }
 }
