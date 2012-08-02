@@ -251,9 +251,12 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
 
                 final String toolsPath = properties.getProperty(ScenicViewBooter.TOOLS_JAR_PATH_KEY);
                 final String jfxPath = properties.getProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY);
-
+                if (!ClassPathDialog.hasBeenInited()) {
+                    ClassPathDialog.init();
+                }
                 ClassPathDialog.showDialog(toolsPath, jfxPath, false, new PathChangeListener() {
                     @Override public void onPathChanged(final Map<String, URI> map) {
+
                         final URI toolsPath = map.get(PathChangeListener.TOOLS_JAR_KEY);
                         final URI jfxPath = map.get(PathChangeListener.JFXRT_JAR_KEY);
 
@@ -281,7 +284,10 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         });
 
         final Menu fileMenu = new Menu("File");
-        fileMenu.getItems().addAll(classpathItem, new SeparatorMenuItem(), exitItem);
+        if (updateStrategy.needsClassPathConfiguration()) {
+            fileMenu.getItems().addAll(classpathItem, new SeparatorMenuItem());
+        }
+        fileMenu.getItems().add(exitItem);
 
         // ---- Options Menu
         final CheckMenuItem showBoundsCheckbox = buildCheckMenuItem("Show Bounds Overlays", "Show the bound overlays on selected", "Do not show bound overlays on selected", "showBounds", Boolean.TRUE);

@@ -28,4 +28,8 @@ public class DummyUpdateStrategy implements UpdateStrategy {
         // TODO Auto-generated method stub
 
     }
+
+    @Override public boolean needsClassPathConfiguration() {
+        return false;
+    }
 }

@@ -34,7 +34,7 @@ public class ClassPathDialog extends JFrame {
 
     private static ClassPathDialog instance;
 
-    static void init() {
+    public static void init() {
         if (SwingUtilities.isEventDispatchThread()) {
             instance = new ClassPathDialog();
         } else {
@@ -46,9 +46,14 @@ public class ClassPathDialog extends JFrame {
         }
     }
 
+    public static boolean hasBeenInited() {
+        return instance != null;
+    }
+
     public static void showDialog(final String toolsPath, final String jfxPath, final boolean isBootTime, final PathChangeListener listener) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override public void run() {
+                System.out.println("INSTANCE:" + instance);
                 instance.configure(toolsPath, jfxPath, isBootTime, listener);
                 instance.setVisible(true);
                 instance.toFront();

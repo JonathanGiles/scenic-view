@@ -44,4 +44,8 @@ public class RemoteVMsUpdateStrategy extends CommonUpdateStrategy {
         // }
     }
 
+    @Override public boolean needsClassPathConfiguration() {
+        return true;
+    }
+
 }
