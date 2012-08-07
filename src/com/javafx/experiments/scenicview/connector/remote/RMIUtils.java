@@ -60,8 +60,7 @@ public class RMIUtils {
 
                 while (scenicView == null) {
                     try {
-                        if (AgentTest.first)
-                            System.out.println("Finding RemoteScenicView connection for agent...");
+                        AgentTest.debug("Finding RemoteScenicView connection for agent...");
                         scenicView = findScenicView("127.0.0.1", port);
                         if (scenicView == null) {
                             sleep(50);

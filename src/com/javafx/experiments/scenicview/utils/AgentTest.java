@@ -15,20 +15,30 @@ import com.javafx.experiments.scenicview.connector.remote.*;
 
 public class AgentTest {
 
-    public static boolean first = true;
+    private static boolean debug = false;
 
     private static RemoteApplicationImpl application;
 
-    public static void agentmain(final String agentArgs, final Instrumentation instrumentation) {
+    public static void debug(final String log) {
+        if (debug) {
+            System.out.println(log);
+        }
+    }
 
-        if (first)
-            System.out.println("Launching agent server on:" + agentArgs);
+    public static void agentmain(final String agentArgs, final Instrumentation instrumentation) {
+        /**
+         * Do it first to see first trace, this should be change if any other
+         * boolean argument is included in the future
+         */
+        debug = agentArgs.indexOf("true") != -1;
+        debug("Launching agent server on:" + agentArgs);
         try {
             final String[] args = agentArgs.split(":");
 
             final int port = Integer.parseInt(args[0]);
             final int serverPort = Integer.parseInt(args[1]);
             final int appID = Integer.parseInt(args[2]);
+            debug = Boolean.parseBoolean(args[3]);
             final AppControllerImpl acontroller = new AppControllerImpl(appID, args[2]);
 
             final RemoteApplication application = new RemoteApplication() {
@@ -81,8 +91,7 @@ public class AgentTest {
                     while (it.hasNext()) {
                         final Window window = it.next();
                         if (ConnectorUtils.acceptWindow(window)) {
-                            if (first)
-                                System.out.println("Local JavaFX Stage found:" + ((Stage) window).getTitle());
+                            debug("Local JavaFX Stage found:" + ((Stage) window).getTitle());
                             final StageControllerImpl scontroller = new StageControllerImpl((Stage) window, acontroller);
                             scontroller.setRemote(true);
                             finded.add(scontroller);
@@ -122,7 +131,7 @@ public class AgentTest {
                     Platform.runLater(new Runnable() {
 
                         @Override public void run() {
-                            System.out.println("Setting selected node:" + (value != null ? (" id:" + value.getNodeId() + " class:" + value.getClass()) : ""));
+                            debug("Setting selected node:" + (value != null ? (" id:" + value.getNodeId() + " class:" + value.getClass()) : ""));
                             getSC(id).setSelectedNode(value);
                         }
                     });
@@ -186,7 +195,7 @@ public class AgentTest {
                 }
 
             };
-            first = false;
+            debug = false;
             AgentTest.application = new RemoteApplicationImpl(application, port, serverPort);
         } catch (final RemoteException e) {
             // TODO Auto-generated catch block

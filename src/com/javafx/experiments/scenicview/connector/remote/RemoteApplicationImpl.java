@@ -43,8 +43,7 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
                 e.printStackTrace();
             }
         }
-        if (AgentTest.first)
-            System.out.println("ScenicView found:" + scenicView);
+        AgentTest.debug("ScenicView found:" + scenicView);
 
         try {
             scenicView.onAgentStarted(port);
@@ -61,7 +60,7 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
 
     }
 
-    public void close() {
+    @Override public void close() {
         try {
 
             RMIUtils.unbindApplication(port);
@@ -87,7 +86,7 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
     }
 
     @Override public void setEventDispatcher(final StageID id, final AppEventDispatcher dispatcher) throws RemoteException {
-        System.out.println("Remote application setEventDispatcher!!!");
+        AgentTest.debug("Remote application setEventDispatcher!!!");
         application.setEventDispatcher(id, new AppEventDispatcher() {
 
             @Override public void dispatchEvent(final AppEvent appEvent) {
@@ -95,7 +94,7 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
                     if (scenicView != null)
                         scenicView.dispatchEvent(appEvent);
                     else {
-                        System.out.println("Cannot dispatch event:" + appEvent);
+                        AgentTest.debug("Cannot dispatch event:" + appEvent);
                     }
                 } catch (final RemoteException e) {
                     // TODO Auto-generated catch block

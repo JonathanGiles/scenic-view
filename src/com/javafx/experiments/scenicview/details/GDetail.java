@@ -251,7 +251,7 @@ public class GDetail {
             }
             break;
         default:
-            System.out.println("Value for" + value2);
+            System.out.println("GDetail strange value for" + value2);
             break;
         }
 

@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import com.javafx.experiments.scenicview.ScenicView;
 import com.javafx.experiments.scenicview.connector.remote.RemoteScenicViewImpl;
 
 /**
@@ -15,8 +16,24 @@ public class ScenicViewBooter {
     public static final String TOOLS_JAR_PATH_KEY = "attachPath";
     public static final String JFXRT_JAR_PATH_KEY = "jfxPath";
 
-    public static void main(final String[] args) {
+    private static boolean debug = false;
 
+    private static final void debug(final String log) {
+        if (debug) {
+            System.out.println(log);
+        }
+    }
+
+    public static void main(final String[] args) {
+        if (args.length > 0) {
+            for (int i = 0; i < args.length; i++) {
+                if (args[i].equals("-debug")) {
+                    debug = true;
+                    ScenicView.setDebug(true);
+                    RemoteScenicViewImpl.setDebug(true);
+                }
+            }
+        }
         new ScenicViewBooter();
     }
 
@@ -162,7 +179,7 @@ public class ScenicViewBooter {
         // (x86)\Java\jdk1.6.0_30\jre"
         // This is one level too deep. We want to pop up and then go into the
         // lib directory to find tools.jar
-        System.out.println("JDK found at: " + javaHome);
+        debug("JDK found at: " + javaHome);
 
         File toolsJar = new File(javaHome + "/../lib/tools.jar");
         if (!toolsJar.exists()) {
@@ -181,9 +198,6 @@ public class ScenicViewBooter {
             }
         }
 
-        // System.out.println("Attempting to load tools.jar file from here:");
-        // System.out.println(toolsJar.getAbsolutePath());
-
         final String path = toolsJar.getAbsolutePath();
         // properties.setProperty(TOOLS_JAR_PATH_KEY, path);
 
@@ -197,7 +211,7 @@ public class ScenicViewBooter {
     private void updateClassPath(final URI uri) {
         try {
             final URL url = uri.toURL();
-            System.out.println("Adding to classpath: " + url);
+            debug("Adding to classpath: " + url);
             ClassPathHacker.addURL(url);
         } catch (final IOException ex) {
             ex.printStackTrace();
@@ -213,7 +227,7 @@ public class ScenicViewBooter {
             Class.forName("com.sun.tools.attach.AttachNotSupportedException").newInstance();
             isAttachAPIAvailable = true;
         } catch (final Exception e) {
-            System.out.println("Java Attach API was not found");
+            debug("Java Attach API was not found");
         }
 
         // Test if we can load a class from jfxrt.jar
@@ -221,7 +235,7 @@ public class ScenicViewBooter {
             Class.forName("javafx.beans.property.SimpleBooleanProperty").newInstance();
             isJFXAvailable = true;
         } catch (final Exception e) {
-            System.out.println("JavaFX API was not found");
+            debug("JavaFX API was not found");
         }
 
         return new boolean[] { isAttachAPIAvailable, isJFXAvailable };
@@ -240,7 +254,7 @@ public class ScenicViewBooter {
     }
 
     private File getToolsClassPathOnMAC(final File jvmsRoot) {
-        System.out.println("Testing tools classPath on MAC:" + jvmsRoot.getAbsolutePath());
+        debug("Testing tools classPath on MAC:" + jvmsRoot.getAbsolutePath());
         final File[] jdks = jvmsRoot.listFiles(new FileFilter() {
 
             @Override public boolean accept(final File dir) {
@@ -248,7 +262,7 @@ public class ScenicViewBooter {
             }
         });
         for (int i = 0; i < jdks.length; i++) {
-            System.out.println("Valid JDKs:" + jdks[i].getName());
+            debug("Valid JDKs:" + jdks[i].getName());
         }
         final String javaVersion = System.getProperty("java.version");
         /**
@@ -259,7 +273,7 @@ public class ScenicViewBooter {
                 if (jdks[i].getName().indexOf("1.6") != -1) {
                     final File classesFile = new File(jdks[i], "Contents/Classes/classes.jar");
                     if (classesFile.exists()) {
-                        System.out.println("Classes file found on MAC in:" + classesFile.getAbsolutePath());
+                        debug("Classes file found on MAC in:" + classesFile.getAbsolutePath());
                         return classesFile;
                     }
                 }
@@ -270,7 +284,7 @@ public class ScenicViewBooter {
                 if (jdks[i].getName().indexOf("1.7") != -1) {
                     final File toolsFile = new File(jdks[i], "Contents/Home/lib/tools.jar");
                     if (toolsFile.exists()) {
-                        System.out.println("Tools file found on MAC in:" + toolsFile.getAbsolutePath());
+                        debug("Tools file found on MAC in:" + toolsFile.getAbsolutePath());
                         return toolsFile;
                     }
                 }

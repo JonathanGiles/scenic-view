@@ -39,7 +39,17 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
     private final AtomicInteger count = new AtomicInteger();
     private final int port;
 
-    public boolean first = true;
+    private static boolean debug = false;
+
+    public static void setDebug(final boolean debug) {
+        RemoteScenicViewImpl.debug = debug;
+    }
+
+    private static void debug(final String debug) {
+        if (RemoteScenicViewImpl.debug) {
+            System.out.println(debug);
+        }
+    }
 
     public RemoteScenicViewImpl(final ScenicView view) throws RemoteException {
         super();
@@ -320,7 +330,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                 e.printStackTrace();
             }
         }
-        first = false;
+        debug = false;
         return apps;
     }
 
@@ -363,7 +373,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
             final int port = getValidPort();
             debug("Loading agent for:" + machine + " ID:" + machine.id() + " on port:" + port + " took:" + (System.currentTimeMillis() - start) + "ms");
             vmInfo.put(port, machine.id());
-            machine.loadAgent(f.getAbsolutePath(), Integer.toString(port) + ":" + this.port + ":" + machine.id());
+            machine.loadAgent(f.getAbsolutePath(), Integer.toString(port) + ":" + this.port + ":" + machine.id() + ":" + debug);
             machine.detach();
         } catch (final Exception e) {
             e.printStackTrace();
@@ -400,7 +410,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
         /**
          * We always have at least one JFX VM
          */
-        if (first && javaFXMachines.size() <= 1 && machines.size() > 1) {
+        if (debug && javaFXMachines.size() <= 1 && machines.size() > 1) {
             debug("No JavaFX VM found? dumping properties");
             for (final Iterator<String> iterator = vmsProperties.keySet().iterator(); iterator.hasNext();) {
                 final String id = iterator.next();
@@ -420,9 +430,4 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
         return javaFXMachines;
     }
 
-    private void debug(final String data) {
-        if (first) {
-            System.out.println(data);
-        }
-    }
 }

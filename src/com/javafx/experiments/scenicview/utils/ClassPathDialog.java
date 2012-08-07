@@ -53,7 +53,6 @@ public class ClassPathDialog extends JFrame {
     public static void showDialog(final String toolsPath, final String jfxPath, final boolean isBootTime, final PathChangeListener listener) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override public void run() {
-                System.out.println("INSTANCE:" + instance);
                 instance.configure(toolsPath, jfxPath, isBootTime, listener);
                 instance.setVisible(true);
                 instance.toFront();

@@ -186,7 +186,6 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
      * @param realNode
      */
     void patchRoot(final TreeItem<SVNode> realNode) {
-        // System.out.println("PatchRoot:" + realNode);
         this.patchedNode = realNode;
         final TreeItem<SVNode> real = new TreeItem<SVNode>(realNode.getValue(), realNode.getGraphic());
         real.getChildren().addAll(realNode.getChildren());
@@ -199,12 +198,10 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
          * when a node that was root node is inside the tree
          */
         if (this.patchedNode != null && ((SVDummyNode) getRoot().getValue()).getNodeType() != ((SVDummyNode) newRoot.getValue()).getNodeType()) {
-            // System.out.println("Unpatching node:" + this.patchedNode);
             @SuppressWarnings("rawtypes") final TreeItem[] items = this.patchedNode.getChildren().toArray(new TreeItem[0]);
             this.patchedNode.getChildren().setAll(items);
 
         }
-        // System.out.println("Unpatched");
         this.patchedNode = null;
     }
 
@@ -572,7 +569,6 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         }
 
         @Override public void handle(final TreeModificationEvent<Object> ev) {
-            System.out.println("Collapsed" + ev);
             if (!root.isExpanded() && controller.isOpened()) {
                 // Closing controller
                 controller.close();

@@ -114,7 +114,7 @@ public class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
             if (observable instanceof ReadOnlyProperty) {
                 detail.unavailableEdition(GDetailPane.STATUS_READ_ONLY);
             } else {
-                System.out.println("Property:" + observable);
+                System.out.println("Strange Property:" + observable);
             }
         }
         if (!all)

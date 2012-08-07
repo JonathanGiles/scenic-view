@@ -83,6 +83,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
     private final Configuration configuration = new Configuration();
 
     private UpdateStrategy updateStrategy;
+    private static boolean debug = false;
 
     private final AppEventDispatcher stageModelListener = new AppEventDispatcher() {
 
@@ -158,11 +159,11 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                     break;
 
                 default:
-                    System.out.println("Unused event for type " + appEvent);
+                    debug("Unused event for type " + appEvent);
                     break;
                 }
             } else {
-                System.out.println("Unused event " + appEvent);
+                debug("Unused event " + appEvent);
             }
         }
 
@@ -747,6 +748,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
          * , eventsTab, animationsTab,
          * javadocTab
          */
+
         );
         Persistence.loadProperty("splitPaneDividerPosition", splitPane, 0.3);
 
@@ -1057,12 +1059,12 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         this.updateStrategy.start(new AppsRepository() {
 
             private void dumpStatus(final String operation, final int id) {
-                System.out.println(operation + ":" + id);
+                debug(operation + ":" + id);
                 for (int i = 0; i < apps.size(); i++) {
-                    System.out.println("App:" + apps.get(i).getID());
+                    debug("App:" + apps.get(i).getID());
                     final List<StageController> scs = apps.get(i).getStages();
                     for (int j = 0; j < scs.size(); j++) {
-                        System.out.println("\tStage:" + scs.get(j).getID().getStageID());
+                        debug("\tStage:" + scs.get(j).getID().getStageID());
                     }
                 }
             }
@@ -1133,7 +1135,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                     @Override public void run() {
                         dumpStatus("appAddedStart", appController.getID());
                         if (!apps.contains(appController)) {
-                            if (apps.isEmpty()) {
+                            if (apps.isEmpty() && !appController.getStages().isEmpty()) {
                                 activeStage = appController.getStages().get(0);
                             }
                             apps.add(appController);
@@ -1154,5 +1156,15 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
     void openStage(final StageController controller) {
         controller.setEventDispatcher(stageModelListener);
         controller.configurationUpdated(configuration);
+    }
+
+    public static void setDebug(final boolean debug) {
+        ScenicView.debug = debug;
+    }
+
+    public static void debug(final String debug) {
+        if (ScenicView.debug) {
+            System.out.println(debug);
+        }
     }
 }
