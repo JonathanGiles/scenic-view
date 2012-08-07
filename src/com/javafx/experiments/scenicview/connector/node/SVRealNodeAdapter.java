@@ -74,6 +74,9 @@ public class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
     }
 
     @Override public boolean equals(final SVNode node) {
+        if (node instanceof SVDummyNode) {
+            return false;
+        }
         if (node instanceof SVRealNodeAdapter) {
             return node.getImpl() == this.node;
         } else {

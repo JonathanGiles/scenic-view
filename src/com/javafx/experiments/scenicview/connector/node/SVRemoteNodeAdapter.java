@@ -78,6 +78,9 @@ public class SVRemoteNodeAdapter extends SVNodeImpl implements Serializable {
     }
 
     @Override public boolean equals(final SVNode node) {
+        if (node instanceof SVDummyNode) {
+            return false;
+        }
         return node != null && node.getNodeId() == getNodeId();
     }
 
