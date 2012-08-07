@@ -240,10 +240,10 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                         e.printStackTrace();
                     }
                     if (view == null) {
-                        System.out.println("ScenicView blocked?, stackTrace:");
+                        debug("ScenicView blocked?, stackTrace:");
                         final StackTraceElement[] trace = current.getStackTrace();
                         for (int i = 0; i < trace.length; i++) {
-                            System.out.println(trace[i]);
+                            debug(trace[i].toString());
                         }
                     }
                 }
@@ -252,7 +252,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
         PlatformImpl.startup(new Runnable() {
 
             @Override public void run() {
-                System.out.println("Platform running");
+                debug("Platform running");
                 final Stage stage = new Stage();
                 // workaround for RT-10714
                 stage.setWidth(640);
@@ -262,7 +262,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
                 ScenicView.show(view, stage);
             }
         });
-        System.out.println("Startup done");
+        debug("Startup done");
         while (view == null) {
             try {
                 Thread.sleep(500);
@@ -271,14 +271,14 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
             }
         }
 
-        System.out.println("Creating server");
+        debug("Creating server");
         try {
             server = new RemoteScenicViewImpl(view);
         } catch (final RemoteException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
-        System.out.println("Server done");
+        debug("Server done");
     }
 
     public List<AppController> connect() {
