@@ -22,7 +22,8 @@ public class LocalVMUpdateStrategy extends CommonUpdateStrategy implements Windo
             local.getStages().add(sc);
         }
         final List<AppController> controllers = new ArrayList<AppController>(1);
-        controllers.add(local);
+        if (!local.getStages().isEmpty())
+            controllers.add(local);
         return controllers;
     }
 
@@ -30,7 +31,6 @@ public class LocalVMUpdateStrategy extends CommonUpdateStrategy implements Windo
         if (window instanceof Stage) {
             return ConnectorUtils.acceptWindow(window);
         } else {
-            System.out.println("Scenic View only supports Stages right now, but found a " + window.getClass());
             return false;
         }
 
