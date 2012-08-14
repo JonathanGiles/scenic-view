@@ -744,10 +744,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                 updateAnimations();
             }
         });
-        tabPane.getTabs().addAll(detailsTab/**
-         * , eventsTab, animationsTab,
-         * javadocTab
-         */
+        tabPane.getTabs().addAll(detailsTab, eventsTab, animationsTab, javadocTab
 
         );
         Persistence.loadProperty("splitPaneDividerPosition", splitPane, 0.3);
