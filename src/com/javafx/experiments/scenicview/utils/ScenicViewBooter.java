@@ -29,12 +29,16 @@ public class ScenicViewBooter {
             for (int i = 0; i < args.length; i++) {
                 if (args[i].equals("-debug")) {
                     debug = true;
-                    ScenicView.setDebug(true);
-                    RemoteScenicViewImpl.setDebug(true);
+
                 }
             }
         }
         new ScenicViewBooter();
+    }
+
+    private void activateDebug() {
+        RemoteScenicViewImpl.setDebug(debug);
+        ScenicView.setDebug(debug);
     }
 
     private static Properties properties;
@@ -47,6 +51,7 @@ public class ScenicViewBooter {
 
         if (isAttachAPIAvailable && isJFXAvailable) {
             // Launch ScenicView directly
+            activateDebug();
             RemoteScenicViewImpl.start();
         } else {
             // If we are here, the classes are not on the classpath.
@@ -139,6 +144,7 @@ public class ScenicViewBooter {
                         ClassPathDialog.hideDialog();
                         new Thread() {
                             @Override public void run() {
+                                activateDebug();
                                 RemoteScenicViewImpl.start();
                             }
                         }.start();
@@ -146,6 +152,7 @@ public class ScenicViewBooter {
                     }
                 });
             } else {
+                activateDebug();
                 RemoteScenicViewImpl.start();
             }
         }
