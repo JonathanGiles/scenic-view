@@ -49,7 +49,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
     public static final String STYLESHEETS = "com/javafx/experiments/scenicview/scenicview.css";
     public static final Image APP_ICON = DisplayUtils.getUIImage("mglass.gif");
 
-    public static final String VERSION = "1.1";
+    public static final String VERSION = "1.1.1";
     // the Stage used to show Scenic View
     private final Stage scenicViewStage;
 
