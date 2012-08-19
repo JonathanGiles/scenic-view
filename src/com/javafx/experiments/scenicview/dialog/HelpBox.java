@@ -6,7 +6,6 @@ import javafx.event.EventHandler;
 import javafx.scene.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.web.WebView;
 import javafx.stage.*;
 
 import com.javafx.experiments.scenicview.*;
@@ -26,10 +25,10 @@ public class HelpBox {
         pane.setId(StageController.SCENIC_VIEW_BASE_ID + "HelpBox");
         pane.setPrefWidth(SCENE_WIDTH);
         pane.setPrefHeight(SCENE_HEIGHT);
-        final WebView wview = new WebView();
+        final ProgressWebView wview = new ProgressWebView();
         wview.setPrefHeight(SCENE_HEIGHT);
         wview.setPrefWidth(SCENE_WIDTH);
-        wview.getEngine().load(url);
+        wview.doLoad(url);
         pane.setCenter(wview);
         final Scene scene = SceneBuilder.create().width(SCENE_WIDTH).height(SCENE_HEIGHT).root(pane).stylesheets(ScenicView.STYLESHEETS).build();
         stage = StageBuilder.create().title(title).build();
