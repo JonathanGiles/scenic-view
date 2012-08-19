@@ -39,7 +39,7 @@ public class ProgressWebView extends StackPane {
             }
         });
         wview.getEngine().getLoadWorker().progressProperty().addListener(new ChangeListener<Number>() {
-            private final double DURATION = 1000;
+            private final double DURATION = 500;
             private final FadeTransition fadeIn = new FadeTransition(Duration.millis(DURATION));
             private final FadeTransition fadeOut = new FadeTransition(Duration.millis(DURATION));
             private final ParallelTransition fader = new ParallelTransition(fadeIn, fadeOut);
