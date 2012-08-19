@@ -3,6 +3,7 @@ package com.javafx.experiments.scenicview;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.value.*;
 import javafx.collections.*;
@@ -11,7 +12,7 @@ import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.image.ImageView;
+import javafx.scene.image.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.stage.*;
@@ -137,7 +138,18 @@ public class EventLogPane extends VBox {
             }
         });
 
-        final ImageView b1 = new ImageView(DisplayUtils.CLEAR_IMAGE);
+        final ImageView b1 = new ImageView();
+        b1.imageProperty().bind(new ObjectBinding<Image>() {
+
+            {
+                super.bind(idFilterField.textProperty());
+            }
+
+            @Override protected Image computeValue() {
+                // TODO Auto-generated method stub
+                return (idFilterField.getText() == null || idFilterField.getText().equals("")) ? DisplayUtils.CLEAR_OFF_IMAGE : DisplayUtils.CLEAR_IMAGE;
+            }
+        });
         b1.setOnMousePressed(new EventHandler<Event>() {
 
             @Override public void handle(final Event arg0) {
