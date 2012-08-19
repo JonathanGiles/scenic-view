@@ -3,7 +3,7 @@ package com.javafx.experiments.scenicview;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import javafx.beans.binding.ObjectBinding;
+import javafx.beans.binding.*;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.value.*;
 import javafx.collections.*;
@@ -16,6 +16,7 @@ import javafx.scene.image.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.stage.*;
+import javafx.util.Callback;
 
 import com.javafx.experiments.scenicview.connector.event.EvLogEvent;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
@@ -34,73 +35,94 @@ public class EventLogPane extends VBox {
     Label selectedNodeLabel = new Label("Filtering is disabled");
     SVNode selectedNode;
 
+    private static final Image MORE_INFO = DisplayUtils.getUIImage("info.png");
+
     @SuppressWarnings("unchecked") public EventLogPane(final ScenicView view) {
         table.setEditable(false);
         table.getStyleClass().add("trace-text-area");
+        final DoubleBinding size = widthProperty().subtract(MORE_INFO.getWidth() + 7).divide(4);
         final TableColumn<ScenicViewEvent, String> sourceCol = new TableColumn<ScenicViewEvent, String>("source");
         sourceCol.setCellValueFactory(new PropertyValueFactory<ScenicViewEvent, String>("source"));
-        sourceCol.prefWidthProperty().bind(widthProperty().divide(4));
+        sourceCol.prefWidthProperty().bind(size);
         final TableColumn<ScenicViewEvent, String> eventTypeCol = new TableColumn<ScenicViewEvent, String>("eventType");
         eventTypeCol.setCellValueFactory(new PropertyValueFactory<ScenicViewEvent, String>("eventType"));
-        eventTypeCol.prefWidthProperty().bind(widthProperty().divide(4));
+        eventTypeCol.prefWidthProperty().bind(size);
         final TableColumn<ScenicViewEvent, String> eventValueCol = new TableColumn<ScenicViewEvent, String>("eventValue");
-        eventValueCol.prefWidthProperty().bind(widthProperty().divide(4));
+        eventValueCol.prefWidthProperty().bind(size);
         eventValueCol.setCellValueFactory(new PropertyValueFactory<ScenicViewEvent, String>("eventValue"));
         final TableColumn<ScenicViewEvent, String> momentCol = new TableColumn<ScenicViewEvent, String>("moment");
         momentCol.setCellValueFactory(new PropertyValueFactory<ScenicViewEvent, String>("moment"));
-        momentCol.prefWidthProperty().bind(widthProperty().divide(4));
+        momentCol.prefWidthProperty().bind(size);
+        final TableColumn<ScenicViewEvent, StackTraceElement[]> moreInfoCol = new TableColumn<ScenicViewEvent, StackTraceElement[]>("info");
+        moreInfoCol.setCellValueFactory(new PropertyValueFactory<ScenicViewEvent, StackTraceElement[]>("stackTrace"));
+        moreInfoCol.setCellFactory(new Callback<TableColumn<ScenicViewEvent, StackTraceElement[]>, TableCell<ScenicViewEvent, StackTraceElement[]>>() {
 
-        table.getColumns().addAll(sourceCol, eventTypeCol, eventValueCol, momentCol);
+            @Override public TableCell<ScenicViewEvent, StackTraceElement[]> call(final TableColumn<ScenicViewEvent, StackTraceElement[]> arg0) {
+                final TableCell<ScenicViewEvent, StackTraceElement[]> cell = new TableCell<ScenicViewEvent, StackTraceElement[]>() {
+
+                    @Override public void updateItem(final StackTraceElement[] item, final boolean empty) {
+                        if (item != null) {
+                            setGraphic(new ImageView(MORE_INFO));
+                            setId("");
+                        }
+                    }
+                };
+                cell.setOnMousePressed(new EventHandler<MouseEvent>() {
+
+                    @Override public void handle(final MouseEvent arg0) {
+                        final ScenicViewEvent newValue = table.getSelectionModel().getSelectedItem();
+                        if (newValue != null) {
+                            final StringBuilder sb = new StringBuilder();
+                            for (int i = 0; i < newValue.stackTrace.length; i++) {
+                                sb.append(newValue.stackTrace[i]).append('\n');
+                            }
+                            final int width = 700;
+                            final int height = 600;
+                            final VBox pane = new VBox();
+                            final Scene scene = SceneBuilder.create().width(600).height(400).root(pane).stylesheets(ScenicView.STYLESHEETS).build();
+
+                            final Stage stage = StageBuilder.create().style(StageStyle.UTILITY).title("Event Stacktrace").build();
+                            stage.initModality(Modality.APPLICATION_MODAL);
+                            stage.setScene(scene);
+                            stage.getIcons().add(ScenicView.APP_ICON);
+
+                            final Label label = new Label(newValue.toString());
+                            stage.setWidth(width);
+                            stage.setHeight(height);
+                            final TextArea area = new TextArea(sb.toString());
+                            area.setFocusTraversable(false);
+                            area.setEditable(false);
+                            final Button close = new Button("Close");
+                            VBox.setMargin(label, new Insets(5, 5, 0, 5));
+                            VBox.setMargin(area, new Insets(5, 5, 0, 5));
+                            VBox.setMargin(close, new Insets(5, 5, 5, 5));
+
+                            VBox.setVgrow(area, Priority.ALWAYS);
+                            pane.setAlignment(Pos.CENTER);
+
+                            close.setDefaultButton(true);
+                            close.setOnAction(new EventHandler<ActionEvent>() {
+                                @Override public void handle(final ActionEvent arg0) {
+                                    stage.close();
+                                }
+                            });
+                            pane.getChildren().addAll(label, area, close);
+
+                            stage.show();
+                        }
+
+                    }
+                });
+                return cell;
+            }
+        });
+        moreInfoCol.setPrefWidth(MORE_INFO.getWidth() + 7);
+        moreInfoCol.setResizable(false);
+
+        table.getColumns().addAll(sourceCol, eventTypeCol, eventValueCol, momentCol, moreInfoCol);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table.setItems(filteredEvents);
         table.setFocusTraversable(false);
-        table.setOnMouseClicked(new EventHandler<MouseEvent>() {
-
-            @Override public void handle(final MouseEvent ev) {
-                if (ev.getClickCount() == 2) {
-                    final ScenicViewEvent newValue = table.getSelectionModel().getSelectedItem();
-                    if (newValue != null) {
-                        final StringBuilder sb = new StringBuilder();
-                        for (int i = 0; i < newValue.stackTrace.length; i++) {
-                            sb.append(newValue.stackTrace[i]).append('\n');
-                        }
-                        final int width = 700;
-                        final int height = 600;
-                        final VBox pane = new VBox();
-                        final Scene scene = SceneBuilder.create().width(600).height(400).root(pane).stylesheets(ScenicView.STYLESHEETS).build();
-
-                        final Stage stage = StageBuilder.create().style(StageStyle.UTILITY).title("Event Stacktrace").build();
-                        stage.initModality(Modality.APPLICATION_MODAL);
-                        stage.setScene(scene);
-                        stage.getIcons().add(ScenicView.APP_ICON);
-
-                        final Label label = new Label(newValue.toString());
-                        stage.setWidth(width);
-                        stage.setHeight(height);
-                        final TextArea area = new TextArea(sb.toString());
-                        area.setFocusTraversable(false);
-                        area.setEditable(false);
-                        final Button close = new Button("Close");
-                        VBox.setMargin(label, new Insets(5, 5, 0, 5));
-                        VBox.setMargin(area, new Insets(5, 5, 0, 5));
-                        VBox.setMargin(close, new Insets(5, 5, 5, 5));
-
-                        VBox.setVgrow(area, Priority.ALWAYS);
-                        pane.setAlignment(Pos.CENTER);
-
-                        close.setDefaultButton(true);
-                        close.setOnAction(new EventHandler<ActionEvent>() {
-                            @Override public void handle(final ActionEvent arg0) {
-                                stage.close();
-                            }
-                        });
-                        pane.getChildren().addAll(label, area, close);
-
-                        stage.show();
-                    }
-                }
-            }
-        });
         final Button clear = new Button("Clear");
         clear.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -299,7 +321,7 @@ public class EventLogPane extends VBox {
         public String eventValue;
         public String moment;
         String relative;
-        StackTraceElement[] stackTrace;
+        public StackTraceElement[] stackTrace;
 
         public ScenicViewEvent(final String source, final String eventType, final String eventValue) {
             this.source = source;
@@ -351,6 +373,14 @@ public class EventLogPane extends VBox {
 
         @Override public String toString() {
             return "Event [source=" + source + ", eventType=" + eventType + ((eventValue != null && !eventValue.equals("")) ? (", eventValue=" + eventValue) : "") + ", moment=" + moment + "]";
+        }
+
+        public StackTraceElement[] getStackTrace() {
+            return stackTrace;
+        }
+
+        public void setStackTrace(final StackTraceElement[] stackTrace) {
+            this.stackTrace = stackTrace;
         }
 
     }
