@@ -90,4 +90,13 @@ public class FilterTextField extends Region {
         double y = getHeight() / 2 - clearButtonHeight / 2;
         clearButton.resizeRelocate(getWidth() - clearButtonWidth - 5, y, clearButtonWidth, clearButtonHeight);
     }
+
+    @Override protected double computePrefHeight(double width) {
+        return textField.prefHeight(width);
+    }
+
+    @Override protected double computePrefWidth(double height) {
+        return textField.prefWidth(height);
+    }
+    
 }
