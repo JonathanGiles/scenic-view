@@ -20,6 +20,7 @@ import javafx.util.Callback;
 
 import com.javafx.experiments.scenicview.connector.event.EvLogEvent;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
+import com.javafx.experiments.scenicview.control.FilterTextField;
 
 public class EventLogPane extends VBox {
 
@@ -31,7 +32,7 @@ public class EventLogPane extends VBox {
     ObservableList<ScenicViewEvent> events = FXCollections.observableArrayList();
     ObservableList<ScenicViewEvent> filteredEvents = FXCollections.observableArrayList();
     SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss.SSS");
-    TextField idFilterField;
+    FilterTextField idFilterField;
     Label selectedNodeLabel = new Label("Filtering is disabled");
     SVNode selectedNode;
 
@@ -125,7 +126,6 @@ public class EventLogPane extends VBox {
         table.setFocusTraversable(false);
         final Button clear = new Button("Clear");
         clear.setOnAction(new EventHandler<ActionEvent>() {
-
             @Override public void handle(final ActionEvent arg0) {
                 events.clear();
                 filteredEvents.clear();
@@ -141,8 +141,8 @@ public class EventLogPane extends VBox {
         filtersGridPane.setPadding(new Insets(0, 5, 5, 0));
         filtersGridPane.setId("structure-trace-grid-pane");
 
-        idFilterField = new TextField();
-        idFilterField.setMinHeight(20);
+        idFilterField = new FilterTextField();
+        idFilterField.setMinHeight(USE_PREF_SIZE);
         idFilterField.setPromptText("Insert text to filter (logical operations supported)");
         idFilterField.focusedProperty().addListener(new ChangeListener<Boolean>() {
 
@@ -153,45 +153,25 @@ public class EventLogPane extends VBox {
                     ScenicView.clearStatusText();
             }
         });
-        idFilterField.setOnKeyReleased(new EventHandler<KeyEvent>() {
-
+        idFilterField.getTextField().setOnKeyReleased(new EventHandler<KeyEvent>() {
             @Override public void handle(final KeyEvent arg0) {
                 applyFilter();
             }
         });
-
-        final ImageView b1 = new ImageView();
-        b1.imageProperty().bind(new ObjectBinding<Image>() {
-
-            {
-                super.bind(idFilterField.textProperty());
-            }
-
-            @Override protected Image computeValue() {
-                // TODO Auto-generated method stub
-                return (idFilterField.getText() == null || idFilterField.getText().equals("")) ? DisplayUtils.CLEAR_OFF_IMAGE : DisplayUtils.CLEAR_IMAGE;
-            }
-        });
-        b1.setOnMousePressed(new EventHandler<Event>() {
-
-            @Override public void handle(final Event arg0) {
+        idFilterField.setOnButtonClick(new Runnable() {
+            @Override public void run() {
                 idFilterField.setText("");
                 applyFilter();
             }
         });
-        activateTrace.selectedProperty().addListener(new ChangeListener<Boolean>() {
 
+        activateTrace.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean arg2) {
                 setSelectedNode(selectedNode);
                 view.update();
             }
         });
-        /**
-         * This is an ugly fix for what I think is a bug of the gridPane
-         */
-        idFilterField.prefWidthProperty().bind(widthProperty().subtract(105));
         GridPane.setHgrow(idFilterField, Priority.ALWAYS);
-        GridPane.setHgrow(b1, Priority.NEVER);
         GridPane.setHgrow(showStack, Priority.ALWAYS);
         GridPane.setHgrow(clear, Priority.NEVER);
         GridPane.setHgrow(selectedNodeLabel, Priority.NEVER);
@@ -200,9 +180,8 @@ public class EventLogPane extends VBox {
         filtersGridPane.add(activateTrace, 2, 1, 1, 1);
         filtersGridPane.add(new Label("Text Filter:"), 1, 2);
         filtersGridPane.add(idFilterField, 2, 2);
-        filtersGridPane.add(b1, 3, 2);
-        filtersGridPane.add(clear, 1, 3, 3, 1);
-        filtersGridPane.add(selectedNodeLabel, 1, 4, 3, 1);
+        filtersGridPane.add(clear, 1, 3, 2, 1);
+        filtersGridPane.add(selectedNodeLabel, 1, 4, 2, 1);
         filtersGridPane.setPrefHeight(60);
         VBox.setMargin(table, new Insets(0, 5, 5, 5));
 

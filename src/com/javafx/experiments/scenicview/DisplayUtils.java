@@ -28,8 +28,10 @@ public class DisplayUtils {
     private static Level wLevel;
     private static Level wpLevel;
 
-    static final Image CLEAR_IMAGE = getUIImage("clear.gif");
-    static final Image CLEAR_OFF_IMAGE = getUIImage("clearOff.gif");
+    public static final Image TRANSPARENT_PIXEL_IMAGE = getUIImage("transparent.png");
+    public static final Image CLEAR_IMAGE = getUIImage("search-clear.png");
+    public static final Image CLEAR_HOVER_IMAGE = getUIImage("search-clear-over.png");
+//    public static final Image CLEAR_OFF_IMAGE = getUIImage("clearOff.gif");
 
     public static Image getUIImage(final String image) {
         return new Image(ScenicView.class.getResource("images/ui/" + image).toString());

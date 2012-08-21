@@ -30,6 +30,7 @@ import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.details.Detail;
 import com.javafx.experiments.scenicview.connector.event.*;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
+import com.javafx.experiments.scenicview.control.FilterTextField;
 import com.javafx.experiments.scenicview.details.*;
 import com.javafx.experiments.scenicview.details.GDetailPane.RemotePropertySetter;
 import com.javafx.experiments.scenicview.dialog.*;
@@ -66,7 +67,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
     private static StatusBar statusBar;
     private final VBox leftPane;
 
-    TextField propertyFilterField;
+    FilterTextField propertyFilterField;
 
     /**
      * Menu Options
@@ -542,7 +543,13 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         leftPane = new VBox();
         leftPane.setId("main-nodeStructure");
 
-        final TextField idFilterField = createFilterField("Node ID");
+        final FilterTextField idFilterField = createFilterField("Node ID");
+        idFilterField.setOnButtonClick(new Runnable() {
+            public void run() {
+                idFilterField.setText("");
+                update();
+            }
+        });
         activeNodeFilters.add(new NodeFilter() {
             @Override public boolean allowChildrenOnRejection() {
                 return true;
@@ -562,7 +569,14 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                 return !idFilterField.getText().equals("");
             }
         });
-        final TextField classNameFilterField = createFilterField("Node className");
+        
+        final FilterTextField classNameFilterField = createFilterField("Node className");
+        classNameFilterField.setOnButtonClick(new Runnable() {
+            public void run() {
+                classNameFilterField.setText("");
+                update();
+            }
+        });
         activeNodeFilters.add(new NodeFilter() {
             @Override public boolean allowChildrenOnRejection() {
                 return true;
@@ -585,63 +599,63 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
             }
         });
 
-        final ImageView b1 = new ImageView();
-        b1.imageProperty().bind(new ObjectBinding<Image>() {
-
-            {
-                super.bind(idFilterField.textProperty());
-            }
-
-            @Override protected Image computeValue() {
-                // TODO Auto-generated method stub
-                return (idFilterField.getText() == null || idFilterField.getText().equals("")) ? DisplayUtils.CLEAR_OFF_IMAGE : DisplayUtils.CLEAR_IMAGE;
-            }
-        });
-        b1.setOnMousePressed(new EventHandler<Event>() {
-
-            @Override public void handle(final Event arg0) {
-                idFilterField.setText("");
-                update();
-            }
-        });
-        final ImageView b2 = new ImageView();
-        b2.imageProperty().bind(new ObjectBinding<Image>() {
-
-            {
-                super.bind(classNameFilterField.textProperty());
-            }
-
-            @Override protected Image computeValue() {
-                // TODO Auto-generated method stub
-                return (classNameFilterField.getText() == null || classNameFilterField.getText().equals("")) ? DisplayUtils.CLEAR_OFF_IMAGE : DisplayUtils.CLEAR_IMAGE;
-            }
-        });
-        b2.setOnMousePressed(new EventHandler<Event>() {
-
-            @Override public void handle(final Event arg0) {
-                classNameFilterField.setText("");
-                update();
-            }
-        });
-        final ImageView b3 = new ImageView();
-        b3.imageProperty().bind(new ObjectBinding<Image>() {
-
-            {
-                super.bind(propertyFilterField.textProperty());
-            }
-
-            @Override protected Image computeValue() {
-                // TODO Auto-generated method stub
-                return (propertyFilterField.getText() == null || propertyFilterField.getText().equals("")) ? DisplayUtils.CLEAR_OFF_IMAGE : DisplayUtils.CLEAR_IMAGE;
-            }
-        });
-        b3.setOnMousePressed(new EventHandler<Event>() {
-
-            @Override public void handle(final Event arg0) {
-                propertyFilterField.setText("");
-                filterProperties(propertyFilterField.getText());
-            }
-        });
+//        final ImageView b1 = new ImageView();
+//        b1.imageProperty().bind(new ObjectBinding<Image>() {
+//
+//            {
+//                super.bind(idFilterField.textProperty());
+//            }
+//
+//            @Override protected Image computeValue() {
+//                // TODO Auto-generated method stub
+//                return (idFilterField.getText() == null || idFilterField.getText().equals("")) ? DisplayUtils.CLEAR_OFF_IMAGE : DisplayUtils.CLEAR_IMAGE;
+//            }
+//        });
+//        b1.setOnMousePressed(new EventHandler<Event>() {
+//
+//            @Override public void handle(final Event arg0) {
+//                idFilterField.setText("");
+//                update();
+//            }
+//        });
+//        final ImageView b2 = new ImageView();
+//        b2.imageProperty().bind(new ObjectBinding<Image>() {
+//
+//            {
+//                super.bind(classNameFilterField.textProperty());
+//            }
+//
+//            @Override protected Image computeValue() {
+//                // TODO Auto-generated method stub
+//                return (classNameFilterField.getText() == null || classNameFilterField.getText().equals("")) ? DisplayUtils.CLEAR_OFF_IMAGE : DisplayUtils.CLEAR_IMAGE;
+//            }
+//        });
+//        b2.setOnMousePressed(new EventHandler<Event>() {
+//
+//            @Override public void handle(final Event arg0) {
+//                classNameFilterField.setText("");
+//                update();
+//            }
+//        });
+//        final ImageView b3 = new ImageView();
+//        b3.imageProperty().bind(new ObjectBinding<Image>() {
+//
+//            {
+//                super.bind(propertyFilterField.textProperty());
+//            }
+//
+//            @Override protected Image computeValue() {
+//                // TODO Auto-generated method stub
+//                return (propertyFilterField.getText() == null || propertyFilterField.getText().equals("")) ? DisplayUtils.CLEAR_OFF_IMAGE : DisplayUtils.CLEAR_IMAGE;
+//            }
+//        });
+//        b3.setOnMousePressed(new EventHandler<Event>() {
+//
+//            @Override public void handle(final Event arg0) {
+//                propertyFilterField.setText("");
+//                filterProperties(propertyFilterField.getText());
+//            }
+//        });
 
         final GridPane filtersGridPane = new GridPane();
         filtersGridPane.setVgap(5);
@@ -651,21 +665,21 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         filtersGridPane.setId("main-filters-grid-pane");
 
         GridPane.setHgrow(idFilterField, Priority.ALWAYS);
-        GridPane.setHgrow(b1, Priority.NEVER);
+//        GridPane.setHgrow(b1, Priority.NEVER);
         GridPane.setHgrow(classNameFilterField, Priority.ALWAYS);
-        GridPane.setHgrow(b2, Priority.NEVER);
+//        GridPane.setHgrow(b2, Priority.NEVER);
         GridPane.setHgrow(propertyFilterField, Priority.ALWAYS);
-        GridPane.setHgrow(b3, Priority.NEVER);
+//        GridPane.setHgrow(b3, Priority.NEVER);
 
         filtersGridPane.add(new Label("ID Filter:"), 1, 1);
         filtersGridPane.add(idFilterField, 2, 1);
-        filtersGridPane.add(b1, 3, 1);
+//        filtersGridPane.add(b1, 3, 1);
         filtersGridPane.add(new Label("Class Filter:"), 1, 2);
         filtersGridPane.add(classNameFilterField, 2, 2);
-        filtersGridPane.add(b2, 3, 2);
+//        filtersGridPane.add(b2, 3, 2);
         filtersGridPane.add(new Label("Property Filter:"), 1, 3);
         filtersGridPane.add(propertyFilterField, 2, 3);
-        filtersGridPane.add(b3, 3, 3);
+//        filtersGridPane.add(b3, 3, 3);
 
         final TitledPane filtersPane = new TitledPane("Filters", filtersGridPane);
         filtersPane.setId("main-filters");
@@ -895,7 +909,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         return menuItem;
     }
 
-    private TextField createFilterField(final String prompt) {
+    private FilterTextField createFilterField(final String prompt) {
         return createFilterField(prompt, new EventHandler<KeyEvent>() {
             @Override public void handle(final KeyEvent arg0) {
                 update();
@@ -903,18 +917,19 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         });
     }
 
-    private TextField createFilterField(final String prompt, final EventHandler<KeyEvent> keyHandler) {
-        final TextField filterField = new TextField();
+    private FilterTextField createFilterField(final String prompt, final EventHandler<KeyEvent> keyHandler) {
+        final FilterTextField filterField = new FilterTextField();
         filterField.setPromptText(prompt);
-        if (keyHandler != null)
+        if (keyHandler != null) {
             filterField.setOnKeyReleased(keyHandler);
+        }
         filterField.focusedProperty().addListener(new ChangeListener<Boolean>() {
-
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
-                if (newValue)
+                if (newValue) {
                     setStatusText("Type any text for filtering");
-                else
+                } else {
                     clearStatusText();
+                }
             }
         });
         return filterField;
