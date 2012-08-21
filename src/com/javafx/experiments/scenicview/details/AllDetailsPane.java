@@ -8,8 +8,10 @@ package com.javafx.experiments.scenicview.details;
 import java.util.*;
 
 import javafx.scene.Node;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 
+import com.javafx.experiments.scenicview.ContextMenuContainer;
 import com.javafx.experiments.scenicview.connector.details.*;
 import com.javafx.experiments.scenicview.details.GDetailPane.RemotePropertySetter;
 
@@ -17,17 +19,25 @@ import com.javafx.experiments.scenicview.details.GDetailPane.RemotePropertySette
  * 
  * @author aim
  */
-public class AllDetailsPane extends VBox {
+public abstract class AllDetailsPane extends ScrollPane implements ContextMenuContainer {
 
     List<GDetailPane> gDetailPanes = new ArrayList<GDetailPane>();
 
     static boolean showDefaultProperties = true;
     APILoader loader;
 
+    VBox vbox;
+
     public AllDetailsPane(final APILoader loader) {
         this.loader = loader;
+
+        setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        setFitToWidth(true);
+        vbox = new VBox();
+        vbox.setFillWidth(true);
+        setContent(vbox);
         getStyleClass().add("all-details-pane");
-        setFillWidth(true);
+
     }
 
     public void setShowDefaultProperties(final boolean show) {
@@ -73,8 +83,9 @@ public class AllDetailsPane extends VBox {
         if (!found) {
             pane = new GDetailPane(type, paneName, loader);
             gDetailPanes.add(pane);
-            getChildren().add(pane);
+            vbox.getChildren().add(pane);
         }
         return pane;
     }
+
 }

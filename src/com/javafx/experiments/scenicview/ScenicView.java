@@ -11,7 +11,6 @@ import java.util.*;
 import javafx.application.Platform;
 import javafx.beans.*;
 import javafx.beans.Observable;
-import javafx.beans.binding.ObjectBinding;
 import javafx.beans.value.*;
 import javafx.collections.ObservableList;
 import javafx.event.*;
@@ -302,12 +301,6 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
             }
         });
 
-        final CheckMenuItem showDefaultProperties = buildCheckMenuItem("Show Default Properties", "Show default properties", "Hide default properties", "showDefaultProperties", Boolean.TRUE);
-        showDefaultProperties.selectedProperty().addListener(new InvalidationListener() {
-            @Override public void invalidated(final Observable arg0) {
-                allDetailsPane.setShowDefaultProperties(showDefaultProperties.isSelected());
-            }
-        });
         final InvalidationListener menuTreeChecksListener = new InvalidationListener() {
             @Override public void invalidated(final Observable arg0) {
                 update();
@@ -333,15 +326,6 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         });
         collapseContentControls.disableProperty().bind(collapseControls.selectedProperty().not());
         configuration.setCollapseContentControls(collapseContentControls.isSelected());
-
-        final CheckMenuItem showCSSProperties = buildCheckMenuItem("Show CSS Properties", "Show CSS properties", "Hide CSS properties", "showCSSProperties", Boolean.FALSE);
-        showCSSProperties.selectedProperty().addListener(new InvalidationListener() {
-            @Override public void invalidated(final Observable arg0) {
-                configuration.setCSSPropertiesDetail(showCSSProperties.isSelected());
-                configurationUpdated();
-            }
-        });
-        configuration.setCSSPropertiesDetail(showCSSProperties.isSelected());
 
         final CheckMenuItem showBaselineCheckbox = buildCheckMenuItem("Show Baseline Overlay", "Display a red line at the current node's baseline offset", "Do not show baseline overlay", "showBaseline", Boolean.FALSE);
         showBaselineCheckbox.setId("show-baseline-overlay");
@@ -498,7 +482,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
 
         ruler.getItems().addAll(showRuler, rulerSlider);
 
-        displayOptionsMenu.getItems().addAll(showDefaultProperties, showCSSProperties, new SeparatorMenuItem(), showBoundsCheckbox, showBaselineCheckbox, new SeparatorMenuItem(), ruler, new SeparatorMenuItem(), showFilteredNodesInTree, showInvisibleNodes, showNodesIdInTree, collapseControls, collapseContentControls);
+        displayOptionsMenu.getItems().addAll(showBoundsCheckbox, showBaselineCheckbox, new SeparatorMenuItem(), ruler, new SeparatorMenuItem(), showFilteredNodesInTree, showInvisibleNodes, showNodesIdInTree, collapseControls, collapseContentControls);
 
         final Menu aboutMenu = new Menu("Help");
 
@@ -532,11 +516,31 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
             @Override public void loadAPI(final String property) {
                 ScenicView.this.loadAPI(property);
             }
-        });
-        final ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setContent(allDetailsPane);
+        }) {
+            Menu menu;
+
+            @Override public Menu getMenu() {
+                if (menu == null) {
+                    menu = new Menu("Details");
+                    final CheckMenuItem showCSSProperties = buildCheckMenuItem("Show CSS Properties", "Show CSS properties", "Hide CSS properties", "showCSSProperties", Boolean.FALSE);
+                    showCSSProperties.selectedProperty().addListener(new InvalidationListener() {
+                        @Override public void invalidated(final Observable arg0) {
+                            configuration.setCSSPropertiesDetail(showCSSProperties.isSelected());
+                            configurationUpdated();
+                        }
+                    });
+                    final CheckMenuItem showDefaultProperties = buildCheckMenuItem("Show Default Properties", "Show default properties", "Hide default properties", "showDefaultProperties", Boolean.TRUE);
+                    showDefaultProperties.selectedProperty().addListener(new InvalidationListener() {
+                        @Override public void invalidated(final Observable arg0) {
+                            allDetailsPane.setShowDefaultProperties(showDefaultProperties.isSelected());
+                        }
+                    });
+                    configuration.setCSSPropertiesDetail(showCSSProperties.isSelected());
+                    menu.getItems().addAll(showDefaultProperties, showCSSProperties);
+                }
+                return menu;
+            }
+        };
 
         treeView = new ScenegraphTreeView(activeNodeFilters, this);
 
@@ -545,7 +549,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
 
         final FilterTextField idFilterField = createFilterField("Node ID");
         idFilterField.setOnButtonClick(new Runnable() {
-            public void run() {
+            @Override public void run() {
                 idFilterField.setText("");
                 update();
             }
@@ -569,10 +573,10 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                 return !idFilterField.getText().equals("");
             }
         });
-        
+
         final FilterTextField classNameFilterField = createFilterField("Node className");
         classNameFilterField.setOnButtonClick(new Runnable() {
-            public void run() {
+            @Override public void run() {
                 classNameFilterField.setText("");
                 update();
             }
@@ -599,63 +603,69 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
             }
         });
 
-//        final ImageView b1 = new ImageView();
-//        b1.imageProperty().bind(new ObjectBinding<Image>() {
-//
-//            {
-//                super.bind(idFilterField.textProperty());
-//            }
-//
-//            @Override protected Image computeValue() {
-//                // TODO Auto-generated method stub
-//                return (idFilterField.getText() == null || idFilterField.getText().equals("")) ? DisplayUtils.CLEAR_OFF_IMAGE : DisplayUtils.CLEAR_IMAGE;
-//            }
-//        });
-//        b1.setOnMousePressed(new EventHandler<Event>() {
-//
-//            @Override public void handle(final Event arg0) {
-//                idFilterField.setText("");
-//                update();
-//            }
-//        });
-//        final ImageView b2 = new ImageView();
-//        b2.imageProperty().bind(new ObjectBinding<Image>() {
-//
-//            {
-//                super.bind(classNameFilterField.textProperty());
-//            }
-//
-//            @Override protected Image computeValue() {
-//                // TODO Auto-generated method stub
-//                return (classNameFilterField.getText() == null || classNameFilterField.getText().equals("")) ? DisplayUtils.CLEAR_OFF_IMAGE : DisplayUtils.CLEAR_IMAGE;
-//            }
-//        });
-//        b2.setOnMousePressed(new EventHandler<Event>() {
-//
-//            @Override public void handle(final Event arg0) {
-//                classNameFilterField.setText("");
-//                update();
-//            }
-//        });
-//        final ImageView b3 = new ImageView();
-//        b3.imageProperty().bind(new ObjectBinding<Image>() {
-//
-//            {
-//                super.bind(propertyFilterField.textProperty());
-//            }
-//
-//            @Override protected Image computeValue() {
-//                // TODO Auto-generated method stub
-//                return (propertyFilterField.getText() == null || propertyFilterField.getText().equals("")) ? DisplayUtils.CLEAR_OFF_IMAGE : DisplayUtils.CLEAR_IMAGE;
-//            }
-//        });
-//        b3.setOnMousePressed(new EventHandler<Event>() {
-//
-//            @Override public void handle(final Event arg0) {
-//                propertyFilterField.setText("");
-//                filterProperties(propertyFilterField.getText());
-//            }
-//        });
+        // final ImageView b1 = new ImageView();
+        // b1.imageProperty().bind(new ObjectBinding<Image>() {
+        //
+        // {
+        // super.bind(idFilterField.textProperty());
+        // }
+        //
+        // @Override protected Image computeValue() {
+        // // TODO Auto-generated method stub
+        // return (idFilterField.getText() == null ||
+        // idFilterField.getText().equals("")) ? DisplayUtils.CLEAR_OFF_IMAGE :
+        // DisplayUtils.CLEAR_IMAGE;
+        // }
+        // });
+        // b1.setOnMousePressed(new EventHandler<Event>() {
+        //
+        // @Override public void handle(final Event arg0) {
+        // idFilterField.setText("");
+        // update();
+        // }
+        // });
+        // final ImageView b2 = new ImageView();
+        // b2.imageProperty().bind(new ObjectBinding<Image>() {
+        //
+        // {
+        // super.bind(classNameFilterField.textProperty());
+        // }
+        //
+        // @Override protected Image computeValue() {
+        // // TODO Auto-generated method stub
+        // return (classNameFilterField.getText() == null ||
+        // classNameFilterField.getText().equals("")) ?
+        // DisplayUtils.CLEAR_OFF_IMAGE : DisplayUtils.CLEAR_IMAGE;
+        // }
+        // });
+        // b2.setOnMousePressed(new EventHandler<Event>() {
+        //
+        // @Override public void handle(final Event arg0) {
+        // classNameFilterField.setText("");
+        // update();
+        // }
+        // });
+        // final ImageView b3 = new ImageView();
+        // b3.imageProperty().bind(new ObjectBinding<Image>() {
+        //
+        // {
+        // super.bind(propertyFilterField.textProperty());
+        // }
+        //
+        // @Override protected Image computeValue() {
+        // // TODO Auto-generated method stub
+        // return (propertyFilterField.getText() == null ||
+        // propertyFilterField.getText().equals("")) ?
+        // DisplayUtils.CLEAR_OFF_IMAGE : DisplayUtils.CLEAR_IMAGE;
+        // }
+        // });
+        // b3.setOnMousePressed(new EventHandler<Event>() {
+        //
+        // @Override public void handle(final Event arg0) {
+        // propertyFilterField.setText("");
+        // filterProperties(propertyFilterField.getText());
+        // }
+        // });
 
         final GridPane filtersGridPane = new GridPane();
         filtersGridPane.setVgap(5);
@@ -665,21 +675,21 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         filtersGridPane.setId("main-filters-grid-pane");
 
         GridPane.setHgrow(idFilterField, Priority.ALWAYS);
-//        GridPane.setHgrow(b1, Priority.NEVER);
+        // GridPane.setHgrow(b1, Priority.NEVER);
         GridPane.setHgrow(classNameFilterField, Priority.ALWAYS);
-//        GridPane.setHgrow(b2, Priority.NEVER);
+        // GridPane.setHgrow(b2, Priority.NEVER);
         GridPane.setHgrow(propertyFilterField, Priority.ALWAYS);
-//        GridPane.setHgrow(b3, Priority.NEVER);
+        // GridPane.setHgrow(b3, Priority.NEVER);
 
         filtersGridPane.add(new Label("ID Filter:"), 1, 1);
         filtersGridPane.add(idFilterField, 2, 1);
-//        filtersGridPane.add(b1, 3, 1);
+        // filtersGridPane.add(b1, 3, 1);
         filtersGridPane.add(new Label("Class Filter:"), 1, 2);
         filtersGridPane.add(classNameFilterField, 2, 2);
-//        filtersGridPane.add(b2, 3, 2);
+        // filtersGridPane.add(b2, 3, 2);
         filtersGridPane.add(new Label("Property Filter:"), 1, 3);
         filtersGridPane.add(propertyFilterField, 2, 3);
-//        filtersGridPane.add(b3, 3, 3);
+        // filtersGridPane.add(b3, 3, 3);
 
         final TitledPane filtersPane = new TitledPane("Filters", filtersGridPane);
         filtersPane.setId("main-filters");
@@ -710,7 +720,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         });
         detailsTab = new Tab("Details");
         detailsTab.setGraphic(new ImageView(DisplayUtils.getUIImage("details.png")));
-        detailsTab.setContent(scrollPane);
+        detailsTab.setContent(allDetailsPane);
         detailsTab.setClosable(false);
         javadocTab = new Tab("JavaDoc");
 
