@@ -697,6 +697,17 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         animationsPane = new AnimationsPane(this);
 
         tabPane = new TabPane();
+        tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
+
+            @Override public void changed(final ObservableValue<? extends Tab> arg0, final Tab oldValue, final Tab newValue) {
+                if (oldValue != null && oldValue.getContent() instanceof ContextMenuContainer) {
+                    menuBar.getMenus().remove(((ContextMenuContainer) oldValue.getContent()).getMenu());
+                }
+                if (newValue != null && newValue.getContent() instanceof ContextMenuContainer) {
+                    menuBar.getMenus().add(((ContextMenuContainer) newValue.getContent()).getMenu());
+                }
+            }
+        });
         detailsTab = new Tab("Details");
         detailsTab.setGraphic(new ImageView(DisplayUtils.getUIImage("details.png")));
         detailsTab.setContent(scrollPane);
@@ -749,7 +760,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         getChildren().add(borderPane);
 
         this.scenicViewStage = senicViewStage;
-        Persistence.loadProperty("stageWidth", senicViewStage, 640);
+        Persistence.loadProperty("stageWidth", senicViewStage, 800);
         Persistence.loadProperty("stageHeight", senicViewStage, 800);
         setUpdateStrategy(updateStrategy);
     }
