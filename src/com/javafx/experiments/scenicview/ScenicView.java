@@ -714,7 +714,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                     menuBar.getMenus().remove(((ContextMenuContainer) oldValue.getContent()).getMenu());
                 }
                 if (newValue != null && newValue.getContent() instanceof ContextMenuContainer) {
-                    menuBar.getMenus().add(((ContextMenuContainer) newValue.getContent()).getMenu());
+                    menuBar.getMenus().add(menuBar.getMenus().size() - 1, ((ContextMenuContainer) newValue.getContent()).getMenu());
                 }
             }
         });
