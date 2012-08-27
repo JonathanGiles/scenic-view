@@ -172,7 +172,6 @@ public class ScenicViewBooter {
                  * Try to set or modify java.library.path
                  */
                 System.setProperty("java.library.path", jdkHome.getAbsolutePath() + "\\jre\\bin;" + System.getProperty("java.library.path"));
-
                 try {
                     /**
                      * This code is need for reevaluating the library path
