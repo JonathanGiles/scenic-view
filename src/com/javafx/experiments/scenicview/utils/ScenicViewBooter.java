@@ -1,6 +1,7 @@
 package com.javafx.experiments.scenicview.utils;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.net.*;
 import java.util.*;
 
@@ -51,8 +52,7 @@ public class ScenicViewBooter {
 
         if (isAttachAPIAvailable && isJFXAvailable) {
             // Launch ScenicView directly
-            activateDebug();
-            RemoteScenicViewImpl.start();
+            start(null);
         } else {
             // If we are here, the classes are not on the classpath.
             // First, we read the properties file to find previous entries
@@ -144,16 +144,47 @@ public class ScenicViewBooter {
                         ClassPathDialog.hideDialog();
                         new Thread() {
                             @Override public void run() {
-                                activateDebug();
-                                RemoteScenicViewImpl.start();
+                                ScenicViewBooter.this.start(toolsPath);
                             }
                         }.start();
 
                     }
                 });
             } else {
-                activateDebug();
-                RemoteScenicViewImpl.start();
+                start(Utils.toURI(attachPath));
+            }
+        }
+    }
+
+    private void start(final URI attachPath) {
+        activateDebug();
+        patchAttachLibrary(attachPath);
+        RemoteScenicViewImpl.start();
+    }
+
+    private void patchAttachLibrary(final URI attachPath) {
+        if (attachPath != null && Utils.isWindows() && new File(attachPath).exists()) {
+            final File jdkHome = new File(attachPath).getParentFile().getParentFile();
+            try {
+                System.loadLibrary("attach");
+            } catch (final UnsatisfiedLinkError e) {
+                /**
+                 * Try to set or modify java.library.path
+                 */
+                System.setProperty("java.library.path", jdkHome.getAbsolutePath() + "\\jre\\bin;" + System.getProperty("java.library.path"));
+
+                try {
+                    /**
+                     * This code is need for reevaluating the library path
+                     */
+                    final Field fieldSysPath = ClassLoader.class.getDeclaredField("sys_paths");
+                    fieldSysPath.setAccessible(true);
+                    fieldSysPath.set(null, null);
+                    System.loadLibrary("attach");
+                } catch (final Throwable e2) {
+                    e2.printStackTrace();
+                    System.out.println("Error while trying to put attach.dll in path");
+                }
             }
         }
     }
