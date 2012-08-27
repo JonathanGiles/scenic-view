@@ -38,6 +38,7 @@ class Utils {
         final String os = System.getProperty("os.name").toLowerCase();
         // windows
         return (os.indexOf("win") >= 0);
+
     }
 
     static boolean checkPath(final String path) {

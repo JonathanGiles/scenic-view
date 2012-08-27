@@ -167,6 +167,7 @@ public class ScenicViewBooter {
             final File jdkHome = new File(attachPath).getParentFile().getParentFile();
             try {
                 System.loadLibrary("attach");
+
             } catch (final UnsatisfiedLinkError e) {
                 /**
                  * Try to set or modify java.library.path
