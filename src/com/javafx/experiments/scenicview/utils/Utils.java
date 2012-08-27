@@ -30,7 +30,6 @@ class Utils {
         final String os = System.getProperty("os.name").toLowerCase();
         // Mac
         return (os.indexOf("mac") >= 0);
-
     }
 
     public static boolean isWindows() {
