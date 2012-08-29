@@ -163,6 +163,7 @@ public class ScenicViewBooter {
     }
 
     private void patchAttachLibrary(final URI attachPath) {
+
         if (attachPath != null && Utils.isWindows() && new File(attachPath).exists()) {
             final File jdkHome = new File(attachPath).getParentFile().getParentFile();
             try {
