@@ -287,7 +287,22 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
         final List<VirtualMachine> machines = getRunningJavaFXApplications();
         debug(machines.size() + " JavaFX VMs found");
         count.set(machines.size());
-        final File f = new File("./ScenicView.jar");
+        File tempf = new File("./ScenicView.jar");
+        if (!tempf.exists()) {
+            /**
+             * Find jar file in the classpath
+             */
+            final String classPath = System.getProperty("java.class.path");
+            final String pathSeparator = System.getProperty("path.separator");
+            final String[] files = classPath.split(pathSeparator);
+            for (int i = 0; i < files.length; i++) {
+                if (files[i].toLowerCase().indexOf("scenicview.jar") != -1) {
+                    tempf = new File(files[i]);
+                    break;
+                }
+            }
+        }
+        final File f = tempf;
         debug("Loading agent from file:" + f.getAbsolutePath());
 
         try {
