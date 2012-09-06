@@ -10,12 +10,12 @@ import java.util.*;
 import javafx.event.*;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.*;
 import javafx.scene.layout.VBox;
 
 import com.javafx.experiments.scenicview.ContextMenuContainer;
 import com.javafx.experiments.scenicview.connector.details.*;
 import com.javafx.experiments.scenicview.details.GDetailPane.RemotePropertySetter;
-import com.javafx.experiments.scenicview.dialog.InfoBox;
 
 /**
  * 
@@ -98,7 +98,7 @@ public abstract class AllDetailsPane extends ScrollPane implements ContextMenuCo
     @Override public Menu getMenu() {
         if (menu == null) {
             menu = new Menu("Details");
-            dumpDetails = new MenuItem("Dump Details");
+            dumpDetails = new MenuItem("Copy Details to Clipboard");
             dumpDetails.setOnAction(new EventHandler<ActionEvent>() {
 
                 @Override public void handle(final ActionEvent arg0) {
@@ -106,7 +106,10 @@ public abstract class AllDetailsPane extends ScrollPane implements ContextMenuCo
                     for (final Iterator<GDetailPane> iterator = gDetailPanes.iterator(); iterator.hasNext();) {
                         sb.append(iterator.next());
                     }
-                    InfoBox.make("Details", "Details info", sb.toString());
+                    final Clipboard clipboard = Clipboard.getSystemClipboard();
+                    final ClipboardContent content = new ClipboardContent();
+                    content.putString(sb.toString());
+                    clipboard.setContent(content);
                 }
             });
             updateDump();
