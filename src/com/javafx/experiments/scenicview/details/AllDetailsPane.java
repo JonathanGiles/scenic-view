@@ -7,13 +7,15 @@ package com.javafx.experiments.scenicview.details;
 
 import java.util.*;
 
+import javafx.event.*;
 import javafx.scene.Node;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
 import com.javafx.experiments.scenicview.ContextMenuContainer;
 import com.javafx.experiments.scenicview.connector.details.*;
 import com.javafx.experiments.scenicview.details.GDetailPane.RemotePropertySetter;
+import com.javafx.experiments.scenicview.dialog.InfoBox;
 
 /**
  * 
@@ -27,6 +29,10 @@ public abstract class AllDetailsPane extends ScrollPane implements ContextMenuCo
     APILoader loader;
 
     VBox vbox;
+
+    Menu menu;
+
+    MenuItem dumpDetails;
 
     public AllDetailsPane(final APILoader loader) {
         this.loader = loader;
@@ -64,6 +70,7 @@ public abstract class AllDetailsPane extends ScrollPane implements ContextMenuCo
         pane.setExpanded(detailVisible);
         pane.setManaged(detailVisible);
         pane.setVisible(detailVisible);
+        updateDump();
     }
 
     public void updateDetail(final DetailPaneType type, final String paneName, final Detail detail) {
@@ -88,4 +95,34 @@ public abstract class AllDetailsPane extends ScrollPane implements ContextMenuCo
         return pane;
     }
 
+    @Override public Menu getMenu() {
+        if (menu == null) {
+            menu = new Menu("Details");
+            dumpDetails = new MenuItem("Dump Details");
+            dumpDetails.setOnAction(new EventHandler<ActionEvent>() {
+
+                @Override public void handle(final ActionEvent arg0) {
+                    final StringBuilder sb = new StringBuilder();
+                    for (final Iterator<GDetailPane> iterator = gDetailPanes.iterator(); iterator.hasNext();) {
+                        sb.append(iterator.next());
+                    }
+                    InfoBox.make("Details", "Details info", sb.toString());
+                }
+            });
+            updateDump();
+            menu.getItems().addAll(dumpDetails);
+        }
+        return menu;
+    }
+
+    private void updateDump() {
+        boolean anyVisible = false;
+        for (final Iterator<GDetailPane> iterator = gDetailPanes.iterator(); iterator.hasNext();) {
+            if (iterator.next().isVisible()) {
+                anyVisible = true;
+                break;
+            }
+        }
+        dumpDetails.setDisable(!anyVisible);
+    }
 }

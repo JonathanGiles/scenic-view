@@ -260,4 +260,8 @@ public class GDetail {
     public void setAPILoader(final APILoader loader) {
         this.loader = loader;
     }
+
+    @Override public String toString() {
+        return label.getText() + "=" + ((value instanceof Label) ? ((Label) value).getText() : value.toString());
+    }
 }

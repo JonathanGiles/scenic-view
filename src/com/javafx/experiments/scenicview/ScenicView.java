@@ -521,7 +521,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
 
             @Override public Menu getMenu() {
                 if (menu == null) {
-                    menu = new Menu("Details");
+                    menu = super.getMenu();
                     final CheckMenuItem showCSSProperties = buildCheckMenuItem("Show CSS Properties", "Show CSS properties", "Hide CSS properties", "showCSSProperties", Boolean.FALSE);
                     showCSSProperties.selectedProperty().addListener(new InvalidationListener() {
                         @Override public void invalidated(final Observable arg0) {

@@ -274,4 +274,15 @@ public class GDetailPane extends TitledPane {
     public interface RemotePropertySetter {
         public void set(Detail detail, String value);
     }
+
+    @Override public String toString() {
+        if (details.isEmpty())
+            return "";
+        final StringBuilder sb = new StringBuilder();
+        sb.append(type).append('\n');
+        for (int i = 0; i < details.size(); i++) {
+            sb.append(details.get(i)).append('\n');
+        }
+        return sb.toString();
+    }
 }
