@@ -32,6 +32,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     private TreeItem<SVNode> patchedNode;
 
     private final List<Integer> forcedCollapsedItems = new ArrayList<Integer>();
+    private final List<Integer> forcedExpandedItems = new ArrayList<Integer>();
     ContextMenu selectedCM;
 
     public ScenegraphTreeView(final List<NodeFilter> activeNodeFilters, final SelectedNodeContainer container) {
@@ -64,6 +65,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                     final TreeItem<SVNode> node = getSelectionModel().getSelectedItem();
                     final int hash = node.getValue().hashCode();
                     final boolean collapsed = forcedCollapsedItems.contains(hash);
+                    final boolean expanded = forcedExpandedItems.contains(hash);
                     selectedCM = new ContextMenu();
                     final MenuItem cmItem1 = new MenuItem(collapsed ? "Do not collapse always" : "Collapse always");
                     cmItem1.setOnAction(new EventHandler<ActionEvent>() {
@@ -78,14 +80,29 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                             }
                         }
                     });
-                    final MenuItem cmItem2 = new MenuItem("Close");
+                    cmItem1.setDisable(expanded);
+                    final MenuItem cmItem2 = new MenuItem(expanded ? "Do not expand always" : "Expand always");
                     cmItem2.setOnAction(new EventHandler<ActionEvent>() {
+                        @Override public void handle(final ActionEvent e) {
+                            if (expanded) {
+                                forcedExpandedItems.remove((Object) hash);
+                                // This is not completely correct but...
+                                node.setExpanded(false);
+                            } else {
+                                forcedExpandedItems.add(hash);
+                                node.setExpanded(true);
+                            }
+                        }
+                    });
+                    cmItem2.setDisable(collapsed);
+                    final MenuItem cmItem3 = new MenuItem("Close");
+                    cmItem3.setOnAction(new EventHandler<ActionEvent>() {
                         @Override public void handle(final ActionEvent e) {
                             selectedCM.hide();
                         }
                     });
 
-                    selectedCM.getItems().addAll(cmItem1, cmItem2);
+                    selectedCM.getItems().addAll(cmItem1, cmItem2, cmItem3);
                     selectedCM.show(ScenegraphTreeView.this, ev.getScreenX(), ev.getScreenY());
                 }
                 if (ev.isSecondaryButtonDown()) {
@@ -513,9 +530,9 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                 treeItem.getChildren().add(childItem);
             }
         }
-
-        if (!forcedCollapsedItems.contains(node.hashCode())) {
-            treeItem.setExpanded(expand || node.isExpanded());
+        final int hash = node.hashCode();
+        if (!forcedCollapsedItems.contains(hash)) {
+            treeItem.setExpanded(expand || node.isExpanded() || forcedExpandedItems.contains(hash));
         }
 
         if (nodeAccepted) {
