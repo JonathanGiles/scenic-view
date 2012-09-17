@@ -92,6 +92,7 @@
 
 .detail-pane .detail-value {
     -fx-text-fill: black;
+    -fx-font-weight: normal;
 }
 
 .detail-pane .detail-field {
