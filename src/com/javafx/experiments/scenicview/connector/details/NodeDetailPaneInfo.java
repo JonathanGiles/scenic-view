@@ -6,6 +6,10 @@
 package com.javafx.experiments.scenicview.connector.details;
 
 import static com.javafx.experiments.scenicview.connector.ConnectorUtils.boundsToString;
+
+import java.lang.reflect.Field;
+import java.util.*;
+
 import javafx.beans.value.WritableValue;
 import javafx.collections.*;
 import javafx.geometry.Orientation;
@@ -28,6 +32,7 @@ import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
 public class NodeDetailPaneInfo extends DetailPaneInfo {
 
     Detail nodeClassName;
+    Detail pseudoClassStateDetail;
     Detail styleClassDetail;
     Detail managedDetail;
     Detail visibleDetail;
@@ -50,6 +55,7 @@ public class NodeDetailPaneInfo extends DetailPaneInfo {
     Detail constraintsDetail;
 
     ListChangeListener<Transform> transformListener;
+    private final Map<Long, String> pseudoStates = new HashMap<Long, String>();
 
     public NodeDetailPaneInfo(final AppEventDispatcher dispatcher, final StageID stageID) {
         super(dispatcher, stageID, DetailPaneType.NODE);
@@ -71,6 +77,7 @@ public class NodeDetailPaneInfo extends DetailPaneInfo {
     @Override protected void createDetails() {
         nodeClassName = addDetail("className", "className:");
         styleClassDetail = addDetail("styleClass", "styleClass:");
+        pseudoClassStateDetail = addDetail(null, "pseudoStage:");
         visibleDetail = addDetail("visible", "visible:");
         managedDetail = addDetail("managed", "managed:");
         layoutBoundsDetail = addDetail("layoutBounds", "layoutBounds:", LabelType.LAYOUT_BOUNDS);
@@ -104,9 +111,47 @@ public class NodeDetailPaneInfo extends DetailPaneInfo {
         super.setTarget(value);
 
         final Node node = (Node) value;
+
+        fillPseudoStates(value);
+
         if (node != null) {
             node.getTransforms().addListener(transformListener);
         }
+    }
+
+    private Field[] getDeclaredFields(final Object node) {
+        final List<Field> fields = new ArrayList<Field>();
+        Class classType = node.getClass();
+        do {
+            fields.addAll(Arrays.asList(classType.getDeclaredFields()));
+            classType = classType.getSuperclass();
+        } while (classType != null);
+        return fields.toArray(new Field[fields.size()]);
+    }
+
+    private void fillPseudoStates(final Object node) {
+        pseudoStates.clear();
+        if (node != null) {
+            final Field[] fields = getDeclaredFields(node);
+            for (int i = 0; i < fields.length; i++) {
+                final String name = fields[i].getName();
+                if (name.endsWith("_PSEUDOCLASS_STATE")) {
+                    try {
+                        fields[i].setAccessible(true);
+                        final long lvalue = fields[i].getLong(node);
+                        final String pseudoClass = name.substring(0, name.indexOf("_PSEUDOCLASS_STATE")).toLowerCase();
+                        pseudoStates.put(lvalue, pseudoClass);
+                    } catch (final IllegalArgumentException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (final IllegalAccessException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
     }
 
     @Override protected void updateAllDetails() {
@@ -192,9 +237,16 @@ public class NodeDetailPaneInfo extends DetailPaneInfo {
         final boolean all = propertyName.equals("*") ? true : false;
 
         final Node node = (Node) getTarget();
-
         if (all && node != null) {
             nodeClassName.setValue(node.getClass().getName());
+        }
+
+        if (node != null) {
+            final long value = node.impl_getPseudoClassState();
+            pseudoClassStateDetail.setValue(getPseudoState(value));
+            if (!all) {
+                pseudoClassStateDetail.updated();
+            }
         }
 
         if (all || propertyName.equals("styleClass")) {
@@ -334,5 +386,19 @@ public class NodeDetailPaneInfo extends DetailPaneInfo {
         }
         if (all)
             sendAllDetails();
+    }
+
+    private String getPseudoState(final long value) {
+        final StringBuilder sb = new StringBuilder();
+        for (final Iterator<Long> iterator = pseudoStates.keySet().iterator(); iterator.hasNext();) {
+            final long type = iterator.next();
+            if ((type & value) != 0) {
+                if (sb.length() != 0) {
+                    sb.append(',');
+                }
+                sb.append(pseudoStates.get(type));
+            }
+        }
+        return sb.toString();
     }
 }
