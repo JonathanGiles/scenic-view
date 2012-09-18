@@ -824,7 +824,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         updateAnimations();
     }
 
-    public void loadAPI(final String property) {
+    private void loadAPI(final String property) {
         if (tabPane.getTabs().contains(javadocTab)) {
             if (property != null) {
                 tabPane.getSelectionModel().select(javadocTab);
