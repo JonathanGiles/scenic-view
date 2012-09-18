@@ -1168,4 +1168,8 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
             System.out.println(debug);
         }
     }
+
+    @Override public void forceUpdate() {
+        update();
+    }
 }

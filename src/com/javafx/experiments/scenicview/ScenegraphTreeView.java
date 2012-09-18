@@ -33,6 +33,8 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
 
     private final List<Integer> forcedCollapsedItems = new ArrayList<Integer>();
     private final List<Integer> forcedExpandedItems = new ArrayList<Integer>();
+    private final List<String> forcedCollapsedNodeClassItems = new ArrayList<String>();
+    private final List<String> forcedExpandedNodeClassItems = new ArrayList<String>();
     ContextMenu selectedCM;
 
     public ScenegraphTreeView(final List<NodeFilter> activeNodeFilters, final SelectedNodeContainer container) {
@@ -60,55 +62,18 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
             @Override public void handle(final MouseEvent ev) {
                 if (selectedCM != null) {
                     selectedCM.hide();
-                }
-                if (ev.isMiddleButtonDown() && getSelectionModel().getSelectedItem() != null) {
-                    final TreeItem<SVNode> node = getSelectionModel().getSelectedItem();
-                    final int hash = node.getValue().hashCode();
-                    final boolean collapsed = forcedCollapsedItems.contains(hash);
-                    final boolean expanded = forcedExpandedItems.contains(hash);
-                    selectedCM = new ContextMenu();
-                    final MenuItem cmItem1 = new MenuItem(collapsed ? "Do not collapse always" : "Collapse always");
-                    cmItem1.setOnAction(new EventHandler<ActionEvent>() {
-                        @Override public void handle(final ActionEvent e) {
-                            if (collapsed) {
-                                forcedCollapsedItems.remove((Object) hash);
-                                // This is not completely correct but...
-                                node.setExpanded(true);
-                            } else {
-                                forcedCollapsedItems.add(hash);
-                                node.setExpanded(false);
-                            }
-                        }
-                    });
-                    cmItem1.setDisable(expanded);
-                    final MenuItem cmItem2 = new MenuItem(expanded ? "Do not expand always" : "Expand always");
-                    cmItem2.setOnAction(new EventHandler<ActionEvent>() {
-                        @Override public void handle(final ActionEvent e) {
-                            if (expanded) {
-                                forcedExpandedItems.remove((Object) hash);
-                                // This is not completely correct but...
-                                node.setExpanded(false);
-                            } else {
-                                forcedExpandedItems.add(hash);
-                                node.setExpanded(true);
-                            }
-                        }
-                    });
-                    cmItem2.setDisable(collapsed);
-                    final MenuItem cmItem3 = new MenuItem("Close");
-                    cmItem3.setOnAction(new EventHandler<ActionEvent>() {
-                        @Override public void handle(final ActionEvent e) {
-                            selectedCM.hide();
-                        }
-                    });
-
-                    selectedCM.getItems().addAll(cmItem1, cmItem2, cmItem3);
-                    selectedCM.show(ScenegraphTreeView.this, ev.getScreenX(), ev.getScreenY());
+                    selectedCM = null;
                 }
                 if (ev.isSecondaryButtonDown()) {
-                    secPressed = true;
-                    getSelectionModel().clearSelection();
+                    showContextMenu(ev);
                 }
+                // if (ev.isMiddleButtonDown() &&
+                // getSelectionModel().getSelectedItem() != null) {
+                // showContextMenu(ev); }
+                // if (ev.isSecondaryButtonDown()) {
+                // secPressed = true;
+                // getSelectionModel().clearSelection();
+                // }
             }
         });
         /**
@@ -118,13 +83,80 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         setOnMouseReleased(new EventHandler<MouseEvent>() {
 
             @Override public void handle(final MouseEvent ev) {
-                if (secPressed) {
-                    secPressed = false;
-                    getSelectionModel().clearSelection();
+                if (ev.isSecondaryButtonDown()) {
+                    showContextMenu(ev);
                 }
+                // if (secPressed) {
+                // secPressed = false;
+                // getSelectionModel().clearSelection();
+                // }
             }
         });
 
+    }
+
+    private void showContextMenu(final MouseEvent ev) {
+        if (getSelectionModel().getSelectedItem() != null && selectedCM == null) {
+            final TreeItem<SVNode> node = getSelectionModel().getSelectedItem();
+            final int hash = node.getValue().hashCode();
+            final String nodeClass = node.getValue().getNodeClass();
+            final boolean collapsed = forcedCollapsedItems.contains(hash);
+            final boolean expanded = forcedExpandedItems.contains(hash);
+            final boolean collapsedClass = forcedCollapsedNodeClassItems.contains(nodeClass);
+            final boolean expandedClass = forcedExpandedNodeClassItems.contains(nodeClass);
+            final Menu forcedExpand = new Menu("Forced Expand");
+            forcedExpand.setDisable(collapsed || collapsedClass);
+            final Menu forcedCollapse = new Menu("Forced Collapse");
+            forcedCollapse.setDisable(expanded || expandedClass);
+            selectedCM = new ContextMenu();
+            final CheckMenuItem collapseNode = new CheckMenuItem("For this node");
+            collapseNode.setOnAction(forceExpandCollapse(node, forcedCollapsedItems, hash, collapsed, true));
+            collapseNode.setSelected(collapsed);
+            final CheckMenuItem collapseNodeType = new CheckMenuItem("For this node type");
+            collapseNodeType.setOnAction(forceExpandCollapse(node, forcedCollapsedNodeClassItems, nodeClass, collapsedClass, true));
+            collapseNodeType.setSelected(collapsedClass);
+            forcedCollapse.getItems().addAll(collapseNode, collapseNodeType);
+
+            final CheckMenuItem expandNode = new CheckMenuItem("For this node");
+            expandNode.setOnAction(forceExpandCollapse(node, forcedExpandedItems, hash, expanded, false));
+            expandNode.setSelected(expanded);
+            final CheckMenuItem expandNodeType = new CheckMenuItem("For this node type");
+            expandNodeType.setOnAction(forceExpandCollapse(node, forcedExpandedNodeClassItems, nodeClass, expandedClass, false));
+            expandNodeType.setSelected(expandedClass);
+            forcedExpand.getItems().addAll(expandNode, expandNodeType);
+
+            final MenuItem close = new MenuItem("Close");
+            close.setOnAction(new EventHandler<ActionEvent>() {
+                @Override public void handle(final ActionEvent e) {
+                    selectedCM.hide();
+                }
+            });
+            final MenuItem deselect = new MenuItem("Clear selection");
+            deselect.setOnAction(new EventHandler<ActionEvent>() {
+                @Override public void handle(final ActionEvent e) {
+                    getSelectionModel().clearSelection();
+                }
+            });
+            deselect.disableProperty().bind(getSelectionModel().selectedItemProperty().isNull());
+
+            selectedCM.getItems().addAll(deselect, forcedCollapse, forcedExpand, close);
+            selectedCM.show(ScenegraphTreeView.this, ev.getScreenX(), ev.getScreenY());
+        }
+    }
+
+    @SuppressWarnings({ "unchecked" }) private EventHandler<ActionEvent> forceExpandCollapse(final TreeItem<SVNode> node, @SuppressWarnings("rawtypes") final List filter, final Object data, final boolean remove, final boolean expandIfRemoved) {
+        return new EventHandler<ActionEvent>() {
+            @Override public void handle(final ActionEvent e) {
+                if (remove) {
+                    filter.remove(data);
+                    // This is not completely correct but...
+                    container.forceUpdate();
+                } else {
+                    filter.add(data);
+                    container.forceUpdate();
+                }
+            }
+        };
     }
 
     protected void setSelectedNode(final TreeItem<SVNode> item) {
@@ -531,8 +563,9 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
             }
         }
         final int hash = node.hashCode();
-        if (!forcedCollapsedItems.contains(hash)) {
-            treeItem.setExpanded(expand || node.isExpanded() || forcedExpandedItems.contains(hash));
+        final String nodeClass = node.getNodeClass();
+        if (!forcedCollapsedItems.contains(hash) && !forcedCollapsedNodeClassItems.contains(nodeClass)) {
+            treeItem.setExpanded(expand || node.isExpanded() || forcedExpandedItems.contains(hash) || forcedExpandedNodeClassItems.contains(nodeClass));
         }
 
         if (nodeAccepted) {
@@ -582,6 +615,8 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         void setSelectedNode(StageController controller, SVNode node);
 
         SVNode getSelectedNode();
+
+        void forceUpdate();
     }
 
     private void removeForNode(final TreeItem<SVNode> treeItem) {
