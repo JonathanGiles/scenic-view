@@ -15,7 +15,7 @@ import java.util.logging.*;
 class Utils {
     public static URI encodePath(final String path) {
         try {
-            final URL url = new File(path).toURL();
+            @SuppressWarnings("deprecation") final URL url = new File(path).toURL();
             return new URI(url.getProtocol(), url.getHost(), url.getPath(), null);
         } catch (final URISyntaxException ex) {
             Logger.getLogger(ClassPathDialog.class.getName()).log(Level.SEVERE, null, ex);

@@ -5,8 +5,6 @@ package com.javafx.experiments.scenicview.example;
  * and open the template in the editor.
  */
 
-import java.util.*;
-
 import javafx.animation.*;
 import javafx.application.Application;
 import javafx.beans.property.*;
@@ -26,7 +24,6 @@ import javafx.stage.*;
 import javafx.util.Duration;
 
 import com.javafx.experiments.scenicview.ScenicView;
-import com.javafx.experiments.scenicview.connector.AppController;
 import com.javafx.experiments.scenicview.update.LocalVMUpdateStrategy;
 
 /**
@@ -217,7 +214,6 @@ public class ScenicViewExample extends Application {
         // workaround for RT-10714
         stages.setWidth(640);
         stages.setHeight(800);
-        final List<AppController> controllers = new ArrayList<AppController>();
 
         // final AppController aController = new AppControllerImpl();
         // aController.getStages().add(new StageControllerImpl(scene.getRoot(),
