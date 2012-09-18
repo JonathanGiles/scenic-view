@@ -187,6 +187,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
     private Tab javadocTab;
     private TabPane tabPane;
     private Tab detailsTab;
+    private Tab eventsTab;
 
     public ScenicView(final UpdateStrategy updateStrategy, final Stage senicViewStage) {
         Persistence.loadProperties();
@@ -739,7 +740,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                 }
             }
         });
-        final Tab eventsTab = new Tab("Events");
+        eventsTab = new Tab("Events");
         eventsTab.setContent(eventLogPane);
         eventsTab.setGraphic(new ImageView(DisplayUtils.getUIImage("flag_red.png")));
         eventsTab.setClosable(false);
@@ -827,7 +828,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
     private void loadAPI(final String property) {
         if (tabPane.getTabs().contains(javadocTab)) {
             if (property != null) {
-                tabPane.getSelectionModel().select(javadocTab);
+                goTo(SVTab.JAVADOC);
             }
             if (javadocTab.isSelected()) {
                 if (selectedNode == null || selectedNode.getNodeClassName() == null || !selectedNode.getNodeClassName().startsWith("javafx.")) {
@@ -1170,5 +1171,24 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
 
     @Override public void forceUpdate() {
         update();
+    }
+
+    public void goTo(final SVTab tab) {
+        switch (tab) {
+        case JAVADOC:
+            tabPane.getSelectionModel().select(javadocTab);
+            break;
+
+        case DETAILS:
+            tabPane.getSelectionModel().select(detailsTab);
+            break;
+
+        case EVENTS:
+            tabPane.getSelectionModel().select(eventsTab);
+            break;
+
+        default:
+            break;
+        }
     }
 }

@@ -99,6 +99,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
             final TreeItem<SVNode> node = getSelectionModel().getSelectedItem();
             final int hash = node.getValue().hashCode();
             final String nodeClass = node.getValue().getNodeClass();
+            final boolean last = node.getChildren().isEmpty();
             final boolean collapsed = forcedCollapsedItems.contains(hash);
             final boolean expanded = forcedExpandedItems.contains(hash);
             final boolean collapsedClass = forcedCollapsedNodeClassItems.contains(nodeClass);
@@ -111,6 +112,8 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
             final CheckMenuItem collapseNode = new CheckMenuItem("For this node");
             collapseNode.setOnAction(forceExpandCollapse(node, forcedCollapsedItems, hash, collapsed, true));
             collapseNode.setSelected(collapsed);
+            collapseNode.setDisable(last);
+
             final CheckMenuItem collapseNodeType = new CheckMenuItem("For this node type");
             collapseNodeType.setOnAction(forceExpandCollapse(node, forcedCollapsedNodeClassItems, nodeClass, collapsedClass, true));
             collapseNodeType.setSelected(collapsedClass);
@@ -119,10 +122,14 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
             final CheckMenuItem expandNode = new CheckMenuItem("For this node");
             expandNode.setOnAction(forceExpandCollapse(node, forcedExpandedItems, hash, expanded, false));
             expandNode.setSelected(expanded);
+            expandNode.setDisable(last);
             final CheckMenuItem expandNodeType = new CheckMenuItem("For this node type");
             expandNodeType.setOnAction(forceExpandCollapse(node, forcedExpandedNodeClassItems, nodeClass, expandedClass, false));
             expandNodeType.setSelected(expandedClass);
             forcedExpand.getItems().addAll(expandNode, expandNodeType);
+
+            final Menu goTo = new Menu("Go to");
+            goTo.getItems().addAll(goToTab("Details", SVTab.DETAILS), goToTab("Events", SVTab.EVENTS), goToTab("JavaDoc", SVTab.JAVADOC));
 
             final MenuItem close = new MenuItem("Close");
             close.setOnAction(new EventHandler<ActionEvent>() {
@@ -138,9 +145,19 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
             });
             deselect.disableProperty().bind(getSelectionModel().selectedItemProperty().isNull());
 
-            selectedCM.getItems().addAll(deselect, forcedCollapse, forcedExpand, close);
+            selectedCM.getItems().addAll(deselect, forcedCollapse, forcedExpand, goTo, close);
             selectedCM.show(ScenegraphTreeView.this, ev.getScreenX(), ev.getScreenY());
         }
+    }
+
+    private MenuItem goToTab(final String text, final SVTab tab) {
+        final MenuItem goTo = new MenuItem(text);
+        goTo.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(final ActionEvent e) {
+                container.goTo(tab);
+            }
+        });
+        return goTo;
     }
 
     @SuppressWarnings({ "unchecked" }) private EventHandler<ActionEvent> forceExpandCollapse(final TreeItem<SVNode> node, @SuppressWarnings("rawtypes") final List filter, final Object data, final boolean remove, final boolean expandIfRemoved) {
@@ -616,6 +633,8 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         SVNode getSelectedNode();
 
         void forceUpdate();
+
+        void goTo(final SVTab tab);
     }
 
     private void removeForNode(final TreeItem<SVNode> treeItem) {
