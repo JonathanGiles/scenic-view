@@ -186,7 +186,6 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
     private ProgressWebView wview;
     private Tab javadocTab;
     private TabPane tabPane;
-    private String loadedPage;
     private Tab detailsTab;
 
     public ScenicView(final UpdateStrategy updateStrategy, final Stage senicViewStage) {

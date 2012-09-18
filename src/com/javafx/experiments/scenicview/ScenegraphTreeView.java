@@ -27,7 +27,6 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
 
     TreeItem<SVNode> apps;
 
-    private boolean secPressed;
     private boolean blockSelection;
     private TreeItem<SVNode> patchedNode;
 
