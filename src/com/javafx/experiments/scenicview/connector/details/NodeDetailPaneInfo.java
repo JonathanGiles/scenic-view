@@ -399,6 +399,6 @@ public class NodeDetailPaneInfo extends DetailPaneInfo {
                 sb.append(pseudoStates.get(type));
             }
         }
-        return sb.toString();
+        return sb.length() != 0 ? sb.toString() : "---";
     }
 }
