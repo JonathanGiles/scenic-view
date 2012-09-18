@@ -1173,7 +1173,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         update();
     }
 
-    public void goTo(final SVTab tab) {
+    @Override public void goTo(final SVTab tab) {
         switch (tab) {
         case JAVADOC:
             tabPane.getSelectionModel().select(javadocTab);
