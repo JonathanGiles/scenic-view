@@ -121,7 +121,7 @@ public class NodeDetailPaneInfo extends DetailPaneInfo {
 
     private Field[] getDeclaredFields(final Object node) {
         final List<Field> fields = new ArrayList<Field>();
-        Class classType = node.getClass();
+        Class<?> classType = node.getClass();
         do {
             fields.addAll(Arrays.asList(classType.getDeclaredFields()));
             classType = classType.getSuperclass();
@@ -242,7 +242,7 @@ public class NodeDetailPaneInfo extends DetailPaneInfo {
         }
 
         if (node != null) {
-            final long value = node.impl_getPseudoClassState();
+            @SuppressWarnings("deprecation") final long value = node.impl_getPseudoClassState();
             pseudoClassStateDetail.setValue(getPseudoState(value));
             if (!all) {
                 pseudoClassStateDetail.updated();
