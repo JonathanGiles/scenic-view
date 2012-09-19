@@ -77,7 +77,7 @@ public class NodeDetailPaneInfo extends DetailPaneInfo {
     @Override protected void createDetails() {
         nodeClassName = addDetail("className", "className:");
         styleClassDetail = addDetail("styleClass", "styleClass:");
-        pseudoClassStateDetail = addDetail(null, "pseudoState:");
+        pseudoClassStateDetail = addDetail(null, "pseudoClassState:");
         visibleDetail = addDetail("visible", "visible:");
         managedDetail = addDetail("managed", "managed:");
         layoutBoundsDetail = addDetail("layoutBounds", "layoutBounds:", LabelType.LAYOUT_BOUNDS);
