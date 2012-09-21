@@ -54,13 +54,17 @@ public abstract class AllDetailsPane extends ScrollPane implements ContextMenuCo
         for (final Iterator<GDetailPane> iterator = gDetailPanes.iterator(); iterator.hasNext();) {
             final GDetailPane type = iterator.next();
             type.filterProperties(text);
+            updatedDetailPane(type);
         }
     }
 
     public void updateDetails(final DetailPaneType type, final String paneName, final List<Detail> details, final RemotePropertySetter setter) {
         final GDetailPane pane = getPane(type, paneName);
         pane.updateDetails(details, setter);
+        updatedDetailPane(pane);
+    }
 
+    private void updatedDetailPane(final GDetailPane pane) {
         boolean detailVisible = false;
         for (final Node gridChild : pane.gridpane.getChildren()) {
             detailVisible = gridChild.isVisible();
