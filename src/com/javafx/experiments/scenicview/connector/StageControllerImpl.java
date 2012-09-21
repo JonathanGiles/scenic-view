@@ -150,8 +150,18 @@ public class StageControllerImpl implements StageController {
             }
         };
         selectedNodePropListener = new InvalidationListener() {
+
+            boolean recursive;
+
             @Override public void invalidated(final Observable arg0) {
-                updateBoundsRects();
+                /**
+                 * Prevent stackOverflow
+                 */
+                if (!recursive) {
+                    recursive = true;
+                    updateBoundsRects();
+                    recursive = false;
+                }
             }
         };
 
