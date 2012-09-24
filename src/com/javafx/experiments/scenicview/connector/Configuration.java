@@ -17,6 +17,8 @@ public class Configuration implements Serializable {
 
     private int rulerSeparation;
 
+    private String rulerColor = "000000";
+
     private boolean eventLogEnabled;
 
     private boolean autoRefreshStyles;
@@ -37,6 +39,8 @@ public class Configuration implements Serializable {
      * I'm not totally sure about this...
      */
     private boolean componentSelectOnClick;
+
+    private boolean registerShortcuts;
 
     public boolean isShowBounds() {
         return showBounds;
@@ -144,6 +148,22 @@ public class Configuration implements Serializable {
 
     public void setCSSPropertiesDetail(final boolean cSSPropertiesDetail) {
         CSSPropertiesDetail = cSSPropertiesDetail;
+    }
+
+    public String getRulerColor() {
+        return rulerColor;
+    }
+
+    public void setRulerColor(final String rulerColor) {
+        this.rulerColor = rulerColor;
+    }
+
+    public void setRegisterShortcuts(final boolean newValue) {
+        this.registerShortcuts = newValue;
+    }
+
+    public boolean isRegisterShortcuts() {
+        return registerShortcuts;
     }
 
 }

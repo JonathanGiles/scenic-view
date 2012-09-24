@@ -12,7 +12,7 @@ import javafx.event.*;
 import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.image.Image;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
@@ -82,7 +82,7 @@ public class StageControllerImpl implements StageController {
     private final EventHandler<? super MouseEvent> scenePressListener = new EventHandler<MouseEvent>() {
 
         @Override public void handle(final MouseEvent ev) {
-            dispatcher.dispatchEvent(new NodeSelectedEvent(getID(), createNode(getHoveredNode(ev.getX(), ev.getY()))));
+            dispatchEvent(new NodeSelectedEvent(getID(), createNode(getHoveredNode(ev.getX(), ev.getY()))));
         }
 
     };
@@ -94,7 +94,7 @@ public class StageControllerImpl implements StageController {
 
         @Override public void handle(final Event event) {
             if (configuration.isEventLogEnabled()) {
-                dispatcher.dispatchEvent(new EvLogEvent(getID(), createNode((Node) event.getSource()), event.getEventType().toString(), ""));
+                dispatchEvent(new EvLogEvent(getID(), createNode((Node) event.getSource()), event.getEventType().toString(), ""));
             }
         }
     };
@@ -109,9 +109,11 @@ public class StageControllerImpl implements StageController {
     private final EventHandler<? super MouseEvent> mousePosListener = new EventHandler<MouseEvent>() {
 
         @Override public void handle(final MouseEvent ev) {
-            dispatcher.dispatchEvent(new MousePosEvent(getID(), (int) ev.getSceneX() + "x" + (int) ev.getSceneY()));
+            dispatchEvent(new MousePosEvent(getID(), (int) ev.getSceneX() + "x" + (int) ev.getSceneY()));
         }
     };
+
+    private final EventHandler<? super KeyEvent> shortcutsHandler;
 
     public StageControllerImpl(final Stage stage, final AppController appController) {
         this(stage.getScene().getRoot(), appController, true);
@@ -164,6 +166,19 @@ public class StageControllerImpl implements StageController {
                 }
             }
         };
+        shortcutsHandler = new EventHandler<KeyEvent>() {
+
+            @Override public void handle(final KeyEvent ev) {
+                if (isSVEvent(ev)) {
+                    dispatchEvent(new ShortcutEvent(getID(), ev.getCode()));
+                }
+
+            }
+
+            private boolean isSVEvent(final KeyEvent ev) {
+                return ev.isControlDown() && ev.isShiftDown();
+            }
+        };
 
         visibilityInvalidationListener = new ChangeListener<Boolean>() {
 
@@ -200,7 +215,7 @@ public class StageControllerImpl implements StageController {
                         while (c.next()) {
                             for (final Node dead : c.getRemoved()) {
                                 final SVNode node = createNode(dead);
-                                dispatcher.dispatchEvent(new EvLogEvent(getID(), node, EvLogEvent.NODE_REMOVED, ""));
+                                dispatchEvent(new EvLogEvent(getID(), node, EvLogEvent.NODE_REMOVED, ""));
                                 removeNode(dead, true);
                                 if (isNormalNode(dead)) {
                                     difference -= ConnectorUtils.getBranchCount(dead);
@@ -208,7 +223,7 @@ public class StageControllerImpl implements StageController {
                             }
                             for (final Node alive : c.getAddedSubList()) {
                                 final SVNode node = createNode(alive);
-                                dispatcher.dispatchEvent(new EvLogEvent(getID(), node, EvLogEvent.NODE_ADDED, ""));
+                                dispatchEvent(new EvLogEvent(getID(), node, EvLogEvent.NODE_ADDED, ""));
 
                                 addNewNode(alive);
                                 if (isNormalNode(alive)) {
@@ -218,7 +233,7 @@ public class StageControllerImpl implements StageController {
                         }
                         if (difference != 0) {
                             setNodeCount(nodeCount + difference);
-                            dispatcher.dispatchEvent(new NodeCountEvent(getID(), nodeCount));
+                            dispatchEvent(new NodeCountEvent(getID(), nodeCount));
                         }
                     }
                 } catch (final Exception e) {
@@ -363,7 +378,7 @@ public class StageControllerImpl implements StageController {
             }
             root = app;
         }
-        dispatcher.dispatchEvent(new NodeAddRemoveEvent(SVEventType.ROOT_UPDATED, getID(), root));
+        dispatchEvent(new NodeAddRemoveEvent(SVEventType.ROOT_UPDATED, getID(), root));
         updateSceneDetails();
     }
 
@@ -371,7 +386,7 @@ public class StageControllerImpl implements StageController {
         // hack, since we can't listen for a STAGE prop change on scene
         setNodeCount(ConnectorUtils.getBranchCount(target));
         if (dispatcher != null) {
-            dispatcher.dispatchEvent(new SceneDetailsEvent(getID(), nodeCount, targetScene != null ? ConnectorUtils.format(targetScene.getWidth()) + " x " + ConnectorUtils.format(targetScene.getHeight()) : ""));
+            dispatchEvent(new SceneDetailsEvent(getID(), nodeCount, targetScene != null ? ConnectorUtils.format(targetScene.getWidth()) + " x " + ConnectorUtils.format(targetScene.getHeight()) : ""));
         }
         if (targetScene != null && targetWindow == null) {
             setTargetWindow(targetScene.getWindow());
@@ -404,9 +419,9 @@ public class StageControllerImpl implements StageController {
     private void updateWindowDetails() {
         if (dispatcher != null) {
             if (targetWindow != null) {
-                dispatcher.dispatchEvent(new WindowDetailsEvent(getID(), targetWindow.getClass().getSimpleName(), ConnectorUtils.boundsToString(targetWindow.getX(), targetWindow.getY(), targetWindow.getWidth(), targetWindow.getHeight()), targetWindow.isFocused(), canStylesheetsBeRefreshed()));
+                dispatchEvent(new WindowDetailsEvent(getID(), targetWindow.getClass().getSimpleName(), ConnectorUtils.boundsToString(targetWindow.getX(), targetWindow.getY(), targetWindow.getWidth(), targetWindow.getHeight()), targetWindow.isFocused(), canStylesheetsBeRefreshed()));
             } else {
-                dispatcher.dispatchEvent(new WindowDetailsEvent(getID(), null, "", false, false));
+                dispatchEvent(new WindowDetailsEvent(getID(), null, "", false, false));
             }
         }
     }
@@ -503,11 +518,12 @@ public class StageControllerImpl implements StageController {
         }
     }
 
-    private void showGrid(final boolean newValue, final int gap) {
+    private void showGrid(final boolean newValue, final int gap, final Color color) {
         if (newValue) {
             grid = new RuleGrid(gap, targetScene.getWidth(), targetScene.getHeight());
             grid.setId(StageController.SCENIC_VIEW_BASE_ID + "ruler");
             grid.setManaged(false);
+            grid.setStroke(color);
             addToNode(target, grid);
         } else {
             if (grid != null) {
@@ -634,6 +650,10 @@ public class StageControllerImpl implements StageController {
     }
 
     @Override public void configurationUpdated(final Configuration configuration) {
+        if (configuration.isRegisterShortcuts() != this.configuration.isRegisterShortcuts()) {
+            this.configuration.setRegisterShortcuts(configuration.isRegisterShortcuts());
+            updateShortcuts();
+        }
         if (configuration.isShowBaseline() != this.configuration.isShowBaseline()) {
             this.configuration.setShowBaseline(configuration.isShowBaseline());
             updateBaseline();
@@ -643,7 +663,8 @@ public class StageControllerImpl implements StageController {
             updateBoundsRects();
         }
         if (configuration.isShowRuler() != this.configuration.isShowRuler()) {
-            showGrid(configuration.isShowRuler(), configuration.getRulerSeparation());
+            final Color color = Color.web(configuration.getRulerColor());
+            showGrid(configuration.isShowRuler(), configuration.getRulerSeparation(), color);
             this.configuration.setShowRuler(configuration.isShowRuler());
             this.configuration.setRulerSeparation(configuration.getRulerSeparation());
         } else if (configuration.getRulerSeparation() != this.configuration.getRulerSeparation() && grid != null) {
@@ -669,8 +690,17 @@ public class StageControllerImpl implements StageController {
         this.configuration.setCollapseControls(configuration.isCollapseControls());
         this.configuration.setVisibilityFilteringActive(configuration.isVisibilityFilteringActive());
         this.configuration.setCSSPropertiesDetail(configuration.isCSSPropertiesDetail());
+        this.configuration.setRulerColor(configuration.getRulerColor());
         details.setShowCSSProperties(this.configuration.isCSSPropertiesDetail());
         update();
+    }
+
+    private void updateShortcuts() {
+        if (configuration.isRegisterShortcuts()) {
+            targetScene.addEventFilter(KeyEvent.KEY_PRESSED, shortcutsHandler);
+        } else {
+            targetScene.removeEventFilter(KeyEvent.KEY_PRESSED, shortcutsHandler);
+        }
     }
 
     @Override public void setSelectedNode(final SVNode svNode) {
@@ -730,7 +760,7 @@ public class StageControllerImpl implements StageController {
                     /**
                      * Remove the bean
                      */
-                    dispatcher.dispatchEvent(new EvLogEvent(getID(), createNode(node), EvLogEvent.PROPERTY_CHANGED, propertyName + "=" + property.getValue()));
+                    dispatchEvent(new EvLogEvent(getID(), createNode(node), EvLogEvent.PROPERTY_CHANGED, propertyName + "=" + property.getValue()));
                 }
             };
             tracker.setTarget(node);
@@ -768,14 +798,14 @@ public class StageControllerImpl implements StageController {
         if (isNormalNode(node)) {
             updateListeners(node, true, false);
             final SVNode svNode = createNode(node);
-            dispatcher.dispatchEvent(new NodeAddRemoveEvent(SVEventType.NODE_ADDED, getID(), svNode));
+            dispatchEvent(new NodeAddRemoveEvent(SVEventType.NODE_ADDED, getID(), svNode));
         }
     }
 
     private void removeNode(final Node node, final boolean removeVisibilityListener) {
         if (isNormalNode(node)) {
             updateListeners(node, false, removeVisibilityListener);
-            dispatcher.dispatchEvent(new NodeAddRemoveEvent(SVEventType.NODE_REMOVED, getID(), createNode(node)));
+            dispatchEvent(new NodeAddRemoveEvent(SVEventType.NODE_REMOVED, getID(), createNode(node)));
         }
     }
 
@@ -878,7 +908,7 @@ public class StageControllerImpl implements StageController {
             final Animation a = animations.get(i);
             svAnimations.add(new SVAnimation(ConnectorUtils.getAnimationUniqueID(a), animations.get(i)));
         }
-        dispatcher.dispatchEvent(new AnimationsCountEvent(getID(), svAnimations));
+        dispatchEvent(new AnimationsCountEvent(getID(), svAnimations));
     }
 
     @Override public void pauseAnimation(final int animationID) {
@@ -898,6 +928,12 @@ public class StageControllerImpl implements StageController {
 
     private final boolean isNormalNode(final Node node) {
         return ConnectorUtils.isNormalNode(node);
+    }
+
+    private final void dispatchEvent(final AppEvent event) {
+        if (dispatcher != null) {
+            dispatcher.dispatchEvent(event);
+        }
     }
 
 }

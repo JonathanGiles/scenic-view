@@ -6,6 +6,7 @@
 package com.javafx.experiments.scenicview;
 
 import java.net.URI;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import javafx.application.Platform;
@@ -20,6 +21,8 @@ import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.*;
 
 import javax.swing.JOptionPane;
@@ -29,7 +32,7 @@ import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.details.Detail;
 import com.javafx.experiments.scenicview.connector.event.*;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
-import com.javafx.experiments.scenicview.control.FilterTextField;
+import com.javafx.experiments.scenicview.control.*;
 import com.javafx.experiments.scenicview.details.*;
 import com.javafx.experiments.scenicview.details.GDetailPane.RemotePropertySetter;
 import com.javafx.experiments.scenicview.dialog.*;
@@ -46,7 +49,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
     public static final String STYLESHEETS = "com/javafx/experiments/scenicview/scenicview.css";
     public static final Image APP_ICON = DisplayUtils.getUIImage("mglass.gif");
 
-    public static final String VERSION = "1.2.0";
+    public static final String VERSION = "1.3.0";
     // the Stage used to show Scenic View
     private final Stage scenicViewStage;
 
@@ -97,6 +100,17 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                 case MOUSE_POSITION:
                     if (isActive(appEvent.getStageID()))
                         statusBar.updateMousePosition(((MousePosEvent) appEvent).getPosition());
+                    break;
+
+                case SHORTCUT:
+                    final KeyCode c = ((ShortcutEvent) appEvent).getCode();
+                    switch (c) {
+                    case S:
+                        selectOnClick(!configuration.isComponentSelectOnClick());
+                        break;
+                    default:
+                        break;
+                    }
                     break;
 
                 case WINDOW_DETAILS:
@@ -349,14 +363,6 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         });
         configuration.setAutoRefreshSceneGraph(automaticScenegraphStructureRefreshing.isSelected());
 
-        final CheckMenuItem animationsEnabled = buildCheckMenuItem("Animations enabled", "Animations will run on the application", "Animations will be stopped", null, Boolean.TRUE);
-        animationsEnabled.selectedProperty().addListener(new ChangeListener<Boolean>() {
-
-            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
-                animationsEnabled(animationsEnabled.isSelected());
-            }
-        });
-
         final CheckMenuItem showInvisibleNodes = buildCheckMenuItem("Show Invisible Nodes In Tree", "Invisible nodes will be faded in the scenegraph tree", "Invisible nodes will not be shown in the scenegraph tree", "showInvisibleNodes", Boolean.FALSE);
         final ChangeListener<Boolean> visilityListener = new ChangeListener<Boolean>() {
 
@@ -403,8 +409,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         componentSelectOnClick.selectedProperty().addListener(new ChangeListener<Boolean>() {
 
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean oldValue, final Boolean newValue) {
-                configuration.setComponentSelectOnClick(newValue);
-                configurationUpdated();
+                selectOnClick(newValue);
             }
         });
 
@@ -418,6 +423,16 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         });
         configuration.setIgnoreMouseTransparent(ignoreMouseTransparentNodes.isSelected());
 
+        final CheckMenuItem registerShortcuts = buildCheckMenuItem("Register shortcuts", "SV Keyboard shortcuts will be registered on your app", "SV Keyboard shortcuts will be removed on your app", "registerShortcuts", Boolean.TRUE);
+        registerShortcuts.selectedProperty().addListener(new ChangeListener<Boolean>() {
+
+            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
+                configuration.setRegisterShortcuts(newValue);
+                configurationUpdated();
+            }
+        });
+        configuration.setRegisterShortcuts(registerShortcuts.isSelected());
+
         autoRefreshStyleSheets = buildCheckMenuItem("Auto-Refresh StyleSheets", "A background thread will check modifications on the css files to reload them if needed", "StyleSheets autorefreshing disabled", "autoRefreshStyleSheets", Boolean.FALSE);
         autoRefreshStyleSheets.selectedProperty().addListener(new ChangeListener<Boolean>() {
 
@@ -429,7 +444,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         configuration.setAutoRefreshStyles(autoRefreshStyleSheets.isSelected());
 
         final Menu scenegraphMenu = new Menu("Scenegraph");
-        scenegraphMenu.getItems().addAll(automaticScenegraphStructureRefreshing, autoRefreshStyleSheets, new SeparatorMenuItem(), componentSelectOnClick, ignoreMouseTransparentNodes, new SeparatorMenuItem(), animationsEnabled);
+        scenegraphMenu.getItems().addAll(automaticScenegraphStructureRefreshing, autoRefreshStyleSheets, registerShortcuts, new SeparatorMenuItem(), componentSelectOnClick, ignoreMouseTransparentNodes);
 
         final Menu displayOptionsMenu = new Menu("Display Options");
 
@@ -480,7 +495,29 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         rulerSlider.disableProperty().bind(showRuler.selectedProperty().not());
         slider.disableProperty().bind(showRuler.selectedProperty().not());
 
-        ruler.getItems().addAll(showRuler, rulerSlider);
+        final HBox box2 = new HBox();
+        box2.setSpacing(10);
+        final Rectangle rect = new Rectangle(16, 16);
+        rect.setFill(Color.BLACK);
+        final Label label = new Label("Color");
+        box2.getChildren().addAll(rect, label);
+
+        final ColorMenuItem color = new ColorMenuItem();
+        color.colorProperty().addListener(new ChangeListener<Color>() {
+
+            @Override public void changed(final ObservableValue<? extends Color> arg0, final Color arg1, final Color newValue) {
+                final int red = (int) (newValue.getRed() * 255);
+                final int green = (int) (newValue.getGreen() * 255);
+                final int blue = (int) (newValue.getBlue() * 255);
+                configuration.setRulerColor(toHexByte(red) + toHexByte(green) + toHexByte(blue));
+                configurationUpdated();
+            }
+
+            private String toHexByte(final int value) {
+                return (value < 16) ? "0" + Integer.toString(value, 16) : Integer.toString(value, 16);
+            }
+        });
+        ruler.getItems().addAll(showRuler, rulerSlider, color);
 
         displayOptionsMenu.getItems().addAll(showBoundsCheckbox, showBaselineCheckbox, new SeparatorMenuItem(), ruler, new SeparatorMenuItem(), showFilteredNodesInTree, showInvisibleNodes, showNodesIdInTree, collapseControls, collapseContentControls);
 
@@ -494,6 +531,14 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
             }
         });
 
+        final MenuItem newVersion = new MenuItem("Check New Version");
+        newVersion.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override public void handle(final ActionEvent arg0) {
+                checkNewVersion(true);
+            }
+        });
+
         final MenuItem about = new MenuItem("About");
         about.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -502,7 +547,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
             }
         });
 
-        aboutMenu.getItems().addAll(help, about);
+        aboutMenu.getItems().addAll(help, newVersion, about);
 
         menuBar.getMenus().addAll(fileMenu, displayOptionsMenu, scenegraphMenu, aboutMenu);
 
@@ -603,70 +648,6 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
             }
         });
 
-        // final ImageView b1 = new ImageView();
-        // b1.imageProperty().bind(new ObjectBinding<Image>() {
-        //
-        // {
-        // super.bind(idFilterField.textProperty());
-        // }
-        //
-        // @Override protected Image computeValue() {
-        // // TODO Auto-generated method stub
-        // return (idFilterField.getText() == null ||
-        // idFilterField.getText().equals("")) ? DisplayUtils.CLEAR_OFF_IMAGE :
-        // DisplayUtils.CLEAR_IMAGE;
-        // }
-        // });
-        // b1.setOnMousePressed(new EventHandler<Event>() {
-        //
-        // @Override public void handle(final Event arg0) {
-        // idFilterField.setText("");
-        // update();
-        // }
-        // });
-        // final ImageView b2 = new ImageView();
-        // b2.imageProperty().bind(new ObjectBinding<Image>() {
-        //
-        // {
-        // super.bind(classNameFilterField.textProperty());
-        // }
-        //
-        // @Override protected Image computeValue() {
-        // // TODO Auto-generated method stub
-        // return (classNameFilterField.getText() == null ||
-        // classNameFilterField.getText().equals("")) ?
-        // DisplayUtils.CLEAR_OFF_IMAGE : DisplayUtils.CLEAR_IMAGE;
-        // }
-        // });
-        // b2.setOnMousePressed(new EventHandler<Event>() {
-        //
-        // @Override public void handle(final Event arg0) {
-        // classNameFilterField.setText("");
-        // update();
-        // }
-        // });
-        // final ImageView b3 = new ImageView();
-        // b3.imageProperty().bind(new ObjectBinding<Image>() {
-        //
-        // {
-        // super.bind(propertyFilterField.textProperty());
-        // }
-        //
-        // @Override protected Image computeValue() {
-        // // TODO Auto-generated method stub
-        // return (propertyFilterField.getText() == null ||
-        // propertyFilterField.getText().equals("")) ?
-        // DisplayUtils.CLEAR_OFF_IMAGE : DisplayUtils.CLEAR_IMAGE;
-        // }
-        // });
-        // b3.setOnMousePressed(new EventHandler<Event>() {
-        //
-        // @Override public void handle(final Event arg0) {
-        // propertyFilterField.setText("");
-        // filterProperties(propertyFilterField.getText());
-        // }
-        // });
-
         final GridPane filtersGridPane = new GridPane();
         filtersGridPane.setVgap(5);
         filtersGridPane.setHgap(5);
@@ -675,21 +656,15 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         filtersGridPane.setId("main-filters-grid-pane");
 
         GridPane.setHgrow(idFilterField, Priority.ALWAYS);
-        // GridPane.setHgrow(b1, Priority.NEVER);
         GridPane.setHgrow(classNameFilterField, Priority.ALWAYS);
-        // GridPane.setHgrow(b2, Priority.NEVER);
         GridPane.setHgrow(propertyFilterField, Priority.ALWAYS);
-        // GridPane.setHgrow(b3, Priority.NEVER);
 
         filtersGridPane.add(new Label("ID Filter:"), 1, 1);
         filtersGridPane.add(idFilterField, 2, 1);
-        // filtersGridPane.add(b1, 3, 1);
         filtersGridPane.add(new Label("Class Filter:"), 1, 2);
         filtersGridPane.add(classNameFilterField, 2, 2);
-        // filtersGridPane.add(b2, 3, 2);
         filtersGridPane.add(new Label("Property Filter:"), 1, 3);
         filtersGridPane.add(propertyFilterField, 2, 3);
-        // filtersGridPane.add(b3, 3, 3);
 
         final TitledPane filtersPane = new TitledPane("Filters", filtersGridPane);
         filtersPane.setId("main-filters");
@@ -704,7 +679,26 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         leftPane.getChildren().addAll(filtersPane, treeViewPane);
         VBox.setVgrow(treeViewPane, Priority.ALWAYS);
 
-        animationsPane = new AnimationsPane(this);
+        animationsPane = new AnimationsPane(this) {
+
+            Menu menu;
+
+            @Override public Menu getMenu() {
+                if (menu == null) {
+                    menu = new Menu("Animations");
+                    final CheckMenuItem animationsEnabled = buildCheckMenuItem("Animations enabled", "Animations will run on the application", "Animations will be stopped", null, Boolean.TRUE);
+                    animationsEnabled.selectedProperty().addListener(new ChangeListener<Boolean>() {
+
+                        @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
+                            animationsEnabled(animationsEnabled.isSelected());
+                        }
+                    });
+                    menu.getItems().add(animationsEnabled);
+                }
+                return menu;
+            }
+
+        };
 
         tabPane = new TabPane();
         tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
@@ -754,10 +748,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                 updateAnimations();
             }
         });
-        tabPane.getTabs().addAll(detailsTab, eventsTab/** , animationsTab */
-        , javadocTab
-
-        );
+        tabPane.getTabs().addAll(detailsTab, eventsTab, animationsTab, javadocTab);
         Persistence.loadProperty("splitPaneDividerPosition", splitPane, 0.3);
 
         splitPane.getItems().addAll(leftPane, tabPane);
@@ -773,7 +764,32 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         this.scenicViewStage = senicViewStage;
         Persistence.loadProperty("stageWidth", senicViewStage, 800);
         Persistence.loadProperty("stageHeight", senicViewStage, 800);
+        checkNewVersion(false);
         setUpdateStrategy(updateStrategy);
+    }
+
+    protected void selectOnClick(final boolean newValue) {
+        configuration.setComponentSelectOnClick(newValue);
+        configurationUpdated();
+    }
+
+    private void checkNewVersion(final boolean forced) {
+        final SimpleDateFormat format = new SimpleDateFormat("ddMMyyyy");
+        final String value = Persistence.loadProperty("lastVersionCheck", null);
+        try {
+            if (forced || value == null || ((System.currentTimeMillis() - format.parse(value).getTime()) > 86400000)) {
+                final String newVersion = VersionChecker.checkVersion(VERSION);
+                if (newVersion != null) {
+                    InfoBox.make("Version check", "New version found", newVersion, 600, 200);
+                } else if (forced) {
+                    InfoBox.make("Version check", "ScenicView is updated", null, 200, 100);
+                }
+                Persistence.saveProperty("lastVersionCheck", format.format(new Date()));
+            }
+        } catch (final Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     protected void configurationUpdated() {

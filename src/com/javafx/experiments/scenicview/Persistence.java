@@ -16,6 +16,14 @@ class Persistence {
         properties = PropertiesUtils.loadProperties();
     }
 
+    static String loadProperty(final String propertyName, final String defaultValue) {
+        return properties.getProperty(propertyName, defaultValue);
+    }
+
+    static void saveProperty(final String propertyName, final String defaultValue) {
+        properties.put(propertyName, defaultValue);
+    }
+
     static void loadProperty(final String propertyName, final Object component, final Object defaultValue) {
         final String property = properties.getProperty(propertyName, defaultValue.toString());
         if (component instanceof CheckMenuItem) {
