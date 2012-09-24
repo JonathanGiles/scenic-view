@@ -108,6 +108,10 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                     case S:
                         selectOnClick(!configuration.isComponentSelectOnClick());
                         break;
+                    case R:
+                        configuration.setShowRuler(!configuration.isShowRuler());
+                        configurationUpdated();
+                        break;
                     default:
                         break;
                     }
@@ -492,6 +496,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
                 configurationUpdated();
             }
         });
+        configuration.setRulerSeparation((int) slider.getValue());
         rulerSlider.disableProperty().bind(showRuler.selectedProperty().not());
         slider.disableProperty().bind(showRuler.selectedProperty().not());
 
