@@ -9,6 +9,7 @@ import javafx.event.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 import com.javafx.experiments.scenicview.ScenicView;
@@ -77,6 +78,13 @@ public class GDetail {
                 serializer.setValue(newValue.toString());
             }
         });
+        final ColorPicker picker = new ColorPicker();
+        picker.getStyleClass().add("detail-field");
+        picker.valueProperty().addListener(new ChangeListener<Color>() {
+            @Override public void changed(final ObservableValue<? extends Color> arg0, final Color arg1, final Color newValue) {
+                serializer.setValue(newValue.toString());
+            }
+        });
         value.setOnMouseClicked(new EventHandler<MouseEvent>() {
 
             @Override public void handle(final MouseEvent arg0) {
@@ -99,6 +107,10 @@ public class GDetail {
                         slider.setValue(Double.parseDouble(realValue));
                         GDetail.this.field = slider;
 
+                        break;
+                    case COLOR_PICKER:
+                        picker.setValue(Color.valueOf(realValue));
+                        GDetail.this.field = picker;
                         break;
                     default:
                         field.setText(realValue);

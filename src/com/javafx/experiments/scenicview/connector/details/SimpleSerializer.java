@@ -13,7 +13,7 @@ import com.javafx.experiments.scenicview.details.GDetailPane;
 public class SimpleSerializer implements WritableValue<String> {
 
     public enum EditionType {
-        TEXT_FIELD, COMBO, SLIDER
+        TEXT_FIELD, COMBO, SLIDER, COLOR_PICKER
     };
 
     private final Property property;
@@ -29,6 +29,8 @@ public class SimpleSerializer implements WritableValue<String> {
         this.property = property;
         if (property instanceof BooleanProperty) {
             editionType = EditionType.COMBO;
+        } else if (property instanceof ObjectProperty && property.getValue() instanceof Color) {
+            editionType = EditionType.COLOR_PICKER;
         } else {
             editionType = EditionType.TEXT_FIELD;
         }

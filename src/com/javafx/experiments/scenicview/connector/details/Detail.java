@@ -30,7 +30,7 @@ public class Detail implements Serializable {
     };
 
     public enum EditionType {
-        NONE, TEXT, COMBO, SLIDER
+        NONE, TEXT, COMBO, SLIDER, COLOR_PICKER
     }
 
     private boolean isDefault;
@@ -115,6 +115,9 @@ public class Detail implements Serializable {
                     maxValue = ((SimpleSerializer) serializer).getMaxValue();
                     minValue = ((SimpleSerializer) serializer).getMinValue();
 
+                    break;
+                case COLOR_PICKER:
+                    editionType = EditionType.COLOR_PICKER;
                     break;
                 default:
                     editionType = EditionType.TEXT;
