@@ -14,7 +14,7 @@ import javafx.util.Callback;
 
 import com.javafx.experiments.scenicview.connector.*;
 
-public class AnimationsPane extends VBox {
+public abstract class AnimationsPane extends VBox implements ContextMenuContainer {
 
     private final Map<Integer, List<SVAnimation>> appsAnimations = new HashMap<Integer, List<SVAnimation>>();
 
