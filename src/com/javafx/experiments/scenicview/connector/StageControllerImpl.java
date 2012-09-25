@@ -683,6 +683,11 @@ public class StageControllerImpl implements StageController {
             this.configuration.setComponentSelectOnClick(configuration.isComponentSelectOnClick());
             componentSelectOnClick(configuration.isComponentSelectOnClick());
         }
+        if (!configuration.getRulerColor().equals(this.configuration.getRulerColor())) {
+            this.configuration.setRulerColor(configuration.getRulerColor());
+            if (grid != null)
+                grid.setStroke(Color.web(configuration.getRulerColor()));
+        }
         this.configuration.setAutoRefreshSceneGraph(configuration.isAutoRefreshSceneGraph());
         this.configuration.setEventLogEnabled(configuration.isEventLogEnabled());
         this.configuration.setIgnoreMouseTransparent(configuration.isIgnoreMouseTransparent());
@@ -690,7 +695,7 @@ public class StageControllerImpl implements StageController {
         this.configuration.setCollapseControls(configuration.isCollapseControls());
         this.configuration.setVisibilityFilteringActive(configuration.isVisibilityFilteringActive());
         this.configuration.setCSSPropertiesDetail(configuration.isCSSPropertiesDetail());
-        this.configuration.setRulerColor(configuration.getRulerColor());
+
         details.setShowCSSProperties(this.configuration.isCSSPropertiesDetail());
         update();
     }

@@ -22,7 +22,6 @@ import javafx.scene.image.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.*;
 
 import javax.swing.JOptionPane;
@@ -499,13 +498,6 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         configuration.setRulerSeparation((int) slider.getValue());
         rulerSlider.disableProperty().bind(showRuler.selectedProperty().not());
         slider.disableProperty().bind(showRuler.selectedProperty().not());
-
-        final HBox box2 = new HBox();
-        box2.setSpacing(10);
-        final Rectangle rect = new Rectangle(16, 16);
-        rect.setFill(Color.BLACK);
-        final Label label = new Label("Color");
-        box2.getChildren().addAll(rect, label);
 
         final ColorMenuItem color = new ColorMenuItem();
         color.colorProperty().addListener(new ChangeListener<Color>() {
