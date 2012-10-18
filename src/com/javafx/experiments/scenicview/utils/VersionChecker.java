@@ -61,7 +61,8 @@ public class VersionChecker {
             ioe.printStackTrace();
         } finally {
             try {
-                is.close();
+                if (is != null)
+                    is.close();
             } catch (final IOException ioe) {
                 // just going to ignore this one
             }
