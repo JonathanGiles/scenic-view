@@ -43,7 +43,7 @@ public class VersionChecker {
         final byte[] buffer = new byte[256];
 
         try {
-            u = new URL("file:/c:/elevate.txt");
+            u = new URL("http://jonathangiles.net/scenicView/latestVersion.txt");
             is = u.openStream(); // throws an IOException
             int read;
 
