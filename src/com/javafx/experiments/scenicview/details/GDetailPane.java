@@ -54,16 +54,11 @@ public class GDetailPane extends TitledPane {
     private static final int LABEL_COLUMN = 0;
     private static final int VALUE_COLUMN = 1;
 
-    private static final String STATUS_NOT_SET = "Value can not be changed ";
-    public static final String STATUS_NOT_SUPPORTED = STATUS_NOT_SET + "(Not supported yet)";
-    public static final String STATUS_BOUND = STATUS_NOT_SET + "(Bound property)";
-    public static final String STATUS_EXCEPTION = STATUS_NOT_SET + "an exception has ocurred:";
-    public static final String STATUS_READ_ONLY = STATUS_NOT_SET + "(Read-Only property)";
-
     public static float FADE = .50f;
     public static DecimalFormat f = new DecimalFormat("0.0#");
 
     private static final Image EDIT_IMAGE = DisplayUtils.getUIImage("editclear.png");
+    private static final Image LOCK_IMAGE = DisplayUtils.getUIImage("lock.png");
 
     static final String DETAIL_LABEL_STYLE = "detail-label";
 
@@ -237,8 +232,11 @@ public class GDetailPane extends TitledPane {
             switch (d.getValueType()) {
             case NORMAL:
                 final Label valueLabel = new Label();
-                if (d.getEditionType() != EditionType.NONE) {
+                if (Detail.isEditionSupported(d.getEditionType())) {
                     final ImageView graphic = new ImageView(GDetailPane.EDIT_IMAGE);
+                    valueLabel.setGraphic(graphic);
+                } else if (d.getEditionType() == EditionType.NONE_BOUND) {
+                    final ImageView graphic = new ImageView(GDetailPane.LOCK_IMAGE);
                     valueLabel.setGraphic(graphic);
                 }
                 value = valueLabel;

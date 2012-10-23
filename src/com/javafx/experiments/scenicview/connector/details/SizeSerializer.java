@@ -35,7 +35,6 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.value.WritableValue;
 
 import com.javafx.experiments.scenicview.ScenicView;
-import com.javafx.experiments.scenicview.details.GDetailPane;
 
 public class SizeSerializer implements WritableValue<String> {
 
@@ -69,7 +68,7 @@ public class SizeSerializer implements WritableValue<String> {
             if (!this.y.isBound())
                 this.y.set(yValue);
         } catch (final Exception e) {
-            ScenicView.setStatusText(GDetailPane.STATUS_EXCEPTION + e.getMessage(), 10000);
+            ScenicView.setStatusText(Detail.STATUS_EXCEPTION + e.getMessage(), 10000);
             e.printStackTrace();
         }
     }

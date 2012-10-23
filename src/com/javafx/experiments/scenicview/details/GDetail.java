@@ -59,7 +59,7 @@ public class GDetail {
     private boolean isDefault = true;
 
     WritableValue<String> serializer;
-    String reason = GDetailPane.STATUS_NOT_SUPPORTED;
+    String reason = Detail.STATUS_NOT_SUPPORTED;
     private String[] validItems;
     private double min;
     private double max;
@@ -123,7 +123,7 @@ public class GDetail {
                     GDetailPane.activeDetail.recover();
                 }
 
-                if (editionType != EditionType.NONE) {
+                if (Detail.isEditionSupported(editionType)) {
                     switch (editionType) {
                     case COMBO:
 
@@ -164,8 +164,11 @@ public class GDetail {
             this.valueLabel = (Label) value;
             valueLabel.setOnMouseEntered(new EventHandler<MouseEvent>() {
                 @Override public void handle(final MouseEvent arg0) {
-                    if (editionType != EditionType.NONE)
+                    if (Detail.isEditionSupported(editionType))
                         ScenicView.setStatusText("Properties which can be changed will show this icon");
+                    else if (editionType == EditionType.NONE_BOUND) {
+                        ScenicView.setStatusText("Bound Properties will show this icon");
+                    }
                 }
             });
             valueLabel.setOnMouseExited(new EventHandler<MouseEvent>() {

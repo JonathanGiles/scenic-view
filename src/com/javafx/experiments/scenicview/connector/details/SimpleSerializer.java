@@ -38,12 +38,11 @@ import javafx.beans.value.WritableValue;
 import javafx.scene.paint.Color;
 
 import com.javafx.experiments.scenicview.ScenicView;
-import com.javafx.experiments.scenicview.details.GDetailPane;
 
 @SuppressWarnings("rawtypes")
 public class SimpleSerializer implements WritableValue<String> {
 
-    public enum EditionType {
+    enum EditionType {
         TEXT_FIELD, COMBO, SLIDER, COLOR_PICKER
     };
 
@@ -140,11 +139,11 @@ public class SimpleSerializer implements WritableValue<String> {
                 } else if (property.getValue() instanceof Color) {
                     property.setValue(Color.valueOf(value));
                 } else {
-                    ScenicView.setStatusText(GDetailPane.STATUS_NOT_SUPPORTED, 10000);
+                    ScenicView.setStatusText(Detail.STATUS_NOT_SUPPORTED, 10000);
                 }
             }
         } catch (final Exception e) {
-            ScenicView.setStatusText(GDetailPane.STATUS_EXCEPTION + e.getMessage(), 10000);
+            ScenicView.setStatusText(Detail.STATUS_EXCEPTION + e.getMessage(), 10000);
             e.printStackTrace();
         }
     }
