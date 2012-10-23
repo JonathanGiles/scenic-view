@@ -31,6 +31,8 @@
  */
 package com.javafx.experiments.scenicview.example;
 
+import java.util.*;
+
 import javafx.animation.*;
 import javafx.application.Application;
 import javafx.beans.property.*;
@@ -40,6 +42,7 @@ import javafx.event.*;
 import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
+import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
@@ -47,10 +50,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.stage.*;
-import javafx.util.Duration;
+import javafx.util.*;
 
 import com.javafx.experiments.scenicview.ScenicView;
-import com.javafx.experiments.scenicview.update.LocalVMUpdateStrategy;
 
 /**
  * 
@@ -176,7 +178,7 @@ public class ScenicViewExample extends Application {
         b2.setMouseTransparent(false);
         final ObservableList<String> items = FXCollections.observableArrayList();
         b2.setEffect(shadow);
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 100000; i++) {
             items.add("List View content:" + i);
         }
 
@@ -225,15 +227,49 @@ public class ScenicViewExample extends Application {
 
         final Stage stage2 = new Stage();
         stage2.setTitle("Second example");
-        final Scene scene2 = new Scene(new Group());
+        final TableView<String[]> table = new TableView<String[]>();
+        table.setId("TableSceneTable");
+        table.setPrefHeight(400);
+        table.setPrefWidth(800);
+
+        final List<TableColumn<String[], String>> columns = new ArrayList<TableColumn<String[], String>>(40);
+        for (int i = 0; i < 40; i++) {
+            final int pos2 = i;
+            final TableColumn<String[], String> column = new TableColumn<String[], String>();
+            column.setText("Column" + i);
+            column.setMinWidth(20);
+            column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<String[], String>, ObservableValue<String>>() {
+                @Override public ObservableValue<String> call(final CellDataFeatures<String[], String> values) {
+                    return new SimpleStringProperty(values.getValue()[pos2]);
+                }
+            });
+            columns.add(column);
+        }
+
+        table.getColumns().addAll(columns);
+
+        final ObservableList<String[]> rows = FXCollections.observableArrayList();
+
+        for (int i = 0; i < 10000; i++) {
+            final String[] cells = new String[columns.size()];
+            for (int j = 0; j < cells.length; j++) {
+                cells[j] = "Value_" + j + "_" + i;
+            }
+            rows.add(cells);
+
+        }
+        table.setItems(rows);
+
+        final Scene scene2 = new Scene(table);
         stage2.setScene(scene2);
         stage2.show();
 
-        TimelineBuilder.create().keyFrames(new KeyFrame(Duration.millis(10000), new EventHandler<ActionEvent>() {
-            @Override public void handle(final ActionEvent arg0) {
-                scene2.setRoot(new TilePane());
-            }
-        })).cycleCount(1).build().play();
+        // TimelineBuilder.create().keyFrames(new
+        // KeyFrame(Duration.millis(10000), new EventHandler<ActionEvent>() {
+        // @Override public void handle(final ActionEvent arg0) {
+        // scene2.setRoot(new TilePane());
+        // }
+        // })).cycleCount(1).build().play();
 
         final Stage stages = new Stage();
         // workaround for RT-10714
@@ -246,7 +282,8 @@ public class ScenicViewExample extends Application {
         // aController.getStages().add(new StageControllerImpl(scene2.getRoot(),
         // aController));
         // controllers.add(aController);
-        ScenicView.show(new ScenicView(new LocalVMUpdateStrategy(), stages), stages);
+        // ScenicView.show(new ScenicView(new LocalVMUpdateStrategy(), stages),
+        // stages);
     }
 
     public static void main(final String[] args) {

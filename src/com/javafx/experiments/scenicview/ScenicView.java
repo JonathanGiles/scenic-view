@@ -29,12 +29,13 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- package com.javafx.experiments.scenicview;
+package com.javafx.experiments.scenicview;
 
 import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.beans.*;
 import javafx.beans.Observable;
@@ -49,13 +50,15 @@ import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.*;
+import javafx.util.Duration;
 
 import javax.swing.JOptionPane;
 
-import com.javafx.experiments.scenicview.ScenegraphTreeView.SelectedNodeContainer;
+import com.javafx.experiments.scenicview.ScenegraphTreeView.ConnectorController;
 import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.details.Detail;
 import com.javafx.experiments.scenicview.connector.event.*;
+import com.javafx.experiments.scenicview.connector.event.AppEvent.SVEventType;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
 import com.javafx.experiments.scenicview.control.*;
 import com.javafx.experiments.scenicview.details.*;
@@ -67,7 +70,7 @@ import com.javafx.experiments.scenicview.utils.*;
 /**
  * 
  */
-public class ScenicView extends Region implements SelectedNodeContainer, CParent {
+public class ScenicView extends Region implements ConnectorController, CParent {
 
     private static final String HELP_URL = "http://fxexperience.com/scenic-view/help";
     public static final String STYLESHEETS = "com/javafx/experiments/scenicview/scenicview.css";
@@ -105,102 +108,39 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
     private final CheckMenuItem componentSelectOnClick;
 
     private final Configuration configuration = new Configuration();
+    private final List<AppEvent> eventQueue = new LinkedList<AppEvent>();
 
     private UpdateStrategy updateStrategy;
+    private long lastMousePosition;
     private static boolean debug = false;
 
     private final AppEventDispatcher stageModelListener = new AppEventDispatcher() {
 
-        private boolean isActive(final StageID stageID) {
-            return activeStage.getID().equals(stageID);
-        }
-
         @Override public void dispatchEvent(final AppEvent appEvent) {
             if (isValid(appEvent)) {
+                // doDispatchEvent(appEvent);
                 switch (appEvent.getType()) {
-                case EVENT_LOG:
-                    eventLogPane.trace((EvLogEvent) appEvent);
-                    break;
-                case MOUSE_POSITION:
-                    if (isActive(appEvent.getStageID()))
-                        statusBar.updateMousePosition(((MousePosEvent) appEvent).getPosition());
-                    break;
-
-                case SHORTCUT:
-                    final KeyCode c = ((ShortcutEvent) appEvent).getCode();
-                    switch (c) {
-                    case S:
-                        selectOnClick(!configuration.isComponentSelectOnClick());
-                        break;
-                    case R:
-                        configuration.setShowRuler(!configuration.isShowRuler());
-                        configurationUpdated();
-                        break;
-                    default:
-                        break;
-                    }
-                    break;
-
-                case WINDOW_DETAILS:
-                    final WindowDetailsEvent wevent = (WindowDetailsEvent) appEvent;
-                    autoRefreshStyleSheets.setDisable(!wevent.isStylesRefreshable());
-
-                    if (isActive(wevent.getStageID()))
-                        statusBar.updateWindowDetails(wevent.getWindowType(), wevent.getBounds(), wevent.isFocused());
-                    break;
-                case NODE_SELECTED:
-                    componentSelectOnClick.setSelected(false);
-                    treeView.nodeSelected(((NodeSelectedEvent) appEvent).getNode());
-                    scenicViewStage.toFront();
-                    break;
-
-                case NODE_COUNT:
-                    statusBar.updateNodeCount(((NodeCountEvent) appEvent).getNodeCount());
-                    break;
-
-                case SCENE_DETAILS:
-                    if (isActive(appEvent.getStageID())) {
-                        final SceneDetailsEvent sEvent = (SceneDetailsEvent) appEvent;
-                        statusBar.updateSceneDetails(sEvent.getSize(), sEvent.getNodeCount());
-                    }
-                    break;
-
-                case NODE_ADDED:
-                    treeView.addNewNode(((NodeAddRemoveEvent) appEvent).getNode(), showNodesIdInTree.isSelected(), showFilteredNodesInTree.isSelected());
-                    break;
-
-                case NODE_REMOVED:
-                    treeView.removeNode(((NodeAddRemoveEvent) appEvent).getNode());
-                    break;
 
                 case ROOT_UPDATED:
-                    if (isValid(appEvent))
-                        treeView.updateStageModel(getStageController(appEvent.getStageID()), ((NodeAddRemoveEvent) appEvent).getNode(), showNodesIdInTree.isSelected(), showFilteredNodesInTree.isSelected());
+                    doDispatchEvent(appEvent);
                     break;
 
-                case DETAILS:
-                    final DetailsEvent ev = (DetailsEvent) appEvent;
-                    allDetailsPane.updateDetails(ev.getPaneType(), ev.getPaneName(), ev.getDetails(), new RemotePropertySetter() {
-
-                        @Override public void set(final Detail detail, final String value) {
-                            getStageController(appEvent.getStageID()).setDetail(detail.getDetailType(), detail.getDetailID(), value);
-                        }
-                    });
-                    break;
-
-                case DETAIL_UPDATED:
-                    final DetailsEvent ev2 = (DetailsEvent) appEvent;
-                    allDetailsPane.updateDetail(ev2.getPaneType(), ev2.getPaneName(), ev2.getDetails().get(0));
-                    break;
-
-                case ANIMATIONS_UPDATED:
-                    animationsPane.update(appEvent.getStageID(), ((AnimationsCountEvent) appEvent).getAnimations());
+                case MOUSE_POSITION:
+                    if (System.currentTimeMillis() - lastMousePosition > 500) {
+                        lastMousePosition = System.currentTimeMillis();
+                        // No need to synchronize here
+                        eventQueue.add(appEvent);
+                    }
                     break;
 
                 default:
-                    debug("Unused event for type " + appEvent);
+                    // No need to synchronize here
+                    eventQueue.add(appEvent);
+                    // if (eventQueue.size() > 1)
+                    // System.out.println("QUEUE SIZE:" + eventQueue.size());
                     break;
                 }
+
             } else {
                 debug("Unused event " + appEvent);
             }
@@ -788,6 +728,11 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         Persistence.loadProperty("stageHeight", senicViewStage, 800);
         checkNewVersion(false);
         setUpdateStrategy(updateStrategy);
+        TimelineBuilder.create().cycleCount(Animation.INDEFINITE).keyFrames(new KeyFrame(Duration.millis(500), new EventHandler<ActionEvent>() {
+            @Override public void handle(final ActionEvent arg0) {
+                dispatchEvents();
+            }
+        })).build().play();
     }
 
     protected void selectOnClick(final boolean newValue) {
@@ -1193,7 +1138,7 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
         });
     }
 
-    void openStage(final StageController controller) {
+    @Override public void openStage(final StageController controller) {
         controller.setEventDispatcher(stageModelListener);
         controller.configurationUpdated(configuration);
     }
@@ -1230,4 +1175,133 @@ public class ScenicView extends Region implements SelectedNodeContainer, CParent
             break;
         }
     }
+
+    private void dispatchEvents() {
+        // No need to synchronize
+        while (!eventQueue.isEmpty()) {
+            try {
+                doDispatchEvent(eventQueue.remove(0));
+            } catch (final Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void doDispatchEvent(final AppEvent appEvent) {
+        switch (appEvent.getType()) {
+        case EVENT_LOG:
+            eventLogPane.trace((EvLogEvent) appEvent);
+            break;
+        case MOUSE_POSITION:
+            if (isActive(appEvent.getStageID()))
+                statusBar.updateMousePosition(((MousePosEvent) appEvent).getPosition());
+            break;
+
+        case SHORTCUT:
+            final KeyCode c = ((ShortcutEvent) appEvent).getCode();
+            switch (c) {
+            case S:
+                selectOnClick(!configuration.isComponentSelectOnClick());
+                break;
+            case R:
+                configuration.setShowRuler(!configuration.isShowRuler());
+                configurationUpdated();
+                break;
+            default:
+                break;
+            }
+            break;
+
+        case WINDOW_DETAILS:
+            final WindowDetailsEvent wevent = (WindowDetailsEvent) appEvent;
+            autoRefreshStyleSheets.setDisable(!wevent.isStylesRefreshable());
+
+            if (isActive(wevent.getStageID()))
+                statusBar.updateWindowDetails(wevent.getWindowType(), wevent.getBounds(), wevent.isFocused());
+            break;
+        case NODE_SELECTED:
+            componentSelectOnClick.setSelected(false);
+            treeView.nodeSelected(((NodeSelectedEvent) appEvent).getNode());
+            scenicViewStage.toFront();
+            break;
+
+        case NODE_COUNT:
+            statusBar.updateNodeCount(((NodeCountEvent) appEvent).getNodeCount());
+            break;
+
+        case SCENE_DETAILS:
+            if (isActive(appEvent.getStageID())) {
+                final SceneDetailsEvent sEvent = (SceneDetailsEvent) appEvent;
+                statusBar.updateSceneDetails(sEvent.getSize(), sEvent.getNodeCount());
+            }
+            break;
+
+        case ROOT_UPDATED:
+            treeView.updateStageModel(getStageController(appEvent.getStageID()), ((NodeAddRemoveEvent) appEvent).getNode(), showNodesIdInTree.isSelected(), showFilteredNodesInTree.isSelected());
+            break;
+
+        case NODE_ADDED:
+            /**
+             * First check if a we have a NODE_REMOVED in the queue
+             */
+            final int removedPos = indexOfNode(((NodeAddRemoveEvent) appEvent).getNode(), true);
+            if (removedPos == -1) {
+                treeView.addNewNode(((NodeAddRemoveEvent) appEvent).getNode(), showNodesIdInTree.isSelected(), showFilteredNodesInTree.isSelected());
+            } else {
+                eventQueue.remove(removedPos);
+            }
+            break;
+
+        case NODE_REMOVED:
+            final int addedPos = indexOfNode(((NodeAddRemoveEvent) appEvent).getNode(), false);
+            if (addedPos == -1) {
+                treeView.removeNode(((NodeAddRemoveEvent) appEvent).getNode());
+            } else {
+                eventQueue.remove(addedPos);
+            }
+
+            break;
+
+        case DETAILS:
+            final DetailsEvent ev = (DetailsEvent) appEvent;
+            allDetailsPane.updateDetails(ev.getPaneType(), ev.getPaneName(), ev.getDetails(), new RemotePropertySetter() {
+
+                @Override public void set(final Detail detail, final String value) {
+                    getStageController(appEvent.getStageID()).setDetail(detail.getDetailType(), detail.getDetailID(), value);
+                }
+            });
+            break;
+
+        case DETAIL_UPDATED:
+            final DetailsEvent ev2 = (DetailsEvent) appEvent;
+            allDetailsPane.updateDetail(ev2.getPaneType(), ev2.getPaneName(), ev2.getDetails().get(0));
+            break;
+
+        case ANIMATIONS_UPDATED:
+            animationsPane.update(appEvent.getStageID(), ((AnimationsCountEvent) appEvent).getAnimations());
+            break;
+
+        default:
+            debug("Unused event for type " + appEvent);
+            break;
+        }
+    }
+
+    private int indexOfNode(final SVNode node, final boolean add) {
+        for (int i = 0; i < eventQueue.size(); i++) {
+            final AppEvent ev = eventQueue.get(i);
+            if ((add && ev.getType() == SVEventType.NODE_REMOVED) || (!add && ev.getType() == SVEventType.NODE_ADDED)) {
+                final NodeAddRemoveEvent ev2 = (NodeAddRemoveEvent) ev;
+                if (ev2.getNode().equals(node)) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    private boolean isActive(final StageID stageID) {
+        return activeStage.getID().equals(stageID);
+    }
+
 }

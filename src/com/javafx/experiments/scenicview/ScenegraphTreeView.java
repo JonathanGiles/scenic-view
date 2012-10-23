@@ -29,7 +29,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- package com.javafx.experiments.scenicview;
+package com.javafx.experiments.scenicview;
 
 import java.util.*;
 
@@ -53,7 +53,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     // new HashMap<StageController,
     // ScenegraphTreeView.StageCollapsingListener>();
     private final List<NodeFilter> activeNodeFilters;
-    private final SelectedNodeContainer container;
+    private final ConnectorController container;
     private final Map<SVNode, StageController> stages = new HashMap<SVNode, StageController>();
 
     TreeItem<SVNode> apps;
@@ -67,7 +67,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     private final List<String> forcedExpandedNodeClassItems = new ArrayList<String>();
     ContextMenu selectedCM;
 
-    public ScenegraphTreeView(final List<NodeFilter> activeNodeFilters, final SelectedNodeContainer container) {
+    public ScenegraphTreeView(final List<NodeFilter> activeNodeFilters, final ConnectorController container) {
         this.activeNodeFilters = activeNodeFilters;
         this.container = container;
         setId("main-treeview");
@@ -658,7 +658,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
      * @author Ander
      * 
      */
-    interface SelectedNodeContainer {
+    interface ConnectorController {
         void setSelectedNode(StageController controller, SVNode node);
 
         SVNode getSelectedNode();
@@ -666,6 +666,9 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         void forceUpdate();
 
         void goTo(final SVTab tab);
+
+        void openStage(StageController controller);
+
     }
 
     private void removeForNode(final TreeItem<SVNode> treeItem) {
@@ -711,7 +714,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                 controller.close();
             } else if (root.isExpanded() && !controller.isOpened()) {
                 // Opening controller
-                ((ScenicView) container).openStage(controller);
+                container.openStage(controller);
             }
         }
     }
