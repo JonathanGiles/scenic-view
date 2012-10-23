@@ -37,7 +37,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.Observer;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.javafx.experiments.scenicview.utils.AgentTest;
+import com.javafx.experiments.scenicview.connector.utils.AgentTest;
 
 public class RMIUtils {
 

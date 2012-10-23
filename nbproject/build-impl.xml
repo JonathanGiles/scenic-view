@@ -456,7 +456,7 @@ is divided into following sections:
                 <manifest>
                     <attribute name="Main-Class" value="com.javafx.experiments.scenicview.utils.ScenicViewBooter"/>
                     <attribute name="Premain-Class" value="com.javafx.experiments.scenicview.utils.SVInstrumentationAgent"/>
-                    <attribute name="Agent-Class" value="com.javafx.experiments.scenicview.utils.AgentTest"/>
+                    <attribute name="Agent-Class" value="com.javafx.experiments.scenicview.connector.utils.AgentTest"/>
                 </manifest>
             </jar>
         </presetdef>

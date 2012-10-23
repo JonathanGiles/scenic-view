@@ -39,7 +39,7 @@ import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.details.DetailPaneType;
 import com.javafx.experiments.scenicview.connector.event.*;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
-import com.javafx.experiments.scenicview.utils.AgentTest;
+import com.javafx.experiments.scenicview.connector.utils.AgentTest;
 
 public class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplication {
 

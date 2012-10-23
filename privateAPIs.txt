@@ -13,7 +13,7 @@ Window.impl_getWindows()
 Class: com.javafx.experiments.scenicview.connector.node.SVDummyNode
 Conversion from BufferedImage to Image
 
-Class: com.javafx.experiments.scenicview.utils.AgentTest
+Class: com.javafx.experiments.scenicview.connector.utils.AgentTest
 Window.impl_getWindows()
 
 Class: com.javafx.experiments.scenicview.connector.ConnectorUtils
