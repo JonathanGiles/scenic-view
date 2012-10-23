@@ -39,6 +39,7 @@ import javafx.animation.Animation;
 import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.layout.Region;
+import javafx.scene.transform.*;
 import javafx.stage.*;
 
 import com.javafx.experiments.scenicview.connector.node.SVNode;
@@ -233,6 +234,26 @@ public class ConnectorUtils {
 
     public static int getNodeUniqueID(final Node node) {
         return node.hashCode();
+    }
+
+    public static String transformToString(final Transform tx) {
+        if (tx instanceof Translate) {
+            final Translate tr = (Translate) tx;
+            return "Translate(" + tr.getX() + "," + tr.getY() + "," + tr.getZ() + ")";
+        } else if (tx instanceof Rotate) {
+            final Rotate r = (Rotate) tx;
+            return "Rotate(" + r.getAngle() + ")";
+        } else if (tx instanceof Scale) {
+            final Scale s = (Scale) tx;
+            return "Scale(" + s.getX() + "x" + s.getY() + "x" + s.getZ() + ")";
+        } else if (tx instanceof Shear) {
+            final Shear s = (Shear) tx;
+            return "Shear(" + s.getX() + "x" + s.getY() + ")";
+        } else if (tx instanceof Affine) {
+            // Affine a = (Affine)tx;
+            return "Affine()";
+        }
+        return "-";
     }
 
 }

@@ -45,7 +45,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Transform;
 
-import com.javafx.experiments.scenicview.DisplayUtils;
 import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.details.Detail.LabelType;
 import com.javafx.experiments.scenicview.connector.details.Detail.ValueType;
@@ -348,7 +347,7 @@ public class NodeDetailPaneInfo extends DetailPaneInfo {
             if (node != null && node.getTransforms().size() > 0) {
                 final StringBuilder str = new StringBuilder();
                 for (final Transform tx : node.getTransforms()) {
-                    str.append(DisplayUtils.transformToString(tx));
+                    str.append(ConnectorUtils.transformToString(tx));
                     str.append(" ");
                 }
                 txstr = str.toString();

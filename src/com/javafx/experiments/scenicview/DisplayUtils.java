@@ -29,7 +29,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- package com.javafx.experiments.scenicview;
+package com.javafx.experiments.scenicview;
 
 import java.net.URL;
 import java.text.DecimalFormat;
@@ -37,7 +37,6 @@ import java.util.*;
 import java.util.logging.*;
 
 import javafx.scene.image.Image;
-import javafx.scene.transform.*;
 
 import com.javafx.experiments.scenicview.connector.node.SVNode;
 
@@ -81,26 +80,6 @@ public class DisplayUtils {
             loadedImages.put(svNode.getNodeClass(), image);
         }
         return image;
-    }
-
-    public static String transformToString(final Transform tx) {
-        if (tx instanceof Translate) {
-            final Translate tr = (Translate) tx;
-            return "Translate(" + tr.getX() + "," + tr.getY() + "," + tr.getZ() + ")";
-        } else if (tx instanceof Rotate) {
-            final Rotate r = (Rotate) tx;
-            return "Rotate(" + r.getAngle() + ")";
-        } else if (tx instanceof Scale) {
-            final Scale s = (Scale) tx;
-            return "Scale(" + s.getX() + "x" + s.getY() + "x" + s.getZ() + ")";
-        } else if (tx instanceof Shear) {
-            final Shear s = (Shear) tx;
-            return "Shear(" + s.getX() + "x" + s.getY() + ")";
-        } else if (tx instanceof Affine) {
-            // Affine a = (Affine)tx;
-            return "Affine()";
-        }
-        return "-";
     }
 
     public static void showWebView(final boolean show) {
