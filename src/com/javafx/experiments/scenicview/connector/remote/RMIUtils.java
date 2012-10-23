@@ -42,56 +42,58 @@ import com.javafx.experiments.scenicview.connector.utils.AgentTest;
 public class RMIUtils {
 
     private static AtomicInteger rmiPort = new AtomicInteger(7557);
+    private static final String REMOTE_CONNECTOR = "RemoteConnector";
+    private static final String REMOTE_AGENT = "AgentServer";
     static Registry localRegistry;
 
     private RMIUtils() {
     }
 
-    private static final RemoteScenicView findScenicView(final String serverAdress, final int serverPort) throws Exception {
+    private static final RemoteConnector findScenicView(final String serverAdress, final int serverPort) throws Exception {
         final Registry registry = LocateRegistry.getRegistry(serverAdress, (new Integer(serverPort)).intValue());
         // look up the remote object
-        return (RemoteScenicView) (registry.lookup("ScenicView"));
+        return (RemoteConnector) (registry.lookup(REMOTE_CONNECTOR));
     }
 
     private static final RemoteApplication findApplication(final String serverAdress, final int serverPort) throws Exception {
         final Registry registry = LocateRegistry.getRegistry(serverAdress, (new Integer(serverPort)).intValue());
         // look up the remote object
-        return (RemoteApplication) (registry.lookup("AgentServer"));
+        return (RemoteApplication) (registry.lookup(REMOTE_AGENT));
     }
 
-    public static final void bindScenicView(final RemoteScenicView view, final int port) throws AccessException, RemoteException {
+    public static final void bindScenicView(final RemoteConnector view, final int port) throws AccessException, RemoteException {
         // create the registry and bind the name and object.
         final Registry registry = LocateRegistry.createRegistry(port);
-        registry.rebind("ScenicView", view);
+        registry.rebind(REMOTE_CONNECTOR, view);
     }
 
     public static final void bindApplication(final RemoteApplication application, final int port) throws AccessException, RemoteException {
         // create the registry and bind the name and object.
         localRegistry = LocateRegistry.createRegistry(port);
-        localRegistry.rebind("AgentServer", application);
+        localRegistry.rebind(REMOTE_AGENT, application);
     }
 
     public static final void unbindApplication(final int port) throws AccessException, RemoteException, NotBoundException {
         // create the registry and bind the name and object.
-        localRegistry.unbind("AgentServer");
+        localRegistry.unbind(REMOTE_AGENT);
         UnicastRemoteObject.unexportObject(localRegistry, true);
     }
 
     public static final void unbindScenicView(final int port) throws AccessException, RemoteException, NotBoundException {
         // create the registry and bind the name and object.
         final Registry registry = LocateRegistry.getRegistry(port);
-        registry.unbind("ScenicView");
+        registry.unbind(REMOTE_CONNECTOR);
     }
 
     public static final void findScenicView(final int port, final Observer observer) {
-        new Thread("ScenicView.Finder") {
+        new Thread(REMOTE_CONNECTOR + ".Finder") {
             @Override public void run() {
 
-                RemoteScenicView scenicView = null;
+                RemoteConnector scenicView = null;
 
                 while (scenicView == null) {
                     try {
-                        AgentTest.debug("Finding RemoteScenicView connection for agent...");
+                        AgentTest.debug("Finding " + REMOTE_CONNECTOR + " connection for agent...");
                         scenicView = findScenicView("127.0.0.1", port);
                         if (scenicView == null) {
                             sleep(50);
@@ -106,7 +108,7 @@ public class RMIUtils {
     }
 
     public static final void findApplication(final int port, final Observer observer) {
-        final Thread remoteBrowserFinder = new Thread("ScenicView.Finder") {
+        final Thread remoteBrowserFinder = new Thread(REMOTE_AGENT + ".Finder") {
 
             @Override public void run() {
 

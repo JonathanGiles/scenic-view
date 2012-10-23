@@ -52,7 +52,7 @@ import com.sun.javafx.Utils;
 import com.sun.javafx.application.PlatformImpl;
 import com.sun.tools.attach.*;
 
-public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteScenicView {
+public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteConnector {
 
     /**
      * 
@@ -260,26 +260,6 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteS
 
     public static void start() {
         strategy = new RemoteVMsUpdateStrategy();
-        final Thread current = Thread.currentThread();
-        new Thread() {
-            @Override public void run() {
-                while (view == null) {
-                    try {
-                        Thread.sleep(20000);
-                    } catch (final InterruptedException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                    if (view == null) {
-                        debug("ScenicView blocked?, stackTrace:");
-                        final StackTraceElement[] trace = current.getStackTrace();
-                        for (int i = 0; i < trace.length; i++) {
-                            debug(trace[i].toString());
-                        }
-                    }
-                }
-            }
-        }.start();
         PlatformImpl.startup(new Runnable() {
 
             @Override public void run() {

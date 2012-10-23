@@ -48,7 +48,7 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
 	 */
     private static final long serialVersionUID = 1L;
     RemoteApplication application;
-    private RemoteScenicView scenicView;
+    private RemoteConnector scenicView;
     private final int port;
 
     public RemoteApplicationImpl(final RemoteApplication application, final int port, final int serverPort) throws RemoteException {
@@ -63,7 +63,7 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
         RMIUtils.findScenicView(serverPort, new Observer() {
 
             @Override public void update(final Observable o, final Object obj) {
-                scenicView = (RemoteScenicView) obj;
+                scenicView = (RemoteConnector) obj;
             }
         });
         while (scenicView == null) {
@@ -74,7 +74,7 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
                 e.printStackTrace();
             }
         }
-        AgentTest.debug("ScenicView found:" + scenicView);
+        AgentTest.debug("RemoteConnector found:" + scenicView);
 
         try {
             scenicView.onAgentStarted(port);
