@@ -969,6 +969,10 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         statusBar.clearStatusText();
     }
 
+    public static boolean hasStatusText() {
+        return statusBar.hasStatus();
+    }
+
     @Override protected double computePrefWidth(final double height) {
         return 600;
     }

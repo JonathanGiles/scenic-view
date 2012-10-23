@@ -45,7 +45,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 
-import com.javafx.experiments.scenicview.DisplayUtils;
+import com.javafx.experiments.scenicview.*;
 import com.javafx.experiments.scenicview.connector.details.*;
 import com.javafx.experiments.scenicview.connector.details.Detail.EditionType;
 
@@ -262,7 +262,11 @@ public class GDetailPane extends TitledPane {
             detail.setSerializer(new WritableValue<String>() {
 
                 @Override public void setValue(final String value) {
-                    setter.set(d, value);
+                    try {
+                        setter.set(d, value);
+                    } catch (final Exception e) {
+                        ScenicView.setStatusText(Detail.STATUS_EXCEPTION + e.getMessage(), 10000);
+                    }
                 }
 
                 @Override public String getValue() {

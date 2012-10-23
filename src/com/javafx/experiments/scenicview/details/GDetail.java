@@ -164,10 +164,12 @@ public class GDetail {
             this.valueLabel = (Label) value;
             valueLabel.setOnMouseEntered(new EventHandler<MouseEvent>() {
                 @Override public void handle(final MouseEvent arg0) {
-                    if (Detail.isEditionSupported(editionType))
-                        ScenicView.setStatusText("Properties which can be changed will show this icon");
-                    else if (editionType == EditionType.NONE_BOUND) {
-                        ScenicView.setStatusText("Bound Properties will show this icon");
+                    if (!ScenicView.hasStatusText()) {
+                        if (Detail.isEditionSupported(editionType))
+                            ScenicView.setStatusText("Properties which can be changed will show this icon");
+                        else if (editionType == EditionType.NONE_BOUND) {
+                            ScenicView.setStatusText("Bound Properties will show this icon");
+                        }
                     }
                 }
             });

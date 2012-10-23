@@ -37,8 +37,6 @@ import javafx.beans.property.*;
 import javafx.beans.value.WritableValue;
 import javafx.scene.paint.Color;
 
-import com.javafx.experiments.scenicview.ScenicView;
-
 @SuppressWarnings("rawtypes")
 public class SimpleSerializer implements WritableValue<String> {
 
@@ -139,12 +137,11 @@ public class SimpleSerializer implements WritableValue<String> {
                 } else if (property.getValue() instanceof Color) {
                     property.setValue(Color.valueOf(value));
                 } else {
-                    ScenicView.setStatusText(Detail.STATUS_NOT_SUPPORTED, 10000);
+                    throw new RuntimeException(Detail.STATUS_NOT_SUPPORTED);
                 }
             }
         } catch (final Exception e) {
-            ScenicView.setStatusText(Detail.STATUS_EXCEPTION + e.getMessage(), 10000);
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
