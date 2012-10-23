@@ -655,8 +655,6 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     /**
      * TODO Remove this
      * 
-     * @author Ander
-     * 
      */
     interface ConnectorController {
         void setSelectedNode(StageController controller, SVNode node);
