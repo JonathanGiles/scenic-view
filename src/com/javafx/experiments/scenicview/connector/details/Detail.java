@@ -43,7 +43,6 @@ import javafx.scene.layout.Region;
 import com.javafx.experiments.scenicview.connector.StageID;
 import com.javafx.experiments.scenicview.connector.event.AppEvent.SVEventType;
 import com.javafx.experiments.scenicview.connector.event.*;
-import com.javafx.experiments.scenicview.details.GDetailPane;
 
 public class Detail implements Serializable {
 
@@ -51,6 +50,12 @@ public class Detail implements Serializable {
      * 
      */
     private static final long serialVersionUID = 835749512117709621L;
+
+    private static final String STATUS_NOT_SET = "Value can not be changed ";
+    public static final String STATUS_NOT_SUPPORTED = STATUS_NOT_SET + "(Not supported yet)";
+    public static final String STATUS_BOUND = STATUS_NOT_SET + "(Bound property)";
+    public static final String STATUS_EXCEPTION = STATUS_NOT_SET + "an exception has ocurred:";
+    public static final String STATUS_READ_ONLY = STATUS_NOT_SET + "(Read-Only property)";
 
     public enum LabelType {
         NORMAL, LAYOUT_BOUNDS, BOUNDS_PARENT, BASELINE
@@ -61,7 +66,7 @@ public class Detail implements Serializable {
     };
 
     public enum EditionType {
-        NONE, TEXT, COMBO, SLIDER, COLOR_PICKER
+        NONE_BOUND, NONE, TEXT, COMBO, SLIDER, COLOR_PICKER
     }
 
     private boolean isDefault;
@@ -117,19 +122,23 @@ public class Detail implements Serializable {
     public void setSimpleSizeProperty(final DoubleProperty x, final DoubleProperty y) {
         if (x != null) {
             if (x.isBound() && y.isBound()) {
-                unavailableEdition(GDetailPane.STATUS_BOUND);
+                unavailableEdition(STATUS_BOUND, EditionType.NONE_BOUND);
             } else {
                 setSerializer(new SizeSerializer(x, y));
             }
         } else {
-            setReason(GDetailPane.STATUS_NOT_SUPPORTED);
+            setReason(STATUS_NOT_SUPPORTED);
             setSerializer(null);
         }
     }
 
-    public void setSerializer(final WritableValue<String> serializer) {
+    void setSerializer(final WritableValue<String> serializer) {
+        setSerializer(serializer, EditionType.NONE);
+    }
+
+    void setSerializer(final WritableValue<String> serializer, final EditionType defaultEditionType) {
         this.serializer = serializer;
-        this.editionType = EditionType.NONE;
+        this.editionType = defaultEditionType;
         if (serializer != null) {
             realValue = serializer.getValue();
             // Probably this should be an interface...
@@ -159,10 +168,7 @@ public class Detail implements Serializable {
                 editionType = EditionType.TEXT;
 
             }
-        } else {
-            editionType = EditionType.NONE;
         }
-
     }
 
     public final void setReason(final String reason) {
@@ -180,20 +186,24 @@ public class Detail implements Serializable {
     private void setSimpleProperty(@SuppressWarnings("rawtypes") final Property property, @SuppressWarnings({ "rawtypes" }) final Class<? extends Enum> enumClass) {
         if (property != null) {
             if (property.isBound()) {
-                unavailableEdition(GDetailPane.STATUS_BOUND);
+                unavailableEdition(STATUS_BOUND, EditionType.NONE_BOUND);
             } else {
                 final SimpleSerializer s = new SimpleSerializer(property);
                 s.setEnumClass(enumClass);
                 setSerializer(s);
             }
         } else {
-            unavailableEdition(GDetailPane.STATUS_NOT_SUPPORTED);
+            unavailableEdition(STATUS_NOT_SUPPORTED);
         }
     }
 
     void unavailableEdition(final String reason) {
+        unavailableEdition(reason, EditionType.NONE);
+    }
+
+    void unavailableEdition(final String reason, final EditionType defaultEditionType) {
         setReason(reason);
-        setSerializer(null);
+        setSerializer(null, defaultEditionType);
     }
 
     public void setConstraints(@SuppressWarnings("rawtypes") final ObservableList rowCol) {
@@ -328,6 +338,10 @@ public class Detail implements Serializable {
 
     public List<GridConstraintsDetail> getGridConstraintsDetails() {
         return gridConstraintsDetails;
+    }
+
+    public static boolean isEditionSupported(final EditionType editionType) {
+        return editionType != EditionType.NONE && editionType != EditionType.NONE_BOUND;
     }
 
 }
