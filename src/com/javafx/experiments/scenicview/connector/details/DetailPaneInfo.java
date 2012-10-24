@@ -40,8 +40,8 @@ import javafx.scene.Node;
 import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.details.Detail.LabelType;
 import com.javafx.experiments.scenicview.connector.details.Detail.ValueType;
-import com.javafx.experiments.scenicview.connector.event.AppEvent.SVEventType;
 import com.javafx.experiments.scenicview.connector.event.*;
+import com.javafx.experiments.scenicview.connector.event.FXConnectorEvent.SVEventType;
 
 abstract class DetailPaneInfo {
 
@@ -55,13 +55,13 @@ abstract class DetailPaneInfo {
         }
 
     };
-    private final AppEventDispatcher dispatcher;
+    private final FXConnectorEventDispatcher dispatcher;
     private final DetailPaneType type;
     private int id;
     private final StageID stageID;
     protected final List<Detail> details = new ArrayList<Detail>();
 
-    public DetailPaneInfo(final AppEventDispatcher dispatcher, final StageID stageID, final DetailPaneType type) {
+    DetailPaneInfo(final FXConnectorEventDispatcher dispatcher, final StageID stageID, final DetailPaneType type) {
         this.dispatcher = dispatcher;
         this.stageID = stageID;
         this.type = type;
@@ -70,13 +70,13 @@ abstract class DetailPaneInfo {
 
     abstract boolean targetMatches(Object target);
 
-    public void setTarget(final Object value) {
+    void setTarget(final Object value) {
         if (doSetTarget(value)) {
             updateAllDetails();
         }
     }
 
-    void clear() {
+    final void clear() {
         doSetTarget(null);
         final List<Detail> empty = Collections.emptyList();
         dispatcher.dispatchEvent(new DetailsEvent(SVEventType.DETAILS, stageID, type, getPaneName(), empty));
@@ -97,7 +97,7 @@ abstract class DetailPaneInfo {
         return true;
     }
 
-    public Object getTarget() {
+    final Object getTarget() {
         return target;
     }
 
@@ -108,13 +108,13 @@ abstract class DetailPaneInfo {
         return getTargetClass().getSimpleName() + " Details";
     }
 
-    public abstract Class<? extends Node> getTargetClass();
+    abstract Class<? extends Node> getTargetClass();
 
-    protected Detail addDetail(final String property, final String label) {
+    protected final Detail addDetail(final String property, final String label) {
         return addDetail(property, label, ValueType.NORMAL);
     }
 
-    protected Detail addDetail(final String property, final String label, final ValueType type) {
+    protected final Detail addDetail(final String property, final String label, final ValueType type) {
         final Detail detail = new Detail(dispatcher, stageID, this.type, id++);
         detail.setProperty(property);
         detail.setLabel(label);
@@ -124,7 +124,7 @@ abstract class DetailPaneInfo {
         return detail;
     }
 
-    protected Detail addDetail(final String property, final String label, final LabelType type) {
+    protected final Detail addDetail(final String property, final String label, final LabelType type) {
         final Detail detail = new Detail(dispatcher, stageID, this.type, id++);
         detail.setProperty(property);
         detail.setLabel(label);
@@ -134,7 +134,7 @@ abstract class DetailPaneInfo {
         return detail;
     }
 
-    void sendAllDetails() {
+    final void sendAllDetails() {
         dispatcher.dispatchEvent(new DetailsEvent(SVEventType.DETAILS, stageID, type, getPaneName(), details));
     }
 
@@ -146,11 +146,11 @@ abstract class DetailPaneInfo {
 
     protected abstract void createDetails();
 
-    public DetailPaneType getType() {
+    final DetailPaneType getType() {
         return type;
     }
 
-    public void setDetail(final int detailID, final String value) {
+    final void setDetail(final int detailID, final String value) {
         for (int i = 0; i < details.size(); i++) {
             final Detail d = details.get(i);
             if (d.getDetailID() == detailID && d.serializer != null) {

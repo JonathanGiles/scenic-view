@@ -39,15 +39,15 @@ import javafx.scene.Node;
 import javafx.scene.paint.Color;
 
 import com.javafx.experiments.scenicview.connector.StageID;
-import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
+import com.javafx.experiments.scenicview.connector.event.FXConnectorEventDispatcher;
 import com.sun.javafx.css.StyleableProperty;
 
 @SuppressWarnings("rawtypes")
-public class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
+class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
 
     boolean showCSSProperties = true;
 
-    public FullPropertiesDetailPaneInfo(final AppEventDispatcher dispatcher, final StageID stageID) {
+    FullPropertiesDetailPaneInfo(final FXConnectorEventDispatcher dispatcher, final StageID stageID) {
         super(dispatcher, stageID, DetailPaneType.FULL);
     }
 
@@ -59,7 +59,7 @@ public class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
         return "Full Properties Details";
     }
 
-    @Override public Class<? extends Node> getTargetClass() {
+    @Override Class<? extends Node> getTargetClass() {
         return null;
     }
 

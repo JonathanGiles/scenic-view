@@ -43,7 +43,7 @@ import javafx.util.Callback;
 
 import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.node.*;
-import com.javafx.experiments.scenicview.connector.node.SVDummyNode.NodeType;
+import com.javafx.experiments.scenicview.control.SVCustomTreeCell;
 
 public class ScenegraphTreeView extends TreeView<SVNode> {
 
@@ -84,7 +84,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         });
         setCellFactory(new Callback<TreeView<SVNode>, TreeCell<SVNode>>() {
             @Override public TreeCell<SVNode> call(final TreeView<SVNode> node) {
-                return new CustomTreeCell();
+                return new SVCustomTreeCell();
             }
         });
         setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -424,7 +424,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
 
     void doRemoveNode(final SVNode node) {
         try {
-            if (StageControllerImpl.isNormalNode(node)) {
+            if (ConnectorUtils.isNormalNode(node)) {
                 TreeItem<SVNode> selected = null;
                 if (container.getSelectedNode() == node) {
                     getSelectionModel().clearSelection();
@@ -491,7 +491,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
 
     private void doAddNewNode(final SVNode alive, final boolean showNodesIdInTree, final boolean showFilteredNodesInTree) {
         try {
-            if (StageControllerImpl.isNormalNode(alive)) {
+            if (ConnectorUtils.isNormalNode(alive)) {
                 final TreeItem<SVNode> selected = getSelectionModel().getSelectedItem();
                 final TreeItem<SVNode> treeItem = createTreeItem(alive, showNodesIdInTree, showFilteredNodesInTree);
                 // childItems[x] could be null because of bounds

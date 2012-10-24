@@ -35,14 +35,14 @@ import static com.javafx.experiments.scenicview.connector.ConnectorUtils.getBran
 import javafx.scene.*;
 
 import com.javafx.experiments.scenicview.connector.StageID;
-import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
+import com.javafx.experiments.scenicview.connector.event.FXConnectorEventDispatcher;
 
 /**
  * 
  */
-public class ParentDetailPaneInfo extends DetailPaneInfo {
+class ParentDetailPaneInfo extends DetailPaneInfo {
 
-    public ParentDetailPaneInfo(final AppEventDispatcher dispatcher, final StageID stageID) {
+    ParentDetailPaneInfo(final FXConnectorEventDispatcher dispatcher, final StageID stageID) {
         super(dispatcher, stageID, DetailPaneType.PARENT);
     }
 
@@ -50,7 +50,7 @@ public class ParentDetailPaneInfo extends DetailPaneInfo {
     Detail childCountDetail;
     Detail branchCountDetail;
 
-    @Override public Class<? extends Node> getTargetClass() {
+    @Override Class<? extends Node> getTargetClass() {
         return Parent.class;
     }
 

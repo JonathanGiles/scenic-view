@@ -34,7 +34,7 @@ package com.javafx.experiments.scenicview.connector.details;
 import javafx.scene.Node;
 
 import com.javafx.experiments.scenicview.connector.StageID;
-import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
+import com.javafx.experiments.scenicview.connector.event.FXConnectorEventDispatcher;
 
 public class AllDetails {
 
@@ -42,7 +42,7 @@ public class AllDetails {
 
     final DetailPaneInfo[] details;
 
-    public AllDetails(final AppEventDispatcher dispatcher, final StageID stageID) {
+    public AllDetails(final FXConnectorEventDispatcher dispatcher, final StageID stageID) {
         details = new DetailPaneInfo[] { new NodeDetailPaneInfo(dispatcher, stageID), new ParentDetailPaneInfo(dispatcher, stageID), new RegionDetailPaneInfo(dispatcher, stageID), new GridPaneDetailPaneInfo(dispatcher, stageID), new ControlDetailPaneInfo(dispatcher, stageID), new TextDetailPaneInfo(dispatcher, stageID), new LabeledDetailPaneInfo(dispatcher, stageID), new FullPropertiesDetailPaneInfo(dispatcher, stageID), new StylesDetailPaneInfo(dispatcher, stageID) };
     }
 

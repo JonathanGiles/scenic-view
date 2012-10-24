@@ -51,11 +51,10 @@ import javafx.stage.*;
 
 import com.javafx.experiments.scenicview.connector.details.*;
 import com.javafx.experiments.scenicview.connector.event.*;
-import com.javafx.experiments.scenicview.connector.event.AppEvent.SVEventType;
+import com.javafx.experiments.scenicview.connector.event.FXConnectorEvent.SVEventType;
 import com.javafx.experiments.scenicview.connector.gui.*;
 import com.javafx.experiments.scenicview.connector.helper.StyleSheetRefresher;
 import com.javafx.experiments.scenicview.connector.node.*;
-import com.javafx.experiments.scenicview.connector.node.SVDummyNode.NodeType;
 import com.sun.scenario.ToolkitAccessor;
 
 public class StageControllerImpl implements StageController {
@@ -79,7 +78,7 @@ public class StageControllerImpl implements StageController {
     private Node componentHighLighter;
     private RuleGrid grid;
 
-    private AppEventDispatcher dispatcher;
+    private FXConnectorEventDispatcher dispatcher;
 
     private SubWindowChecker windowChecker;
 
@@ -275,13 +274,13 @@ public class StageControllerImpl implements StageController {
         };
 
         boundsInParentRect = new Rectangle();
-        boundsInParentRect.setId(StageController.SCENIC_VIEW_BASE_ID + "boundsInParentRect");
+        boundsInParentRect.setId(StageController.FX_CONNECTOR_BASE_ID + "boundsInParentRect");
         boundsInParentRect.setFill(Color.YELLOW);
         boundsInParentRect.setOpacity(.5);
         boundsInParentRect.setManaged(false);
         boundsInParentRect.setMouseTransparent(true);
         layoutBoundsRect = new Rectangle();
-        layoutBoundsRect.setId(StageController.SCENIC_VIEW_BASE_ID + "layoutBoundsRect");
+        layoutBoundsRect.setId(StageController.FX_CONNECTOR_BASE_ID + "layoutBoundsRect");
         layoutBoundsRect.setFill(null);
         layoutBoundsRect.setStroke(Color.GREEN);
         layoutBoundsRect.setStrokeType(StrokeType.INSIDE);
@@ -291,7 +290,7 @@ public class StageControllerImpl implements StageController {
         layoutBoundsRect.setManaged(false);
         layoutBoundsRect.setMouseTransparent(true);
         baselineLine = new Line();
-        baselineLine.setId(StageController.SCENIC_VIEW_BASE_ID + "baselineLine");
+        baselineLine.setId(StageController.FX_CONNECTOR_BASE_ID + "baselineLine");
         baselineLine.setStroke(Color.RED);
         baselineLine.setOpacity(.75);
         baselineLine.setStrokeWidth(1);
@@ -318,7 +317,7 @@ public class StageControllerImpl implements StageController {
         dispatcher = null;
     }
 
-    @Override public void setEventDispatcher(final AppEventDispatcher model2gui) {
+    @Override public void setEventDispatcher(final FXConnectorEventDispatcher model2gui) {
         this.dispatcher = model2gui;
         windowChecker = new SubWindowChecker(this);
         windowChecker.start();
@@ -552,7 +551,7 @@ public class StageControllerImpl implements StageController {
     private void showGrid(final boolean newValue, final int gap, final Color color) {
         if (newValue) {
             grid = new RuleGrid(gap, targetScene.getWidth(), targetScene.getHeight());
-            grid.setId(StageController.SCENIC_VIEW_BASE_ID + "ruler");
+            grid.setId(StageController.FX_CONNECTOR_BASE_ID + "ruler");
             grid.setManaged(false);
             grid.setStroke(color);
             addToNode(target, grid);
@@ -650,7 +649,7 @@ public class StageControllerImpl implements StageController {
             }
         }
         final Point2D localPoint = target.sceneToLocal(x, y);
-        if (target.contains(localPoint) && ((!configuration.isIgnoreMouseTransparent() || !SVNodeImpl.isMouseTransparent(target)) && SVNodeImpl.isNodeVisible(target))) {
+        if (target.contains(localPoint) && ((!configuration.isIgnoreMouseTransparent() || !ConnectorUtils.isMouseTransparent(target)) && ConnectorUtils.isNodeVisible(target))) {
             return target;
         }
 
@@ -746,7 +745,7 @@ public class StageControllerImpl implements StageController {
             old.layoutBoundsProperty().removeListener(selectedNodePropListener);
         }
         if (svNode != null) {
-            if (svNode instanceof SVRealNodeAdapter) {
+            if (svNode.getNodeType() == NodeType.REAL_NODE) {
                 this.selectedNode = svNode.getImpl();
             } else {
                 this.selectedNode = findNode(target, svNode.getNodeId());
@@ -888,29 +887,7 @@ public class StageControllerImpl implements StageController {
     }
 
     private SVNode createNode(final Node node) {
-        if (remote) {
-            /**
-             * This may sound strange but if the node has a parent we create an
-             * SVNode for the parent a we get the correct node latter and if it
-             * has not then we create a normal node
-             */
-            final Node parent = node.getParent();
-            if (parent != null) {
-                final SVRemoteNodeAdapter svparent = new SVRemoteNodeAdapter(parent, configuration.isCollapseControls(), configuration.isCollapseContentControls());
-                final List<SVNode> childrens = svparent.getChildren();
-                for (int i = 0; i < childrens.size(); i++) {
-                    if (childrens.get(i).equals(node)) {
-                        return childrens.get(i);
-                    }
-                }
-                throw new RuntimeException("Error while creating node");
-
-            } else {
-                return new SVRemoteNodeAdapter(node, configuration.isCollapseControls(), configuration.isCollapseContentControls());
-            }
-        } else {
-            return new SVRealNodeAdapter(node, configuration.isCollapseControls(), configuration.isCollapseContentControls());
-        }
+        return SVNodeFactory.createNode(node, configuration, remote);
     }
 
     @Override public AppController getAppController() {
@@ -958,15 +935,11 @@ public class StageControllerImpl implements StageController {
 
     }
 
-    public static final boolean isNormalNode(final SVNode node) {
-        return (node.getId() == null || !node.getId().startsWith(StageController.SCENIC_VIEW_BASE_ID));
-    }
-
     private final boolean isNormalNode(final Node node) {
         return ConnectorUtils.isNormalNode(node);
     }
 
-    private final void dispatchEvent(final AppEvent event) {
+    private final void dispatchEvent(final FXConnectorEvent event) {
         if (dispatcher != null) {
             dispatcher.dispatchEvent(event);
         }

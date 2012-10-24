@@ -41,7 +41,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.util.Duration;
 
-public class StatusBar extends HBox {
+class StatusBar extends HBox {
     private final Label windowTypeLabel;
     private final Label stageBoundsText;
     private final Label sceneSizeText;

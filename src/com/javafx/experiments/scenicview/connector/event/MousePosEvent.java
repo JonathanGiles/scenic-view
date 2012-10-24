@@ -33,7 +33,7 @@ package com.javafx.experiments.scenicview.connector.event;
 
 import com.javafx.experiments.scenicview.connector.StageID;
 
-public class MousePosEvent extends AppEvent {
+public class MousePosEvent extends FXConnectorEvent {
 
     /**
      * 

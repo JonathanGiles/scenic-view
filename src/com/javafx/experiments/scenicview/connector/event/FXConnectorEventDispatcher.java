@@ -31,8 +31,8 @@
  */
 package com.javafx.experiments.scenicview.connector.event;
 
-public interface AppEventDispatcher {
+public interface FXConnectorEventDispatcher {
 
-    void dispatchEvent(AppEvent appEvent);
+    void dispatchEvent(FXConnectorEvent appEvent);
 
 }

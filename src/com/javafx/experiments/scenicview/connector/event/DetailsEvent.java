@@ -36,7 +36,7 @@ import java.util.List;
 import com.javafx.experiments.scenicview.connector.StageID;
 import com.javafx.experiments.scenicview.connector.details.*;
 
-public class DetailsEvent extends AppEvent {
+public class DetailsEvent extends FXConnectorEvent {
 
     /**
      * 

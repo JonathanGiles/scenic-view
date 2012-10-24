@@ -37,7 +37,7 @@ import java.net.*;
 import java.util.*;
 
 import com.javafx.experiments.scenicview.ScenicView;
-import com.javafx.experiments.scenicview.connector.remote.RemoteConnectorImpl;
+import com.javafx.experiments.scenicview.connector.remote.FXConnectorFactory;
 
 /**
  * 
@@ -68,7 +68,7 @@ public class ScenicViewBooter {
     }
 
     private void activateDebug() {
-        RemoteConnectorImpl.setDebug(debug);
+        FXConnectorFactory.setDebug(debug);
         ScenicView.setDebug(debug);
     }
 

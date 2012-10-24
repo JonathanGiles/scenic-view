@@ -48,12 +48,12 @@ import javafx.scene.transform.Transform;
 import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.details.Detail.LabelType;
 import com.javafx.experiments.scenicview.connector.details.Detail.ValueType;
-import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
+import com.javafx.experiments.scenicview.connector.event.FXConnectorEventDispatcher;
 
 /**
  * 
  */
-public class NodeDetailPaneInfo extends DetailPaneInfo {
+class NodeDetailPaneInfo extends DetailPaneInfo {
 
     Detail nodeClassName;
     Detail pseudoClassStateDetail;
@@ -81,7 +81,7 @@ public class NodeDetailPaneInfo extends DetailPaneInfo {
     ListChangeListener<Transform> transformListener;
     private final Map<Long, String> pseudoStates = new HashMap<Long, String>();
 
-    public NodeDetailPaneInfo(final AppEventDispatcher dispatcher, final StageID stageID) {
+    NodeDetailPaneInfo(final FXConnectorEventDispatcher dispatcher, final StageID stageID) {
         super(dispatcher, stageID, DetailPaneType.NODE);
         transformListener = new ListChangeListener<Transform>() {
             @Override public void onChanged(final Change<? extends Transform> c) {
@@ -90,7 +90,7 @@ public class NodeDetailPaneInfo extends DetailPaneInfo {
         };
     }
 
-    @Override public Class<? extends Node> getTargetClass() {
+    @Override Class<? extends Node> getTargetClass() {
         return Node.class;
     }
 
@@ -127,7 +127,7 @@ public class NodeDetailPaneInfo extends DetailPaneInfo {
         constraintsDetail = addDetail(null, "layout constraints:", ValueType.CONSTRAINTS);
     }
 
-    @Override public void setTarget(final Object value) {
+    @Override void setTarget(final Object value) {
         final Node old = (Node) getTarget();
         if (old != null) {
             old.getTransforms().removeListener(transformListener);

@@ -36,12 +36,12 @@ import javafx.scene.Node;
 import javafx.scene.text.*;
 
 import com.javafx.experiments.scenicview.connector.StageID;
-import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
+import com.javafx.experiments.scenicview.connector.event.FXConnectorEventDispatcher;
 
 /**
  * 
  */
-public class TextDetailPaneInfo extends DetailPaneInfo {
+class TextDetailPaneInfo extends DetailPaneInfo {
 
     Detail contentDetail;
     Detail fontDetail;
@@ -53,11 +53,11 @@ public class TextDetailPaneInfo extends DetailPaneInfo {
     Detail underlineDetail;
     Detail strikethroughDetail;
 
-    public TextDetailPaneInfo(final AppEventDispatcher dispatcher, final StageID stageID) {
+    TextDetailPaneInfo(final FXConnectorEventDispatcher dispatcher, final StageID stageID) {
         super(dispatcher, stageID, DetailPaneType.TEXT);
     }
 
-    @Override public Class<? extends Node> getTargetClass() {
+    @Override Class<? extends Node> getTargetClass() {
         return Text.class;
     }
 

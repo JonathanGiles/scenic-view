@@ -38,13 +38,13 @@ import javafx.scene.layout.*;
 
 import com.javafx.experiments.scenicview.connector.StageID;
 import com.javafx.experiments.scenicview.connector.details.Detail.ValueType;
-import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
+import com.javafx.experiments.scenicview.connector.event.FXConnectorEventDispatcher;
 
 /**
  * 
  */
-public class GridPaneDetailPaneInfo extends DetailPaneInfo {
-    public GridPaneDetailPaneInfo(final AppEventDispatcher dispatcher, final StageID stageID) {
+class GridPaneDetailPaneInfo extends DetailPaneInfo {
+    GridPaneDetailPaneInfo(final FXConnectorEventDispatcher dispatcher, final StageID stageID) {
         super(dispatcher, stageID, DetailPaneType.GRID_PANE);
     }
 
@@ -58,7 +58,7 @@ public class GridPaneDetailPaneInfo extends DetailPaneInfo {
 
     // private ListChangeListener<ColumnConstraints> columnListener;
 
-    @Override public Class<? extends Node> getTargetClass() {
+    @Override Class<? extends Node> getTargetClass() {
         return GridPane.class;
     }
 
@@ -81,7 +81,7 @@ public class GridPaneDetailPaneInfo extends DetailPaneInfo {
     }
 
     // need to generify
-    @Override public void setTarget(final Object target) {
+    @Override void setTarget(final Object target) {
         if (getTarget() != null) {
             final GridPane old = (GridPane) getTarget();
             old.getRowConstraints().removeListener(rowListener);

@@ -32,12 +32,12 @@
 package com.javafx.experiments.scenicview.connector;
 
 import com.javafx.experiments.scenicview.connector.details.DetailPaneType;
-import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
+import com.javafx.experiments.scenicview.connector.event.FXConnectorEventDispatcher;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
 
 public interface StageController {
 
-    public static final String SCENIC_VIEW_BASE_ID = "ScenicView.";
+    static final String FX_CONNECTOR_BASE_ID = "FXConnector.";
 
     StageID getID();
 
@@ -47,7 +47,7 @@ public interface StageController {
 
     void close();
 
-    void setEventDispatcher(AppEventDispatcher stageModelListener);
+    void setEventDispatcher(FXConnectorEventDispatcher stageModelListener);
 
     boolean isOpened();
 

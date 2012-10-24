@@ -33,11 +33,11 @@ package com.javafx.experiments.scenicview.connector.remote;
 
 import java.rmi.*;
 
-import com.javafx.experiments.scenicview.connector.event.AppEvent;
+import com.javafx.experiments.scenicview.connector.event.FXConnectorEvent;
 
 interface RemoteConnector extends Remote {
 
-    public void dispatchEvent(AppEvent event) throws RemoteException;
+    public void dispatchEvent(FXConnectorEvent event) throws RemoteException;
 
     public void onAgentStarted(int port) throws RemoteException;
 

@@ -48,7 +48,7 @@ import com.javafx.experiments.scenicview.connector.node.SVNode;
 import com.sun.javafx.Utils;
 import com.sun.tools.attach.*;
 
-public class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector, FXConnector {
+class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector, FXConnector {
 
     /**
      * 
@@ -57,8 +57,8 @@ public class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteCo
 
     private final Map<Integer, String> vmInfo = new HashMap<Integer, String>();
     private final Map<String, RemoteApplication> applications = new HashMap<String, RemoteApplication>();
-    private AppEventDispatcher dispatcher;
-    private final List<AppEvent> previous = new ArrayList<AppEvent>();
+    private FXConnectorEventDispatcher dispatcher;
+    private final List<FXConnectorEvent> previous = new ArrayList<FXConnectorEvent>();
     private List<AppController> apps;
     private final AtomicInteger count = new AtomicInteger();
     private final int port;
@@ -75,13 +75,13 @@ public class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteCo
         }
     }
 
-    public RemoteConnectorImpl() throws RemoteException {
+    RemoteConnectorImpl() throws RemoteException {
         super();
         this.port = getValidPort();
         RMIUtils.bindScenicView(this, port);
     }
 
-    @Override public void dispatchEvent(final AppEvent event) {
+    @Override public void dispatchEvent(final FXConnectorEvent event) {
         if (dispatcher != null) {
             Platform.runLater(new Runnable() {
 
@@ -186,7 +186,7 @@ public class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteCo
                     return isOpened;
                 }
 
-                @Override public void setEventDispatcher(final AppEventDispatcher dispatcher) {
+                @Override public void setEventDispatcher(final FXConnectorEventDispatcher dispatcher) {
                     isOpened = true;
                     RemoteConnectorImpl.this.dispatcher = dispatcher;
                     try {
@@ -251,7 +251,7 @@ public class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteCo
         }
     }
 
-    public List<AppController> connect() {
+    @Override public List<AppController> connect() {
         apps = new ArrayList<AppController>();
         vmInfo.clear();
         final List<VirtualMachine> machines = getRunningJavaFXApplications();
@@ -319,7 +319,7 @@ public class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteCo
         return apps;
     }
 
-    public void close() {
+    @Override public void close() {
         try {
             RMIUtils.unbindScenicView(port);
         } catch (final AccessException e) {

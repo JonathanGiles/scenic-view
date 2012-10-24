@@ -94,7 +94,7 @@ public class ComponentHighLighter extends Group {
             getChildren().add(pane);
         }
         setManaged(false);
-        setId(StageController.SCENIC_VIEW_BASE_ID + "componentHighLighter");
+        setId(StageController.FX_CONNECTOR_BASE_ID + "componentHighLighter");
     }
 
 }

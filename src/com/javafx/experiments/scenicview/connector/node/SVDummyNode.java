@@ -53,10 +53,6 @@ public class SVDummyNode extends SVNodeImpl implements SVNode, Serializable {
     private byte[] imageInByte;
     private NodeType nodeType;
 
-    public enum NodeType {
-        VMS_ROOT, VM, STAGE, SUBWINDOWS_ROOT, SUBWINDOW
-    }
-
     public SVDummyNode() {
         super();
     }

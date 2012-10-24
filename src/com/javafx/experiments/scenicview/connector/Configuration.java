@@ -33,7 +33,7 @@ package com.javafx.experiments.scenicview.connector;
 
 import java.io.Serializable;
 
-public class Configuration implements Serializable {
+public final class Configuration implements Serializable {
 
     /**
      * 

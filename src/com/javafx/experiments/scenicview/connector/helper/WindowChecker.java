@@ -44,7 +44,7 @@ public abstract class WindowChecker extends WorkerThread {
     private boolean verbose = false;
 
     public WindowChecker(final WindowFilter filter, final String name) {
-        super(StageController.SCENIC_VIEW_BASE_ID + "SubWindowChecker." + name, 1000);
+        super(StageController.FX_CONNECTOR_BASE_ID + "SubWindowChecker." + name, 1000);
         this.filter = filter;
     }
 

@@ -38,7 +38,7 @@ import javafx.scene.control.*;
 
 import com.javafx.experiments.scenicview.connector.ConnectorUtils;
 
-public class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
+class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
 
     /**
      * 
@@ -124,11 +124,11 @@ public class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
     }
 
     @Override public boolean isVisible() {
-        return isNodeVisible(node);
+        return ConnectorUtils.isNodeVisible(node);
     }
 
     @Override public boolean isMouseTransparent() {
-        return isMouseTransparent(node);
+        return ConnectorUtils.isMouseTransparent(node);
     }
 
     @Override public boolean isFocused() {
@@ -149,5 +149,9 @@ public class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
 
     @Override public int hashCode() {
         return getNodeId();
+    }
+
+    @Override public NodeType getNodeType() {
+        return NodeType.REAL_NODE;
     }
 }

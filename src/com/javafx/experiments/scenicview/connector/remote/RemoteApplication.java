@@ -35,7 +35,7 @@ import java.rmi.*;
 
 import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.details.DetailPaneType;
-import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
+import com.javafx.experiments.scenicview.connector.event.FXConnectorEventDispatcher;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
 
 interface RemoteApplication extends Remote {
@@ -44,7 +44,7 @@ interface RemoteApplication extends Remote {
 
     public void update(final StageID id) throws RemoteException;
 
-    public void setEventDispatcher(final StageID id, AppEventDispatcher dispatcher) throws RemoteException;
+    public void setEventDispatcher(final StageID id, FXConnectorEventDispatcher dispatcher) throws RemoteException;
 
     public StageID[] getStageIDs() throws RemoteException;
 

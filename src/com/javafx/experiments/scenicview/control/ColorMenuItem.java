@@ -65,7 +65,7 @@ public class ColorMenuItem extends CustomMenuItem {
                 try {
                     final Field field = CustomColorDialog.class.getDeclaredField("customColorProperty");
                     field.setAccessible(true);
-                    final ObjectProperty<Color> color = (ObjectProperty<Color>) field.get(dialog);
+                    @SuppressWarnings("unchecked") final ObjectProperty<Color> color = (ObjectProperty<Color>) field.get(dialog);
                     color.addListener(new ChangeListener<Color>() {
 
                         @Override public void changed(final ObservableValue<? extends Color> arg0, final Color arg1, final Color newValue) {

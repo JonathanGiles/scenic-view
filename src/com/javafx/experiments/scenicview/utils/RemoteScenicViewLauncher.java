@@ -5,7 +5,7 @@ import java.rmi.RemoteException;
 import javafx.stage.Stage;
 
 import com.javafx.experiments.scenicview.ScenicView;
-import com.javafx.experiments.scenicview.connector.remote.RemoteConnectorImpl;
+import com.javafx.experiments.scenicview.connector.remote.FXConnectorFactory;
 import com.javafx.experiments.scenicview.update.RemoteVMsUpdateStrategy;
 import com.sun.javafx.application.PlatformImpl;
 
@@ -21,7 +21,7 @@ public class RemoteScenicViewLauncher {
         PlatformImpl.startup(new Runnable() {
 
             @Override public void run() {
-                RemoteConnectorImpl.debug("Platform running");
+                FXConnectorFactory.debug("Platform running");
                 final Stage stage = new Stage();
                 // workaround for RT-10714
                 stage.setWidth(640);
@@ -31,7 +31,7 @@ public class RemoteScenicViewLauncher {
                 ScenicView.show(view, stage);
             }
         });
-        RemoteConnectorImpl.debug("Startup done");
+        FXConnectorFactory.debug("Startup done");
         while (view == null) {
             try {
                 Thread.sleep(500);
@@ -40,13 +40,13 @@ public class RemoteScenicViewLauncher {
             }
         }
 
-        RemoteConnectorImpl.debug("Creating server");
+        FXConnectorFactory.debug("Creating server");
         try {
-            strategy.setFXConnector(new RemoteConnectorImpl());
+            strategy.setFXConnector(FXConnectorFactory.getConnector());
         } catch (final RemoteException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
-        RemoteConnectorImpl.debug("Server done");
+        FXConnectorFactory.debug("Server done");
     }
 }

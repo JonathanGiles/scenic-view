@@ -29,8 +29,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- package com.javafx.experiments.scenicview;
+package com.javafx.experiments.scenicview;
 
-public enum SVTab {
+enum SVTab {
     DETAILS, EVENTS, JAVADOC, ANIMATIONS
 }

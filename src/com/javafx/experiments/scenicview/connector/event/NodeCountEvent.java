@@ -33,7 +33,7 @@ package com.javafx.experiments.scenicview.connector.event;
 
 import com.javafx.experiments.scenicview.connector.StageID;
 
-public class NodeCountEvent extends AppEvent {
+public class NodeCountEvent extends FXConnectorEvent {
 
     /**
      * 

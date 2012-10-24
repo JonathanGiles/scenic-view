@@ -39,7 +39,7 @@ import javafx.scene.control.*;
 
 import com.javafx.experiments.scenicview.connector.ConnectorUtils;
 
-public class SVRemoteNodeAdapter extends SVNodeImpl implements Serializable {
+class SVRemoteNodeAdapter extends SVNodeImpl implements Serializable {
 
     /**
      * 
@@ -70,8 +70,8 @@ public class SVRemoteNodeAdapter extends SVNodeImpl implements Serializable {
         setExpanded(mustBeExpanded);
         this.id = node.getId();
         this.nodeId = ConnectorUtils.getNodeUniqueID(node);
-        this.visible = isNodeVisible(node);
-        this.mouseTransparent = isMouseTransparent(node);
+        this.visible = ConnectorUtils.isNodeVisible(node);
+        this.mouseTransparent = ConnectorUtils.isMouseTransparent(node);
         this.focused = node.isFocused();
         /**
          * This should be improved
@@ -158,6 +158,10 @@ public class SVRemoteNodeAdapter extends SVNodeImpl implements Serializable {
 
     @Override public int hashCode() {
         return nodeId;
+    }
+
+    @Override public NodeType getNodeType() {
+        return NodeType.REMOTE_NODE;
     }
 
 }

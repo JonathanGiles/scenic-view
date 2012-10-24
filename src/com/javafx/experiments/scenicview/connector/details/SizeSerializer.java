@@ -34,12 +34,12 @@ package com.javafx.experiments.scenicview.connector.details;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.value.WritableValue;
 
-public class SizeSerializer implements WritableValue<String> {
+class SizeSerializer implements WritableValue<String> {
 
     private final DoubleProperty x;
     private final DoubleProperty y;
 
-    public SizeSerializer(final DoubleProperty x, final DoubleProperty y) {
+    SizeSerializer(final DoubleProperty x, final DoubleProperty y) {
         this.x = x;
         this.y = y;
     }

@@ -40,9 +40,8 @@ import javafx.stage.*;
 
 import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.details.DetailPaneType;
-import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
+import com.javafx.experiments.scenicview.connector.event.FXConnectorEventDispatcher;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
-import com.javafx.experiments.scenicview.connector.remote.*;
 
 public class AgentTest {
 
@@ -50,7 +49,7 @@ public class AgentTest {
 
     private static RemoteApplicationImpl application;
 
-    public static void debug(final String log) {
+    static void debug(final String log) {
         if (debug) {
             System.out.println(log);
         }
@@ -97,7 +96,7 @@ public class AgentTest {
 
                 }
 
-                @Override public void setEventDispatcher(final StageID id, final AppEventDispatcher dispatcher) throws RemoteException {
+                @Override public void setEventDispatcher(final StageID id, final FXConnectorEventDispatcher dispatcher) throws RemoteException {
                     Platform.runLater(new Runnable() {
 
                         @Override public void run() {

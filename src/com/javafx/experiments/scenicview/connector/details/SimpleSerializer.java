@@ -38,7 +38,7 @@ import javafx.beans.value.WritableValue;
 import javafx.scene.paint.Color;
 
 @SuppressWarnings("rawtypes")
-public class SimpleSerializer implements WritableValue<String> {
+class SimpleSerializer implements WritableValue<String> {
 
     enum EditionType {
         TEXT_FIELD, COMBO, SLIDER, COLOR_PICKER

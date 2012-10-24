@@ -36,15 +36,14 @@ import javafx.scene.layout.Region;
 
 import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.details.Detail.ValueType;
-import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
+import com.javafx.experiments.scenicview.connector.event.FXConnectorEventDispatcher;
 
 /**
  * 
  */
-public class RegionDetailPaneInfo extends DetailPaneInfo {
-    public RegionDetailPaneInfo(final AppEventDispatcher dispatcher, final StageID stageID) {
+class RegionDetailPaneInfo extends DetailPaneInfo {
+    RegionDetailPaneInfo(final FXConnectorEventDispatcher dispatcher, final StageID stageID) {
         super(dispatcher, stageID, DetailPaneType.REGION);
-        // TODO Auto-generated constructor stub
     }
 
     Detail snapToPixelDetail;
@@ -54,7 +53,7 @@ public class RegionDetailPaneInfo extends DetailPaneInfo {
     Detail prefSizeOverrideDetail;
     Detail maxSizeOverrideDetail;
 
-    @Override public Class<? extends Node> getTargetClass() {
+    @Override Class<? extends Node> getTargetClass() {
         return Region.class;
     }
 

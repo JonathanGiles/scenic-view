@@ -72,7 +72,7 @@ public class ConnectorUtils {
     }
 
     public final static boolean isNormalNode(final Node node) {
-        return (node.getId() == null || !node.getId().startsWith(StageController.SCENIC_VIEW_BASE_ID));
+        return (node.getId() == null || !node.getId().startsWith(StageController.FX_CONNECTOR_BASE_ID));
     }
 
     public static String boundsToString(final double minx, final double miny, final double width, final double height) {
@@ -221,7 +221,7 @@ public class ConnectorUtils {
     public static boolean acceptWindow(final Window window) {
         if (window instanceof Stage) {
             final Node root = window.getScene() != null ? window.getScene().getRoot() : null;
-            if (root != null && (root.getId() == null || !root.getId().startsWith(StageController.SCENIC_VIEW_BASE_ID))) {
+            if (root != null && (root.getId() == null || !root.getId().startsWith(StageController.FX_CONNECTOR_BASE_ID))) {
                 return true;
             }
         }
@@ -256,4 +256,23 @@ public class ConnectorUtils {
         return "-";
     }
 
+    public static boolean isMouseTransparent(final Node node) {
+        if (node == null) {
+            return false;
+        } else {
+            return node.isMouseTransparent() || isMouseTransparent(node.getParent());
+        }
+    }
+
+    public static boolean isNodeVisible(final Node node) {
+        if (node == null) {
+            return true;
+        } else {
+            return node.isVisible() && isNodeVisible(node.getParent());
+        }
+    }
+
+    public static final boolean isNormalNode(final SVNode node) {
+        return (node.getId() == null || !node.getId().startsWith(StageController.FX_CONNECTOR_BASE_ID));
+    }
 }

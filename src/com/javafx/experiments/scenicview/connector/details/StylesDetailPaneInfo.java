@@ -6,14 +6,14 @@ import java.util.*;
 import javafx.scene.Node;
 
 import com.javafx.experiments.scenicview.connector.StageID;
-import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
+import com.javafx.experiments.scenicview.connector.event.FXConnectorEventDispatcher;
 import com.sun.javafx.css.*;
 import com.sun.javafx.css.Stylesheet.Origin;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public class StylesDetailPaneInfo extends DetailPaneInfo {
+class StylesDetailPaneInfo extends DetailPaneInfo {
 
-    public StylesDetailPaneInfo(final AppEventDispatcher dispatcher, final StageID stageID) {
+    StylesDetailPaneInfo(final FXConnectorEventDispatcher dispatcher, final StageID stageID) {
         super(dispatcher, stageID, DetailPaneType.STYLES);
     }
 
@@ -24,7 +24,7 @@ public class StylesDetailPaneInfo extends DetailPaneInfo {
         return "Styles Details";
     }
 
-    @Override public Class<? extends Node> getTargetClass() {
+    @Override Class<? extends Node> getTargetClass() {
         return null;
     }
 
@@ -60,7 +60,7 @@ public class StylesDetailPaneInfo extends DetailPaneInfo {
         updateAllDetails();
     }
 
-    @Override protected void updateAllDetails() {
+    @SuppressWarnings("deprecation") @Override protected void updateAllDetails() {
         final Node value = (Node) getTarget();
         final StyleHelper helper = StyleManager.getInstance().getStyleHelper(value);
 

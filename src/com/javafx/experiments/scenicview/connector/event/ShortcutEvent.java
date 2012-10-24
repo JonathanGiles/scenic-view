@@ -35,7 +35,7 @@ import javafx.scene.input.KeyCode;
 
 import com.javafx.experiments.scenicview.connector.StageID;
 
-public class ShortcutEvent extends AppEvent {
+public class ShortcutEvent extends FXConnectorEvent {
 
     /**
      * 

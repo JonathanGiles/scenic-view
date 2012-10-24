@@ -35,7 +35,7 @@ import java.io.Serializable;
 
 import javafx.animation.Animation;
 
-public class SVAnimation implements Serializable {
+public final class SVAnimation implements Serializable {
 
     /**
      * 

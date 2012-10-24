@@ -29,7 +29,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- package com.javafx.experiments.scenicview;
+package com.javafx.experiments.scenicview;
 
 import java.util.*;
 
@@ -45,7 +45,7 @@ import javafx.util.Callback;
 
 import com.javafx.experiments.scenicview.connector.*;
 
-public abstract class AnimationsPane extends VBox implements ContextMenuContainer {
+abstract class AnimationsPane extends VBox implements ContextMenuContainer {
 
     private final Map<Integer, List<SVAnimation>> appsAnimations = new HashMap<Integer, List<SVAnimation>>();
 
@@ -53,7 +53,7 @@ public abstract class AnimationsPane extends VBox implements ContextMenuContaine
 
     ScenicView view;
 
-    public AnimationsPane(final ScenicView view) {
+    AnimationsPane(final ScenicView view) {
         this.view = view;
     }
 

@@ -40,7 +40,7 @@ import com.javafx.experiments.scenicview.connector.details.DetailPaneType;
 import com.javafx.experiments.scenicview.connector.event.*;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
 
-public class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplication {
+class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplication {
 
     /**
 	 * 
@@ -50,7 +50,7 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
     private RemoteConnector scenicView;
     private final int port;
 
-    public RemoteApplicationImpl(final RemoteApplication application, final int port, final int serverPort) throws RemoteException {
+    RemoteApplicationImpl(final RemoteApplication application, final int port, final int serverPort) throws RemoteException {
         this.application = application;
         this.port = port;
         try {
@@ -115,11 +115,11 @@ public class RemoteApplicationImpl extends UnicastRemoteObject implements Remote
         application.update(id);
     }
 
-    @Override public void setEventDispatcher(final StageID id, final AppEventDispatcher dispatcher) throws RemoteException {
+    @Override public void setEventDispatcher(final StageID id, final FXConnectorEventDispatcher dispatcher) throws RemoteException {
         AgentTest.debug("Remote application setEventDispatcher!!!");
-        application.setEventDispatcher(id, new AppEventDispatcher() {
+        application.setEventDispatcher(id, new FXConnectorEventDispatcher() {
 
-            @Override public void dispatchEvent(final AppEvent appEvent) {
+            @Override public void dispatchEvent(final FXConnectorEvent appEvent) {
                 try {
                     if (scenicView != null)
                         scenicView.dispatchEvent(appEvent);

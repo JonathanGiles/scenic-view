@@ -37,8 +37,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.Observer;
 import java.util.concurrent.atomic.AtomicInteger;
 
-
-public class RMIUtils {
+class RMIUtils {
 
     private static AtomicInteger rmiPort = new AtomicInteger(7557);
     private static final String REMOTE_CONNECTOR = "RemoteConnector";

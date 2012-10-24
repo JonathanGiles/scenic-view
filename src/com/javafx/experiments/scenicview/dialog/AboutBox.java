@@ -59,7 +59,7 @@ public class AboutBox {
 
     private AboutBox(final String title, final double x, final double y) {
         this.panel = new VBox();
-        this.panel.setId(StageController.SCENIC_VIEW_BASE_ID + "AboutBox");
+        this.panel.setId(StageController.FX_CONNECTOR_BASE_ID + "AboutBox");
         this.panel.getStyleClass().add("about");
 
         this.footer = new Button("Close");

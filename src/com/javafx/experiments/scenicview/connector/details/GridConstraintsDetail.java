@@ -33,7 +33,7 @@ package com.javafx.experiments.scenicview.connector.details;
 
 import java.io.Serializable;
 
-public class GridConstraintsDetail implements Serializable {
+public final class GridConstraintsDetail implements Serializable {
 
     /**
      * 
@@ -43,7 +43,7 @@ public class GridConstraintsDetail implements Serializable {
     private final int colIndex;
     private final int rowIndex;
 
-    public GridConstraintsDetail(final String text, final int colIndex, final int rowIndex) {
+    GridConstraintsDetail(final String text, final int colIndex, final int rowIndex) {
         this.text = text;
         this.colIndex = colIndex;
         this.rowIndex = rowIndex;

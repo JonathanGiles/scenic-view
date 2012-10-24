@@ -34,7 +34,7 @@ package com.javafx.experiments.scenicview.connector.event;
 import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
 
-public class NodeSelectedEvent extends AppEvent {
+public class NodeSelectedEvent extends FXConnectorEvent {
 
     /**
      * 

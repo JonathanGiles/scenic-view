@@ -33,10 +33,9 @@ package com.javafx.experiments.scenicview.connector.node;
 
 import java.io.Serializable;
 
-import javafx.scene.Node;
 import javafx.scene.image.Image;
 
-public abstract class SVNodeImpl implements SVNode, Serializable {
+abstract class SVNodeImpl implements SVNode, Serializable {
 
     /**
      * 
@@ -57,15 +56,15 @@ public abstract class SVNodeImpl implements SVNode, Serializable {
         this.nodeClassName = nodeClassName;
     }
 
-    @Override public void setInvalidForFilter(final boolean invalid) {
+    @Override public final void setInvalidForFilter(final boolean invalid) {
         this.invalidForFilter = invalid;
     }
 
-    @Override public boolean isInvalidForFilter() {
+    @Override public final boolean isInvalidForFilter() {
         return invalidForFilter;
     }
 
-    @Override public void setShowId(final boolean showID) {
+    @Override public final void setShowId(final boolean showID) {
         this.showID = showID;
     }
 
@@ -73,7 +72,7 @@ public abstract class SVNodeImpl implements SVNode, Serializable {
         return this.expanded;
     }
 
-    @Override public void setExpanded(final boolean expanded) {
+    @Override public final void setExpanded(final boolean expanded) {
         this.expanded = expanded;
     }
 
@@ -81,28 +80,12 @@ public abstract class SVNodeImpl implements SVNode, Serializable {
         return null;
     }
 
-    @Override public String getNodeClass() {
+    @Override public final String getNodeClass() {
         return nodeClass;
     }
 
     @Override public final String getNodeClassName() {
         return nodeClassName;
-    }
-
-    public static boolean isNodeVisible(final Node node) {
-        if (node == null) {
-            return true;
-        } else {
-            return node.isVisible() && isNodeVisible(node.getParent());
-        }
-    }
-
-    public static boolean isMouseTransparent(final Node node) {
-        if (node == null) {
-            return false;
-        } else {
-            return node.isMouseTransparent() || isMouseTransparent(node.getParent());
-        }
     }
 
 }

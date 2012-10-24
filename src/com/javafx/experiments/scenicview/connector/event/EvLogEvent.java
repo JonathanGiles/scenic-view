@@ -34,7 +34,7 @@ package com.javafx.experiments.scenicview.connector.event;
 import com.javafx.experiments.scenicview.connector.StageID;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
 
-public class EvLogEvent extends AppEvent {
+public class EvLogEvent extends FXConnectorEvent {
 
     public static final String PROPERTY_CHANGED = "PROPERTY_CHANGED";
     public static final String OTHER_EVENTS = "OTHER_EVENTS";

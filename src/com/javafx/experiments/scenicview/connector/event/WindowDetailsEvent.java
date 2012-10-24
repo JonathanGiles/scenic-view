@@ -33,7 +33,7 @@ package com.javafx.experiments.scenicview.connector.event;
 
 import com.javafx.experiments.scenicview.connector.StageID;
 
-public class WindowDetailsEvent extends AppEvent {
+public class WindowDetailsEvent extends FXConnectorEvent {
 
     /**
      * 

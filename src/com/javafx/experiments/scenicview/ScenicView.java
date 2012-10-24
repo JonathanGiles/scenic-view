@@ -58,7 +58,7 @@ import com.javafx.experiments.scenicview.ScenegraphTreeView.ConnectorController;
 import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.details.Detail;
 import com.javafx.experiments.scenicview.connector.event.*;
-import com.javafx.experiments.scenicview.connector.event.AppEvent.SVEventType;
+import com.javafx.experiments.scenicview.connector.event.FXConnectorEvent.SVEventType;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
 import com.javafx.experiments.scenicview.control.*;
 import com.javafx.experiments.scenicview.details.*;
@@ -108,15 +108,15 @@ public class ScenicView extends Region implements ConnectorController, CParent {
     private final CheckMenuItem componentSelectOnClick;
 
     private final Configuration configuration = new Configuration();
-    private final List<AppEvent> eventQueue = new LinkedList<AppEvent>();
+    private final List<FXConnectorEvent> eventQueue = new LinkedList<FXConnectorEvent>();
 
     private UpdateStrategy updateStrategy;
     private long lastMousePosition;
     private static boolean debug = false;
 
-    private final AppEventDispatcher stageModelListener = new AppEventDispatcher() {
+    private final FXConnectorEventDispatcher stageModelListener = new FXConnectorEventDispatcher() {
 
-        @Override public void dispatchEvent(final AppEvent appEvent) {
+        @Override public void dispatchEvent(final FXConnectorEvent appEvent) {
             if (isValid(appEvent)) {
                 // doDispatchEvent(appEvent);
                 switch (appEvent.getType()) {
@@ -146,7 +146,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
             }
         }
 
-        private boolean isValid(final AppEvent appEvent) {
+        private boolean isValid(final FXConnectorEvent appEvent) {
             for (int i = 0; i < apps.size(); i++) {
                 if (apps.get(i).getID() == appEvent.getStageID().getAppID()) {
                     final List<StageController> stages = apps.get(i).getStages();
@@ -174,7 +174,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
     public ScenicView(final UpdateStrategy updateStrategy, final Stage senicViewStage) {
         Persistence.loadProperties();
         Runtime.getRuntime().addShutdownHook(shutdownHook);
-        setId(StageController.SCENIC_VIEW_BASE_ID + "scenic-view");
+        setId(StageController.FX_CONNECTOR_BASE_ID + "scenic-view");
 
         borderPane = new BorderPane();
         borderPane.setId("main-borderpane");
@@ -191,7 +191,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
 
             @Override public boolean accept(final SVNode node) {
                 // do not create tree nodes for our bounds rectangles
-                return StageControllerImpl.isNormalNode(node);
+                return ConnectorUtils.isNormalNode(node);
             }
 
             @Override public boolean ignoreShowFilteredNodesInTree() {
@@ -1191,7 +1191,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         }
     }
 
-    private void doDispatchEvent(final AppEvent appEvent) {
+    private void doDispatchEvent(final FXConnectorEvent appEvent) {
         switch (appEvent.getType()) {
         case EVENT_LOG:
             eventLogPane.trace((EvLogEvent) appEvent);
@@ -1293,7 +1293,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
 
     private int indexOfNode(final SVNode node, final boolean add) {
         for (int i = 0; i < eventQueue.size(); i++) {
-            final AppEvent ev = eventQueue.get(i);
+            final FXConnectorEvent ev = eventQueue.get(i);
             if ((add && ev.getType() == SVEventType.NODE_REMOVED) || (!add && ev.getType() == SVEventType.NODE_ADDED)) {
                 final NodeAddRemoveEvent ev2 = (NodeAddRemoveEvent) ev;
                 if (ev2.getNode().equals(node)) {

@@ -35,7 +35,7 @@ import java.util.*;
 
 import com.javafx.experiments.scenicview.connector.*;
 
-public class AnimationsCountEvent extends AppEvent {
+public class AnimationsCountEvent extends FXConnectorEvent {
 
     /**
      * 

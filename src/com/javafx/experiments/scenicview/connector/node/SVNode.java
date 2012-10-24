@@ -81,4 +81,6 @@ public interface SVNode {
 
     Image getIcon();
 
+    public NodeType getNodeType();
+
 }

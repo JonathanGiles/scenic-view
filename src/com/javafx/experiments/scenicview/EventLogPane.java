@@ -29,7 +29,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- package com.javafx.experiments.scenicview;
+package com.javafx.experiments.scenicview;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -52,7 +52,7 @@ import com.javafx.experiments.scenicview.connector.node.SVNode;
 import com.javafx.experiments.scenicview.control.FilterTextField;
 import com.javafx.experiments.scenicview.dialog.InfoBox;
 
-public class EventLogPane extends VBox implements ContextMenuContainer {
+class EventLogPane extends VBox implements ContextMenuContainer {
 
     private static final int MAX_EVENTS = 5000;
 
@@ -70,7 +70,7 @@ public class EventLogPane extends VBox implements ContextMenuContainer {
 
     private static final Image MORE_INFO = DisplayUtils.getUIImage("info.png");
 
-    @SuppressWarnings("unchecked") public EventLogPane(final ScenicView view) {
+    @SuppressWarnings("unchecked") EventLogPane(final ScenicView view) {
         table.setEditable(false);
         table.getStyleClass().add("trace-text-area");
         final DoubleBinding size = widthProperty().subtract(MORE_INFO.getWidth() + 7).divide(4);

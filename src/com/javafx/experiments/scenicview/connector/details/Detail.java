@@ -41,7 +41,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.layout.Region;
 
 import com.javafx.experiments.scenicview.connector.StageID;
-import com.javafx.experiments.scenicview.connector.event.AppEvent.SVEventType;
+import com.javafx.experiments.scenicview.connector.event.FXConnectorEvent.SVEventType;
 import com.javafx.experiments.scenicview.connector.event.*;
 
 public class Detail implements Serializable {
@@ -79,7 +79,7 @@ public class Detail implements Serializable {
     private EditionType editionType = EditionType.NONE;
     transient WritableValue<String> serializer;
 
-    private transient final AppEventDispatcher dispatcher;
+    private transient final FXConnectorEventDispatcher dispatcher;
     private final DetailPaneType detailType;
     private final int detailID;
     private final StageID stageID;
@@ -93,7 +93,7 @@ public class Detail implements Serializable {
     private boolean hasGridConstraints;
     private final List<GridConstraintsDetail> gridConstraintsDetails = new ArrayList<GridConstraintsDetail>();
 
-    public Detail(final AppEventDispatcher dispatcher, final StageID stageID, final DetailPaneType detailType, final int detailID) {
+    public Detail(final FXConnectorEventDispatcher dispatcher, final StageID stageID, final DetailPaneType detailType, final int detailID) {
         this.dispatcher = dispatcher;
         this.stageID = stageID;
         this.detailType = detailType;

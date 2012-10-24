@@ -35,14 +35,14 @@ import javafx.scene.Node;
 import javafx.scene.control.Control;
 
 import com.javafx.experiments.scenicview.connector.*;
-import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
+import com.javafx.experiments.scenicview.connector.event.FXConnectorEventDispatcher;
 
 /**
  * 
  */
-public class ControlDetailPaneInfo extends DetailPaneInfo {
+class ControlDetailPaneInfo extends DetailPaneInfo {
 
-    public ControlDetailPaneInfo(final AppEventDispatcher dispatcher, final StageID stageID) {
+    ControlDetailPaneInfo(final FXConnectorEventDispatcher dispatcher, final StageID stageID) {
         super(dispatcher, stageID, DetailPaneType.CONTROL);
     }
 
@@ -50,7 +50,7 @@ public class ControlDetailPaneInfo extends DetailPaneInfo {
     Detail prefSizeOverrideDetail;
     Detail maxSizeOverrideDetail;
 
-    @Override public Class<? extends Node> getTargetClass() {
+    @Override Class<? extends Node> getTargetClass() {
         return Control.class;
     }
 
