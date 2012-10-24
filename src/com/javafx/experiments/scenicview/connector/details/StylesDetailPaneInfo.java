@@ -1,9 +1,8 @@
 package com.javafx.experiments.scenicview.connector.details;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.*;
 
-import javafx.beans.value.WritableValue;
 import javafx.scene.Node;
 
 import com.javafx.experiments.scenicview.connector.StageID;
@@ -11,7 +10,7 @@ import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
 import com.sun.javafx.css.*;
 import com.sun.javafx.css.Stylesheet.Origin;
 
-@SuppressWarnings({ "unchecked" })
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class StylesDetailPaneInfo extends DetailPaneInfo {
 
     public StylesDetailPaneInfo(final AppEventDispatcher dispatcher, final StageID stageID) {
@@ -22,7 +21,7 @@ public class StylesDetailPaneInfo extends DetailPaneInfo {
     Map<String, StyleableProperty> styles;
 
     @Override protected String getPaneName() {
-        return "Full Properties Details";
+        return "Styles Details";
     }
 
     @Override public Class<? extends Node> getTargetClass() {
@@ -47,42 +46,24 @@ public class StylesDetailPaneInfo extends DetailPaneInfo {
     private void createPropertiesPanel() {
         final Node node = (Node) getTarget();
         styles = new TreeMap<String, StyleableProperty>();
+        stylesPropertiesDetails = new TreeMap<String, Detail>();
         details.clear();
         if (node != null) {
             final List<StyleableProperty> list = StyleableProperty.getStyleables(node);
             for (final Iterator<StyleableProperty> iterator = list.iterator(); iterator.hasNext();) {
                 final StyleableProperty styleableProperty = iterator.next();
-                final WritableValue wvalue = styleableProperty.getWritableValue(node);
+                final String type = styleableProperty.getProperty();
                 styles.put(styleableProperty.getProperty(), styleableProperty);
+                stylesPropertiesDetails.put(type, addDetail(type, type + ":"));
             }
-        }
-
-        stylesPropertiesDetails = new TreeMap<String, Detail>();
-
-        for (final Iterator<String> iterator = styles.keySet().iterator(); iterator.hasNext();) {
-            final String type = iterator.next();
-            final StyleableProperty styleableProperty = styles.get(type);
-            String style = null;
-            Origin origin = null;
-            if (styleableProperty != null) {
-                style = styleableProperty.getProperty();
-
-                try {
-                    final Class classData = Class.forName("com.sun.javafx.css.Property");
-                    final Method m = classData.getDeclaredMethod("getOrigin", null);
-                    m.setAccessible(true);
-                    origin = (Origin) m.invoke(styleableProperty.getWritableValue(node), null);
-                } catch (final Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            stylesPropertiesDetails.put(type, addDetail(type, type + ":"));
         }
         updateAllDetails();
     }
 
     @Override protected void updateAllDetails() {
+        final Node value = (Node) getTarget();
+        final StyleHelper helper = StyleManager.getInstance().getStyleHelper(value);
+
         if (stylesPropertiesDetails != null) {
             for (final Iterator<String> iterator = stylesPropertiesDetails.keySet().iterator(); iterator.hasNext();) {
                 final String propertyName = iterator.next();
@@ -90,35 +71,19 @@ public class StylesDetailPaneInfo extends DetailPaneInfo {
                 final StyleableProperty styleableProperty = styles.get(propertyName);
                 Origin origin = null;
                 String style = null;
-                if (styleableProperty != null) {
-
-                    try {
-                        final Class classData = Class.forName("com.sun.javafx.css.Property");
-                        final Method m = classData.getDeclaredMethod("getOrigin", null);
-                        m.setAccessible(true);
-                        origin = (Origin) m.invoke(styleableProperty.getWritableValue((Node) getTarget()), null);
-                        final Node value = (Node) getTarget();
-                        final StyleHelper helper = StyleManager.getInstance().getStyleHelper(value);
-                        if (helper != null) {
-                            try {
-                                final Method m2 = StyleHelper.class.getDeclaredMethod("getStyle", Node.class, String.class, long.class, Map.class);
-                                m2.setAccessible(true);
-                                final Object returned = m2.invoke(helper, value, styleableProperty.getProperty(), value.impl_getPseudoClassState(), new HashMap());
-                                if (returned != null) {
-                                    final Method m3 = returned.getClass().getDeclaredMethod("getStyle", null);
-                                    m3.setAccessible(true);
-                                    style = m3.invoke(returned, null).toString();
-                                }
-                            } catch (final Exception e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            }
+                try {
+                    origin = (Origin) invoke(Class.forName("com.sun.javafx.css.Property"), "getOrigin", styleableProperty.getWritableValue(value));
+                    if (helper != null) {
+                        final Object returned = invoke(StyleHelper.class, "getStyle", helper, new Class[] { Node.class, String.class, long.class, Map.class }, new Object[] { value, styleableProperty.getProperty(), value.impl_getPseudoClassState(), new HashMap() });
+                        if (returned != null) {
+                            style = invoke(returned.getClass(), "getStyle", returned).toString();
                         }
-
-                    } catch (final Exception e) {
-                        e.printStackTrace();
                     }
+
+                } catch (final Exception e) {
+                    e.printStackTrace();
                 }
+
                 detail.setValue((origin != null ? origin.toString() : "NONE") + (style != null ? ("\n" + style) : ""));
                 detail.setSimpleProperty(null);
                 detail.unavailableEdition(Detail.STATUS_NOT_SUPPORTED);
@@ -126,6 +91,16 @@ public class StylesDetailPaneInfo extends DetailPaneInfo {
             }
         }
         sendAllDetails();
+    }
+
+    private Object invoke(final Class classData, final String methodName, final Object object) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, SecurityException, NoSuchMethodException {
+        return invoke(classData, methodName, object, null, null);
+    }
+
+    private Object invoke(final Class classData, final String methodName, final Object object, final Class[] signature, final Object[] values) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, SecurityException, NoSuchMethodException {
+        final Method m = classData.getDeclaredMethod(methodName, signature);
+        m.setAccessible(true);
+        return m.invoke(object, values);
     }
 
     @Override protected void updateDetail(final String propertyName) {
