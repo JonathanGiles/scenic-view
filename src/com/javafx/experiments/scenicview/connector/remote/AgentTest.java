@@ -162,7 +162,9 @@ public class AgentTest {
 
                         @Override public void run() {
                             debug("Setting selected node:" + (value != null ? (" id:" + value.getNodeId() + " class:" + value.getClass()) : ""));
-                            getSC(id).setSelectedNode(value);
+                            final StageController sc = getSC(id);
+                            if (sc != null)
+                                sc.setSelectedNode(value);
                         }
                     });
                 }
