@@ -44,7 +44,6 @@ import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.*;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.stage.*;
@@ -247,7 +246,7 @@ public class StageControllerImpl implements StageController {
                                 final SVNode node = createNode(dead);
                                 dispatchEvent(new EvLogEvent(getID(), node, EvLogEvent.NODE_REMOVED, ""));
                                 removeNode(dead, true);
-                                if (isNormalNode(dead)) {
+                                if (SCUtils.isNormalNode(dead)) {
                                     difference -= ConnectorUtils.getBranchCount(dead);
                                 }
                             }
@@ -256,7 +255,7 @@ public class StageControllerImpl implements StageController {
                                 dispatchEvent(new EvLogEvent(getID(), node, EvLogEvent.NODE_ADDED, ""));
 
                                 addNewNode(alive);
-                                if (isNormalNode(alive)) {
+                                if (SCUtils.isNormalNode(alive)) {
                                     difference += ConnectorUtils.getBranchCount(alive);
                                 }
                             }
@@ -299,7 +298,7 @@ public class StageControllerImpl implements StageController {
     }
 
     @Override public void close() {
-        removeScenicViewComponents(target);
+        SCUtils.removeScenicViewComponents(target);
         if (targetScene != null) {
             targetScene.removeEventFilter(MouseEvent.MOUSE_MOVED, sceneHoverListener);
             targetScene.removeEventFilter(MouseEvent.MOUSE_MOVED, mousePosListener);
@@ -339,39 +338,13 @@ public class StageControllerImpl implements StageController {
          * By node layout bounds only on main scene not on popups
          */
         if (selectedNode != null && selectedNode.getScene() == targetScene) {
-            updateRect(selectedNode, selectedNode.getBoundsInParent(), 0, 0, boundsInParentRect);
-            updateRect(selectedNode, selectedNode.getLayoutBounds(), selectedNode.getLayoutX(), selectedNode.getLayoutY(), layoutBoundsRect);
+            SCUtils.updateRect(overlayParent, selectedNode, selectedNode.getBoundsInParent(), 0, 0, boundsInParentRect);
+            SCUtils.updateRect(overlayParent, selectedNode, selectedNode.getLayoutBounds(), selectedNode.getLayoutX(), selectedNode.getLayoutY(), layoutBoundsRect);
             boundsInParentRect.setVisible(true);
             layoutBoundsRect.setVisible(true);
         } else {
             boundsInParentRect.setVisible(false);
             layoutBoundsRect.setVisible(false);
-        }
-    }
-
-    private void removeScenicViewComponents(final Node target) {
-        /**
-         * We should any component associated with ScenicView on close
-         */
-        if (target instanceof Parent) {
-            if (target instanceof Group) {
-                final List<Node> nodes = ((Group) target).getChildren();
-                for (final Iterator<Node> iterator = nodes.iterator(); iterator.hasNext();) {
-                    final Node node = iterator.next();
-                    if (!isNormalNode(node)) {
-                        iterator.remove();
-                    }
-                }
-            }
-            if (target instanceof Pane) {
-                final List<Node> nodes = ((Pane) target).getChildren();
-                for (final Iterator<Node> iterator = nodes.iterator(); iterator.hasNext();) {
-                    final Node node = iterator.next();
-                    if (!isNormalNode(node)) {
-                        iterator.remove();
-                    }
-                }
-            }
         }
     }
 
@@ -460,11 +433,11 @@ public class StageControllerImpl implements StageController {
         // Find parent we can use to hang bounds rectangles
         this.target = value;
         if (overlayParent != null) {
-            removeFromNode(overlayParent, boundsInParentRect);
-            removeFromNode(overlayParent, layoutBoundsRect);
-            removeFromNode(overlayParent, baselineLine);
+            SCUtils.removeFromNode(overlayParent, boundsInParentRect);
+            SCUtils.removeFromNode(overlayParent, layoutBoundsRect);
+            SCUtils.removeFromNode(overlayParent, baselineLine);
         }
-        overlayParent = findFertileParent(value);
+        overlayParent = SCUtils.findFertileParent(value);
         if (overlayParent == null) {
             System.out.println("warning: could not find writable parent to add overlay nodes; overlays disabled.");
             /**
@@ -478,59 +451,11 @@ public class StageControllerImpl implements StageController {
             configuration.setShowBaseline(true);
 
         } else {
-            addToNode(overlayParent, boundsInParentRect);
-            addToNode(overlayParent, layoutBoundsRect);
-            addToNode(overlayParent, baselineLine);
+            SCUtils.addToNode(overlayParent, boundsInParentRect);
+            SCUtils.addToNode(overlayParent, layoutBoundsRect);
+            SCUtils.addToNode(overlayParent, baselineLine);
         }
         setTargetScene(target.getScene());
-    }
-
-    private void updateRect(final Node node, final Bounds bounds, final double tx, final double ty, final Rectangle rect) {
-        final Bounds b = toSceneBounds(node, bounds, tx, ty);
-        rect.setX(b.getMinX());
-        rect.setY(b.getMinY());
-        rect.setWidth(b.getMaxX() - b.getMinX());
-        rect.setHeight(b.getMaxY() - b.getMinY());
-    }
-
-    private Bounds toSceneBounds(final Node node, final Bounds bounds, final double tx, final double ty) {
-        final Parent parent = node.getParent();
-        if (parent != null) {
-            // need to translate position
-            final Point2D pt = overlayParent.sceneToLocal(node.getParent().localToScene(bounds.getMinX(), bounds.getMinY()));
-            return new BoundingBox(snapPosition(pt.getX()) + snapPosition(tx), snapPosition(pt.getY()) + snapPosition(ty), snapSize(bounds.getWidth()), snapSize(bounds.getHeight()));
-        } else {
-            // selected node is root
-            return new BoundingBox(snapPosition(bounds.getMinX()) + snapPosition(tx) + 1, snapPosition(bounds.getMinY()) + snapPosition(ty) + 1, snapSize(bounds.getWidth()) - 2, snapSize(bounds.getHeight()) - 2);
-        }
-    }
-
-    private double snapPosition(final double pos) {
-        return pos;
-    }
-
-    private double snapSize(final double pos) {
-        return pos;
-    }
-
-    private void addToNode(final Parent parent, final Node node) {
-        if (parent instanceof Group) {
-            ((Group) parent).getChildren().add(node);
-        } else if (parent instanceof CParent) {
-            ((CParent) parent).getChildren().add(node);
-        } else { // instanceof Pane
-            ((Pane) parent).getChildren().add(node);
-        }
-    }
-
-    private void removeFromNode(final Parent parent, final Node node) {
-        if (parent instanceof Group) {
-            ((Group) parent).getChildren().remove(node);
-        } else if (parent instanceof CParent) {
-            ((CParent) parent).getChildren().remove(node);
-        } else { // instanceof Pane
-            ((Pane) parent).getChildren().remove(node);
-        }
     }
 
     private void componentSelectOnClick(final boolean newValue) {
@@ -543,7 +468,7 @@ public class StageControllerImpl implements StageController {
             targetScene.removeEventFilter(MouseEvent.MOUSE_MOVED, sceneHoverListener);
             targetScene.removeEventFilter(MouseEvent.MOUSE_PRESSED, scenePressListener);
             if (componentHighLighter != null) {
-                removeFromNode(target, componentHighLighter);
+                SCUtils.removeFromNode(target, componentHighLighter);
             }
         }
     }
@@ -554,25 +479,13 @@ public class StageControllerImpl implements StageController {
             grid.setId(StageController.FX_CONNECTOR_BASE_ID + "ruler");
             grid.setManaged(false);
             grid.setStroke(color);
-            addToNode(target, grid);
+            SCUtils.addToNode(target, grid);
         } else {
             if (grid != null) {
-                removeFromNode(target, grid);
+                SCUtils.removeFromNode(target, grid);
                 grid = null;
             }
         }
-    }
-
-    private Parent findFertileParent(final Parent p) {
-        Parent fertile = (p instanceof Group || p instanceof Pane) ? p : null;
-        if (fertile == null) {
-            for (final Node child : p.getChildrenUnmodifiable()) {
-                if (child instanceof Parent) {
-                    fertile = findFertileParent((Parent) child);
-                }
-            }
-        }
-        return fertile; // could be null!
     }
 
     private void updateBaseline(final boolean show, final Point2D orig, final double width) {
@@ -620,59 +533,19 @@ public class StageControllerImpl implements StageController {
         if (previousHightLightedData != nodeData) {
             previousHightLightedData = null;
             if (componentHighLighter != null) {
-                removeFromNode(target, componentHighLighter);
+                SCUtils.removeFromNode(target, componentHighLighter);
             }
             if (nodeData != null) {
                 // TODO Change this
-                componentHighLighter = new ComponentHighLighter(createNode(nodeData), targetWindow != null ? targetWindow.getWidth() : -1, targetWindow != null ? targetWindow.getHeight() : -1, toSceneBounds(nodeData, nodeData.getBoundsInParent(), 0, 0));
-                addToNode(target, componentHighLighter);
+                componentHighLighter = new ComponentHighLighter(createNode(nodeData), targetWindow != null ? targetWindow.getWidth() : -1, targetWindow != null ? targetWindow.getHeight() : -1, SCUtils.toSceneBounds(overlayParent, nodeData, nodeData.getBoundsInParent(), 0, 0));
+                SCUtils.addToNode(target, componentHighLighter);
             }
         }
 
     }
 
     private Node getHoveredNode(final double x, final double y) {
-        return getHoveredNode(target, x, y);
-    }
-
-    private Node getHoveredNode(final Node target, final double x, final double y) {
-
-        if (!isNormalNode(target))
-            return null;
-        if (target instanceof Parent) {
-            final List<Node> childrens = ((Parent) target).getChildrenUnmodifiable();
-            for (int i = childrens.size() - 1; i >= 0; i--) {
-                final Node node = childrens.get(i);
-                final Node hovered = getHoveredNode(node, x, y);
-                if (hovered != null)
-                    return hovered;
-            }
-        }
-        final Point2D localPoint = target.sceneToLocal(x, y);
-        if (target.contains(localPoint) && ((!configuration.isIgnoreMouseTransparent() || !ConnectorUtils.isMouseTransparent(target)) && ConnectorUtils.isNodeVisible(target))) {
-            return target;
-        }
-
-        return null;
-    }
-
-    private Node findNode(final Node target, final int nodeUniqueID) {
-        if (!isNormalNode(target))
-            return null;
-        if (target instanceof Parent) {
-            final List<Node> childrens = ((Parent) target).getChildrenUnmodifiable();
-            for (int i = childrens.size() - 1; i >= 0; i--) {
-                final Node node = childrens.get(i);
-                final Node child = findNode(node, nodeUniqueID);
-                if (child != null)
-                    return child;
-            }
-        }
-        if (ConnectorUtils.getNodeUniqueID(target) == nodeUniqueID) {
-            return target;
-        }
-
-        return null;
+        return SCUtils.getHoveredNode(configuration, target, x, y);
     }
 
     private boolean canStylesheetsBeRefreshed() {
@@ -748,7 +621,7 @@ public class StageControllerImpl implements StageController {
             if (svNode.getNodeType() == NodeType.REAL_NODE) {
                 this.selectedNode = svNode.getImpl();
             } else {
-                this.selectedNode = findNode(target, svNode.getNodeId());
+                this.selectedNode = SCUtils.findNode(target, svNode.getNodeId());
             }
             if (selectedNode != null) {
                 selectedNode.boundsInParentProperty().addListener(selectedNodePropListener);
@@ -830,7 +703,7 @@ public class StageControllerImpl implements StageController {
     }
 
     private void addNewNode(final Node node) {
-        if (isNormalNode(node)) {
+        if (SCUtils.isNormalNode(node)) {
             updateListeners(node, true, false);
             final SVNode svNode = createNode(node);
             dispatchEvent(new NodeAddRemoveEvent(SVEventType.NODE_ADDED, getID(), svNode));
@@ -838,7 +711,7 @@ public class StageControllerImpl implements StageController {
     }
 
     private void removeNode(final Node node, final boolean removeVisibilityListener) {
-        if (isNormalNode(node)) {
+        if (SCUtils.isNormalNode(node)) {
             updateListeners(node, false, removeVisibilityListener);
             dispatchEvent(new NodeAddRemoveEvent(SVEventType.NODE_REMOVED, getID(), createNode(node)));
         }
@@ -846,7 +719,7 @@ public class StageControllerImpl implements StageController {
 
     private void updateListeners(final Node node, final boolean add, final boolean removeVisibilityListener) {
         if (add) {
-            if (isNormalNode(node)) {
+            if (SCUtils.isNormalNode(node)) {
                 node.visibleProperty().removeListener(visibilityInvalidationListener);
                 node.visibleProperty().addListener(visibilityInvalidationListener);
                 propertyTracker(node, true);
@@ -933,10 +806,6 @@ public class StageControllerImpl implements StageController {
             }
         }
 
-    }
-
-    private final boolean isNormalNode(final Node node) {
-        return ConnectorUtils.isNormalNode(node);
     }
 
     private final void dispatchEvent(final FXConnectorEvent event) {
