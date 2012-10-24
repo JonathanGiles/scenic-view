@@ -82,6 +82,7 @@ public class ScenicViewExample extends Application {
 
         final Rectangle rect1 = new Rectangle(75, 75, Color.BLUEVIOLET);
         rect1.setId("rect1");
+        rect1.setArcHeight(10);
 
         rect1.setOnMousePressed(new EventHandler<MouseEvent>() {
 

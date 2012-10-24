@@ -341,3 +341,9 @@ tree-view > .virtual-flow > .scroll-bar:vertical > .thumb {
 .tab-pane > .tab-header-area > .tab-header-background {
     -fx-effect: null;
 }
+.color {
+    -fx-fill: orange;
+}
+#rect4 {
+    -fx-arc-width: 10;
+}

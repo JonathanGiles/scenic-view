@@ -43,7 +43,7 @@ public class AllDetails {
     final DetailPaneInfo[] details;
 
     public AllDetails(final AppEventDispatcher dispatcher, final StageID stageID) {
-        details = new DetailPaneInfo[] { new NodeDetailPaneInfo(dispatcher, stageID), new ParentDetailPaneInfo(dispatcher, stageID), new RegionDetailPaneInfo(dispatcher, stageID), new GridPaneDetailPaneInfo(dispatcher, stageID), new ControlDetailPaneInfo(dispatcher, stageID), new TextDetailPaneInfo(dispatcher, stageID), new LabeledDetailPaneInfo(dispatcher, stageID), new FullPropertiesDetailPaneInfo(dispatcher, stageID) };
+        details = new DetailPaneInfo[] { new NodeDetailPaneInfo(dispatcher, stageID), new ParentDetailPaneInfo(dispatcher, stageID), new RegionDetailPaneInfo(dispatcher, stageID), new GridPaneDetailPaneInfo(dispatcher, stageID), new ControlDetailPaneInfo(dispatcher, stageID), new TextDetailPaneInfo(dispatcher, stageID), new LabeledDetailPaneInfo(dispatcher, stageID), new FullPropertiesDetailPaneInfo(dispatcher, stageID), new StylesDetailPaneInfo(dispatcher, stageID) };
     }
 
     public void setTarget(final Node value) {
