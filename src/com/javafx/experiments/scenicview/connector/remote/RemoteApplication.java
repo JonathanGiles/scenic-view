@@ -38,7 +38,7 @@ import com.javafx.experiments.scenicview.connector.details.DetailPaneType;
 import com.javafx.experiments.scenicview.connector.event.AppEventDispatcher;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
 
-public interface RemoteApplication extends Remote {
+interface RemoteApplication extends Remote {
 
     public void configurationUpdated(final StageID id, Configuration configuration) throws RemoteException;
 

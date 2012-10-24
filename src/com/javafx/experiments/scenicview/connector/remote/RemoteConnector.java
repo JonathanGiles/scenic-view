@@ -35,7 +35,7 @@ import java.rmi.*;
 
 import com.javafx.experiments.scenicview.connector.event.AppEvent;
 
-public interface RemoteConnector extends Remote {
+interface RemoteConnector extends Remote {
 
     public void dispatchEvent(AppEvent event) throws RemoteException;
 

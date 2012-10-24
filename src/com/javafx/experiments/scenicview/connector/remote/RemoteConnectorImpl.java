@@ -40,27 +40,20 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javafx.application.Platform;
-import javafx.stage.Stage;
 
-import com.javafx.experiments.scenicview.ScenicView;
 import com.javafx.experiments.scenicview.connector.*;
 import com.javafx.experiments.scenicview.connector.details.DetailPaneType;
 import com.javafx.experiments.scenicview.connector.event.*;
 import com.javafx.experiments.scenicview.connector.node.SVNode;
-import com.javafx.experiments.scenicview.update.RemoteVMsUpdateStrategy;
 import com.sun.javafx.Utils;
-import com.sun.javafx.application.PlatformImpl;
 import com.sun.tools.attach.*;
 
-public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteConnector {
+public class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector, FXConnector {
 
     /**
      * 
      */
     private static final long serialVersionUID = -8263538629805832734L;
-    public static RemoteScenicViewImpl server;
-    private static ScenicView view;
-    private static RemoteVMsUpdateStrategy strategy;
 
     private final Map<Integer, String> vmInfo = new HashMap<Integer, String>();
     private final Map<String, RemoteApplication> applications = new HashMap<String, RemoteApplication>();
@@ -73,16 +66,16 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteC
     private static boolean debug = false;
 
     public static void setDebug(final boolean debug) {
-        RemoteScenicViewImpl.debug = debug;
+        RemoteConnectorImpl.debug = debug;
     }
 
-    private static void debug(final String debug) {
-        if (RemoteScenicViewImpl.debug) {
+    public static void debug(final String debug) {
+        if (RemoteConnectorImpl.debug) {
             System.out.println(debug);
         }
     }
 
-    public RemoteScenicViewImpl(final ScenicView view) throws RemoteException {
+    public RemoteConnectorImpl() throws RemoteException {
         super();
         this.port = getValidPort();
         RMIUtils.bindScenicView(this, port);
@@ -195,7 +188,7 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteC
 
                 @Override public void setEventDispatcher(final AppEventDispatcher dispatcher) {
                     isOpened = true;
-                    RemoteScenicViewImpl.this.dispatcher = dispatcher;
+                    RemoteConnectorImpl.this.dispatcher = dispatcher;
                     try {
                         application.setEventDispatcher(getID(), null);
                     } catch (final RemoteException e) {
@@ -256,40 +249,6 @@ public class RemoteScenicViewImpl extends UnicastRemoteObject implements RemoteC
             impl.close();
             applications.remove(Integer.toString(impl.getID()));
         }
-    }
-
-    public static void start() {
-        strategy = new RemoteVMsUpdateStrategy();
-        PlatformImpl.startup(new Runnable() {
-
-            @Override public void run() {
-                debug("Platform running");
-                final Stage stage = new Stage();
-                // workaround for RT-10714
-                stage.setWidth(640);
-                stage.setHeight(800);
-                stage.setTitle("Scenic View v" + ScenicView.VERSION);
-                view = new ScenicView(strategy, stage);
-                ScenicView.show(view, stage);
-            }
-        });
-        debug("Startup done");
-        while (view == null) {
-            try {
-                Thread.sleep(500);
-            } catch (final InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        debug("Creating server");
-        try {
-            server = new RemoteScenicViewImpl(view);
-        } catch (final RemoteException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        debug("Server done");
     }
 
     public List<AppController> connect() {

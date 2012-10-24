@@ -37,7 +37,7 @@ import java.net.*;
 import java.util.*;
 
 import com.javafx.experiments.scenicview.ScenicView;
-import com.javafx.experiments.scenicview.connector.remote.RemoteScenicViewImpl;
+import com.javafx.experiments.scenicview.connector.remote.RemoteConnectorImpl;
 
 /**
  * 
@@ -68,7 +68,7 @@ public class ScenicViewBooter {
     }
 
     private void activateDebug() {
-        RemoteScenicViewImpl.setDebug(debug);
+        RemoteConnectorImpl.setDebug(debug);
         ScenicView.setDebug(debug);
     }
 
@@ -189,7 +189,7 @@ public class ScenicViewBooter {
     private void start(final URI attachPath) {
         activateDebug();
         patchAttachLibrary(attachPath);
-        RemoteScenicViewImpl.start();
+        RemoteScenicViewLauncher.start();
     }
 
     private void patchAttachLibrary(final URI attachPath) {

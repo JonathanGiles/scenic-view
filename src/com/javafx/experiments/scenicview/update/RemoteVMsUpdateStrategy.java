@@ -34,11 +34,12 @@ package com.javafx.experiments.scenicview.update;
 import java.util.List;
 
 import com.javafx.experiments.scenicview.connector.*;
-import com.javafx.experiments.scenicview.connector.remote.RemoteScenicViewImpl;
+import com.javafx.experiments.scenicview.connector.remote.FXConnector;
 
 public class RemoteVMsUpdateStrategy extends CommonUpdateStrategy {
 
     private boolean first = true;
+    private FXConnector connector;
 
     public RemoteVMsUpdateStrategy() {
         super(RemoteVMsUpdateStrategy.class.getName());
@@ -50,7 +51,7 @@ public class RemoteVMsUpdateStrategy extends CommonUpdateStrategy {
              * Wait for the server to startup
              */
             first = false;
-            while (RemoteScenicViewImpl.server == null) {
+            while (connector == null) {
                 try {
                     Thread.sleep(50);
                 } catch (final InterruptedException e) {
@@ -59,13 +60,13 @@ public class RemoteVMsUpdateStrategy extends CommonUpdateStrategy {
             }
         }
 
-        return RemoteScenicViewImpl.server.connect();
+        return connector.connect();
     }
 
     @Override public void finish() {
         // TODO Auto-generated method stub
         super.finish();
-        RemoteScenicViewImpl.server.close();
+        connector.close();
         System.exit(0);
     }
 
@@ -77,6 +78,10 @@ public class RemoteVMsUpdateStrategy extends CommonUpdateStrategy {
 
     @Override public boolean needsClassPathConfiguration() {
         return true;
+    }
+
+    public void setFXConnector(final FXConnector connector) {
+        this.connector = connector;
     }
 
 }
