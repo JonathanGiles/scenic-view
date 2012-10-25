@@ -406,10 +406,16 @@ class NodeDetailPaneInfo extends DetailPaneInfo {
                 return;
         }
         if (all || propertyName.equals("boundsInParent")) {
-            boundsInParentDetail.setValue(node != null ? boundsToString(node.getBoundsInParent()) : "-");
-            boundsInParentDetail.setIsDefault(node == null);
-            if (!all)
-                boundsInParentDetail.updated();
+            final String bounds = node != null ? boundsToString(node.getBoundsInParent()) : "-";
+            // In some situations this variable is updated without reason, we
+            // check if there
+            // was a real update
+            if (!bounds.equals(boundsInParentDetail.getValue())) {
+                boundsInParentDetail.setValue(bounds);
+                boundsInParentDetail.setIsDefault(node == null);
+                if (!all)
+                    boundsInParentDetail.updated();
+            }
         }
         if (all)
             sendAllDetails();
