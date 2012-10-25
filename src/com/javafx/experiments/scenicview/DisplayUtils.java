@@ -38,7 +38,7 @@ import java.util.logging.*;
 
 import javafx.scene.image.Image;
 
-import com.javafx.experiments.scenicview.connector.node.SVNode;
+import com.javafx.experiments.fxconnector.node.SVNode;
 
 /**
  * 

@@ -54,12 +54,12 @@ import javafx.util.Duration;
 
 import javax.swing.JOptionPane;
 
+import com.javafx.experiments.fxconnector.*;
+import com.javafx.experiments.fxconnector.details.Detail;
+import com.javafx.experiments.fxconnector.event.*;
+import com.javafx.experiments.fxconnector.event.FXConnectorEvent.SVEventType;
+import com.javafx.experiments.fxconnector.node.SVNode;
 import com.javafx.experiments.scenicview.ScenegraphTreeView.ConnectorController;
-import com.javafx.experiments.scenicview.connector.*;
-import com.javafx.experiments.scenicview.connector.details.Detail;
-import com.javafx.experiments.scenicview.connector.event.*;
-import com.javafx.experiments.scenicview.connector.event.FXConnectorEvent.SVEventType;
-import com.javafx.experiments.scenicview.connector.node.SVNode;
 import com.javafx.experiments.scenicview.control.*;
 import com.javafx.experiments.scenicview.details.*;
 import com.javafx.experiments.scenicview.details.GDetailPane.RemotePropertySetter;

@@ -31,7 +31,7 @@
  */
 package com.javafx.experiments.scenicview.update;
 
-import com.javafx.experiments.scenicview.connector.*;
+import com.javafx.experiments.fxconnector.*;
 
 public interface AppsRepository {
 

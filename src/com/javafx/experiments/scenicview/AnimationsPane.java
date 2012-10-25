@@ -43,7 +43,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.util.Callback;
 
-import com.javafx.experiments.scenicview.connector.*;
+import com.javafx.experiments.fxconnector.*;
 
 abstract class AnimationsPane extends VBox implements ContextMenuContainer {
 

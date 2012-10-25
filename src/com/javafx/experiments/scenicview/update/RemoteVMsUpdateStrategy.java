@@ -33,8 +33,8 @@ package com.javafx.experiments.scenicview.update;
 
 import java.util.List;
 
-import com.javafx.experiments.scenicview.connector.*;
-import com.javafx.experiments.scenicview.connector.remote.FXConnector;
+import com.javafx.experiments.fxconnector.*;
+import com.javafx.experiments.fxconnector.remote.FXConnector;
 
 public class RemoteVMsUpdateStrategy extends CommonUpdateStrategy {
 

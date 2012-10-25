@@ -45,9 +45,9 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 
+import com.javafx.experiments.fxconnector.details.*;
+import com.javafx.experiments.fxconnector.details.Detail.EditionType;
 import com.javafx.experiments.scenicview.*;
-import com.javafx.experiments.scenicview.connector.details.*;
-import com.javafx.experiments.scenicview.connector.details.Detail.EditionType;
 
 public class GDetailPane extends TitledPane {
 

@@ -33,8 +33,8 @@ package com.javafx.experiments.scenicview.update;
 
 import java.util.*;
 
-import com.javafx.experiments.scenicview.connector.*;
-import com.javafx.experiments.scenicview.connector.helper.WorkerThread;
+import com.javafx.experiments.fxconnector.*;
+import com.javafx.experiments.fxconnector.helper.WorkerThread;
 
 abstract class CommonUpdateStrategy extends WorkerThread implements UpdateStrategy {
 

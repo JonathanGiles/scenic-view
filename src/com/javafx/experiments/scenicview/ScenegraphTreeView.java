@@ -41,8 +41,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
 
-import com.javafx.experiments.scenicview.connector.*;
-import com.javafx.experiments.scenicview.connector.node.*;
+import com.javafx.experiments.fxconnector.*;
+import com.javafx.experiments.fxconnector.node.*;
 import com.javafx.experiments.scenicview.control.SVCustomTreeCell;
 
 public class ScenegraphTreeView extends TreeView<SVNode> {

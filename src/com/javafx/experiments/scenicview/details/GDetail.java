@@ -43,10 +43,10 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
+import com.javafx.experiments.fxconnector.ConnectorUtils;
+import com.javafx.experiments.fxconnector.details.*;
+import com.javafx.experiments.fxconnector.details.Detail.EditionType;
 import com.javafx.experiments.scenicview.ScenicView;
-import com.javafx.experiments.scenicview.connector.ConnectorUtils;
-import com.javafx.experiments.scenicview.connector.details.*;
-import com.javafx.experiments.scenicview.connector.details.Detail.EditionType;
 
 public class GDetail {
     public Label label;

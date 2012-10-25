@@ -47,8 +47,8 @@ import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.util.Callback;
 
-import com.javafx.experiments.scenicview.connector.event.EvLogEvent;
-import com.javafx.experiments.scenicview.connector.node.SVNode;
+import com.javafx.experiments.fxconnector.event.EvLogEvent;
+import com.javafx.experiments.fxconnector.node.SVNode;
 import com.javafx.experiments.scenicview.control.FilterTextField;
 import com.javafx.experiments.scenicview.dialog.InfoBox;
 

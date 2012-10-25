@@ -34,7 +34,7 @@
 import javafx.scene.control.TreeCell;
 import javafx.scene.paint.Color;
 
-import com.javafx.experiments.scenicview.connector.node.SVNode;
+import com.javafx.experiments.fxconnector.node.SVNode;
 
 public class SVCustomTreeCell extends TreeCell<SVNode> {
 

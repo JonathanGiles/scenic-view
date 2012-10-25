@@ -39,8 +39,8 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.*;
 
+import com.javafx.experiments.fxconnector.StageController;
 import com.javafx.experiments.scenicview.*;
-import com.javafx.experiments.scenicview.connector.StageController;
 import com.javafx.experiments.scenicview.control.ProgressWebView;
 
 public class HelpBox {

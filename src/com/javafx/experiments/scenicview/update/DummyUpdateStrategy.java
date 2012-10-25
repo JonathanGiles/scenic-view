@@ -33,7 +33,7 @@ package com.javafx.experiments.scenicview.update;
 
 import java.util.List;
 
-import com.javafx.experiments.scenicview.connector.AppController;
+import com.javafx.experiments.fxconnector.AppController;
 
 /**
  * This strategy will be used when we are showing only one stage

@@ -39,8 +39,8 @@ import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.VBox;
 
+import com.javafx.experiments.fxconnector.details.*;
 import com.javafx.experiments.scenicview.ContextMenuContainer;
-import com.javafx.experiments.scenicview.connector.details.*;
 import com.javafx.experiments.scenicview.details.GDetailPane.RemotePropertySetter;
 
 /**

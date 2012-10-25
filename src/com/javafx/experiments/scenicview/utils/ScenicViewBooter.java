@@ -36,8 +36,8 @@ import java.lang.reflect.Field;
 import java.net.*;
 import java.util.*;
 
+import com.javafx.experiments.fxconnector.remote.FXConnectorFactory;
 import com.javafx.experiments.scenicview.ScenicView;
-import com.javafx.experiments.scenicview.connector.remote.FXConnectorFactory;
 
 /**
  * 

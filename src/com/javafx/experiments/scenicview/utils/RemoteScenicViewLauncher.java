@@ -35,8 +35,8 @@ import java.rmi.RemoteException;
 
 import javafx.stage.Stage;
 
+import com.javafx.experiments.fxconnector.remote.FXConnectorFactory;
 import com.javafx.experiments.scenicview.ScenicView;
-import com.javafx.experiments.scenicview.connector.remote.FXConnectorFactory;
 import com.javafx.experiments.scenicview.update.RemoteVMsUpdateStrategy;
 import com.sun.javafx.application.PlatformImpl;
 

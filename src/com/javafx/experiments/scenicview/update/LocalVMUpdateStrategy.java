@@ -35,9 +35,9 @@ import java.util.*;
 
 import javafx.stage.*;
 
-import com.javafx.experiments.scenicview.connector.*;
-import com.javafx.experiments.scenicview.connector.helper.*;
-import com.javafx.experiments.scenicview.connector.helper.WindowChecker.WindowFilter;
+import com.javafx.experiments.fxconnector.*;
+import com.javafx.experiments.fxconnector.helper.*;
+import com.javafx.experiments.fxconnector.helper.WindowChecker.WindowFilter;
 
 public class LocalVMUpdateStrategy extends CommonUpdateStrategy implements WindowFilter {
 

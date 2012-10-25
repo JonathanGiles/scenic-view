@@ -41,8 +41,8 @@ import javafx.scene.image.*;
 import javafx.scene.layout.*;
 import javafx.stage.*;
 
+import com.javafx.experiments.fxconnector.StageController;
 import com.javafx.experiments.scenicview.*;
-import com.javafx.experiments.scenicview.connector.StageController;
 import com.javafx.experiments.scenicview.utils.*;
 
 public class AboutBox {
