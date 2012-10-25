@@ -417,55 +417,17 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         final Menu displayOptionsMenu = new Menu("Display Options");
 
         final Menu ruler = new Menu("Ruler");
-        final Slider slider = new Slider(5, 50, 10);
-        final TextField sliderValue = new TextField();
-        slider.valueProperty().addListener(new ChangeListener<Number>() {
-
-            @Override public void changed(final ObservableValue<? extends Number> arg0, final Number arg1, final Number newValue) {
-                configuration.setRulerSeparation((int) newValue.doubleValue());
-                configurationUpdated();
-                sliderValue.setText(ConnectorUtils.format(newValue.doubleValue()));
-            }
-        });
-        final HBox box = new HBox();
-        sliderValue.setPrefWidth(40);
-        sliderValue.setText(ConnectorUtils.format(slider.getValue()));
-        sliderValue.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override public void handle(final ActionEvent arg0) {
-                final double value = ConnectorUtils.parse(sliderValue.getText());
-                if (value >= slider.getMin() && value <= slider.getMax()) {
-                    configuration.setRulerSeparation((int) slider.getValue());
-                    configurationUpdated();
-                    slider.setValue(value);
-                } else if (value < slider.getMin()) {
-                    sliderValue.setText(ConnectorUtils.format(slider.getMin()));
-                    slider.setValue(slider.getMin());
-                } else {
-                    sliderValue.setText(ConnectorUtils.format(slider.getMax()));
-                    slider.setValue(slider.getMax());
-                }
-            }
-        });
-
-        box.getChildren().addAll(slider, sliderValue);
-        final CustomMenuItem rulerSlider = new CustomMenuItem(box);
-
         final CheckMenuItem showRuler = buildCheckMenuItem("Show Ruler", "Show ruler in the scene for alignment purposes", "", null, null);
         showRuler.selectedProperty().addListener(new ChangeListener<Boolean>() {
 
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean oldValue, final Boolean newValue) {
                 configuration.setShowRuler(newValue.booleanValue());
-                configuration.setRulerSeparation((int) slider.getValue());
                 configurationUpdated();
             }
         });
-        configuration.setRulerSeparation((int) slider.getValue());
-        rulerSlider.disableProperty().bind(showRuler.selectedProperty().not());
-        slider.disableProperty().bind(showRuler.selectedProperty().not());
 
-        final ColorMenuItem color = new ColorMenuItem();
-        color.colorProperty().addListener(new ChangeListener<Color>() {
+        final RulerConfigurationMenuItem rulerConfig = new RulerConfigurationMenuItem();
+        rulerConfig.colorProperty().addListener(new ChangeListener<Color>() {
 
             @Override public void changed(final ObservableValue<? extends Color> arg0, final Color arg1, final Color newValue) {
                 final int red = (int) (newValue.getRed() * 255);
@@ -479,7 +441,15 @@ public class ScenicView extends Region implements ConnectorController, CParent {
                 return (value < 16) ? "0" + Integer.toString(value, 16) : Integer.toString(value, 16);
             }
         });
-        ruler.getItems().addAll(showRuler, rulerSlider, color);
+        rulerConfig.rulerSeparationProperty().addListener(new ChangeListener<Number>() {
+
+            @Override public void changed(final ObservableValue<? extends Number> arg0, final Number arg1, final Number newValue) {
+                configuration.setRulerSeparation(newValue.intValue());
+                configurationUpdated();
+            }
+        });
+        configuration.setRulerSeparation(rulerConfig.rulerSeparationProperty().get());
+        ruler.getItems().addAll(showRuler, rulerConfig);
 
         displayOptionsMenu.getItems().addAll(showBoundsCheckbox, showBaselineCheckbox, new SeparatorMenuItem(), ruler, new SeparatorMenuItem(), showFilteredNodesInTree, showInvisibleNodes, showNodesIdInTree, collapseControls, collapseContentControls);
 

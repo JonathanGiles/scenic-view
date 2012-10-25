@@ -39,28 +39,23 @@ import javafx.event.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 
+import com.javafx.experiments.fxconnector.*;
 import com.sun.javafx.scene.control.skin.CustomColorDialog;
 
-public class ColorMenuItem extends CustomMenuItem {
+public class RulerConfigurationMenuItem extends MenuItem {
 
-    private final Rectangle rect;
     ObjectProperty<Color> color = new SimpleObjectProperty<Color>();
+    IntegerProperty rulerSeparation = new SimpleIntegerProperty(10);
 
-    public ColorMenuItem() {
-        final HBox box2 = new HBox();
-        box2.setSpacing(10);
-        rect = new Rectangle(16, 16);
+    public RulerConfigurationMenuItem() {
         setColor(Color.BLACK);
-        final Label label = new Label("Color");
-        box2.getChildren().addAll(rect, label);
-        setContent(box2);
+        setText("Configure Ruler");
         setOnAction(new EventHandler<ActionEvent>() {
 
             @Override public void handle(final ActionEvent arg0) {
                 final CustomColorDialog dialog = new CustomColorDialog(null);
-
+                dialog.setId(StageController.FX_CONNECTOR_BASE_ID + ".ColorPicker");
                 dialog.setCurrentColor(color.get());
                 try {
                     final Field field = CustomColorDialog.class.getDeclaredField("customColorProperty");
@@ -75,13 +70,51 @@ public class ColorMenuItem extends CustomMenuItem {
                 } catch (final Exception e) {
                     e.printStackTrace();
                 }
+                final TextField sliderValue = new TextField();
+                final Slider slider = new Slider(5, 50, 10);
+                slider.valueProperty().addListener(new ChangeListener<Number>() {
+
+                    @Override public void changed(final ObservableValue<? extends Number> arg0, final Number arg1, final Number newValue) {
+                        rulerSeparation.set((int) newValue.doubleValue());
+                        sliderValue.setText(ConnectorUtils.format(newValue.doubleValue()));
+                    }
+                });
+                slider.setMinWidth(100);
+                slider.setMinHeight(20);
+                final HBox box = new HBox();
+                sliderValue.setMinWidth(40);
+                sliderValue.setMinHeight(20);
+                sliderValue.setText(ConnectorUtils.format(slider.getValue()));
+                sliderValue.setOnAction(new EventHandler<ActionEvent>() {
+
+                    @Override public void handle(final ActionEvent arg0) {
+                        final double value = ConnectorUtils.parse(sliderValue.getText());
+                        if (value >= slider.getMin() && value <= slider.getMax()) {
+                            slider.setValue(value);
+                            rulerSeparation.set((int) value);
+                        } else if (value < slider.getMin()) {
+                            sliderValue.setText(ConnectorUtils.format(slider.getMin()));
+                            slider.setValue(slider.getMin());
+                        } else {
+                            sliderValue.setText(ConnectorUtils.format(slider.getMax()));
+                            slider.setValue(slider.getMax());
+                        }
+                    }
+                });
+                final Label l = new Label("Ruler separation:");
+                l.setMinWidth(100);
+                l.setMinHeight(20);
+                box.getChildren().addAll(l, slider, sliderValue);
+                box.setManaged(false);
+                box.setLayoutY(220);
+                box.setLayoutX(10);
+                dialog.getChildren().add(box);
                 dialog.show(400, 300);
             }
         });
     }
 
     public void setColor(final Color color) {
-        rect.setFill(color);
         this.color.set(color);
     }
 
@@ -91,6 +124,10 @@ public class ColorMenuItem extends CustomMenuItem {
 
     public ObjectProperty<Color> colorProperty() {
         return this.color;
+    }
+
+    public IntegerProperty rulerSeparationProperty() {
+        return this.rulerSeparation;
     }
 
 }
