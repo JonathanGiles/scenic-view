@@ -46,7 +46,8 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Transform;
 
 import com.javafx.experiments.fxconnector.*;
-import com.javafx.experiments.fxconnector.details.Detail.*;
+import com.javafx.experiments.fxconnector.details.Detail.LabelType;
+import com.javafx.experiments.fxconnector.details.Detail.ValueType;
 import com.javafx.experiments.fxconnector.event.FXConnectorEventDispatcher;
 
 /**
@@ -266,9 +267,12 @@ class NodeDetailPaneInfo extends DetailPaneInfo {
 
         if (node != null) {
             @SuppressWarnings("deprecation") final long value = node.impl_getPseudoClassState();
-            pseudoClassStateDetail.setValue(getPseudoState(value));
-            if (!all) {
-                pseudoClassStateDetail.updated();
+            final String state = getPseudoState(value);
+            if (!state.equals(pseudoClassStateDetail.getValue())) {
+                pseudoClassStateDetail.setValue(getPseudoState(value));
+                if (!all) {
+                    pseudoClassStateDetail.updated();
+                }
             }
         }
 
