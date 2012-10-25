@@ -745,13 +745,32 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         final String value = Persistence.loadProperty("lastVersionCheck", null);
         try {
             if (forced || value == null || ((System.currentTimeMillis() - format.parse(value).getTime()) > 86400000)) {
-                final String newVersion = VersionChecker.checkVersion(VERSION);
-                if (newVersion != null) {
-                    InfoBox.make("Version check", "New version found", newVersion, 600, 200);
-                } else if (forced) {
-                    InfoBox.make("Version check", "ScenicView is updated", null, 200, 100);
-                }
-                Persistence.saveProperty("lastVersionCheck", format.format(new Date()));
+                Platform.runLater(new Runnable() {
+                    @Override public void run() {
+                        final String newVersion = VersionChecker.checkVersion(VERSION);
+                        String versionNum = null;
+                        if (newVersion != null) {
+                            // For now the version is on the first line
+                            versionNum = newVersion;
+                            if (newVersion.indexOf('\n') != -1) {
+                                versionNum = newVersion.substring(0, newVersion.indexOf('\n'));
+                            }
+                            // Now check whether our version is newer
+                            if (versionNum.compareTo(ScenicView.VERSION) < 0) {
+                                versionNum = null;
+                            }
+                        }
+
+                        if (versionNum != null) {
+                            InfoBox.make("Version check", "New version found:" + versionNum + " (Yours is:" + ScenicView.VERSION + ")", newVersion, 400, 200);
+                        } else if (forced) {
+                            InfoBox.make("Version check", "ScenicView is updated", null, 200, 100);
+                        }
+
+                        Persistence.saveProperty("lastVersionCheck", format.format(new Date()));
+                    }
+                });
+
             }
         } catch (final Exception e) {
             e.printStackTrace();

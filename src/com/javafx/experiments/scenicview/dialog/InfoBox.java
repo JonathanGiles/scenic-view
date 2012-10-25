@@ -38,16 +38,18 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.*;
 
+import com.javafx.experiments.fxconnector.StageController;
 import com.javafx.experiments.scenicview.ScenicView;
 
 public class InfoBox {
 
     public InfoBox(final String title, final String labelText, final String textAreaText, final int width, final int height) {
         final VBox pane = new VBox();
+        pane.setId(StageController.FX_CONNECTOR_BASE_ID + "InfoBox");
         final Scene scene = SceneBuilder.create().width(width).height(height).root(pane).stylesheets(ScenicView.STYLESHEETS).build();
 
         final Stage stage = StageBuilder.create().style(StageStyle.UTILITY).title(title).build();
-        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initModality(Modality.WINDOW_MODAL);
         stage.setScene(scene);
         stage.getIcons().add(ScenicView.APP_ICON);
 
