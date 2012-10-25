@@ -35,7 +35,7 @@ import java.util.*;
 
 import javafx.collections.*;
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
+import javafx.geometry.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.*;
@@ -70,6 +70,7 @@ abstract class AnimationsPane extends VBox implements ContextMenuContainer {
         for (final Iterator<Integer> iterator = appsAnimations.keySet().iterator(); iterator.hasNext();) {
             final Integer app = iterator.next();
             final TitledPane pane = new TitledPane();
+            pane.setPrefHeight(getHeight() / appsAnimations.size());
             pane.setText("Animations for VM - " + app);
 
             final List<SVAnimation> animationsApp = appsAnimations.get(app);
@@ -94,7 +95,7 @@ abstract class AnimationsPane extends VBox implements ContextMenuContainer {
             cycleCountCol.setCellValueFactory(new PropertyValueFactory<SVAnimation, String>("cycleCount"));
             final TableColumn<SVAnimation, String> currentTimeCol = new TableColumn<SVAnimation, String>("Current time");
             currentTimeCol.setCellValueFactory(new PropertyValueFactory<SVAnimation, String>("currentTime"));
-            currentTimeCol.prefWidthProperty().bind(widthProperty().multiply(0.25));
+            currentTimeCol.prefWidthProperty().bind(widthProperty().multiply(0.20));
             final TableColumn<SVAnimation, Integer> pauseCol = new TableColumn<SVAnimation, Integer>("");
             pauseCol.setCellValueFactory(new PropertyValueFactory<SVAnimation, Integer>("id"));
             pauseCol.setCellFactory(new Callback<TableColumn<SVAnimation, Integer>, TableCell<SVAnimation, Integer>>() {
@@ -105,6 +106,7 @@ abstract class AnimationsPane extends VBox implements ContextMenuContainer {
                             if (item != null) {
                                 setGraphic(new ImageView(PAUSE));
                                 setId(Integer.toString(item));
+                                setAlignment(Pos.CENTER);
                             }
                         }
                     };
@@ -114,6 +116,7 @@ abstract class AnimationsPane extends VBox implements ContextMenuContainer {
                             view.pauseAnimation(stageID, Integer.parseInt(cell.getId()));
                         }
                     });
+                    cell.setAlignment(Pos.CENTER);
                     return cell;
                 }
             });
