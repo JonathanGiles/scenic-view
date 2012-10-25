@@ -39,7 +39,7 @@ import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.value.*;
 import javafx.collections.*;
 import javafx.event.*;
-import javafx.geometry.Insets;
+import javafx.geometry.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.*;
@@ -97,6 +97,7 @@ class EventLogPane extends VBox implements ContextMenuContainer {
                         if (item != null) {
                             setGraphic(new ImageView(MORE_INFO));
                             setId("");
+                            setAlignment(Pos.CENTER);
                         }
                     }
                 };
@@ -117,7 +118,7 @@ class EventLogPane extends VBox implements ContextMenuContainer {
                 return cell;
             }
         });
-        moreInfoCol.setPrefWidth(MORE_INFO.getWidth() + 7);
+        moreInfoCol.setPrefWidth(MORE_INFO.getWidth() + 12);
         moreInfoCol.setResizable(false);
 
         table.getColumns().addAll(sourceCol, eventTypeCol, eventValueCol, momentCol, moreInfoCol);
