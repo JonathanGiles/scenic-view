@@ -236,8 +236,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
          * Create the main root which will not be visible
          */
         if (apps == null) {
-            final SVDummyNode dummy = new SVDummyNode("Apps", "Java", 0, NodeType.VMS_ROOT);
-            apps = new TreeItem<SVNode>(dummy);
+            apps = new TreeItem<SVNode>(new SVDummyNode("Apps", "Java", 0, NodeType.VMS_ROOT));
             apps.setExpanded(true);
         }
         TreeItem<SVNode> app = null;
@@ -256,7 +255,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
          * Create the application node (VM - XXXX)
          */
         if (app == null) {
-            final SVDummyNode dummy = new SVDummyNode("VM - " + controller.getAppController(), "Java", controller.getAppController().getID(), NodeType.VM);
+            final SVNode dummy = new SVDummyNode("VM - " + controller.getAppController(), "Java", controller.getAppController().getID(), NodeType.VM);
             app = new TreeItem<SVNode>(dummy, new ImageView(DisplayUtils.getIcon(dummy)));
             app.setExpanded(false);
             this.apps.getChildren().add(app);
@@ -327,7 +326,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
          * Another ugly patch for solving the indentation issue in this case
          * when a node that was root node is inside the tree
          */
-        if (this.patchedNode != null && ((SVDummyNode) getRoot().getValue()).getNodeType() != ((SVDummyNode) newRoot.getValue()).getNodeType()) {
+        if (this.patchedNode != null && getRoot().getValue().getNodeType() != newRoot.getValue().getNodeType()) {
             @SuppressWarnings("rawtypes") final TreeItem[] items = this.patchedNode.getChildren().toArray(new TreeItem[0]);
             this.patchedNode.getChildren().setAll(items);
 
