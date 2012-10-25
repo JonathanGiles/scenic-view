@@ -62,6 +62,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
     private List<AppController> apps;
     private final AtomicInteger count = new AtomicInteger();
     private final int port;
+    private final List<String> attachError = new ArrayList<String>();
 
     private static boolean debug = false;
 
@@ -387,10 +388,13 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                 }
                 debug("JVM:" + virtualMachine.id() + " detection finished");
             } catch (final AttachNotSupportedException ex) {
-                ex.printStackTrace();
+                dumpAttachError(vmd, ex);
             } catch (final IOException ex) {
-                ex.printStackTrace();
+                dumpAttachError(vmd, ex);
+            } catch (final InternalError ex) {
+                dumpAttachError(vmd, ex);
             }
+
         }
         /**
          * We always have at least one JFX VM
@@ -413,6 +417,14 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
         }
 
         return javaFXMachines;
+    }
+
+    private void dumpAttachError(final VirtualMachineDescriptor vmd, final Throwable ex) {
+        if (!attachError.contains(vmd.id())) {
+            attachError.add(vmd.id());
+            System.err.println("Error while obtaining properties for JVM:" + vmd);
+            ex.printStackTrace();
+        }
     }
 
 }
