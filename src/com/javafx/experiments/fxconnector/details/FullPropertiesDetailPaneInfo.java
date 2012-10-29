@@ -36,6 +36,7 @@ import java.util.*;
 import javafx.beans.property.*;
 import javafx.beans.value.*;
 import javafx.scene.Node;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 import com.javafx.experiments.fxconnector.StageID;
@@ -123,11 +124,16 @@ class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
         updateDetail(propertyName, false);
     }
 
-    @SuppressWarnings("unchecked") protected void updateDetail(final String propertyName, final boolean all) {
+    @SuppressWarnings({ "unchecked", "deprecation" }) protected void updateDetail(final String propertyName, final boolean all) {
         final Detail detail = fullPropertiesDetails.get(propertyName);
         final ObservableValue observable = orderedProperties.get(propertyName);
         final Object value = observable.getValue();
-        detail.setValue(value == null ? "----" : value.toString());
+        if (value instanceof Image) {
+            detail.setValue("Image (" + ((Image) value).impl_getUrl() + ")");
+        } else {
+            detail.setValue(value == null ? "----" : value.toString());
+        }
+
         if (observable instanceof Property) {
             if (observable.getValue() instanceof Enum) {
                 detail.setEnumProperty((Property) observable, (Class<? extends Enum>) observable.getValue().getClass());
