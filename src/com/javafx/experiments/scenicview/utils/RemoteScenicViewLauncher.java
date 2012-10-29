@@ -58,6 +58,7 @@ public class RemoteScenicViewLauncher {
                 stage.setWidth(640);
                 stage.setHeight(800);
                 stage.setTitle("Scenic View v" + ScenicView.VERSION);
+                FXConnectorFactory.debug("Launching ScenicView v" + ScenicView.VERSION);
                 view = new ScenicView(strategy, stage);
                 ScenicView.show(view, stage);
             }
