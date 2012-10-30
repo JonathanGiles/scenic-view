@@ -512,6 +512,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
                             allDetailsPane.setShowDefaultProperties(showDefaultProperties.isSelected());
                         }
                     });
+                    allDetailsPane.setShowDefaultProperties(showDefaultProperties.isSelected());
                     configuration.setCSSPropertiesDetail(showCSSProperties.isSelected());
                     menu.getItems().addAll(showDefaultProperties, showCSSProperties);
                 }
