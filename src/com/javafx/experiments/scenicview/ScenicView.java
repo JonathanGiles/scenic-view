@@ -503,13 +503,18 @@ public class ScenicView extends Region implements ConnectorController, CParent {
                     showCSSProperties.selectedProperty().addListener(new InvalidationListener() {
                         @Override public void invalidated(final Observable arg0) {
                             configuration.setCSSPropertiesDetail(showCSSProperties.isSelected());
+                            final SVNode selected = ScenicView.this.selectedNode;
                             configurationUpdated();
+                            setSelectedNode(activeStage, selected);
                         }
                     });
                     final CheckMenuItem showDefaultProperties = buildCheckMenuItem("Show Default Properties", "Show default properties", "Hide default properties", "showDefaultProperties", Boolean.TRUE);
                     showDefaultProperties.selectedProperty().addListener(new InvalidationListener() {
                         @Override public void invalidated(final Observable arg0) {
                             allDetailsPane.setShowDefaultProperties(showDefaultProperties.isSelected());
+                            final SVNode selected = ScenicView.this.selectedNode;
+                            configurationUpdated();
+                            setSelectedNode(activeStage, selected);
                         }
                     });
                     allDetailsPane.setShowDefaultProperties(showDefaultProperties.isSelected());

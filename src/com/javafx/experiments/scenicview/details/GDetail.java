@@ -194,11 +194,8 @@ public class GDetail {
         if (label != null) {
             label.setOpacity(isDefault ? GDetailPane.FADE : 1.0);
         }
-        if (valueLabel != null) {
-            valueLabel.setOpacity(isDefault ? GDetailPane.FADE : 1.0);
-        }
-        if (valueNode != null) {
-            valueNode.setOpacity(isDefault ? GDetailPane.FADE : 1.0);
+        if (value != null) {
+            value.setOpacity(isDefault ? GDetailPane.FADE : 1.0);
         }
 
         final boolean showDetail = (!AllDetailsPane.showDefaultProperties && !isDefault) || AllDetailsPane.showDefaultProperties;
@@ -207,15 +204,9 @@ public class GDetail {
             label.setVisible(showDetail);
             label.setManaged(showDetail);
         }
-
-        if (valueLabel != null) {
-            valueLabel.setVisible(showDetail);
-            valueLabel.setManaged(showDetail);
-        }
-
-        if (valueNode != null) {
-            valueNode.setVisible(showDetail);
-            valueNode.setManaged(showDetail);
+        if (value != null) {
+            value.getParent().setVisible(showDetail);
+            value.getParent().setManaged(showDetail);
         }
     }
 

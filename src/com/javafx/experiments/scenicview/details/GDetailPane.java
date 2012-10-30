@@ -81,11 +81,6 @@ public class GDetailPane extends TitledPane {
         setId("title-label");
         setAlignment(Pos.CENTER_LEFT);
 
-        createGridPane();
-
-    }
-
-    private void createGridPane() {
         gridpane = new GridPane();
         gridpane.getStyleClass().add("detail-grid");
         gridpane.setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -101,6 +96,7 @@ public class GDetailPane extends TitledPane {
         final ColumnConstraints colInfo = new ColumnConstraints(180);
         gridpane.getColumnConstraints().addAll(colInfo, new ColumnConstraints());
         setContent(gridpane);
+
     }
 
     protected GDetail addDetail(final String propertyName, final String labelText, final Node labelGraphic, final Node valueNode, final int row) {
@@ -149,9 +145,9 @@ public class GDetailPane extends TitledPane {
     private String currentFilter = null;
 
     public void filterProperties(final String text) {
-        if (currentFilter != null && currentFilter.equals(text)) {
-            return;
-        }
+        // if (currentFilter != null && currentFilter.equals(text)) {
+        // return;
+        // }
         currentFilter = text;
 
         /**
@@ -163,18 +159,15 @@ public class GDetailPane extends TitledPane {
         for (int i = 0; i < nodes.size(); i++) {
 
             final Label label = (Label) nodes.get(i++);
-            boolean valid = text.equals("") || label.getText().toLowerCase().indexOf(text.toLowerCase()) != -1;
+            boolean valid = text == null || text.equals("") || label.getText().toLowerCase().indexOf(text.toLowerCase()) != -1;
             final Group g = (Group) nodes.get(i);
             final Node value = g.getChildren().get(0);
 
             if (!valid && value instanceof Label) {
-                if (((Label) value).getText() == null) {
-                    System.out.println("NullValue for " + label.getText());
-                }
                 valid |= ((Label) value).getText().toLowerCase().indexOf(text.toLowerCase()) != -1;
             }
 
-            if (valid) {
+            if (valid && label.isVisible()) {
                 GridPane.setConstraints(label, LABEL_COLUMN, row);
                 GridPane.setConstraints(g, VALUE_COLUMN, row);
                 gridpane.getChildren().addAll(label, g);
@@ -275,6 +268,7 @@ public class GDetailPane extends TitledPane {
                 }
             });
         }
+        filterProperties(currentFilter);
     }
 
     public void updateDetail(final Detail detail) {
@@ -288,6 +282,7 @@ public class GDetailPane extends TitledPane {
         if (pane != null) {
             doUpdateDetail(pane, detail);
             pane.updated();
+            filterProperties(currentFilter);
         } else {
             System.out.println("Pane not found for detail:" + detail);
         }
