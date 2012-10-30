@@ -166,6 +166,7 @@ public class ScenicViewExample extends Application {
         final DoubleProperty pos = new SimpleDoubleProperty(0);
         final Font f = new Font(18);
         final Button b1 = new Button("First");
+        b1.setId("First");
         b1.visibleProperty().bind(visible);
         b1.translateXProperty().bind(pos);
         b1.translateYProperty().bind(pos);

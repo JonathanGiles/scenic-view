@@ -352,6 +352,7 @@ tree-view > .virtual-flow > .scroll-bar:vertical > .thumb {
     -fx-arc-width: 10;
     -fx-arc-height: 10;
 }
-#Second {
+#First {
     -fx-font: bold 12pt System;
+    -fx-background-color: red;
 }
