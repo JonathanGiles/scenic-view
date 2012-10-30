@@ -106,8 +106,10 @@ class SCUtils {
             ((Group) parent).getChildren().remove(node);
         } else if (parent instanceof CParent) {
             ((CParent) parent).getChildren().remove(node);
-        } else { // instanceof Pane
+        } else if (parent instanceof Pane) { // instanceof Pane
             ((Pane) parent).getChildren().remove(node);
+        } else if (parent != null) {
+            removeFromNode(findFertileParent(parent), node);
         }
     }
 
