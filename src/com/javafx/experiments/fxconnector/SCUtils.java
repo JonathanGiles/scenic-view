@@ -94,8 +94,10 @@ class SCUtils {
             ((Group) parent).getChildren().add(node);
         } else if (parent instanceof CParent) {
             ((CParent) parent).getChildren().add(node);
-        } else { // instanceof Pane
+        } else if (parent instanceof Pane) { // instanceof Pane
             ((Pane) parent).getChildren().add(node);
+        } else if (parent != null) {
+            addToNode(findFertileParent(parent), node);
         }
     }
 
