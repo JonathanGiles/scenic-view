@@ -46,6 +46,8 @@ import com.javafx.experiments.fxconnector.event.FXConnectorEvent.SVEventType;
 
 public class Detail implements Serializable {
 
+    public static final String EMPTY_DETAIL = "---";
+
     /**
      * 
      */

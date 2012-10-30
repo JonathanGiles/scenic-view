@@ -116,6 +116,7 @@ class StylesDetailPaneInfo extends DetailPaneInfo {
                 }
 
                 detail.setValue((origin != null ? origin.toString() : "NONE") + (style != null ? ("\n" + style) : ""));
+                detail.setDefault(origin == null && style == null);
                 detail.setSimpleProperty(null);
                 detail.unavailableEdition(Detail.STATUS_NOT_SUPPORTED);
 

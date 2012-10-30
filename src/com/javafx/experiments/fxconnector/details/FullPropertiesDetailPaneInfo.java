@@ -131,7 +131,8 @@ class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
         if (value instanceof Image) {
             detail.setValue("Image (" + ((Image) value).impl_getUrl() + ")");
         } else {
-            detail.setValue(value == null ? "----" : value.toString());
+            detail.setValue(value == null ? Detail.EMPTY_DETAIL : value.toString());
+            detail.setDefault(value == null);
         }
 
         if (observable instanceof Property) {
