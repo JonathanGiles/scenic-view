@@ -712,8 +712,10 @@ public class ScenicView extends Region implements ConnectorController, CParent {
     }
 
     protected void selectOnClick(final boolean newValue) {
-        configuration.setComponentSelectOnClick(newValue);
-        configurationUpdated();
+        if (configuration.isComponentSelectOnClick() != newValue) {
+            configuration.setComponentSelectOnClick(newValue);
+            configurationUpdated();
+        }
     }
 
     private void checkNewVersion(final boolean forced) {
@@ -1200,11 +1202,14 @@ public class ScenicView extends Region implements ConnectorController, CParent {
             final KeyCode c = ((ShortcutEvent) appEvent).getCode();
             switch (c) {
             case S:
-                selectOnClick(!configuration.isComponentSelectOnClick());
+                componentSelectOnClick.setSelected(!configuration.isComponentSelectOnClick());
                 break;
             case R:
                 configuration.setShowRuler(!configuration.isShowRuler());
                 configurationUpdated();
+                break;
+            case D:
+                treeView.getSelectionModel().clearSelection();
                 break;
             default:
                 break;
