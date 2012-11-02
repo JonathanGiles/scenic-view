@@ -49,6 +49,7 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
     RemoteApplication application;
     private RemoteConnector scenicView;
     private final int port;
+    RemoteDispatcher dispatcher;
 
     RemoteApplicationImpl(final RemoteApplication application, final int port, final int serverPort) throws RemoteException {
         this.application = application;
@@ -73,6 +74,9 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
                 e.printStackTrace();
             }
         }
+        dispatcher = new RemoteDispatcher();
+        dispatcher.start();
+
         AgentTest.debug("RemoteConnector found:" + scenicView);
 
         try {
@@ -95,6 +99,9 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
 
             RMIUtils.unbindApplication(port);
             UnicastRemoteObject.unexportObject(this, true);
+            if (dispatcher != null) {
+                dispatcher.running = false;
+            }
         } catch (final AccessException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -120,27 +127,10 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
         application.setEventDispatcher(id, new FXConnectorEventDispatcher() {
 
             @Override public void dispatchEvent(final FXConnectorEvent appEvent) {
-                try {
-                    if (scenicView != null)
-                        scenicView.dispatchEvent(appEvent);
-                    else {
-                        AgentTest.debug("Cannot dispatch event:" + appEvent);
-                    }
-                } catch (final RemoteException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                    try {
-                        close(id);
-                        scenicView = null;
-                        // UnicastRemoteObject.unexportObject(application,
-                        // true);
-                        RMIUtils.unbindApplication(port);
-
-                    } catch (final Exception e1) {
-                        // TODO Auto-generated catch block
-                        e1.printStackTrace();
-                    }
-                }
+                if (scenicView != null)
+                    RemoteApplicationImpl.this.dispatcher.addEvent(appEvent);
+                else
+                    AgentTest.debug("Cannot dispatch event:" + appEvent);
             }
         });
     }
@@ -173,4 +163,57 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
         application.pauseAnimation(id, animationID);
     }
 
+    class RemoteDispatcher extends Thread {
+
+        boolean running = true;
+        List<FXConnectorEvent> events = new LinkedList<FXConnectorEvent>();
+
+        @Override public void run() {
+            while (running) {
+                try {
+                    Thread.sleep(500);
+                } catch (final InterruptedException e2) {
+                    // TODO Auto-generated catch block
+                    e2.printStackTrace();
+                }
+
+                FXConnectorEvent event = null;
+                while (!events.isEmpty()) {
+                    try {
+                        synchronized (events) {
+                            event = events.remove(0);
+                        }
+                        if (scenicView != null)
+                            scenicView.dispatchEvent(event);
+
+                    } catch (final RemoteException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                        try {
+                            close(event.getStageID());
+                            scenicView = null;
+                            // UnicastRemoteObject.unexportObject(application,
+                            // true);
+                            RMIUtils.unbindApplication(port);
+                            running = false;
+
+                        } catch (final Exception e1) {
+                            // TODO Auto-generated catch block
+                            e1.printStackTrace();
+                        }
+                    }
+
+                }
+            }
+
+        }
+
+        public void addEvent(final FXConnectorEvent event) {
+            synchronized (events) {
+                events.add(event);
+
+            }
+        }
+
+    }
 }
