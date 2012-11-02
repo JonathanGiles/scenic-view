@@ -71,18 +71,6 @@ class SVRemoteNodeAdapter extends SVNodeImpl implements Serializable {
         this.id = node.getId();
         this.nodeId = ConnectorUtils.getNodeUniqueID(node);
         this.focused = node.isFocused();
-        /**
-         * This should be improved
-         */
-        if (node instanceof Parent && fillChildren) {
-            nodes = new ArrayList<SVNode>();
-            final List<Node> realNodes = ((Parent) node).getChildrenUnmodifiable();
-            for (int i = 0; i < realNodes.size(); i++) {
-                nodes.add(new SVRemoteNodeAdapter(realNodes.get(i), collapseControls, collapseContentControls, true, this));
-            }
-        } else if (fillChildren) {
-            nodes = Collections.emptyList();
-        }
         if (node.getParent() != null && parent == null) {
             this.parent = new SVRemoteNodeAdapter(node.getParent(), collapseControls, collapseContentControls, false, null);
         } else if (parent != null) {
@@ -91,8 +79,22 @@ class SVRemoteNodeAdapter extends SVNodeImpl implements Serializable {
         /**
          * Check visibility and mouse transparency after calculating the parent
          */
-        this.mouseTransparent = node.isMouseTransparent() || (parent != null && parent.isMouseTransparent());
-        this.visible = node.isVisible() && (parent == null || parent.isVisible());
+        this.mouseTransparent = node.isMouseTransparent() || (this.parent != null && this.parent.isMouseTransparent());
+        this.visible = node.isVisible() && (this.parent == null || this.parent.isVisible());
+
+        /**
+         * This should be improved
+         */
+        if (node instanceof Parent && fillChildren) {
+            final List<Node> realNodes = ((Parent) node).getChildrenUnmodifiable();
+            final int size = realNodes.size();
+            nodes = new ArrayList<SVNode>(size);
+            for (int i = 0; i < size; i++) {
+                nodes.add(new SVRemoteNodeAdapter(realNodes.get(i), collapseControls, collapseContentControls, true, this));
+            }
+        } else if (fillChildren) {
+            nodes = Collections.emptyList();
+        }
     }
 
     @Override public String getId() {
