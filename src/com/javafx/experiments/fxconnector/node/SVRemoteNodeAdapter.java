@@ -70,8 +70,6 @@ class SVRemoteNodeAdapter extends SVNodeImpl implements Serializable {
         setExpanded(mustBeExpanded);
         this.id = node.getId();
         this.nodeId = ConnectorUtils.getNodeUniqueID(node);
-        this.visible = ConnectorUtils.isNodeVisible(node);
-        this.mouseTransparent = ConnectorUtils.isMouseTransparent(node);
         this.focused = node.isFocused();
         /**
          * This should be improved
@@ -90,6 +88,11 @@ class SVRemoteNodeAdapter extends SVNodeImpl implements Serializable {
         } else if (parent != null) {
             this.parent = parent;
         }
+        /**
+         * Check visibility and mouse transparency after calculating the parent
+         */
+        this.mouseTransparent = node.isMouseTransparent() || (parent != null && parent.isMouseTransparent());
+        this.visible = node.isVisible() && (parent == null || parent.isVisible());
     }
 
     @Override public String getId() {
