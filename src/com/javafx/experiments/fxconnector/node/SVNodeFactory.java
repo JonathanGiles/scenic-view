@@ -33,7 +33,7 @@ package com.javafx.experiments.fxconnector.node;
 
 import java.util.List;
 
-import javafx.scene.Node;
+import javafx.scene.*;
 
 import com.javafx.experiments.fxconnector.Configuration;
 
@@ -59,13 +59,27 @@ public class SVNodeFactory {
                         return childrens.get(i);
                     }
                 }
-                throw new RuntimeException("Error while creating node");
+                final StringBuilder sb = new StringBuilder();
+                sb.append("Error while creating node:" + node.getClass() + " id:" + node.getId()).append('\n');
+
+                sb.append("NODE INFORMATION\n");
+                dumpNodeInfo(sb, node);
+                sb.append("PARENT INFORMATION\n");
+                dumpNodeInfo(sb, node.getParent());
+                throw new RuntimeException(sb.toString());
 
             } else {
                 return new SVRemoteNodeAdapter(node, configuration.isCollapseControls(), configuration.isCollapseContentControls());
             }
         } else {
             return new SVRealNodeAdapter(node, configuration.isCollapseControls(), configuration.isCollapseContentControls());
+        }
+    }
+
+    private static void dumpNodeInfo(final StringBuilder sb, final Node node) {
+        sb.append("Node:").append(node).append(" Class:").append(node.getClass()).append(" Id:").append(node.getId()).append('\n');
+        if (node instanceof Parent) {
+            sb.append("Children:").append(((Parent) node).getChildrenUnmodifiable()).append('\n');
         }
     }
 
