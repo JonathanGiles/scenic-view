@@ -34,6 +34,7 @@ package com.javafx.experiments.fxconnector;
 import java.lang.reflect.Field;
 import java.text.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javafx.animation.Animation;
 import javafx.geometry.*;
@@ -52,6 +53,8 @@ public class ConnectorUtils {
     private static DecimalFormat DFMT = new DecimalFormat("0.0#");
 
     static final DecimalFormat df = new DecimalFormat("0.0");
+
+    static final Map<Class<?>, String> classNames = new ConcurrentHashMap<Class<?>, String>();
 
     private ConnectorUtils() {
     }
@@ -107,13 +110,18 @@ public class ConnectorUtils {
     }
 
     public static String nodeClass(final Object node) {
-        @SuppressWarnings("rawtypes") Class cls = node.getClass();
-        String name = cls.getSimpleName();
-        while (name.isEmpty()) {
-            cls = cls.getSuperclass();
-            name = cls.getSimpleName();
+        final String value = classNames.get(node.getClass());
+        if (value == null) {
+            @SuppressWarnings("rawtypes") Class cls = node.getClass();
+            String name = cls.getSimpleName();
+            while (name.isEmpty()) {
+                cls = cls.getSuperclass();
+                name = cls.getSimpleName();
+            }
+            classNames.put(node.getClass(), name);
+            return name;
         }
-        return name;
+        return value;
     }
 
     public static String nodeDetail(final SVNode node, final boolean showId) {
