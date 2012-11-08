@@ -479,7 +479,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
             }
         });
 
-        final MenuItem newVersion = new MenuItem("Check for new Version");
+        final MenuItem newVersion = new MenuItem("Check For New Version");
         newVersion.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override public void handle(final ActionEvent arg0) {
@@ -761,7 +761,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
                         if (versionNum != null) {
                             InfoBox.make("Version check", "New version found:" + versionNum + " (Yours is:" + ScenicView.VERSION + ")", newVersion, 400, 200);
                         } else if (forced) {
-                            InfoBox.make("Version check", "You already have the latest version of Scenic View.", null, 200, 100);
+                            InfoBox.make("Version check", "You already have the latest version of Scenic View.", null, 400, 150);
                         }
 
                         Persistence.saveProperty("lastVersionCheck", format.format(new Date()));
