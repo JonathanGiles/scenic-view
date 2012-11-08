@@ -121,24 +121,24 @@ public class ScenicView extends Region implements ConnectorController, CParent {
                 // doDispatchEvent(appEvent);
                 switch (appEvent.getType()) {
 
-                case ROOT_UPDATED:
-                    doDispatchEvent(appEvent);
-                    break;
+                    case ROOT_UPDATED:
+                        doDispatchEvent(appEvent);
+                        break;
 
-                case MOUSE_POSITION:
-                    if (System.currentTimeMillis() - lastMousePosition > 500) {
-                        lastMousePosition = System.currentTimeMillis();
+                    case MOUSE_POSITION:
+                        if (System.currentTimeMillis() - lastMousePosition > 500) {
+                            lastMousePosition = System.currentTimeMillis();
+                            // No need to synchronize here
+                            eventQueue.add(appEvent);
+                        }
+                        break;
+
+                    default:
                         // No need to synchronize here
                         eventQueue.add(appEvent);
-                    }
-                    break;
-
-                default:
-                    // No need to synchronize here
-                    eventQueue.add(appEvent);
-                    // if (eventQueue.size() > 1)
-                    // System.out.println("QUEUE SIZE:" + eventQueue.size());
-                    break;
+                        // if (eventQueue.size() > 1)
+                        // System.out.println("QUEUE SIZE:" + eventQueue.size());
+                        break;
                 }
 
             } else {
@@ -221,6 +221,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         });
 
         menuBar = new MenuBar();
+        menuBar.setUseSystemMenuBar(true);
         // menuBar.setId("main-menubar");
 
         // ---- File Menu
@@ -244,7 +245,8 @@ public class ScenicView extends Region implements ConnectorController, CParent {
                         properties.setProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY, jfxPath.toASCIIString());
                         PropertiesUtils.saveProperties();
 
-                        JOptionPane.showMessageDialog(null, "Updated classpath will be used on next Scenic View boot", "Classpath Saved", JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Updated classpath will be used on next Scenic View boot", "Classpath Saved",
+                                JOptionPane.INFORMATION_MESSAGE);
                         ClassPathDialog.hideDialog();
                     }
                 });
@@ -270,7 +272,8 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         fileMenu.getItems().add(exitItem);
 
         // ---- Options Menu
-        final CheckMenuItem showBoundsCheckbox = buildCheckMenuItem("Show Bounds Overlays", "Show the bound overlays on selected", "Do not show bound overlays on selected", "showBounds", Boolean.TRUE);
+        final CheckMenuItem showBoundsCheckbox = buildCheckMenuItem("Show Bounds Overlays", "Show the bound overlays on selected",
+                "Do not show bound overlays on selected", "showBounds", Boolean.TRUE);
         showBoundsCheckbox.setId("show-bounds-checkbox");
         // showBoundsCheckbox.setTooltip(new
         // Tooltip("Display a yellow highlight for boundsInParent and green outline for layoutBounds."));
@@ -288,7 +291,8 @@ public class ScenicView extends Region implements ConnectorController, CParent {
                 update();
             }
         };
-        final CheckMenuItem collapseControls = buildCheckMenuItem("Collapse controls In Tree", "Controls will be collapsed", "Controls will be expanded", "collapseControls", Boolean.TRUE);
+        final CheckMenuItem collapseControls = buildCheckMenuItem("Collapse controls In Tree", "Controls will be collapsed", "Controls will be expanded",
+                "collapseControls", Boolean.TRUE);
         collapseControls.selectedProperty().addListener(new ChangeListener<Boolean>() {
 
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
@@ -298,7 +302,8 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         });
         configuration.setCollapseControls(collapseControls.isSelected());
 
-        final CheckMenuItem collapseContentControls = buildCheckMenuItem("Collapse container controls In Tree", "Container controls will be collapsed", "Container controls will be expanded", "collapseContainerControls", Boolean.FALSE);
+        final CheckMenuItem collapseContentControls = buildCheckMenuItem("Collapse container controls In Tree", "Container controls will be collapsed",
+                "Container controls will be expanded", "collapseContainerControls", Boolean.FALSE);
         collapseContentControls.selectedProperty().addListener(new ChangeListener<Boolean>() {
 
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
@@ -309,7 +314,8 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         collapseContentControls.disableProperty().bind(collapseControls.selectedProperty().not());
         configuration.setCollapseContentControls(collapseContentControls.isSelected());
 
-        final CheckMenuItem showBaselineCheckbox = buildCheckMenuItem("Show Baseline Overlay", "Display a red line at the current node's baseline offset", "Do not show baseline overlay", "showBaseline", Boolean.FALSE);
+        final CheckMenuItem showBaselineCheckbox = buildCheckMenuItem("Show Baseline Overlay", "Display a red line at the current node's baseline offset",
+                "Do not show baseline overlay", "showBaseline", Boolean.FALSE);
         showBaselineCheckbox.setId("show-baseline-overlay");
         configuration.setShowBaseline(showBaselineCheckbox.isSelected());
         showBaselineCheckbox.selectedProperty().addListener(new ChangeListener<Boolean>() {
@@ -320,7 +326,9 @@ public class ScenicView extends Region implements ConnectorController, CParent {
             }
         });
 
-        final CheckMenuItem automaticScenegraphStructureRefreshing = buildCheckMenuItem("Auto-Refresh Scenegraph", "Scenegraph structure will be automatically updated on change", "Scenegraph structure will NOT be automatically updated on change", "automaticScenegraphStructureRefreshing", Boolean.TRUE);
+        final CheckMenuItem automaticScenegraphStructureRefreshing = buildCheckMenuItem("Auto-Refresh Scenegraph",
+                "Scenegraph structure will be automatically updated on change", "Scenegraph structure will NOT be automatically updated on change",
+                "automaticScenegraphStructureRefreshing", Boolean.TRUE);
         automaticScenegraphStructureRefreshing.selectedProperty().addListener(new ChangeListener<Boolean>() {
 
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
@@ -331,7 +339,8 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         });
         configuration.setAutoRefreshSceneGraph(automaticScenegraphStructureRefreshing.isSelected());
 
-        final CheckMenuItem showInvisibleNodes = buildCheckMenuItem("Show Invisible Nodes In Tree", "Invisible nodes will be faded in the scenegraph tree", "Invisible nodes will not be shown in the scenegraph tree", "showInvisibleNodes", Boolean.FALSE);
+        final CheckMenuItem showInvisibleNodes = buildCheckMenuItem("Show Invisible Nodes In Tree", "Invisible nodes will be faded in the scenegraph tree",
+                "Invisible nodes will not be shown in the scenegraph tree", "showInvisibleNodes", Boolean.FALSE);
         final ChangeListener<Boolean> visilityListener = new ChangeListener<Boolean>() {
 
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean arg2) {
@@ -359,17 +368,18 @@ public class ScenicView extends Region implements ConnectorController, CParent {
             }
         });
 
-        showNodesIdInTree = buildCheckMenuItem("Show Node IDs", "Node IDs will be shown on the scenegraph tree", "Node IDs will not be shown the Scenegraph tree", "showNodesIdInTree", Boolean.FALSE);
+        showNodesIdInTree = buildCheckMenuItem("Show Node IDs", "Node IDs will be shown on the scenegraph tree",
+                "Node IDs will not be shown the Scenegraph tree", "showNodesIdInTree", Boolean.FALSE);
         showNodesIdInTree.selectedProperty().addListener(menuTreeChecksListener);
 
-        showFilteredNodesInTree = buildCheckMenuItem("Show Filtered Nodes In Tree", "Filtered nodes will be faded in the tree", "Filtered nodes will not be shown in tree (unless they are parents of non-filtered nodes)", "showFilteredNodesInTree", Boolean.TRUE);
+        showFilteredNodesInTree = buildCheckMenuItem("Show Filtered Nodes In Tree", "Filtered nodes will be faded in the tree",
+                "Filtered nodes will not be shown in tree (unless they are parents of non-filtered nodes)", "showFilteredNodesInTree", Boolean.TRUE);
 
         showFilteredNodesInTree.selectedProperty().addListener(visilityListener);
         configuration.setVisibilityFilteringActive(!showInvisibleNodes.isSelected() && !showFilteredNodesInTree.isSelected());
 
         /**
-         * Filter invisible nodes only makes sense if showFilteredNodesInTree is
-         * not selected
+         * Filter invisible nodes only makes sense if showFilteredNodesInTree is not selected
          */
         showInvisibleNodes.disableProperty().bind(showFilteredNodesInTree.selectedProperty());
 
@@ -381,7 +391,8 @@ public class ScenicView extends Region implements ConnectorController, CParent {
             }
         });
 
-        final CheckMenuItem ignoreMouseTransparentNodes = buildCheckMenuItem("Ignore MouseTransparent Nodes", "Transparent nodes will not be selectable", "Transparent nodes can be selected", "ignoreMouseTransparentNodes", Boolean.TRUE);
+        final CheckMenuItem ignoreMouseTransparentNodes = buildCheckMenuItem("Ignore MouseTransparent Nodes", "Transparent nodes will not be selectable",
+                "Transparent nodes can be selected", "ignoreMouseTransparentNodes", Boolean.TRUE);
         ignoreMouseTransparentNodes.selectedProperty().addListener(new ChangeListener<Boolean>() {
 
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
@@ -391,7 +402,8 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         });
         configuration.setIgnoreMouseTransparent(ignoreMouseTransparentNodes.isSelected());
 
-        final CheckMenuItem registerShortcuts = buildCheckMenuItem("Register shortcuts", "SV Keyboard shortcuts will be registered on your app", "SV Keyboard shortcuts will be removed on your app", "registerShortcuts", Boolean.TRUE);
+        final CheckMenuItem registerShortcuts = buildCheckMenuItem("Register shortcuts", "SV Keyboard shortcuts will be registered on your app",
+                "SV Keyboard shortcuts will be removed on your app", "registerShortcuts", Boolean.TRUE);
         registerShortcuts.selectedProperty().addListener(new ChangeListener<Boolean>() {
 
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
@@ -401,7 +413,9 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         });
         configuration.setRegisterShortcuts(registerShortcuts.isSelected());
 
-        autoRefreshStyleSheets = buildCheckMenuItem("Auto-Refresh StyleSheets", "A background thread will check modifications on the css files to reload them if needed", "StyleSheets autorefreshing disabled", "autoRefreshStyleSheets", Boolean.FALSE);
+        autoRefreshStyleSheets = buildCheckMenuItem("Auto-Refresh StyleSheets",
+                "A background thread will check modifications on the css files to reload them if needed", "StyleSheets autorefreshing disabled",
+                "autoRefreshStyleSheets", Boolean.FALSE);
         autoRefreshStyleSheets.selectedProperty().addListener(new ChangeListener<Boolean>() {
 
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
@@ -412,7 +426,8 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         configuration.setAutoRefreshStyles(autoRefreshStyleSheets.isSelected());
 
         final Menu scenegraphMenu = new Menu("Scenegraph");
-        scenegraphMenu.getItems().addAll(automaticScenegraphStructureRefreshing, autoRefreshStyleSheets, registerShortcuts, new SeparatorMenuItem(), componentSelectOnClick, ignoreMouseTransparentNodes);
+        scenegraphMenu.getItems().addAll(automaticScenegraphStructureRefreshing, autoRefreshStyleSheets, registerShortcuts, new SeparatorMenuItem(),
+                componentSelectOnClick, ignoreMouseTransparentNodes);
 
         final Menu displayOptionsMenu = new Menu("Display Options");
 
@@ -451,7 +466,8 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         configuration.setRulerSeparation(rulerConfig.rulerSeparationProperty().get());
         ruler.getItems().addAll(showRuler, rulerConfig);
 
-        displayOptionsMenu.getItems().addAll(showBoundsCheckbox, showBaselineCheckbox, new SeparatorMenuItem(), ruler, new SeparatorMenuItem(), showFilteredNodesInTree, showInvisibleNodes, showNodesIdInTree, collapseControls, collapseContentControls);
+        displayOptionsMenu.getItems().addAll(showBoundsCheckbox, showBaselineCheckbox, new SeparatorMenuItem(), ruler, new SeparatorMenuItem(),
+                showFilteredNodesInTree, showInvisibleNodes, showNodesIdInTree, collapseControls, collapseContentControls);
 
         final Menu aboutMenu = new Menu("Help");
 
@@ -499,7 +515,8 @@ public class ScenicView extends Region implements ConnectorController, CParent {
             @Override public Menu getMenu() {
                 if (menu == null) {
                     menu = super.getMenu();
-                    final CheckMenuItem showCSSProperties = buildCheckMenuItem("Show CSS Properties", "Show CSS properties", "Hide CSS properties", "showCSSProperties", Boolean.FALSE);
+                    final CheckMenuItem showCSSProperties = buildCheckMenuItem("Show CSS Properties", "Show CSS properties", "Hide CSS properties",
+                            "showCSSProperties", Boolean.FALSE);
                     showCSSProperties.selectedProperty().addListener(new InvalidationListener() {
                         @Override public void invalidated(final Observable arg0) {
                             configuration.setCSSPropertiesDetail(showCSSProperties.isSelected());
@@ -508,7 +525,8 @@ public class ScenicView extends Region implements ConnectorController, CParent {
                             setSelectedNode(activeStage, selected);
                         }
                     });
-                    final CheckMenuItem showDefaultProperties = buildCheckMenuItem("Show Default Properties", "Show default properties", "Hide default properties", "showDefaultProperties", Boolean.TRUE);
+                    final CheckMenuItem showDefaultProperties = buildCheckMenuItem("Show Default Properties", "Show default properties",
+                            "Hide default properties", "showDefaultProperties", Boolean.TRUE);
                     showDefaultProperties.selectedProperty().addListener(new InvalidationListener() {
                         @Override public void invalidated(final Observable arg0) {
                             allDetailsPane.setShowDefaultProperties(showDefaultProperties.isSelected());
@@ -624,7 +642,8 @@ public class ScenicView extends Region implements ConnectorController, CParent {
             @Override public Menu getMenu() {
                 if (menu == null) {
                     menu = new Menu("Animations");
-                    final CheckMenuItem animationsEnabled = buildCheckMenuItem("Animations enabled", "Animations will run on the application", "Animations will be stopped", null, Boolean.TRUE);
+                    final CheckMenuItem animationsEnabled = buildCheckMenuItem("Animations enabled", "Animations will run on the application",
+                            "Animations will be stopped", null, Boolean.TRUE);
                     animationsEnabled.selectedProperty().addListener(new ChangeListener<Boolean>() {
 
                         @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
@@ -819,7 +838,8 @@ public class ScenicView extends Region implements ConnectorController, CParent {
                     if (property != null) {
                         baseClass = findProperty(baseClass, property);
                     }
-                    final String page = "http://docs.oracle.com/javafx/2/api/" + baseClass.replace('.', '/') + ".html" + (property != null ? ("#" + property + "Property") : "");
+                    final String page = "http://docs.oracle.com/javafx/2/api/" + baseClass.replace('.', '/') + ".html"
+                            + (property != null ? ("#" + property + "Property") : "");
                     wview.doLoad(page);
                 }
             }
@@ -891,11 +911,13 @@ public class ScenicView extends Region implements ConnectorController, CParent {
     private void storeSelectedNode(final SVNode value) {
         selectedNode = value;
         if (selectedNode != null && detailsTab.isSelected())
-            setStatusText("Click on the labels to modify its values. The panel could have different capabilities. When changed the values will be highlighted", 8000);
+            setStatusText("Click on the labels to modify its values. The panel could have different capabilities. When changed the values will be highlighted",
+                    8000);
         activeStage.setSelectedNode(value);
     }
 
-    private CheckMenuItem buildCheckMenuItem(final String text, final String toolTipSelected, final String toolTipNotSelected, final String property, final Boolean value) {
+    private CheckMenuItem buildCheckMenuItem(final String text, final String toolTipSelected, final String toolTipNotSelected, final String property,
+            final Boolean value) {
         final CheckMenuItem menuItem = new CheckMenuItem(text);
         if (property != null) {
             Persistence.loadProperty(property, menuItem, value);
@@ -979,7 +1001,8 @@ public class ScenicView extends Region implements ConnectorController, CParent {
     }
 
     @Override protected void layoutChildren() {
-        layoutInArea(borderPane, getPadding().getLeft(), getPadding().getTop(), getWidth() - getPadding().getLeft() - getPadding().getRight(), getHeight() - getPadding().getTop() - getPadding().getBottom(), 0, HPos.LEFT, VPos.TOP);
+        layoutInArea(borderPane, getPadding().getLeft(), getPadding().getTop(), getWidth() - getPadding().getLeft() - getPadding().getRight(), getHeight()
+                - getPadding().getTop() - getPadding().getBottom(), 0, HPos.LEFT, VPos.TOP);
     }
 
     public final BorderPane getBorderPane() {
@@ -1160,20 +1183,20 @@ public class ScenicView extends Region implements ConnectorController, CParent {
 
     @Override public void goTo(final SVTab tab) {
         switch (tab) {
-        case JAVADOC:
-            tabPane.getSelectionModel().select(javadocTab);
-            break;
+            case JAVADOC:
+                tabPane.getSelectionModel().select(javadocTab);
+                break;
 
-        case DETAILS:
-            tabPane.getSelectionModel().select(detailsTab);
-            break;
+            case DETAILS:
+                tabPane.getSelectionModel().select(detailsTab);
+                break;
 
-        case EVENTS:
-            tabPane.getSelectionModel().select(eventsTab);
-            break;
+            case EVENTS:
+                tabPane.getSelectionModel().select(eventsTab);
+                break;
 
-        default:
-            break;
+            default:
+                break;
         }
     }
 
@@ -1190,104 +1213,105 @@ public class ScenicView extends Region implements ConnectorController, CParent {
 
     private void doDispatchEvent(final FXConnectorEvent appEvent) {
         switch (appEvent.getType()) {
-        case EVENT_LOG:
-            eventLogPane.trace((EvLogEvent) appEvent);
-            break;
-        case MOUSE_POSITION:
-            if (isActive(appEvent.getStageID()))
-                statusBar.updateMousePosition(((MousePosEvent) appEvent).getPosition());
-            break;
-
-        case SHORTCUT:
-            final KeyCode c = ((ShortcutEvent) appEvent).getCode();
-            switch (c) {
-            case S:
-                componentSelectOnClick.setSelected(!configuration.isComponentSelectOnClick());
+            case EVENT_LOG:
+                eventLogPane.trace((EvLogEvent) appEvent);
                 break;
-            case R:
-                configuration.setShowRuler(!configuration.isShowRuler());
-                configurationUpdated();
+            case MOUSE_POSITION:
+                if (isActive(appEvent.getStageID()))
+                    statusBar.updateMousePosition(((MousePosEvent) appEvent).getPosition());
                 break;
-            case D:
-                treeView.getSelectionModel().clearSelection();
-                break;
-            default:
-                break;
-            }
-            break;
 
-        case WINDOW_DETAILS:
-            final WindowDetailsEvent wevent = (WindowDetailsEvent) appEvent;
-            autoRefreshStyleSheets.setDisable(!wevent.isStylesRefreshable());
-
-            if (isActive(wevent.getStageID()))
-                statusBar.updateWindowDetails(wevent.getWindowType(), wevent.getBounds(), wevent.isFocused());
-            break;
-        case NODE_SELECTED:
-            componentSelectOnClick.setSelected(false);
-            treeView.nodeSelected(((NodeSelectedEvent) appEvent).getNode());
-            scenicViewStage.toFront();
-            break;
-
-        case NODE_COUNT:
-            statusBar.updateNodeCount(((NodeCountEvent) appEvent).getNodeCount());
-            break;
-
-        case SCENE_DETAILS:
-            if (isActive(appEvent.getStageID())) {
-                final SceneDetailsEvent sEvent = (SceneDetailsEvent) appEvent;
-                statusBar.updateSceneDetails(sEvent.getSize(), sEvent.getNodeCount());
-            }
-            break;
-
-        case ROOT_UPDATED:
-            treeView.updateStageModel(getStageController(appEvent.getStageID()), ((NodeAddRemoveEvent) appEvent).getNode(), showNodesIdInTree.isSelected(), showFilteredNodesInTree.isSelected());
-            break;
-
-        case NODE_ADDED:
-            /**
-             * First check if a we have a NODE_REMOVED in the queue
-             */
-            final int removedPos = indexOfNode(((NodeAddRemoveEvent) appEvent).getNode(), true);
-            if (removedPos == -1) {
-                treeView.addNewNode(((NodeAddRemoveEvent) appEvent).getNode(), showNodesIdInTree.isSelected(), showFilteredNodesInTree.isSelected());
-            } else {
-                eventQueue.remove(removedPos);
-            }
-            break;
-
-        case NODE_REMOVED:
-            final int addedPos = indexOfNode(((NodeAddRemoveEvent) appEvent).getNode(), false);
-            if (addedPos == -1) {
-                treeView.removeNode(((NodeAddRemoveEvent) appEvent).getNode());
-            } else {
-                eventQueue.remove(addedPos);
-            }
-
-            break;
-
-        case DETAILS:
-            final DetailsEvent ev = (DetailsEvent) appEvent;
-            allDetailsPane.updateDetails(ev.getPaneType(), ev.getPaneName(), ev.getDetails(), new RemotePropertySetter() {
-
-                @Override public void set(final Detail detail, final String value) {
-                    getStageController(appEvent.getStageID()).setDetail(detail.getDetailType(), detail.getDetailID(), value);
+            case SHORTCUT:
+                final KeyCode c = ((ShortcutEvent) appEvent).getCode();
+                switch (c) {
+                    case S:
+                        componentSelectOnClick.setSelected(!configuration.isComponentSelectOnClick());
+                        break;
+                    case R:
+                        configuration.setShowRuler(!configuration.isShowRuler());
+                        configurationUpdated();
+                        break;
+                    case D:
+                        treeView.getSelectionModel().clearSelection();
+                        break;
+                    default:
+                        break;
                 }
-            });
-            break;
+                break;
 
-        case DETAIL_UPDATED:
-            final DetailsEvent ev2 = (DetailsEvent) appEvent;
-            allDetailsPane.updateDetail(ev2.getPaneType(), ev2.getPaneName(), ev2.getDetails().get(0));
-            break;
+            case WINDOW_DETAILS:
+                final WindowDetailsEvent wevent = (WindowDetailsEvent) appEvent;
+                autoRefreshStyleSheets.setDisable(!wevent.isStylesRefreshable());
 
-        case ANIMATIONS_UPDATED:
-            animationsPane.update(appEvent.getStageID(), ((AnimationsCountEvent) appEvent).getAnimations());
-            break;
+                if (isActive(wevent.getStageID()))
+                    statusBar.updateWindowDetails(wevent.getWindowType(), wevent.getBounds(), wevent.isFocused());
+                break;
+            case NODE_SELECTED:
+                componentSelectOnClick.setSelected(false);
+                treeView.nodeSelected(((NodeSelectedEvent) appEvent).getNode());
+                scenicViewStage.toFront();
+                break;
 
-        default:
-            debug("Unused event for type " + appEvent);
-            break;
+            case NODE_COUNT:
+                statusBar.updateNodeCount(((NodeCountEvent) appEvent).getNodeCount());
+                break;
+
+            case SCENE_DETAILS:
+                if (isActive(appEvent.getStageID())) {
+                    final SceneDetailsEvent sEvent = (SceneDetailsEvent) appEvent;
+                    statusBar.updateSceneDetails(sEvent.getSize(), sEvent.getNodeCount());
+                }
+                break;
+
+            case ROOT_UPDATED:
+                treeView.updateStageModel(getStageController(appEvent.getStageID()), ((NodeAddRemoveEvent) appEvent).getNode(), showNodesIdInTree.isSelected(),
+                        showFilteredNodesInTree.isSelected());
+                break;
+
+            case NODE_ADDED:
+                /**
+                 * First check if a we have a NODE_REMOVED in the queue
+                 */
+                final int removedPos = indexOfNode(((NodeAddRemoveEvent) appEvent).getNode(), true);
+                if (removedPos == -1) {
+                    treeView.addNewNode(((NodeAddRemoveEvent) appEvent).getNode(), showNodesIdInTree.isSelected(), showFilteredNodesInTree.isSelected());
+                } else {
+                    eventQueue.remove(removedPos);
+                }
+                break;
+
+            case NODE_REMOVED:
+                final int addedPos = indexOfNode(((NodeAddRemoveEvent) appEvent).getNode(), false);
+                if (addedPos == -1) {
+                    treeView.removeNode(((NodeAddRemoveEvent) appEvent).getNode());
+                } else {
+                    eventQueue.remove(addedPos);
+                }
+
+                break;
+
+            case DETAILS:
+                final DetailsEvent ev = (DetailsEvent) appEvent;
+                allDetailsPane.updateDetails(ev.getPaneType(), ev.getPaneName(), ev.getDetails(), new RemotePropertySetter() {
+
+                    @Override public void set(final Detail detail, final String value) {
+                        getStageController(appEvent.getStageID()).setDetail(detail.getDetailType(), detail.getDetailID(), value);
+                    }
+                });
+                break;
+
+            case DETAIL_UPDATED:
+                final DetailsEvent ev2 = (DetailsEvent) appEvent;
+                allDetailsPane.updateDetail(ev2.getPaneType(), ev2.getPaneName(), ev2.getDetails().get(0));
+                break;
+
+            case ANIMATIONS_UPDATED:
+                animationsPane.update(appEvent.getStageID(), ((AnimationsCountEvent) appEvent).getAnimations());
+                break;
+
+            default:
+                debug("Unused event for type " + appEvent);
+                break;
         }
     }
 
