@@ -72,4 +72,20 @@
     nbproject/build-impl.xml file. 
 
     -->
+	<target name="-post-jar">
+        <!-- rename the Scenic View jar file to indicate that it is just a jar for Scenic View, and does
+            not include FX Connector. -->
+        <move file="dist/ScenicView.jar" tofile="dist/ScenicView-lib.jar"/>
+            
+        <!-- Now create a ScenicView.jar file that is a standalone jar containing both ScenicView-lib.jar
+            and FXConnector.jar. -->
+        <jar destfile="dist/ScenicView.jar">
+            <zipgroupfileset dir="dist" includes="ScenicView-lib.jar"/>
+            <zipgroupfileset dir="dist/lib" includes="FXConnector.jar" />
+            <manifest>
+            	<attribute name="Main-Class" value="com.javafx.experiments.scenicview.utils.ScenicViewBooter"/>
+                <attribute name="Premain-Class" value="com.javafx.experiments.scenicview.utils.SVInstrumentationAgent"/>
+            </manifest>
+        </jar>
+	</target>
 </project>
