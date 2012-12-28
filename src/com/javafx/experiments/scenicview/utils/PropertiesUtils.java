@@ -43,18 +43,27 @@ public class PropertiesUtils {
     private PropertiesUtils() {
         
     }
-
-    public static Properties loadProperties() {
+    
+    public static Properties getProperties() {
         if (properties == null) {
-            properties = new Properties();
+            properties = loadProperties();
         }
+        return properties;
+    }
+    
+    public static boolean containsKey(String key) {
+        return getProperties().contains(key);
+    }
+
+    private static Properties loadProperties() {
+        Properties _properties = new Properties();
         
         try {
             final File propertiesFile = new File(SCENIC_VIEW_PROPERTIES_FILE);
             if (propertiesFile.exists()) {
                 final FileInputStream in = new FileInputStream(propertiesFile);
                 try {
-                    properties.load(in);
+                    _properties.load(in);
                 } finally {
                     in.close();
                 }
@@ -62,7 +71,7 @@ public class PropertiesUtils {
         } catch (final Exception e) {
             System.out.println("Error while loading preferences");
         }
-        return properties;
+        return _properties;
     }
 
     public static void saveProperties() {
@@ -75,8 +84,7 @@ public class PropertiesUtils {
                 out.close();
             }
         } catch (final Exception e) {
-            e.printStackTrace();
-            System.out.println("Error while saving preferences");
+            ExceptionLogger.submitException(e, "Error while saving preferences");
         }
     }
 

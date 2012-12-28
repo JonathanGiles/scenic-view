@@ -43,7 +43,7 @@ import javafx.util.Callback;
 
 import com.javafx.experiments.fxconnector.*;
 import com.javafx.experiments.fxconnector.node.*;
-import com.javafx.experiments.scenicview.control.SVCustomTreeCell;
+import javafx.scene.paint.Color;
 
 public class ScenegraphTreeView extends TreeView<SVNode> {
 
@@ -84,7 +84,28 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         });
         setCellFactory(new Callback<TreeView<SVNode>, TreeCell<SVNode>>() {
             @Override public TreeCell<SVNode> call(final TreeView<SVNode> node) {
-                return new SVCustomTreeCell();
+                return new TreeCell<SVNode>() {
+                    @Override public void updateItem(final SVNode item, final boolean empty) {
+                        super.updateItem(item, empty);
+
+                        if (getTreeItem() != null) {
+                            setGraphic(getTreeItem().getGraphic());
+                        }
+
+                        if (item == null) return;
+                        
+                        setText(item.toString());
+                        setOpacity(1);
+
+                        if (!item.isVisible() || item.isInvalidForFilter()) {
+                            setOpacity(0.3);
+                        }
+
+                        if (item.isFocused()) {
+                            setTextFill(Color.RED);
+                        }
+                    }
+                };
             }
         });
         setOnMousePressed(new EventHandler<MouseEvent>() {

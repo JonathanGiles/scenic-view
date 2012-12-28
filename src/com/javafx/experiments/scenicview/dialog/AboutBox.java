@@ -104,7 +104,7 @@ public class AboutBox {
     }
 
     private static String getAboutText() {
-        final Properties properties = PropertiesUtils.loadProperties();
+        final Properties properties = PropertiesUtils.getProperties();
         String toolsPath = properties.getProperty(ScenicViewBooter.TOOLS_JAR_PATH_KEY);
         toolsPath = toolsPath == null ? "Included in runtime classpath" : toolsPath;
         String jfxPath = properties.getProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY);

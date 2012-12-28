@@ -37,6 +37,7 @@ import java.net.*;
 import java.util.*;
 
 import com.javafx.experiments.fxconnector.remote.FXConnectorFactory;
+import com.javafx.experiments.fxconnector.remote.util.ScenicViewExceptionLogger;
 import com.javafx.experiments.scenicview.ScenicView;
 
 /**
@@ -86,7 +87,7 @@ public class ScenicViewBooter {
         } else {
             // If we are here, the classes are not on the classpath.
             // First, we read the properties file to find previous entries
-            properties = PropertiesUtils.loadProperties();
+            properties = PropertiesUtils.getProperties();
 
             String attachPath = "";
             String jfxPath = "";
@@ -158,11 +159,11 @@ public class ScenicViewBooter {
                         // workaround
                         // issues
                         // if it is created after JavaFX has started.
-                        ClassPathDialog.init();
+                        SwingClassPathDialog.init();
                     }
                 });
 
-                ClassPathDialog.showDialog(_attachPath, _jfxPath, true, new PathChangeListener() {
+                SwingClassPathDialog.showDialog(_attachPath, _jfxPath, true, new PathChangeListener() {
                     @Override public void onPathChanged(final Map<String, URI> map) {
                         final URI toolsPath = map.get(PathChangeListener.TOOLS_JAR_KEY);
                         final URI jfxPath = map.get(PathChangeListener.JFXRT_JAR_KEY);
@@ -171,7 +172,7 @@ public class ScenicViewBooter {
                         properties.setProperty(TOOLS_JAR_PATH_KEY, toolsPath.toASCIIString());
                         properties.setProperty(JFXRT_JAR_PATH_KEY, jfxPath.toASCIIString());
                         PropertiesUtils.saveProperties();
-                        ClassPathDialog.hideDialog();
+                        SwingClassPathDialog.hideDialog();
                         new Thread() {
                             @Override public void run() {
                                 ScenicViewBooter.this.start(toolsPath);
@@ -212,7 +213,7 @@ public class ScenicViewBooter {
                     fieldSysPath.set(null, null);
                     System.loadLibrary("attach");
                 } catch (final Throwable e2) {
-                    e2.printStackTrace();
+                    ExceptionLogger.submitException(e2);
                     System.out.println("Error while trying to put attach.dll in path");
                 }
             }
@@ -282,7 +283,7 @@ public class ScenicViewBooter {
             debug("Adding to classpath: " + url);
             ClassPathHacker.addURL(url);
         } catch (final IOException ex) {
-            ex.printStackTrace();
+            ExceptionLogger.submitException(ex);
         }
     }
 

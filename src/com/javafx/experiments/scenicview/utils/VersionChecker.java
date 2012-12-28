@@ -54,9 +54,8 @@ public class VersionChecker {
             if (info.indexOf(actual) == -1) {
                 return info;
             }
-
         } catch (final MalformedURLException mue) {
-            mue.printStackTrace();
+            ExceptionLogger.submitException(mue);
         } catch (final IOException ioe) {
             System.out.println("Cannot check last version");
         } finally {

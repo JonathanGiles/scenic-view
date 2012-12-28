@@ -175,7 +175,9 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         Persistence.loadProperties();
         Runtime.getRuntime().addShutdownHook(shutdownHook);
         setId(StageController.FX_CONNECTOR_BASE_ID + "scenic-view");
-
+        
+        new Exception("Test");
+        
         borderPane = new BorderPane();
         borderPane.setId("main-borderpane");
 
@@ -228,14 +230,14 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         final MenuItem classpathItem = new MenuItem("Configure Classpath");
         classpathItem.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(final ActionEvent arg0) {
-                final Properties properties = PropertiesUtils.loadProperties();
+                final Properties properties = PropertiesUtils.getProperties();
 
                 final String toolsPath = properties.getProperty(ScenicViewBooter.TOOLS_JAR_PATH_KEY);
                 final String jfxPath = properties.getProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY);
-                if (!ClassPathDialog.hasBeenInited()) {
-                    ClassPathDialog.init();
+                if (!SwingClassPathDialog.hasBeenInited()) {
+                    SwingClassPathDialog.init();
                 }
-                ClassPathDialog.showDialog(toolsPath, jfxPath, false, new PathChangeListener() {
+                SwingClassPathDialog.showDialog(toolsPath, jfxPath, false, new PathChangeListener() {
                     @Override public void onPathChanged(final Map<String, URI> map) {
 
                         final URI toolsPath = map.get(PathChangeListener.TOOLS_JAR_KEY);
@@ -247,7 +249,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
 
                         JOptionPane.showMessageDialog(null, "Updated classpath will be used on next Scenic View boot", "Classpath Saved",
                                 JOptionPane.INFORMATION_MESSAGE);
-                        ClassPathDialog.hideDialog();
+                        SwingClassPathDialog.hideDialog();
                     }
                 });
             }
@@ -759,9 +761,9 @@ public class ScenicView extends Region implements ConnectorController, CParent {
                         }
 
                         if (versionNum != null) {
-                            InfoBox.make("Version check", "New version found:" + versionNum + " (Yours is:" + ScenicView.VERSION + ")", newVersion, 400, 200);
+                            new InfoBox("Version check", "New version found:" + versionNum + " (Yours is:" + ScenicView.VERSION + ")", newVersion, 400, 200);
                         } else if (forced) {
-                            InfoBox.make("Version check", "You already have the latest version of Scenic View.", null, 400, 150);
+                            new InfoBox("Version check", "You already have the latest version of Scenic View.", null, 400, 150);
                         }
 
                         Persistence.saveProperty("lastVersionCheck", format.format(new Date()));
@@ -770,9 +772,8 @@ public class ScenicView extends Region implements ConnectorController, CParent {
 
             }
         } catch (final Exception e) {
-            e.printStackTrace();
+            ExceptionLogger.submitException(e);
         }
-
     }
 
     protected void configurationUpdated() {
@@ -1206,7 +1207,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
             try {
                 doDispatchEvent(eventQueue.remove(0));
             } catch (final Exception e) {
-                e.printStackTrace();
+                ExceptionLogger.submitException(e);
             }
         }
     }

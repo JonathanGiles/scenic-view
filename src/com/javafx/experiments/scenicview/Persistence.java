@@ -44,7 +44,7 @@ class Persistence {
     private static final Map<String, Object> persistentComponents = new HashMap<String, Object>();
 
     static void loadProperties() {
-        properties = PropertiesUtils.loadProperties();
+        properties = PropertiesUtils.getProperties();
     }
 
     static String loadProperty(final String propertyName, final String defaultValue) {

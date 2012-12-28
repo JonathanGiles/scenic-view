@@ -68,7 +68,7 @@ public class RemoteScenicViewLauncher {
             try {
                 Thread.sleep(500);
             } catch (final InterruptedException e) {
-                e.printStackTrace();
+                ExceptionLogger.submitException(e);
             }
         }
 
@@ -76,8 +76,7 @@ public class RemoteScenicViewLauncher {
         try {
             strategy.setFXConnector(FXConnectorFactory.getConnector());
         } catch (final RemoteException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
+            ExceptionLogger.submitException(e1);
         }
         FXConnectorFactory.debug("Server done");
     }

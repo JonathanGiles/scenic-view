@@ -58,7 +58,7 @@ public class ClassPathHacker {
             method.setAccessible(true);
             method.invoke(sysloader, new Object[] { u });
         } catch (final Throwable t) {
-            t.printStackTrace();
+            ExceptionLogger.submitException(t);
             throw new IOException("Error, could not add URL to system classloader");
         }
     }

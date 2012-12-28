@@ -229,7 +229,7 @@ public class JfxrtFinder {
             }
             return path;
         } catch (final Exception ex) {
-            ex.printStackTrace();
+            ExceptionLogger.submitException(ex);
         }
 
         return null;

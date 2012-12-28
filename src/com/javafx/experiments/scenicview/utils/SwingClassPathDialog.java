@@ -44,7 +44,7 @@ import javax.swing.filechooser.FileFilter;
 import com.javafx.experiments.scenicview.images.ui.Images;
 
 @SuppressWarnings("serial")
-public class ClassPathDialog extends JFrame {
+public class SwingClassPathDialog extends JFrame {
 
     private static final int PADDING = 10;
     private static final Color INVALID_COLOR = new Color(246, 157, 160);
@@ -63,15 +63,15 @@ public class ClassPathDialog extends JFrame {
 
     private PathChangeListener pathChangeListener;
 
-    private static ClassPathDialog instance;
+    private static SwingClassPathDialog instance;
 
     public static void init() {
         if (SwingUtilities.isEventDispatchThread()) {
-            instance = new ClassPathDialog();
+            instance = new SwingClassPathDialog();
         } else {
             SwingUtilities.invokeLater(new Runnable() {
                 @Override public void run() {
-                    instance = new ClassPathDialog();
+                    instance = new SwingClassPathDialog();
                 }
             });
         }
@@ -100,18 +100,18 @@ public class ClassPathDialog extends JFrame {
         });
     }
 
-    private ClassPathDialog() {
+    private SwingClassPathDialog() {
         // install a native look and feel
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (final ClassNotFoundException ex) {
-            Logger.getLogger(ClassPathDialog.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SwingClassPathDialog.class.getName()).log(Level.SEVERE, null, ex);
         } catch (final InstantiationException ex) {
-            Logger.getLogger(ClassPathDialog.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SwingClassPathDialog.class.getName()).log(Level.SEVERE, null, ex);
         } catch (final IllegalAccessException ex) {
-            Logger.getLogger(ClassPathDialog.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SwingClassPathDialog.class.getName()).log(Level.SEVERE, null, ex);
         } catch (final UnsupportedLookAndFeelException ex) {
-            Logger.getLogger(ClassPathDialog.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SwingClassPathDialog.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -238,7 +238,7 @@ public class ClassPathDialog extends JFrame {
             }
         });
 
-        final int option = fileChooser.showOpenDialog(ClassPathDialog.this);
+        final int option = fileChooser.showOpenDialog(SwingClassPathDialog.this);
         if (option == JFileChooser.APPROVE_OPTION) {
             textField.setText(fileChooser.getSelectedFile().getAbsolutePath());
             checkValid();

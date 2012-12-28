@@ -42,27 +42,44 @@ import com.javafx.experiments.fxconnector.StageController;
 import com.javafx.experiments.scenicview.ScenicView;
 
 public class InfoBox {
+    
+    private final TextArea textArea;
+    
+    public InfoBox(final String title, final String labelText, final String textAreaText) {
+        this(title, labelText, textAreaText, 700, 600);
+    }
+    
+    public InfoBox(final String title, final String labelText, 
+            final String textAreaText, final int width, final int height) {
+        this(title, labelText, textAreaText, false, width, height);
+    }
+    
+    public InfoBox(final String title, final String labelText, 
+            final String textAreaText, final boolean editable, final int width, final int height) {
+        this(null, title, labelText, textAreaText, editable, width, height);
+    }
 
-    public InfoBox(final String title, final String labelText, final String textAreaText, final int width, final int height) {
+    public InfoBox(final Window owner, final String title, final String labelText, 
+            final String textAreaText, final boolean editable, final int width, final int height) {
         final VBox pane = new VBox(20);
         pane.setId(StageController.FX_CONNECTOR_BASE_ID + "InfoBox");
         final Scene scene = SceneBuilder.create().width(width).height(height).root(pane).stylesheets(ScenicView.STYLESHEETS).build();
 
         final Stage stage = StageBuilder.create().style(StageStyle.UTILITY).title(title).build();
         stage.initModality(Modality.WINDOW_MODAL);
+        stage.initOwner(owner);
         stage.setScene(scene);
         stage.getIcons().add(ScenicView.APP_ICON);
 
         final Label label = new Label(labelText);
         stage.setWidth(width);
         stage.setHeight(height);
-        TextArea area = null;
+        textArea = new TextArea();
         if (textAreaText != null) {
-            area = new TextArea(textAreaText);
-            area.setFocusTraversable(false);
-            area.setEditable(false);
-            VBox.setMargin(area, new Insets(5, 5, 0, 5));
-            VBox.setVgrow(area, Priority.ALWAYS);
+            textArea.setEditable(editable);
+            textArea.setText(textAreaText);
+            VBox.setMargin(textArea, new Insets(5, 5, 0, 5));
+            VBox.setVgrow(textArea, Priority.ALWAYS);
         }
         final Button close = new Button("Close");
         VBox.setMargin(label, new Insets(5, 5, 0, 5));
@@ -77,21 +94,16 @@ public class InfoBox {
                 stage.close();
             }
         });
-        if (area != null) {
-            pane.getChildren().addAll(label, area, close);
+        if (textArea != null) {
+            pane.getChildren().addAll(label, textArea, close);
         } else {
             pane.getChildren().addAll(label, close);
         }
 
         stage.show();
     }
-
-    public static InfoBox make(final String title, final String labelText, final String textAreaText) {
-        return make(title, labelText, textAreaText, 700, 600);
+    
+    public String getText() {
+        return textArea.getText();
     }
-
-    public static InfoBox make(final String title, final String labelText, final String textAreaText, final int width, final int height) {
-        return new InfoBox(title, labelText, textAreaText, width, height);
-    }
-
 }

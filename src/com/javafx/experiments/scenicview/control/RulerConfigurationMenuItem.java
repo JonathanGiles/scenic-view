@@ -41,6 +41,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 
 import com.javafx.experiments.fxconnector.*;
+import com.javafx.experiments.scenicview.utils.ExceptionLogger;
 import com.sun.javafx.scene.control.skin.CustomColorDialog;
 
 public class RulerConfigurationMenuItem extends MenuItem {
@@ -68,7 +69,7 @@ public class RulerConfigurationMenuItem extends MenuItem {
                         }
                     });
                 } catch (final Exception e) {
-                    e.printStackTrace();
+                    ExceptionLogger.submitException(e);
                 }
                 final TextField sliderValue = new TextField();
                 final Slider slider = new Slider(5, 50, 10);

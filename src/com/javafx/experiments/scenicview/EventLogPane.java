@@ -110,7 +110,7 @@ class EventLogPane extends VBox implements ContextMenuContainer {
                             for (int i = 0; i < newValue.stackTrace.length; i++) {
                                 sb.append(newValue.stackTrace[i]).append('\n');
                             }
-                            InfoBox.make("Event Stacktrace", newValue.toString(), sb.toString());
+                            new InfoBox("Event Stacktrace", newValue.toString(), sb.toString());
                         }
 
                     }

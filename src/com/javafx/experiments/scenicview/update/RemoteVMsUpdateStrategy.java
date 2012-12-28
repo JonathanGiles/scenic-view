@@ -35,6 +35,7 @@ import java.util.List;
 
 import com.javafx.experiments.fxconnector.*;
 import com.javafx.experiments.fxconnector.remote.FXConnector;
+import com.javafx.experiments.scenicview.utils.ExceptionLogger;
 
 public class RemoteVMsUpdateStrategy extends CommonUpdateStrategy {
 
@@ -55,7 +56,7 @@ public class RemoteVMsUpdateStrategy extends CommonUpdateStrategy {
                 try {
                     Thread.sleep(50);
                 } catch (final InterruptedException e) {
-                    e.printStackTrace();
+                    ExceptionLogger.submitException(e);
                 }
             }
         }
