@@ -39,17 +39,18 @@ import javafx.scene.layout.*;
 import javafx.stage.*;
 
 import com.javafx.experiments.scenicview.*;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 
 public class SubmitExceptionDialog {
-    private static final int SCENE_WIDTH = 476;
+    private static final int SCENE_WIDTH = 500;
     private static final int SCENE_HEIGHT = 175;
     private static final double MIN_BUTTON_WIDTH = 100;
     private static final double INSETS = 5;
     private final VBox panel;
-    private final Stage stage;
-    private final Scene scene;
+    private Stage stage;
+    private Scene scene;
     
     private final CheckBox dontAskAgainCheckBox;
     private InfoBox infoBox;
@@ -62,6 +63,7 @@ public class SubmitExceptionDialog {
         this.submissionText = submission;
         this.panel = new VBox(20);
         this.panel.getStyleClass().add("about");
+        this.panel.setPadding(new Insets(5, 10, 10, 10));
         
         // --- Label 
         Label label = LabelBuilder.create()
@@ -122,15 +124,20 @@ public class SubmitExceptionDialog {
 
         this.panel.getChildren().addAll(label,dontAskAgainCheckBox,buttonsBox);
 
-        this.scene = SceneBuilder.create().width(SCENE_WIDTH).height(SCENE_HEIGHT).root(this.panel).stylesheets(ScenicView.STYLESHEETS).build();
+        Platform.runLater(new Runnable() {
+            @Override public void run() {
+                scene = SceneBuilder.create().width(SCENE_WIDTH).height(SCENE_HEIGHT).root(panel).stylesheets(ScenicView.STYLESHEETS).build();
 
-        this.stage = StageBuilder.create().style(StageStyle.UTILITY).title("Exception").build();
-        this.stage.initModality(Modality.APPLICATION_MODAL);
-        this.stage.setScene(this.scene);
-        this.stage.getIcons().add(ScenicView.APP_ICON);
-        this.stage.setResizable(false);
+                stage = StageBuilder.create().style(StageStyle.UTILITY).title("Exception").build();
+                stage.initModality(Modality.APPLICATION_MODAL);
+                stage.setScene(scene);
+                stage.getIcons().add(ScenicView.APP_ICON);
+                stage.setResizable(false);
+
+                stage.showAndWait();
+            }
+        });
         
-        this.stage.showAndWait();
     }
 
     public boolean isSubmissionAllowed() {

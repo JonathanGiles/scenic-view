@@ -80,7 +80,7 @@ public class ScenicViewBooter {
         final boolean[] checks = testClassPathRequirements();
         final boolean isAttachAPIAvailable = checks[0];
         final boolean isJFXAvailable = checks[1];
-
+        
         if (isAttachAPIAvailable && isJFXAvailable) {
             // Launch ScenicView directly
             start(null);
@@ -195,7 +195,7 @@ public class ScenicViewBooter {
 
     private void patchAttachLibrary(final URI attachPath) {
 
-        if (attachPath != null && Utils.isWindows() && new File(attachPath).exists()) {
+        if (attachPath != null /*&& Utils.isWindows()*/ && new File(attachPath).exists()) {
             final File jdkHome = new File(attachPath).getParentFile().getParentFile();
             try {
                 System.loadLibrary("attach");
@@ -203,7 +203,13 @@ public class ScenicViewBooter {
                 /**
                  * Try to set or modify java.library.path
                  */
-                System.setProperty("java.library.path", jdkHome.getAbsolutePath() + "\\jre\\bin;" + System.getProperty("java.library.path"));
+                final String path = jdkHome.getAbsolutePath() + 
+                                    File.pathSeparator + 
+                                    "jre" + 
+                                    File.pathSeparator + 
+                                    "bin;" + 
+                                    System.getProperty("java.library.path");
+                System.setProperty("java.library.path", path);
                 try {
                     /**
                      * This code is need for reevaluating the library path
