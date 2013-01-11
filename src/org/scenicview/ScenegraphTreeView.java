@@ -523,6 +523,8 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                 if (treeItem != null) {
                     final SVNode parent = alive.getParent();
                     final TreeItem<SVNode> parentTreeItem = getTreeItem(parent);
+                    if (parentTreeItem == null) return;
+                    
                     /**
                      * In some situations node could be previously added
                      */
@@ -666,6 +668,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     }
 
     private boolean findInTree(final TreeItem<SVNode> parentTreeItem, final SVNode alive) {
+        if (parentTreeItem == null) return false;
         final List<TreeItem<SVNode>> actualNodes = parentTreeItem.getChildren();
         boolean found = false;
         for (final TreeItem<SVNode> node : actualNodes) {
