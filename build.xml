@@ -83,9 +83,9 @@
             <zipgroupfileset dir="dist" includes="ScenicView-lib.jar"/>
             <zipgroupfileset dir="dist/lib" includes="FXConnector.jar" />
             <manifest>
-            	<attribute name="Main-Class" value="com.javafx.experiments.scenicview.utils.ScenicViewBooter"/>
-                <attribute name="Agent-Class" value="com.javafx.experiments.fxconnector.remote.AgentTest"/>
-                <attribute name="Premain-Class" value="com.javafx.experiments.scenicview.utils.SVInstrumentationAgent"/>
+            	<attribute name="Main-Class" value="org.scenicview.utils.ScenicViewBooter"/>
+                <attribute name="Agent-Class" value="org.fxconnector.remote.AgentTest"/>
+                <attribute name="Premain-Class" value="org.scenicview.utils.SVInstrumentationAgent"/>
             </manifest>
         </jar>
 	</target>
