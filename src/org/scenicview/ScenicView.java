@@ -969,6 +969,11 @@ public class ScenicView extends Region implements ConnectorController, CParent {
     @Override public SVNode getSelectedNode() {
         return selectedNode;
     }
+    
+    @Override
+    public void removeNode() {
+        activeStage.removeSelectedNode();
+    }
 
     private void storeSelectedNode(final SVNode value) {
         selectedNode = value;

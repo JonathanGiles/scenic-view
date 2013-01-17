@@ -31,23 +31,35 @@
  */
 package org.scenicview;
 
-import org.fxconnector.node.SVDummyNode;
-import org.fxconnector.node.SVNode;
-import org.fxconnector.node.NodeType;
-import org.fxconnector.AppController;
-import org.fxconnector.StageController;
-import org.fxconnector.ConnectorUtils;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
-import javafx.beans.value.*;
-import javafx.event.*;
-import javafx.scene.control.*;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TreeCell;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeItem.TreeModificationEvent;
+import javafx.scene.control.TreeView;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import javafx.util.Callback;
 
-import javafx.scene.paint.Color;
+import org.fxconnector.AppController;
+import org.fxconnector.ConnectorUtils;
+import org.fxconnector.StageController;
+import org.fxconnector.node.NodeType;
+import org.fxconnector.node.SVDummyNode;
+import org.fxconnector.node.SVNode;
 
 public class ScenegraphTreeView extends TreeView<SVNode> {
 
@@ -199,9 +211,15 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                     getSelectionModel().clearSelection();
                 }
             });
+            final MenuItem removeNode = new MenuItem("Remove node");
+            removeNode.setOnAction(new EventHandler<ActionEvent>() {
+                @Override public void handle(final ActionEvent e) {
+                    container.removeNode();
+                }
+            });
             deselect.disableProperty().bind(getSelectionModel().selectedItemProperty().isNull());
 
-            selectedCM.getItems().addAll(deselect, forcedCollapse, forcedExpand, goTo, close);
+            selectedCM.getItems().addAll(deselect, removeNode, forcedCollapse, forcedExpand, goTo, close);
             selectedCM.show(ScenegraphTreeView.this, ev.getScreenX(), ev.getScreenY());
         }
     }
@@ -685,6 +703,8 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
      */
     interface ConnectorController {
         void setSelectedNode(StageController controller, SVNode node);
+
+        void removeNode();
 
         SVNode getSelectedNode();
 
