@@ -33,8 +33,6 @@ package org.scenicview.utils;
 
 import org.scenicview.ScenicView;
 import org.scenicview.dialog.SubmitExceptionDialog;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -43,13 +41,12 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.Properties;
-import javafx.application.Application;
-import javafx.stage.Stage;
 
 /**
  *
  */
 public class ExceptionLogger implements Thread.UncaughtExceptionHandler {
+    private static final boolean EXCEPTION_LOGGING_ENABLED = false;
     private static final String SUBMIT_EXCEPTIONS_KEY = "submitExceptions";
     
     private static boolean isInited = false;
@@ -77,10 +74,15 @@ public class ExceptionLogger implements Thread.UncaughtExceptionHandler {
     }
 
     public static void submitException(final Throwable t, final String summary) {
+        t.printStackTrace();
+        
+        if (! EXCEPTION_LOGGING_ENABLED) {
+            return;
+        }
+        
         if (! isInited) {
             init();
         }
-        t.printStackTrace();
         
         String submission = buildSubmissionString(t, summary);
         
@@ -155,29 +157,4 @@ public class ExceptionLogger implements Thread.UncaughtExceptionHandler {
             e.printStackTrace();
         }
     }
-    
-//    public static void main(String[] arg) {
-//        Application.launch(TestClass.class, arg);
-//    }
-//    
-//    public static class TestClass extends Application {
-//
-//        public TestClass() {
-//        }
-//        
-//        
-//
-//        @Override
-//        public void start(Stage stage) throws Exception {
-////            init();
-//            System.out.println("start");
-//            try {
-//                throw new RuntimeException("test exception");
-//            } catch (RuntimeException e) {
-//                submitException(e, "summary text goes here");
-//            }
-//            System.out.println("end");
-//        }
-//        
-//    }
 }
