@@ -31,23 +31,33 @@
  */
 package org.scenicview.details;
 
-import org.fxconnector.details.Detail;
-import org.fxconnector.details.GridConstraintsDetail;
-import org.fxconnector.details.DetailPaneType;
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
 
-import javafx.animation.*;
-import javafx.beans.value.*;
+import javafx.animation.KeyFrame;
+import javafx.animation.TimelineBuilder;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.beans.value.WritableValue;
 import javafx.collections.FXCollections;
-import javafx.event.*;
-import javafx.scene.*;
-import javafx.scene.control.*;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.control.ColorPicker;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
+import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 import org.fxconnector.ConnectorUtils;
+import org.fxconnector.details.Detail;
 import org.fxconnector.details.Detail.EditionType;
+import org.fxconnector.details.DetailPaneType;
+import org.fxconnector.details.GridConstraintsDetail;
 import org.scenicview.ScenicView;
 
 public class GDetail {
@@ -206,7 +216,7 @@ public class GDetail {
             label.setVisible(showDetail);
             label.setManaged(showDetail);
         }
-        if (value != null) {
+        if (value != null && value.getParent()!=null) {
             value.getParent().setVisible(showDetail);
             value.getParent().setManaged(showDetail);
         }
