@@ -109,12 +109,14 @@ public class AboutBox {
         final Properties properties = PropertiesUtils.getProperties();
         String toolsPath = properties.getProperty(ScenicViewBooter.TOOLS_JAR_PATH_KEY);
         toolsPath = toolsPath == null ? "Included in runtime classpath" : toolsPath;
-        String jfxPath = properties.getProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY);
-        jfxPath = jfxPath == null ? "Included in runtime classpath" : jfxPath;
+//        String jfxPath = properties.getProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY);
+//        jfxPath = jfxPath == null ? "Included in runtime classpath" : jfxPath;
 
         final String text = "JavaFX Scenic View " + ScenicView.VERSION + "\n" + "Scenic View developed by Amy Fowler, Ander Ruiz and Jonathan Giles\n" + "\n" + "JavaFX Build Information:" + "\n" + "Java FX " + System.getProperty("javafx.runtime.version") + "\n" + "\n" +
 
-        "Required Libraries:\n" + "jfxrt.jar Home: " + jfxPath + "\n" + "tools.jar Home: " + toolsPath + "\n\n" +
+        "Required Libraries:\n" + 
+//        "jfxrt.jar Home: " + jfxPath + "\n" + 
+        "tools.jar Home: " + toolsPath + "\n\n" +
 
         "Operating System\n" + System.getProperty("os.name") + ", " + System.getProperty("os.arch") + ", " + System.getProperty("os.version") +
 

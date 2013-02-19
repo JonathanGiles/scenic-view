@@ -294,18 +294,18 @@ public class ScenicView extends Region implements ConnectorController, CParent {
                 final Properties properties = PropertiesUtils.getProperties();
 
                 final String toolsPath = properties.getProperty(ScenicViewBooter.TOOLS_JAR_PATH_KEY);
-                final String jfxPath = properties.getProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY);
+//                final String jfxPath = properties.getProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY);
                 if (!SwingClassPathDialog.hasBeenInited()) {
                     SwingClassPathDialog.init();
                 }
-                SwingClassPathDialog.showDialog(toolsPath, jfxPath, false, new PathChangeListener() {
+                SwingClassPathDialog.showDialog(toolsPath, false, new PathChangeListener() {
                     @Override public void onPathChanged(final Map<String, URI> map) {
 
                         final URI toolsPath = map.get(PathChangeListener.TOOLS_JAR_KEY);
-                        final URI jfxPath = map.get(PathChangeListener.JFXRT_JAR_KEY);
+//                        final URI jfxPath = map.get(PathChangeListener.JFXRT_JAR_KEY);
 
                         properties.setProperty(ScenicViewBooter.TOOLS_JAR_PATH_KEY, toolsPath.toASCIIString());
-                        properties.setProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY, jfxPath.toASCIIString());
+//                        properties.setProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY, jfxPath.toASCIIString());
                         PropertiesUtils.saveProperties();
 
                         JOptionPane.showMessageDialog(null, "Updated classpath will be used on next Scenic View boot", "Classpath Saved",

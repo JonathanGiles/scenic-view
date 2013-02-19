@@ -47,11 +47,10 @@ import org.scenicview.ScenicView;
 public class ScenicViewBooter {
 
     public static final String TOOLS_JAR_PATH_KEY = "attachPath";
-    public static final String JFXRT_JAR_PATH_KEY = "jfxPath";
 
     private static boolean debug = false;
 
-    private static final void debug(final String log) {
+    private static void debug(final String log) {
         if (debug) {
             System.out.println(log);
         }
@@ -62,7 +61,6 @@ public class ScenicViewBooter {
             for (int i = 0; i < args.length; i++) {
                 if (args[i].equals("-debug")) {
                     debug = true;
-
                 }
             }
         }
@@ -75,12 +73,27 @@ public class ScenicViewBooter {
     }
 
     private static Properties properties;
-
+    
     private ScenicViewBooter() {
         // first we check if the classes are already on the classpath
-        final boolean[] checks = testClassPathRequirements();
-        final boolean isAttachAPIAvailable = checks[0];
-        final boolean isJFXAvailable = checks[1];
+        boolean isAttachAPIAvailable = false;
+        boolean isJFXAvailable = false;
+
+        // Test if we can load a class from tools.jar
+        try {
+            Class.forName("com.sun.tools.attach.AttachNotSupportedException").newInstance();
+            isAttachAPIAvailable = true;
+        } catch (final Exception e) {
+            debug("Java Attach API was not found");
+        }
+
+        // Test if we can load a class from jfxrt.jar
+        try {
+            Class.forName("javafx.beans.property.SimpleBooleanProperty").newInstance();
+            isJFXAvailable = true;
+        } catch (final Exception e) {
+            debug("JavaFX API was not found");
+        }
         
         if (isAttachAPIAvailable && isJFXAvailable) {
             // Launch ScenicView directly
@@ -91,7 +104,6 @@ public class ScenicViewBooter {
             properties = PropertiesUtils.getProperties();
 
             String attachPath = "";
-            String jfxPath = "";
 
             boolean needAttachAPI = !isAttachAPIAvailable;
             boolean needJFXAPI = !isJFXAvailable;
@@ -104,7 +116,7 @@ public class ScenicViewBooter {
                 if (needAttachAPI) {
                     // If we can't get it from the properties file, we try to
                     // find it on the users operating system
-                    attachPath = getToolsClassPath();
+                    attachPath = getToolsClassPath().getAbsolutePath();
                     needAttachAPI = !Utils.checkPath(attachPath);
                 }
 
@@ -114,20 +126,11 @@ public class ScenicViewBooter {
             }
 
             if (needJFXAPI) {
-                // the jfxrt.jar file
-                // firstly we try the properties reference
-                jfxPath = properties.getProperty("jfxPath");
-                needJFXAPI = !Utils.checkPath(jfxPath);
-                if (needJFXAPI) {
-                    // If we can't get it from the properties file, we try to
-                    // find it on the users operating system
-                    jfxPath = getJFXClassPath();
-                    needJFXAPI = !Utils.checkPath(jfxPath);
-                }
-
-                if (!needJFXAPI) {
-                    updateClassPath(jfxPath);
-                }
+                // Fatal error - JavaFX should be on the classpath for all users
+                // of Java 8.0 and above (which is what Scenic View 8.0 and above
+                // targets.
+                System.out.println("Error: JavaFX not found");
+                System.exit(-1);
             }
 
             if (needAttachAPI || needJFXAPI) {
@@ -137,20 +140,20 @@ public class ScenicViewBooter {
                  * attachAPI but not because it was saved in the file, try to
                  * fill the path by finding it
                  */
-                if (!needAttachAPI && (attachPath == null || attachPath.equals(""))) {
-                    attachPath = getToolsClassPath();
+                if (!needAttachAPI && (attachPath == null || attachPath.isEmpty())) {
+                    attachPath = getToolsClassPath().getAbsolutePath();
                 }
-                /**
-                 * This needs to be improved, in this situation we already have
-                 * jfxAPI but not because it was saved in the file, try to fill
-                 * the path by finding it
-                 */
-                if (!needJFXAPI && (jfxPath == null || jfxPath.equals(""))) {
-                    jfxPath = getJFXClassPath();
-                }
+//                /**
+//                 * This needs to be improved, in this situation we already have
+//                 * jfxAPI but not because it was saved in the file, try to fill
+//                 * the path by finding it
+//                 */
+//                if (!needJFXAPI && (jfxPath == null || jfxPath.equals(""))) {
+//                    jfxPath = getJFXClassPath();
+//                }
 
                 final String _attachPath = attachPath;
-                final String _jfxPath = jfxPath;
+//                final String _jfxPath = jfxPath;
                 if (Utils.isMac()) {
                     System.setProperty("javafx.macosx.embedded", "true");
                 }
@@ -164,14 +167,14 @@ public class ScenicViewBooter {
                     }
                 });
 
-                SwingClassPathDialog.showDialog(_attachPath, _jfxPath, true, new PathChangeListener() {
+                SwingClassPathDialog.showDialog(_attachPath, true, new PathChangeListener() {
                     @Override public void onPathChanged(final Map<String, URI> map) {
                         final URI toolsPath = map.get(PathChangeListener.TOOLS_JAR_KEY);
-                        final URI jfxPath = map.get(PathChangeListener.JFXRT_JAR_KEY);
+//                        final URI jfxPath = map.get(PathChangeListener.JFXRT_JAR_KEY);
                         updateClassPath(toolsPath);
-                        updateClassPath(jfxPath);
+//                        updateClassPath(jfxPath);
                         properties.setProperty(TOOLS_JAR_PATH_KEY, toolsPath.toASCIIString());
-                        properties.setProperty(JFXRT_JAR_PATH_KEY, jfxPath.toASCIIString());
+//                        properties.setProperty(JFXRT_JAR_PATH_KEY, jfxPath.toASCIIString());
                         PropertiesUtils.saveProperties();
                         SwingClassPathDialog.hideDialog();
                         new Thread() {
@@ -191,12 +194,10 @@ public class ScenicViewBooter {
     private void start(final URI attachPath) {
         activateDebug();
         patchAttachLibrary(attachPath);
-//        RemoteScenicViewLauncher.start();
         Application.launch(RemoteScenicViewLauncher.class);
     }
 
     private void patchAttachLibrary(final URI attachPath) {
-
         if (attachPath != null /*&& Utils.isWindows()*/ && new File(attachPath).exists()) {
             final File jdkHome = new File(attachPath).getParentFile().getParentFile();
             try {
@@ -205,13 +206,12 @@ public class ScenicViewBooter {
                 /**
                  * Try to set or modify java.library.path
                  */
-                final String path = jdkHome.getAbsolutePath() + 
-                                    File.pathSeparator + 
-                                    "jre" + 
-                                    File.pathSeparator + 
+                final String path = jdkHome.getAbsolutePath() + File.pathSeparator + 
+                                    "jre" + File.pathSeparator + 
                                     "bin;" + 
                                     System.getProperty("java.library.path");
                 System.setProperty("java.library.path", path);
+
                 try {
                     /**
                      * This code is need for reevaluating the library path
@@ -227,60 +227,7 @@ public class ScenicViewBooter {
             }
         }
     }
-
-    private String getJFXClassPath() {
-        final List<String> results = JfxrtFinder.findJfxrt();
-        // // see if we can find JavaFX at the runtime path
-        // String path = System.getProperty("javafx.runtime.path");
-        // path = path == null ? "" : path;
-
-        for (final String path : results) {
-            if (path != null && new File(path).exists()) {
-                // properties.setProperty(JFXRT_JAR_PATH_KEY, path);
-                return path;
-            }
-        }
-
-        return "";
-    }
-
-    private String getToolsClassPath() {
-        final String javaHome = System.getProperty("java.home");
-        if (!javaHome.contains("jdk")) {
-            // JOptionPane.showMessageDialog(null, "No JDK found");
-            System.out.println("Error: No JDK found on system");
-            return null;
-        }
-
-        // This points to, for example, "C:\Program Files
-        // (x86)\Java\jdk1.6.0_30\jre"
-        // This is one level too deep. We want to pop up and then go into the
-        // lib directory to find tools.jar
-        debug("JDK found at: " + javaHome);
-
-        File toolsJar = new File(javaHome + "/../lib/tools.jar");
-        if (!toolsJar.exists()) {
-            // JOptionPane.showMessageDialog(null, "No tools.jar found at\n" +
-            // toolsJar);
-            boolean found = false;
-            if (Utils.isMac()) {
-                toolsJar = getToolsClassPathOnMAC();
-                if (toolsJar != null) {
-                    found = true;
-                }
-            }
-            if (!found) {
-                System.out.println("Error: Can not find tools.jar on system - disabling VM lookup");
-                return null;
-            }
-        }
-
-        final String path = toolsJar.getAbsolutePath();
-        // properties.setProperty(TOOLS_JAR_PATH_KEY, path);
-
-        return path;
-    }
-
+    
     private void updateClassPath(final String uriPath) {
         updateClassPath(Utils.toURI(uriPath));
     }
@@ -295,78 +242,107 @@ public class ScenicViewBooter {
         }
     }
 
-    private boolean[] testClassPathRequirements() {
-        boolean isAttachAPIAvailable = false;
-        boolean isJFXAvailable = false;
-
-        // Test if we can load a class from tools.jar
-        try {
-            Class.forName("com.sun.tools.attach.AttachNotSupportedException").newInstance();
-            isAttachAPIAvailable = true;
-        } catch (final Exception e) {
-            debug("Java Attach API was not found");
+    
+    
+    /***************************************************************************
+     *                                                                         *
+     * Attach API Handling                                                     *
+     *                                                                         *
+     **************************************************************************/
+    
+    private File getToolsClassPath() {
+        File toolsJarFile = doBasicToolsSearch();
+        if (toolsJarFile != null && toolsJarFile.exists()) {
+            return toolsJarFile;
+        }
+        
+        if (Utils.isWindows()) {
+            // go down windows special path
+            toolsJarFile = getToolsClassPathOnMAC();
+            if (toolsJarFile != null && toolsJarFile.exists()) {
+                return toolsJarFile;
+            }
+        } else if (Utils.isMac()) {
+            // go down mac special path
+            toolsJarFile = getToolsClassPathOnMAC();
+            if (toolsJarFile != null && toolsJarFile.exists()) {
+                return toolsJarFile;
+            }
+        }
+        
+        return null;
+    }
+    
+    private File doBasicToolsSearch() {
+        final String javaHome = System.getProperty("java.home");
+        if (! isJDKFolder(javaHome)) {
+            System.out.println("Error: No JDK found on system");
+            return null;
         }
 
-        // Test if we can load a class from jfxrt.jar
-        try {
-            Class.forName("javafx.beans.property.SimpleBooleanProperty").newInstance();
-            isJFXAvailable = true;
-        } catch (final Exception e) {
-            debug("JavaFX API was not found");
-        }
+        // This points to, for example, "C:\Program Files
+        // (x86)\Java\jdk1.6.0_30\jre"
+        // This is one level too deep. We want to pop up and then go into the
+        // lib directory to find tools.jar
+        debug("JDK found at: " + javaHome);
 
-        return new boolean[] { isAttachAPIAvailable, isJFXAvailable };
+        File toolsJar = new File(javaHome + "/../lib/tools.jar");
+        return toolsJar.exists() ? toolsJar : null;
+    }
+    
+    private boolean isJDKFolder(String path) {
+        if (path == null) return false;
+        File f = new File(path);
+        return f.exists() && f.isDirectory() && f.getName().contains("jdk");
     }
 
     private File getToolsClassPathOnMAC() {
-        /**
-         * Apparently tools.jar can be on: a) /Library/Java/JavaVirtualMachines/
-         * b) System/Library/Java/JavaVirtualMachines/
-         */
-        File toolsFile = getToolsClassPathOnMAC(new File("/Library/Java/JavaVirtualMachines/"));
-        if (toolsFile == null) {
-            toolsFile = getToolsClassPathOnMAC(new File("/System/Library/Java/JavaVirtualMachines/"));
+        Process process = null;
+        try {
+            Runtime runtime = Runtime.getRuntime();
+            process = runtime.exec("/usr/libexec/java_home -V");
+            process.waitFor();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return toolsFile;
-    }
-
-    private File getToolsClassPathOnMAC(final File jvmsRoot) {
-        debug("Testing tools classPath on MAC:" + jvmsRoot.getAbsolutePath());
-        final File[] jdks = jvmsRoot.listFiles(new FileFilter() {
-
-            @Override public boolean accept(final File dir) {
-                return (dir.isDirectory() && dir.getName().indexOf(".jdk") != -1);
+            
+        try(
+            InputStream inputStream = process.getErrorStream();
+            InputStreamReader reader = new InputStreamReader(inputStream);
+            BufferedReader bufferedReader = new BufferedReader(reader)
+        ) {
+            if (bufferedReader.ready()) {
+                bufferedReader.readLine();
             }
-        });
-        for (int i = 0; i < jdks.length; i++) {
-            debug("Valid JDKs:" + jdks[i].getName());
-        }
-        final String javaVersion = System.getProperty("java.version");
-        /**
-         * If we are using JDK6 using classes.jar otherwise tools.jar
-         */
-        if (javaVersion.indexOf("1.6") != -1) {
-            for (int i = 0; i < jdks.length; i++) {
-                if (jdks[i].getName().indexOf("1.6") != -1) {
-                    final File classesFile = new File(jdks[i], "Contents/Classes/classes.jar");
-                    if (classesFile.exists()) {
-                        debug("Classes file found on MAC in:" + classesFile.getAbsolutePath());
-                        return classesFile;
+            while (bufferedReader.ready()) {
+                String versionString = bufferedReader.readLine();
+                versionString = versionString.trim();
+                
+                String version;
+                String name;
+                String path;
+                String[] splitted = versionString.split(" ");
+                if (splitted.length == 3) {
+                    version = splitted[0];
+                    name = splitted[1];
+                    path = splitted[2];
+                    
+                    if (version.endsWith(":")) {
+                        version = version.substring(0, version.length() - 1);
                     }
-                }
-            }
-        }
-        if (javaVersion.indexOf("1.7") != -1) {
-            for (int i = 0; i < jdks.length; i++) {
-                if (jdks[i].getName().indexOf("1.7") != -1) {
-                    final File toolsFile = new File(jdks[i], "Contents/Home/lib/tools.jar");
+//                    versions.add(new JavaVersion(splitted[0], splitted[1], splitted[2]));
+                    
+                    final File toolsFile = new File(path, "Contents/Home/lib/tools.jar");
                     if (toolsFile.exists()) {
-                        debug("Tools file found on MAC in:" + toolsFile.getAbsolutePath());
+                        debug("Tools file found on Mac OS in:" + toolsFile.getAbsolutePath());
                         return toolsFile;
                     }
                 }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        
         return null;
     }
 }

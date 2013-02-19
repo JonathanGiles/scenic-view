@@ -52,12 +52,12 @@ public class SwingClassPathDialog extends JFrame {
 
     private static final String TOOLS_JAR_TOOLTIP = "<html>The tools.jar file is located within your Java JDK folder.<br/><br/>" + "<b>For example</b>: a common location for the tools.jar file in a Java 7u5 install is:<br/>" + "C:\\Program Files (x86)\\Java\\jdk1.7.0_05\\lib\\tools.jar";
 
-    private static final String JFXRT_JAR_TOOLTIP = "<html>The jfxrt.jar file is located within your JavaFX runtime folder.<br/><br/>" + "<b>For example</b>: a common location for the jfxrt.jar file in a JavaFX install is:<br/>" + "C:\\Program Files (x86)\\Oracle\\JavaFX 2.1 Runtime\\lib";
+//    private static final String JFXRT_JAR_TOOLTIP = "<html>The jfxrt.jar file is located within your JavaFX runtime folder.<br/><br/>" + "<b>For example</b>: a common location for the jfxrt.jar file in a JavaFX install is:<br/>" + "C:\\Program Files (x86)\\Oracle\\JavaFX 2.1 Runtime\\lib";
 
     private final ImageIcon buttonImage = new ImageIcon(Images.class.getResource("mglass.gif"));
 
     private final JTextField toolsField;
-    private final JTextField jfxField;
+//    private final JTextField jfxField;
 
     private final JButton actionButton;
 
@@ -81,10 +81,10 @@ public class SwingClassPathDialog extends JFrame {
         return instance != null;
     }
 
-    public static void showDialog(final String toolsPath, final String jfxPath, final boolean isBootTime, final PathChangeListener listener) {
+    public static void showDialog(final String toolsPath, final boolean isBootTime, final PathChangeListener listener) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override public void run() {
-                instance.configure(toolsPath, jfxPath, isBootTime, listener);
+                instance.configure(toolsPath, isBootTime, listener);
                 instance.setVisible(true);
                 instance.toFront();
                 instance.requestFocus();
@@ -161,32 +161,32 @@ public class SwingClassPathDialog extends JFrame {
         c.gridwidth = 2;
         c.gridx = 0;
         c.gridy = 1;
-        label = new JLabel("jfxrt.jar classpath:");
-        label.setToolTipText(JFXRT_JAR_TOOLTIP);
-        form.add(label, c);
-        c.gridx = 2;
-        c.gridwidth = 5;
-
-        jfxField = new JTextField();
-        jfxField.setEditable(false);
-        jfxField.setToolTipText(JFXRT_JAR_TOOLTIP);
-        jfxField.addMouseListener(new MouseAdapter() {
-            @Override public void mouseClicked(final MouseEvent e) {
-                show("jfxrt.jar", jfxField);
-            }
-        });
-        jfxField.setPreferredSize(new Dimension(300, 25));
-        form.add(jfxField, c);
-        final JButton jfxChange = new JButton(buttonImage);
-        jfxChange.setToolTipText(JFXRT_JAR_TOOLTIP);
-        jfxChange.addActionListener(new ActionListener() {
-            @Override public void actionPerformed(final ActionEvent e) {
-                show("jfxrt.jar", jfxField);
-            }
-        });
-        c.gridx = 7;
-        c.gridwidth = 1;
-        form.add(jfxChange, c);
+//        label = new JLabel("jfxrt.jar classpath:");
+//        label.setToolTipText(JFXRT_JAR_TOOLTIP);
+//        form.add(label, c);
+//        c.gridx = 2;
+//        c.gridwidth = 5;
+//
+//        jfxField = new JTextField();
+//        jfxField.setEditable(false);
+//        jfxField.setToolTipText(JFXRT_JAR_TOOLTIP);
+//        jfxField.addMouseListener(new MouseAdapter() {
+//            @Override public void mouseClicked(final MouseEvent e) {
+//                show("jfxrt.jar", jfxField);
+//            }
+//        });
+//        jfxField.setPreferredSize(new Dimension(300, 25));
+//        form.add(jfxField, c);
+//        final JButton jfxChange = new JButton(buttonImage);
+//        jfxChange.setToolTipText(JFXRT_JAR_TOOLTIP);
+//        jfxChange.addActionListener(new ActionListener() {
+//            @Override public void actionPerformed(final ActionEvent e) {
+//                show("jfxrt.jar", jfxField);
+//            }
+//        });
+//        c.gridx = 7;
+//        c.gridwidth = 1;
+//        form.add(jfxChange, c);
         outerPanel.add(form, BorderLayout.CENTER);
 
         actionButton.addActionListener(new ActionListener() {
@@ -197,11 +197,11 @@ public class SwingClassPathDialog extends JFrame {
                 } else {
                     map.put(PathChangeListener.TOOLS_JAR_KEY, Utils.toURI(toolsField.getText()));
                 }
-                if (new File(jfxField.getText()).exists()) {
-                    map.put(PathChangeListener.JFXRT_JAR_KEY, Utils.encodePath(jfxField.getText()));
-                } else {
-                    map.put(PathChangeListener.JFXRT_JAR_KEY, Utils.toURI(jfxField.getText()));
-                }
+//                if (new File(jfxField.getText()).exists()) {
+//                    map.put(PathChangeListener.JFXRT_JAR_KEY, Utils.encodePath(jfxField.getText()));
+//                } else {
+//                    map.put(PathChangeListener.JFXRT_JAR_KEY, Utils.toURI(jfxField.getText()));
+//                }
                 if (pathChangeListener != null) {
                     pathChangeListener.onPathChanged(map);
                 }
@@ -216,9 +216,9 @@ public class SwingClassPathDialog extends JFrame {
         setLocationRelativeTo(null);
     }
 
-    private void configure(final String toolsPath, final String jfxPath, final boolean isBootTime, final PathChangeListener listener) {
+    private void configure(final String toolsPath, final boolean isBootTime, final PathChangeListener listener) {
         toolsField.setText(toolsPath);
-        jfxField.setText(jfxPath);
+//        jfxField.setText(jfxPath);
         actionButton.setText(isBootTime ? "Launch Scenic View" : "Save");
         pathChangeListener = listener;
         checkValid();
@@ -247,11 +247,11 @@ public class SwingClassPathDialog extends JFrame {
 
     private void checkValid() {
         final boolean toolsJarExists = Utils.checkPath(toolsField.getText());
-        final boolean javafxJarExists = Utils.checkPath(jfxField.getText());
-        actionButton.setEnabled(toolsJarExists && javafxJarExists);
+//        final boolean javafxJarExists = Utils.checkPath(jfxField.getText());
+        actionButton.setEnabled(toolsJarExists/* && javafxJarExists*/);
 
         // update the UI to indicate whether the selected paths are valid
         toolsField.setBackground(toolsJarExists ? VALID_COLOR : INVALID_COLOR);
-        jfxField.setBackground(javafxJarExists ? VALID_COLOR : INVALID_COLOR);
+//        jfxField.setBackground(javafxJarExists ? VALID_COLOR : INVALID_COLOR);
     }
 }
