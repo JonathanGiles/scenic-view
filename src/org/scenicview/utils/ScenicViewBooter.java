@@ -35,6 +35,7 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.net.*;
 import java.util.*;
+import javafx.application.Application;
 
 import org.fxconnector.remote.FXConnectorFactory;
 import org.fxconnector.remote.util.ScenicViewExceptionLogger;
@@ -190,7 +191,8 @@ public class ScenicViewBooter {
     private void start(final URI attachPath) {
         activateDebug();
         patchAttachLibrary(attachPath);
-        RemoteScenicViewLauncher.start();
+//        RemoteScenicViewLauncher.start();
+        Application.launch(RemoteScenicViewLauncher.class);
     }
 
     private void patchAttachLibrary(final URI attachPath) {

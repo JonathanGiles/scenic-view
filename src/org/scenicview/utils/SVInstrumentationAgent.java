@@ -37,31 +37,25 @@ import javafx.stage.Stage;
 
 import org.scenicview.ScenicView;
 import org.scenicview.update.LocalVMUpdateStrategy;
-import com.sun.javafx.application.PlatformImpl;
+import javafx.application.Application;
 
 /**
  * 
  */
-public class SVInstrumentationAgent {
+public class SVInstrumentationAgent extends Application {
 
     public static void premain(final String agentArgs, final Instrumentation inst) {
-        new SVInstrumentationAgent();
+        Application.launch(agentArgs);
     }
 
-    private SVInstrumentationAgent() {
+    @Override public void start(Stage stage) throws Exception {
         System.out.println("Starting Scenic View Instrumentation Agent");
-        PlatformImpl.startup(new Runnable() {
-
-            @Override public void run() {
-                final Stage stage = new Stage();
-                // workaround for RT-10714
-                stage.setWidth(640);
-                stage.setHeight(800);
-                stage.setTitle("Scenic View v" + ScenicView.VERSION);
-                final ScenicView view = new ScenicView(new LocalVMUpdateStrategy(), stage);
-                ScenicView.show(view, stage);
-            }
-        });
+        
+        // workaround for RT-10714
+        stage.setWidth(640);
+        stage.setHeight(800);
+        stage.setTitle("Scenic View v" + ScenicView.VERSION);
+        final ScenicView view = new ScenicView(new LocalVMUpdateStrategy(), stage);
+        ScenicView.show(view, stage);
     }
-
 }
