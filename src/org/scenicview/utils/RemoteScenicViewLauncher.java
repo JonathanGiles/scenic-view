@@ -52,20 +52,16 @@ public class RemoteScenicViewLauncher extends Application {
     @Override public void start(Stage stage) throws Exception {
         setUserAgentStylesheet(STYLESHEET_MODENA);
         final RemoteVMsUpdateStrategy strategy = new RemoteVMsUpdateStrategy();
-//        PlatformImpl.startup(new Runnable() {
-//
-//            @Override public void run() {
-                FXConnectorFactory.debug("Platform running");
-//                final Stage stage = new Stage();
-                // workaround for RT-10714
-                stage.setWidth(640);
-                stage.setHeight(800);
-                stage.setTitle("Scenic View v" + ScenicView.VERSION);
-                FXConnectorFactory.debug("Launching ScenicView v" + ScenicView.VERSION);
-                view = new ScenicView(strategy, stage);
-                ScenicView.show(view, stage);
-//            }
-//        });
+
+        FXConnectorFactory.debug("Platform running");
+        // workaround for RT-10714
+        stage.setWidth(640);
+        stage.setHeight(800);
+        stage.setTitle("Scenic View v" + ScenicView.VERSION);
+        FXConnectorFactory.debug("Launching ScenicView v" + ScenicView.VERSION);
+        view = new ScenicView(strategy, stage);
+        ScenicView.show(view, stage);
+
         FXConnectorFactory.debug("Startup done");
         while (view == null) {
             try {
@@ -83,40 +79,4 @@ public class RemoteScenicViewLauncher extends Application {
         }
         FXConnectorFactory.debug("Server done");
     }
-    
-    
-
-//    public static void start() {
-//        final RemoteVMsUpdateStrategy strategy = new RemoteVMsUpdateStrategy();
-//        PlatformImpl.startup(new Runnable() {
-//
-//            @Override public void run() {
-//                FXConnectorFactory.debug("Platform running");
-//                final Stage stage = new Stage();
-//                // workaround for RT-10714
-//                stage.setWidth(640);
-//                stage.setHeight(800);
-//                stage.setTitle("Scenic View v" + ScenicView.VERSION);
-//                FXConnectorFactory.debug("Launching ScenicView v" + ScenicView.VERSION);
-//                view = new ScenicView(strategy, stage);
-//                ScenicView.show(view, stage);
-//            }
-//        });
-//        FXConnectorFactory.debug("Startup done");
-//        while (view == null) {
-//            try {
-//                Thread.sleep(500);
-//            } catch (final InterruptedException e) {
-//                ExceptionLogger.submitException(e);
-//            }
-//        }
-//
-//        FXConnectorFactory.debug("Creating server");
-//        try {
-//            strategy.setFXConnector(FXConnectorFactory.getConnector());
-//        } catch (final RemoteException e1) {
-//            ExceptionLogger.submitException(e1);
-//        }
-//        FXConnectorFactory.debug("Server done");
-//    }
 }
