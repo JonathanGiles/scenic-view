@@ -63,7 +63,7 @@ public class HelpBox {
         wview.setPrefWidth(SCENE_WIDTH);
         wview.doLoad(url);
         pane.setCenter(wview);
-        final Scene scene = SceneBuilder.create().width(SCENE_WIDTH).height(SCENE_HEIGHT).root(pane).stylesheets(ScenicView.STYLESHEETS).build();
+        final Scene scene = SceneBuilder.create().width(SCENE_WIDTH).height(SCENE_HEIGHT).root(pane)/*.stylesheets(ScenicView.STYLESHEETS)*/.build();
         stage = StageBuilder.create().title(title).build();
         stage.setScene(scene);
         stage.getIcons().add(HELP_ICON);

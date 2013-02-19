@@ -126,7 +126,7 @@ public class SubmitExceptionDialog {
 
         Platform.runLater(new Runnable() {
             @Override public void run() {
-                scene = SceneBuilder.create().width(SCENE_WIDTH).height(SCENE_HEIGHT).root(panel).stylesheets(ScenicView.STYLESHEETS).build();
+                scene = SceneBuilder.create().width(SCENE_WIDTH).height(SCENE_HEIGHT).root(panel)/*.stylesheets(ScenicView.STYLESHEETS)*/.build();
 
                 stage = StageBuilder.create().style(StageStyle.UTILITY).title("Exception").build();
                 stage.initModality(Modality.APPLICATION_MODAL);

@@ -134,8 +134,8 @@ import org.scenicview.utils.VersionChecker;
 public class ScenicView extends Region implements ConnectorController, CParent {
 
     private static final String HELP_URL = "http://fxexperience.com/scenic-view/help";
-    public static final String STYLESHEETS = ScenicView.class.getResource("scenicview.css").toExternalForm();
-    public static final Image APP_ICON = DisplayUtils.getUIImage("mglass.png");
+//    public static final String STYLESHEETS = ScenicView.class.getResource("scenicview.css").toExternalForm();
+    public static final Image APP_ICON = null;//DisplayUtils.getUIImage("mglass.png");
 
     public static final String VERSION = "8.0.0 (Developer Preview 1)";
     // the Stage used to show Scenic View
@@ -1116,9 +1116,9 @@ public class ScenicView extends Region implements ConnectorController, CParent {
 
     public static void show(final ScenicView scenicview, final Stage stage) {
         final Scene scene = new Scene(scenicview);
-        scene.getStylesheets().addAll(STYLESHEETS);
+//        scene.getStylesheets().addAll(STYLESHEETS);
         stage.setScene(scene);
-        stage.getIcons().add(APP_ICON);
+//        stage.getIcons().add(APP_ICON);
         if (scenicview.activeStage != null && scenicview.activeStage instanceof StageControllerImpl)
             ((StageControllerImpl) scenicview.activeStage).placeStage(stage);
 

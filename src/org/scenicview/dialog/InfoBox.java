@@ -63,7 +63,7 @@ public class InfoBox {
             final String textAreaText, final boolean editable, final int width, final int height) {
         final VBox pane = new VBox(20);
         pane.setId(StageController.FX_CONNECTOR_BASE_ID + "InfoBox");
-        final Scene scene = SceneBuilder.create().width(width).height(height).root(pane).stylesheets(ScenicView.STYLESHEETS).build();
+        final Scene scene = SceneBuilder.create().width(width).height(height).root(pane)/*.stylesheets(ScenicView.STYLESHEETS)*/.build();
 
         final Stage stage = StageBuilder.create().style(StageStyle.UTILITY).title(title).build();
         stage.initModality(Modality.WINDOW_MODAL);
