@@ -31,14 +31,13 @@
  */
 package org.scenicview;
 
-import java.net.URI;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import javafx.animation.Animation;
@@ -83,7 +82,6 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
-import javax.swing.JOptionPane;
 
 import org.fxconnector.AppController;
 import org.fxconnector.AppControllerImpl;
@@ -121,11 +119,10 @@ import org.scenicview.dialog.InfoBox;
 import org.scenicview.update.AppsRepository;
 import org.scenicview.update.DummyUpdateStrategy;
 import org.scenicview.update.UpdateStrategy;
+import org.scenicview.utils.ClassPathDialog;
 import org.scenicview.utils.ExceptionLogger;
-import org.scenicview.utils.PathChangeListener;
 import org.scenicview.utils.PropertiesUtils;
 import org.scenicview.utils.ScenicViewBooter;
-import org.scenicview.utils.SwingClassPathDialog;
 import org.scenicview.utils.VersionChecker;
 
 /**
@@ -295,24 +292,31 @@ public class ScenicView extends Region implements ConnectorController, CParent {
 
                 final String toolsPath = properties.getProperty(ScenicViewBooter.TOOLS_JAR_PATH_KEY);
 //                final String jfxPath = properties.getProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY);
-                if (!SwingClassPathDialog.hasBeenInited()) {
-                    SwingClassPathDialog.init();
+//                if (!SwingClassPathDialog.hasBeenInited()) {
+//                    SwingClassPathDialog.init();
+//                }
+                final File toolsPathFile = new ClassPathDialog(toolsPath).show();
+                
+                if (toolsPathFile != null) {
+                    properties.setProperty(ScenicViewBooter.TOOLS_JAR_PATH_KEY, toolsPathFile.getAbsolutePath());
+                    PropertiesUtils.saveProperties();
                 }
-                SwingClassPathDialog.showDialog(toolsPath, false, new PathChangeListener() {
-                    @Override public void onPathChanged(final Map<String, URI> map) {
-
-                        final URI toolsPath = map.get(PathChangeListener.TOOLS_JAR_KEY);
-//                        final URI jfxPath = map.get(PathChangeListener.JFXRT_JAR_KEY);
-
-                        properties.setProperty(ScenicViewBooter.TOOLS_JAR_PATH_KEY, toolsPath.toASCIIString());
-//                        properties.setProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY, jfxPath.toASCIIString());
-                        PropertiesUtils.saveProperties();
-
-                        JOptionPane.showMessageDialog(null, "Updated classpath will be used on next Scenic View boot", "Classpath Saved",
-                                JOptionPane.INFORMATION_MESSAGE);
-                        SwingClassPathDialog.hideDialog();
-                    }
-                });
+                
+//                SwingClassPathDialog.showDialog(toolsPath, false, new PathChangeListener() {
+//                    @Override public void onPathChanged(final Map<String, URI> map) {
+//
+//                        final URI toolsPath = map.get(PathChangeListener.TOOLS_JAR_KEY);
+////                        final URI jfxPath = map.get(PathChangeListener.JFXRT_JAR_KEY);
+//
+//                        properties.setProperty(ScenicViewBooter.TOOLS_JAR_PATH_KEY, toolsPath.toASCIIString());
+////                        properties.setProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY, jfxPath.toASCIIString());
+//                        PropertiesUtils.saveProperties();
+//
+//                        JOptionPane.showMessageDialog(null, "Updated classpath will be used on next Scenic View boot", "Classpath Saved",
+//                                JOptionPane.INFORMATION_MESSAGE);
+//                        SwingClassPathDialog.hideDialog();
+//                    }
+//                });
             }
         });
 

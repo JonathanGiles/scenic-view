@@ -143,61 +143,33 @@ public class ScenicViewBooter {
                 if (!needAttachAPI && (attachPath == null || attachPath.isEmpty())) {
                     attachPath = getToolsClassPath().getAbsolutePath();
                 }
-//                /**
-//                 * This needs to be improved, in this situation we already have
-//                 * jfxAPI but not because it was saved in the file, try to fill
-//                 * the path by finding it
-//                 */
-//                if (!needJFXAPI && (jfxPath == null || jfxPath.equals(""))) {
-//                    jfxPath = getJFXClassPath();
-//                }
 
                 final String _attachPath = attachPath;
-//                final String _jfxPath = jfxPath;
                 if (Utils.isMac()) {
                     System.setProperty("javafx.macosx.embedded", "true");
                 }
-                javax.swing.SwingUtilities.invokeLater(new Runnable() {
-                    @Override public void run() {
-                        // instatiate the ClassPathDialog at startup to
-                        // workaround
-                        // issues
-                        // if it is created after JavaFX has started.
-                        SwingClassPathDialog.init();
-                    }
-                });
-
-                SwingClassPathDialog.showDialog(_attachPath, true, new PathChangeListener() {
-                    @Override public void onPathChanged(final Map<String, URI> map) {
-                        final URI toolsPath = map.get(PathChangeListener.TOOLS_JAR_KEY);
-//                        final URI jfxPath = map.get(PathChangeListener.JFXRT_JAR_KEY);
-                        updateClassPath(toolsPath);
-//                        updateClassPath(jfxPath);
-                        properties.setProperty(TOOLS_JAR_PATH_KEY, toolsPath.toASCIIString());
-//                        properties.setProperty(JFXRT_JAR_PATH_KEY, jfxPath.toASCIIString());
-                        PropertiesUtils.saveProperties();
-                        SwingClassPathDialog.hideDialog();
-                        new Thread() {
-                            @Override public void run() {
-                                ScenicViewBooter.this.start(toolsPath);
-                            }
-                        }.start();
-
-                    }
-                });
+                
+                final File toolsPathFile = new ClassPathDialog(_attachPath).show();
+                if (toolsPathFile != null) {
+                    String toolsPath = toolsPathFile.getAbsolutePath();
+                    updateClassPath(toolsPath);
+                    properties.setProperty(ScenicViewBooter.TOOLS_JAR_PATH_KEY, toolsPath);
+                    PropertiesUtils.saveProperties();
+                    ScenicViewBooter.this.start(toolsPath);
+                }
             } else {
-                start(Utils.toURI(attachPath));
+                start(attachPath);
             }
         }
     }
 
-    private void start(final URI attachPath) {
+    private void start(final String attachPath) {
         activateDebug();
         patchAttachLibrary(attachPath);
         Application.launch(RemoteScenicViewLauncher.class);
     }
 
-    private void patchAttachLibrary(final URI attachPath) {
+    private void patchAttachLibrary(final String attachPath) {
         if (attachPath != null /*&& Utils.isWindows()*/ && new File(attachPath).exists()) {
             final File jdkHome = new File(attachPath).getParentFile().getParentFile();
             try {

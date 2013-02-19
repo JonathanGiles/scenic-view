@@ -44,9 +44,9 @@ class Utils {
             @SuppressWarnings("deprecation") final URL url = new File(path).toURL();
             return new URI(url.getProtocol(), url.getHost(), url.getPath(), null);
         } catch (final URISyntaxException ex) {
-            Logger.getLogger(SwingClassPathDialog.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
         } catch (final MalformedURLException ex) {
-            Logger.getLogger(SwingClassPathDialog.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
