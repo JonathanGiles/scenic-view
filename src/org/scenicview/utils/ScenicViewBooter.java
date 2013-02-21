@@ -230,10 +230,6 @@ public class ScenicViewBooter {
         
         if (Utils.isWindows()) {
             // go down windows special path
-            toolsJarFile = getToolsClassPathOnMAC();
-            if (toolsJarFile != null && toolsJarFile.exists()) {
-                return toolsJarFile;
-            }
         } else if (Utils.isMac()) {
             // go down mac special path
             toolsJarFile = getToolsClassPathOnMAC();
