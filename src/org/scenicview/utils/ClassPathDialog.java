@@ -33,6 +33,8 @@ package org.scenicview.utils;
 
 import java.io.File;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.stage.Window;
 
 /**
  *
@@ -43,15 +45,20 @@ public class ClassPathDialog {
     public ClassPathDialog(final String toolsPath) {
         toolsJarChooser = new FileChooser();
         toolsJarChooser.setTitle("Please find a tools.jar file...");
-        toolsJarChooser.setInitialFileName("tools.jar");
+//        toolsJarChooser.setInitialFileName("tools.jar");
         
-        File f = new File(toolsPath);
-        if (f != null && f.exists() && f.isDirectory()) {
-            toolsJarChooser.setInitialDirectory(f);
+        File initialDirectory = new File("/");
+        if (toolsPath != null && ! toolsPath.isEmpty()) {
+            File f = new File(toolsPath);
+            if (f != null && f.exists() && f.isDirectory()) {
+                initialDirectory = f;
+            }
         }
+        
+        toolsJarChooser.setInitialDirectory(initialDirectory);
     }
     
-    public File show() {
-        return toolsJarChooser.showOpenDialog(null);
+    public File show(Window owner) {
+        return toolsJarChooser.showOpenDialog(owner);
     }
 }

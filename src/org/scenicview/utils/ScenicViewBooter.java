@@ -31,20 +31,23 @@
  */
 package org.scenicview.utils;
 
+import com.sun.tools.attach.spi.AttachProvider;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.net.*;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
+import javafx.stage.Stage;
 
 import org.fxconnector.remote.FXConnectorFactory;
-import org.fxconnector.remote.util.ScenicViewExceptionLogger;
 import org.scenicview.ScenicView;
 
 /**
  * 
  */
-public class ScenicViewBooter {
+public class ScenicViewBooter extends Application {
 
     public static final String TOOLS_JAR_PATH_KEY = "attachPath";
 
@@ -64,7 +67,8 @@ public class ScenicViewBooter {
                 }
             }
         }
-        new ScenicViewBooter();
+//        new ScenicViewBooter();
+        launch(args);
     }
 
     private void activateDebug() {
@@ -74,7 +78,11 @@ public class ScenicViewBooter {
 
     private static Properties properties;
     
-    private ScenicViewBooter() {
+    private Stage stage;
+
+    @Override public void start(final Stage stage) throws Exception {
+        this.stage = stage;
+//    private ScenicViewBooter() {
         // first we check if the classes are already on the classpath
         boolean isAttachAPIAvailable = false;
         boolean isJFXAvailable = false;
@@ -97,7 +105,7 @@ public class ScenicViewBooter {
         
         if (isAttachAPIAvailable && isJFXAvailable) {
             // Launch ScenicView directly
-            start(null);
+            startScenicView(null);
         } else {
             // If we are here, the classes are not on the classpath.
             // First, we read the properties file to find previous entries
@@ -116,8 +124,11 @@ public class ScenicViewBooter {
                 if (needAttachAPI) {
                     // If we can't get it from the properties file, we try to
                     // find it on the users operating system
-                    attachPath = getToolsClassPath().getAbsolutePath();
-                    needAttachAPI = !Utils.checkPath(attachPath);
+                    File attachFile = getToolsClassPath();
+                    if (attachFile != null) {
+                        attachPath = attachFile.getAbsolutePath();
+                        needAttachAPI = !Utils.checkPath(attachPath);
+                    }
                 }
 
                 if (!needAttachAPI) {
@@ -141,45 +152,61 @@ public class ScenicViewBooter {
                  * fill the path by finding it
                  */
                 if (!needAttachAPI && (attachPath == null || attachPath.isEmpty())) {
-                    attachPath = getToolsClassPath().getAbsolutePath();
+                    File attachFile = getToolsClassPath();
+                    if (attachFile != null) {
+                        attachPath = attachFile.getAbsolutePath();
+                    }
                 }
 
                 final String _attachPath = attachPath;
                 if (Utils.isMac()) {
                     System.setProperty("javafx.macosx.embedded", "true");
                 }
-                
-                final File toolsPathFile = new ClassPathDialog(_attachPath).show();
+
+                final File toolsPathFile = new ClassPathDialog(_attachPath).show(stage);
                 if (toolsPathFile != null) {
                     String toolsPath = toolsPathFile.getAbsolutePath();
                     updateClassPath(toolsPath);
                     properties.setProperty(ScenicViewBooter.TOOLS_JAR_PATH_KEY, toolsPath);
                     PropertiesUtils.saveProperties();
-                    ScenicViewBooter.this.start(toolsPath);
+                    ScenicViewBooter.this.startScenicView(toolsPath);
                 }
             } else {
-                start(attachPath);
+                startScenicView(attachPath);
             }
         }
     }
 
-    private void start(final String attachPath) {
+    private void startScenicView(final String attachPath) {
         activateDebug();
-        patchAttachLibrary(attachPath);
-        Application.launch(RemoteScenicViewLauncher.class);
+        
+        try {
+            patchAttachLibrary(attachPath);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        
+        setUserAgentStylesheet(STYLESHEET_MODENA);
+        RemoteScenicViewLauncher launcher = new RemoteScenicViewLauncher();
+        launcher.start(stage);
     }
 
+    
+    // TODO there is interesting code at the following URL for enumerating all
+    // available AttachProviders:
+    // http://stackoverflow.com/questions/11209267/dynamic-library-loading-with-pre-and-post-check-using-serviceloader
     private void patchAttachLibrary(final String attachPath) {
         if (attachPath != null /*&& Utils.isWindows()*/ && new File(attachPath).exists()) {
             final File jdkHome = new File(attachPath).getParentFile().getParentFile();
+
             try {
                 System.loadLibrary("attach");
             } catch (final UnsatisfiedLinkError e) {
                 /**
                  * Try to set or modify java.library.path
                  */
-                final String path = jdkHome.getAbsolutePath() + File.pathSeparator + 
-                                    "jre" + File.pathSeparator + 
+                final String path = jdkHome.getAbsolutePath() + File.separator + 
+                                    "jre" + File.separator + 
                                     "bin;" + 
                                     System.getProperty("java.library.path");
                 System.setProperty("java.library.path", path);

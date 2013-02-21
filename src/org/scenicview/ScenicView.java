@@ -229,7 +229,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
     private Tab detailsTab;
     private Tab eventsTab;
 
-    public ScenicView(final UpdateStrategy updateStrategy, final Stage senicViewStage) {
+    public ScenicView(final UpdateStrategy updateStrategy, final Stage scenicViewStage) {
         Persistence.loadProperties();
         Runtime.getRuntime().addShutdownHook(shutdownHook);
         setId(StageController.FX_CONNECTOR_BASE_ID + "scenic-view");
@@ -295,7 +295,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
 //                if (!SwingClassPathDialog.hasBeenInited()) {
 //                    SwingClassPathDialog.init();
 //                }
-                final File toolsPathFile = new ClassPathDialog(toolsPath).show();
+                final File toolsPathFile = new ClassPathDialog(toolsPath).show(scenicViewStage);
                 
                 if (toolsPathFile != null) {
                     properties.setProperty(ScenicViewBooter.TOOLS_JAR_PATH_KEY, toolsPathFile.getAbsolutePath());
@@ -785,9 +785,9 @@ public class ScenicView extends Region implements ConnectorController, CParent {
 
         getChildren().add(borderPane);
 
-        this.scenicViewStage = senicViewStage;
-        Persistence.loadProperty("stageWidth", senicViewStage, 800);
-        Persistence.loadProperty("stageHeight", senicViewStage, 800);
+        this.scenicViewStage = scenicViewStage;
+        Persistence.loadProperty("stageWidth", scenicViewStage, 800);
+        Persistence.loadProperty("stageHeight", scenicViewStage, 800);
         checkNewVersion(false);
         setUpdateStrategy(updateStrategy);
         TimelineBuilder.create().cycleCount(Animation.INDEFINITE).keyFrames(new KeyFrame(Duration.millis(500), new EventHandler<ActionEvent>() {

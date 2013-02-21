@@ -41,7 +41,7 @@ import org.scenicview.update.RemoteVMsUpdateStrategy;
 import com.sun.javafx.application.PlatformImpl;
 import javafx.application.Application;
 
-public class RemoteScenicViewLauncher extends Application {
+public class RemoteScenicViewLauncher { // extends Application {
 
     private static ScenicView view;
 
@@ -49,8 +49,7 @@ public class RemoteScenicViewLauncher extends Application {
         // no-op
     }
 
-    @Override public void start(Stage stage) throws Exception {
-        setUserAgentStylesheet(STYLESHEET_MODENA);
+    public void start(Stage stage) {
         final RemoteVMsUpdateStrategy strategy = new RemoteVMsUpdateStrategy();
 
         FXConnectorFactory.debug("Platform running");
