@@ -64,23 +64,20 @@ import org.fxconnector.node.SVNode;
 public class ScenegraphTreeView extends TreeView<SVNode> {
 
     private TreeItem<SVNode> previouslySelectedItem;
-    private final Map<SVNode, TreeItem<SVNode>> treeViewData = new HashMap<SVNode, TreeItem<SVNode>>();
-    // private final Map<StageController, StageCollapsingListener> listeners =
-    // new HashMap<StageController,
-    // ScenegraphTreeView.StageCollapsingListener>();
+    private final Map<SVNode, TreeItem<SVNode>> treeViewData = new HashMap<>();
     private final List<NodeFilter> activeNodeFilters;
     private final ConnectorController container;
-    private final Map<SVNode, StageController> stages = new HashMap<SVNode, StageController>();
+    private final Map<SVNode, StageController> stages = new HashMap<>();
 
     TreeItem<SVNode> apps;
 
     private boolean blockSelection;
     private TreeItem<SVNode> patchedNode;
 
-    private final List<Integer> forcedCollapsedItems = new ArrayList<Integer>();
-    private final List<Integer> forcedExpandedItems = new ArrayList<Integer>();
-    private final List<String> forcedCollapsedNodeClassItems = new ArrayList<String>();
-    private final List<String> forcedExpandedNodeClassItems = new ArrayList<String>();
+    private final List<Integer> forcedCollapsedItems = new ArrayList<>();
+    private final List<Integer> forcedExpandedItems = new ArrayList<>();
+    private final List<String> forcedCollapsedNodeClassItems = new ArrayList<>();
+    private final List<String> forcedExpandedNodeClassItems = new ArrayList<>();
     ContextMenu selectedCM;
 
     public ScenegraphTreeView(final List<NodeFilter> activeNodeFilters, final ConnectorController container) {
@@ -90,7 +87,6 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         setShowRoot(false);
         setPrefSize(200, 500);
         getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<SVNode>>() {
-
             @Override public void changed(final ObservableValue<? extends TreeItem<SVNode>> arg0, final TreeItem<SVNode> arg1, final TreeItem<SVNode> newValue) {
                 if (!blockSelection) {
                     final TreeItem<SVNode> selected = newValue;
@@ -104,15 +100,13 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                     @Override public void updateItem(final SVNode item, final boolean empty) {
                         super.updateItem(item, empty);
 
-                        if (getTreeItem() != null) {
-                            setGraphic(getTreeItem().getGraphic());
-                        }
+                        TreeItem treeItem = getTreeItem();
+                        setGraphic(treeItem == null ? null : treeItem.getGraphic());
 
-                        if (item == null) return;
-                        
-                        setText(item.toString());
+                        setText(item == null ? null : item.toString());
                         setOpacity(1);
 
+                        if (item == null) return;
                         if (!item.isVisible() || item.isInvalidForFilter()) {
                             setOpacity(0.3);
                         }
