@@ -38,7 +38,7 @@ import java.util.logging.*;
 /**
  * 
  */
-class Utils {
+public class Utils {
     public static URI encodePath(final String path) {
         try {
             @SuppressWarnings("deprecation") final URL url = new File(path).toURL();
@@ -51,22 +51,7 @@ class Utils {
         return null;
     }
 
-    public static boolean isMac() {
-
-        final String os = System.getProperty("os.name").toLowerCase();
-        // Mac
-        return (os.indexOf("mac") >= 0);
-    }
-
-    public static boolean isWindows() {
-
-        final String os = System.getProperty("os.name").toLowerCase();
-        // windows
-        return (os.indexOf("win") >= 0);
-
-    }
-
-    static boolean checkPath(final String path) {
+    public static boolean checkPath(final String path) {
         try {
             if (path != null && !path.equals("")) {
                 if (new File(path).exists()) {
@@ -81,7 +66,7 @@ class Utils {
         return false;
     }
 
-    static URI toURI(final String uri) {
+    public static URI toURI(final String uri) {
         try {
             if (new File(uri).exists()) {
                 return encodePath(new File(uri).getAbsolutePath());

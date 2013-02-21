@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Oracle and/or its affiliates.
+ * Copyright (c) 2013 Oracle and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -29,36 +29,17 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.scenicview.utils;
+package org.scenicview.utils.attach;
 
 import java.io.File;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
-import javafx.stage.Window;
+import java.util.List;
 
 /**
  *
  */
-public class ClassPathDialog {
-    private final FileChooser jdkChooser;
+public interface AttachHandler {
     
-    public ClassPathDialog(final String toolsPath) {
-        jdkChooser = new FileChooser();
-        jdkChooser.setTitle("Please find an installed JDK");
-//        toolsJarChooser.setInitialFileName("tools.jar");
-        
-        File initialDirectory = new File("/");
-        if (toolsPath != null && ! toolsPath.isEmpty()) {
-            File f = new File(toolsPath);
-            if (f != null && f.exists() && f.isDirectory()) {
-                initialDirectory = f;
-            }
-        }
-        
-        jdkChooser.setInitialDirectory(initialDirectory);
-    }
-    
-    public File show(Window owner) {
-        return jdkChooser.showOpenDialog(owner);
-    }
+    public void getOrderedJDKPaths(List<JDKToolsJarPair> jdkPaths);
+
+    public File resolveToolsJarPath(JDKToolsJarPair aThis);
 }

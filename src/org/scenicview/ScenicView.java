@@ -290,15 +290,15 @@ public class ScenicView extends Region implements ConnectorController, CParent {
             @Override public void handle(final ActionEvent arg0) {
                 final Properties properties = PropertiesUtils.getProperties();
 
-                final String toolsPath = properties.getProperty(ScenicViewBooter.TOOLS_JAR_PATH_KEY);
+                final String toolsPath = properties.getProperty(ScenicViewBooter.JDK_PATH_KEY);
 //                final String jfxPath = properties.getProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY);
 //                if (!SwingClassPathDialog.hasBeenInited()) {
 //                    SwingClassPathDialog.init();
 //                }
-                final File toolsPathFile = new ClassPathDialog(toolsPath).show(scenicViewStage);
+                final File jdkPathFile = new ClassPathDialog(toolsPath).show(scenicViewStage);
                 
-                if (toolsPathFile != null) {
-                    properties.setProperty(ScenicViewBooter.TOOLS_JAR_PATH_KEY, toolsPathFile.getAbsolutePath());
+                if (jdkPathFile != null) {
+                    properties.setProperty(ScenicViewBooter.JDK_PATH_KEY, jdkPathFile.getAbsolutePath());
                     PropertiesUtils.saveProperties();
                 }
                 

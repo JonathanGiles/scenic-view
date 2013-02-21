@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Oracle and/or its affiliates.
+ * Copyright (c) 2013 Oracle and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -29,37 +29,23 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.scenicview.utils;
+package org.scenicview.utils.attach;
 
-import java.io.*;
-import java.lang.reflect.Method;
-import java.net.*;
+import java.io.File;
+import java.util.List;
+import static org.scenicview.utils.attach.AttachHandlerFactory.doBasicJdkSearch;
 
-@SuppressWarnings("rawtypes")
-public class ClassPathHacker {
+/**
+ *
+ */
+public class WindowsAttachHandler implements AttachHandler {
 
-    private static final Class[] parameters = new Class[] { URL.class };
-
-    public static void addFile(final String s) throws IOException {
-        final File f = new File(s);
-        addFile(f);
+    @Override public void getOrderedJDKPaths(List<JDKToolsJarPair> jdkPaths) {
+        doBasicJdkSearch(jdkPaths);
     }
 
-    @SuppressWarnings("deprecation") public static void addFile(final File f) throws IOException {
-        addURL(f.toURL());
-    }
-
-    public static void addURL(final URL u) throws IOException {
-        final URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-        final Class sysclass = URLClassLoader.class;
-
-        try {
-            @SuppressWarnings("unchecked") final Method method = sysclass.getDeclaredMethod("addURL", parameters);
-            method.setAccessible(true);
-            method.invoke(sysloader, new Object[] { u });
-        } catch (final Throwable t) {
-            ExceptionLogger.submitException(t);
-            throw new IOException("Error, could not add URL to system classloader");
-        }
+    @Override public File resolveToolsJarPath(JDKToolsJarPair jdkPath) {
+        // TODO
+        throw new RuntimeException("Not yet implemented");
     }
 }
