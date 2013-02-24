@@ -32,18 +32,17 @@
 package org.scenicview.utils;
 
 import java.io.File;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Window;
 
 /**
  *
  */
 public class ClassPathDialog {
-    private final FileChooser jdkChooser;
+    private final DirectoryChooser jdkChooser;
     
     public ClassPathDialog(final String toolsPath) {
-        jdkChooser = new FileChooser();
+        jdkChooser = new DirectoryChooser();
         jdkChooser.setTitle("Please find an installed JDK");
 //        toolsJarChooser.setInitialFileName("tools.jar");
         
@@ -59,6 +58,6 @@ public class ClassPathDialog {
     }
     
     public File show(Window owner) {
-        return jdkChooser.showOpenDialog(owner);
+        return jdkChooser.showDialog(owner);
     }
 }

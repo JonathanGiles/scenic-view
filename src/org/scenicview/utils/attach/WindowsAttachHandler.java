@@ -46,6 +46,12 @@ public class WindowsAttachHandler implements AttachHandler {
 
     @Override public File resolveToolsJarPath(JDKToolsJarPair jdkPath) {
         // TODO
-        throw new RuntimeException("Not yet implemented");
+        // For now we assume tools.jar is in the lib/ folder beneath the jdk
+        // folder
+        File toolsJarPath = new File(jdkPath.getJdkPath(), "lib/tools.jar");
+        if (! toolsJarPath.exists()) {
+            // FIXME
+        }
+        return toolsJarPath;
     }
 }

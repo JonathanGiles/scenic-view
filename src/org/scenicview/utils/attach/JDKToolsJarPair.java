@@ -16,7 +16,10 @@ public class JDKToolsJarPair {
     private File toolsPath;
     
     public JDKToolsJarPair(String jdkPath) {
-        this(new File(jdkPath));
+        if (jdkPath == null || jdkPath.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+        this.jdkPath = new File(jdkPath);
     }
     
     public JDKToolsJarPair(File jdkPath) {

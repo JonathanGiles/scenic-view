@@ -41,5 +41,10 @@ public interface AttachHandler {
     
     public void getOrderedJDKPaths(List<JDKToolsJarPair> jdkPaths);
 
-    public File resolveToolsJarPath(JDKToolsJarPair aThis);
+    /**
+     * We are given a JDKToolsJarPair where it is assumed the jdkPath is known
+     * and the path to the tools.jar is unknown. We need to return the path
+     * to the tools.jar file.
+     */
+    public File resolveToolsJarPath(JDKToolsJarPair jdkPath);
 }

@@ -41,6 +41,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import javafx.application.Platform;
 import javafx.stage.Stage;
 import org.scenicview.utils.ClassPathDialog;
 import org.scenicview.utils.ExceptionLogger;
@@ -77,8 +78,9 @@ public class AttachHandlerFactory {
             AttachHandler attachHandler = getAttachHandler();
             
             // firstly we try the properties reference
-            jdkHome = new JDKToolsJarPair(properties.getProperty(JDK_PATH_KEY));
-            needAttachAPI = !Utils.checkPath(jdkHome.getJdkPath().getAbsolutePath());
+            String jdpPathPropertyValue = properties.getProperty(JDK_PATH_KEY);
+            jdkHome = jdpPathPropertyValue == null ? null : new JDKToolsJarPair(jdpPathPropertyValue);
+            needAttachAPI = jdkHome == null || !Utils.checkPath(jdkHome.getJdkPath().getAbsolutePath());
             if (needAttachAPI) {
                 // If we can't get it from the properties file, we try to
                 // find it on the users operating system
@@ -101,18 +103,23 @@ public class AttachHandlerFactory {
         }
 
         if (needAttachAPI) {
-//            /**
-//             * This needs to be improved, in this situation we already have
-//             * attachAPI but not because it was saved in the file, try to
-//             * fill the path by finding it
-//             */
-//            if (!needAttachAPI && (jdkHome == null || jdkHome.isEmpty())) {
-//                List<File> jdkPaths = attachHandler.getOrderedJDKPaths();
-//                File jdkPathFile = jdkPaths.get(0);
-//                if (jdkPathFile != null) {
-//                    jdkHome = jdkPathFile.getAbsolutePath();
-//                }
-//            }
+            /**
+             * This needs to be improved, in this situation we already have
+             * attachAPI but not because it was saved in the file, try to
+             * fill the path by finding it
+             */
+            if (!needAttachAPI && jdkHome == null) {
+                List<JDKToolsJarPair> jdkPaths = new ArrayList<>();
+                attachHandler.getOrderedJDKPaths(jdkPaths);
+                
+                // TODO we should handle this better!
+                if (! jdkPaths.isEmpty()) {
+                    JDKToolsJarPair jdkPathFile = jdkPaths.get(0);
+                    if (jdkPathFile != null) {
+                        jdkHome = jdkPathFile;
+                    }
+                }
+            }
 
 //            final String _attachPath = jdkHome;
             if (com.sun.javafx.Utils.isMac()) {
@@ -122,6 +129,10 @@ public class AttachHandlerFactory {
             final File jdkPathFile = new ClassPathDialog(null).show(stage);
             if (jdkPathFile != null) {
                 String jdkPath = jdkPathFile.getAbsolutePath();
+                if (jdkPath == null || jdkPath.isEmpty()) {
+                    Platform.exit();
+                }
+                jdkHome = new JDKToolsJarPair(jdkPath);
                 addToolsJarToClasspath(jdkHome);
                 properties.setProperty(ScenicViewBooter.JDK_PATH_KEY, jdkPath);
                 PropertiesUtils.saveProperties();
