@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import static org.scenicview.utils.attach.AttachHandlerFactory.doBasicJdkSearch;
 
@@ -44,7 +45,11 @@ import static org.scenicview.utils.attach.AttachHandlerFactory.doBasicJdkSearch;
  *
  */
 public class MacAttachHandler implements AttachHandler {
-
+    private static final String[] PATHS_TO_TOOLS_JAR = new String[] {
+        "Contents/Home/lib/tools.jar",
+        "lib/tools.jar"
+    };
+    
     @Override public void getOrderedJDKPaths(List<JDKToolsJarPair> jdkPaths) {
         doBasicJdkSearch(jdkPaths);
         
@@ -52,7 +57,7 @@ public class MacAttachHandler implements AttachHandler {
         getToolsClassPathOnMAC(jdkPaths);
     }
     
-    private File getToolsClassPathOnMAC(List<JDKToolsJarPair> jdkPaths) {
+    private void getToolsClassPathOnMAC(List<JDKToolsJarPair> jdkPaths) {
         Process process = null;
         try {
             Runtime runtime = Runtime.getRuntime();
@@ -75,13 +80,12 @@ public class MacAttachHandler implements AttachHandler {
                 versionString = versionString.trim();
                 
                 String version;
-                String name;
                 String path;
-                String[] splitted = versionString.split(" ");
+                String[] splitted = versionString.split("\t");
+                
                 if (splitted.length == 3) {
                     version = splitted[0];
-                    name = splitted[1];
-                    path = splitted[2];
+                    path = splitted[splitted.length - 1];
                     
                     if (version.endsWith(":")) {
                         version = version.substring(0, version.length() - 1);
@@ -89,9 +93,10 @@ public class MacAttachHandler implements AttachHandler {
 //                    versions.add(new JavaVersion(splitted[0], splitted[1], splitted[2]));
                     
                     final File jdkHome = new File(path);
-                    final File toolsFile = new File(jdkHome, "Contents/Home/lib/tools.jar");
-                    if (toolsFile.exists()) {
+                    final File toolsFile = searchForToolsJar(jdkHome);
+                    if (toolsFile != null && toolsFile.exists()) {
 //                        debug("Tools file found on Mac OS in:" + toolsFile.getAbsolutePath());
+                        // System.out.println("Tools file found on Mac OS in:" + toolsFile.getAbsolutePath());
                         jdkPaths.add(new JDKToolsJarPair(jdkHome, toolsFile));
                     }
                 }
@@ -99,12 +104,26 @@ public class MacAttachHandler implements AttachHandler {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
-        return null;
     }
     
     @Override public File resolveToolsJarPath(JDKToolsJarPair jdkPath) {
         // TODO
-        throw new RuntimeException("Not yet implemented");
+        // For now we assume tools.jar is in the lib/ folder beneath the jdk
+        // folder
+        File toolsJarPath = searchForToolsJar(jdkPath.getJdkPath());
+        if (! toolsJarPath.exists()) {
+            // FIXME
+        }
+        return toolsJarPath;
+    }
+
+    private File searchForToolsJar(File jdkHome) {
+        for (String pathToToolsJar : PATHS_TO_TOOLS_JAR) {
+            final File toolsFile = new File(jdkHome, pathToToolsJar);
+            if (toolsFile.exists()) {
+                return toolsFile;
+            }
+        }
+        return null;
     }
 }

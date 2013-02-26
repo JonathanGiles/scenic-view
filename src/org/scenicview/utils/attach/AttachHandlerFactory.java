@@ -86,6 +86,7 @@ public class AttachHandlerFactory {
                 // find it on the users operating system
                 List<JDKToolsJarPair> jdkPaths = new ArrayList<>();
                 attachHandler.getOrderedJDKPaths(jdkPaths);
+                //System.out.println("found jdks: " + jdkPaths);
                 
                 // TODO we should handle this better!
                 if (! jdkPaths.isEmpty()) {

@@ -42,4 +42,8 @@ public class JDKToolsJarPair {
         }
         return toolsPath;
     }
+    
+    @Override public String toString() {
+        return getJdkPath().getAbsolutePath();
+    }
 }
