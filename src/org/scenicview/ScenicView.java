@@ -150,7 +150,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
     private final ScenegraphTreeView treeView;
     private final AllDetailsPane allDetailsPane;
     private final EventLogPane eventLogPane;
-    private final AnimationsPane animationsPane;
+//    private final AnimationsPane animationsPane;
     private static StatusBar statusBar;
     private final VBox leftPane;
 
@@ -702,27 +702,27 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         leftPane.getChildren().addAll(filtersPane, treeViewPane);
         VBox.setVgrow(treeViewPane, Priority.ALWAYS);
 
-        animationsPane = new AnimationsPane(this) {
-
-            Menu menu;
-
-            @Override public Menu getMenu() {
-                if (menu == null) {
-                    menu = new Menu("Animations");
-                    final CheckMenuItem animationsEnabled = buildCheckMenuItem("Animations enabled", "Animations will run on the application",
-                            "Animations will be stopped", null, Boolean.TRUE);
-                    animationsEnabled.selectedProperty().addListener(new ChangeListener<Boolean>() {
-
-                        @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
-                            animationsEnabled(animationsEnabled.isSelected());
-                        }
-                    });
-                    menu.getItems().add(animationsEnabled);
-                }
-                return menu;
-            }
-
-        };
+//        animationsPane = new AnimationsPane(this) {
+//
+//            Menu menu;
+//
+//            @Override public Menu getMenu() {
+//                if (menu == null) {
+//                    menu = new Menu("Animations");
+//                    final CheckMenuItem animationsEnabled = buildCheckMenuItem("Animations enabled", "Animations will run on the application",
+//                            "Animations will be stopped", null, Boolean.TRUE);
+//                    animationsEnabled.selectedProperty().addListener(new ChangeListener<Boolean>() {
+//
+//                        @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
+//                            animationsEnabled(animationsEnabled.isSelected());
+//                        }
+//                    });
+//                    menu.getItems().add(animationsEnabled);
+//                }
+//                return menu;
+//            }
+//
+//        };
 
         tabPane = new TabPane();
         tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
@@ -762,17 +762,17 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         eventsTab.setContent(eventLogPane);
         eventsTab.setGraphic(new ImageView(DisplayUtils.getUIImage("flag_red.png")));
         eventsTab.setClosable(false);
-        final Tab animationsTab = new Tab("Animations");
-        animationsTab.setContent(animationsPane);
-        animationsTab.setGraphic(new ImageView(DisplayUtils.getUIImage("cinema.png")));
-        animationsTab.setClosable(false);
-        animationsTab.selectedProperty().addListener(new ChangeListener<Boolean>() {
-
-            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean arg2) {
-                updateAnimations();
-            }
-        });
-        tabPane.getTabs().addAll(detailsTab, eventsTab, animationsTab, javadocTab);
+//        final Tab animationsTab = new Tab("Animations");
+//        animationsTab.setContent(animationsPane);
+//        animationsTab.setGraphic(new ImageView(DisplayUtils.getUIImage("cinema.png")));
+//        animationsTab.setClosable(false);
+//        animationsTab.selectedProperty().addListener(new ChangeListener<Boolean>() {
+//
+//            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean arg2) {
+//                updateAnimations();
+//            }
+//        });
+        tabPane.getTabs().addAll(detailsTab, eventsTab/*, animationsTab*/, javadocTab);
         Persistence.loadProperty("splitPaneDividerPosition", splitPane, 0.3);
 
         splitPane.getItems().addAll(leftPane, tabPane);
@@ -863,33 +863,33 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         }
     }
 
-    private void updateAnimations() {
-        animationsPane.clear();
-        for (int i = 0; i < apps.size(); i++) {
-            /**
-             * Only first stage
-             */
-            final List<StageController> stages = apps.get(i).getStages();
-            for (int j = 0; j < stages.size(); j++) {
-                if (stages.get(j).isOpened()) {
-                    stages.get(j).updateAnimations();
-                    break;
-                }
-            }
-        }
-    }
-
-    void pauseAnimation(final StageID id, final int animationID) {
-        for (int i = 0; i < apps.size(); i++) {
-            final List<StageController> stages = apps.get(i).getStages();
-            for (int j = 0; j < stages.size(); j++) {
-                if (stages.get(j).getID().equals(id)) {
-                    stages.get(j).pauseAnimation(animationID);
-                }
-            }
-        }
-        updateAnimations();
-    }
+//    private void updateAnimations() {
+//        animationsPane.clear();
+//        for (int i = 0; i < apps.size(); i++) {
+//            /**
+//             * Only first stage
+//             */
+//            final List<StageController> stages = apps.get(i).getStages();
+//            for (int j = 0; j < stages.size(); j++) {
+//                if (stages.get(j).isOpened()) {
+//                    stages.get(j).updateAnimations();
+//                    break;
+//                }
+//            }
+//        }
+//    }
+//
+//    void pauseAnimation(final StageID id, final int animationID) {
+//        for (int i = 0; i < apps.size(); i++) {
+//            final List<StageController> stages = apps.get(i).getStages();
+//            for (int j = 0; j < stages.size(); j++) {
+//                if (stages.get(j).getID().equals(id)) {
+//                    stages.get(j).pauseAnimation(animationID);
+//                }
+//            }
+//        }
+//        updateAnimations();
+//    }
 
     private void loadAPI(final String property) {
         if (tabPane.getTabs().contains(javadocTab)) {
@@ -1377,9 +1377,9 @@ public class ScenicView extends Region implements ConnectorController, CParent {
                 allDetailsPane.updateDetail(ev2.getPaneType(), ev2.getPaneName(), ev2.getDetails().get(0));
                 break;
 
-            case ANIMATIONS_UPDATED:
-                animationsPane.update(appEvent.getStageID(), ((AnimationsCountEvent) appEvent).getAnimations());
-                break;
+//            case ANIMATIONS_UPDATED:
+//                animationsPane.update(appEvent.getStageID(), ((AnimationsCountEvent) appEvent).getAnimations());
+//                break;
 
             default:
                 debug("Unused event for type " + appEvent);
