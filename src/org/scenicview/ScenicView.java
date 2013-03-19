@@ -82,7 +82,6 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
-
 import org.fxconnector.AppController;
 import org.fxconnector.AppControllerImpl;
 import org.fxconnector.CParent;
@@ -92,7 +91,6 @@ import org.fxconnector.StageController;
 import org.fxconnector.StageControllerImpl;
 import org.fxconnector.StageID;
 import org.fxconnector.details.Detail;
-import org.fxconnector.event.AnimationsCountEvent;
 import org.fxconnector.event.DetailsEvent;
 import org.fxconnector.event.EvLogEvent;
 import org.fxconnector.event.FXConnectorEvent;
@@ -879,7 +877,8 @@ public class ScenicView extends Region implements ConnectorController, CParent {
 //        }
 //    }
 //
-//    void pauseAnimation(final StageID id, final int animationID) {
+    void pauseAnimation(final StageID id, final int animationID) {
+        throw new IllegalStateException("Functionality disabled");
 //        for (int i = 0; i < apps.size(); i++) {
 //            final List<StageController> stages = apps.get(i).getStages();
 //            for (int j = 0; j < stages.size(); j++) {
@@ -889,7 +888,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
 //            }
 //        }
 //        updateAnimations();
-//    }
+    }
 
     private void loadAPI(final String property) {
         if (tabPane.getTabs().contains(javadocTab)) {
