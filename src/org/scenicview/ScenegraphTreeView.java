@@ -246,13 +246,19 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     protected void setSelectedNode(final TreeItem<SVNode> item) {
         // TODO Auto-generated method stub
         if (item != null) {
-            container.setSelectedNode(stages.get(findStageForNode(item).getValue()), item.getValue());
+            TreeItem<SVNode> stageItem = findStageForNode(item);
+            if (stageItem == null) return;
+            
+            SVNode stageSVNode = stageItem.getValue();
+            container.setSelectedNode(stages.get(stageSVNode), item.getValue());
         } else {
             container.setSelectedNode(null, null);
         }
     }
 
     TreeItem<SVNode> findStageForNode(final TreeItem<SVNode> item) {
+        if (item == null || item.getValue() == null) return null;
+        
         if (item.getValue() instanceof SVDummyNode && ((SVDummyNode) item.getValue()).getNodeType() == NodeType.STAGE) {
             return item;
         } else {

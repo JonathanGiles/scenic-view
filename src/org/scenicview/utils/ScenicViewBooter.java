@@ -31,16 +31,7 @@
  */
 package org.scenicview.utils;
 
-import com.sun.tools.attach.spi.AttachProvider;
-import java.io.*;
-import java.lang.reflect.Field;
-import java.net.*;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Application;
-import static javafx.application.Application.STYLESHEET_MODENA;
-import static javafx.application.Application.setUserAgentStylesheet;
 import javafx.stage.Stage;
 
 import org.fxconnector.remote.FXConnectorFactory;
