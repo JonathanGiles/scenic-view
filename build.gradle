@@ -1,7 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'maven'
 
-group = 'com.fxexperience.tools'
+group = 'org.scenic-view'
 version = '8.0-dp3'
 
 repositories {
@@ -16,7 +16,7 @@ configurations {
 dependencies {
     jdk files("${System.properties['java.home']}/../lib/tools.jar")
     jdk files("${System.properties['java.home']}/lib/ext/jfxrt.jar")
-    provided "com.fxexperience.tools:fx-connector:$version"
+    provided "org.fxconnector:fxconnector:$version"
 }
 
 sourceSets {
