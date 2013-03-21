@@ -1,0 +1,47 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+group = 'com.fxexperience.tools'
+version = '8.0-dp3'
+
+repositories {
+    mavenLocal()
+}
+
+configurations {
+    jdk
+    provided
+}
+
+dependencies {
+    jdk files("${System.properties['java.home']}/../lib/tools.jar")
+    jdk files("${System.properties['java.home']}/lib/ext/jfxrt.jar")
+    provided "com.fxexperience.tools:fx-connector:$version"
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+            include '**/*.java'
+        }
+        resources {
+            srcDir 'src'
+            exclude '**/*.java'
+        }
+        compileClasspath += configurations.jdk
+        compileClasspath += configurations.provided
+    }
+}
+
+jar {
+    from configurations.provided.collect { it.isDirectory() ? it : zipTree(it) }
+    manifest {
+        attributes(
+            'Main-Class': 'org.scenicview.utils.ScenicViewBooter',
+            'Agent-Class': 'org.fxconnector.remote.AgentTest',
+            'Premain-Class': 'org.scenicview.utils.SVInstrumentationAgent'
+        )
+    }
+}
+
