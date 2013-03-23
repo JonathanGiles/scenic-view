@@ -1,3 +1,19 @@
+import groovyx.net.http.HTTPBuilder
+
+import static groovyx.net.http.ContentType.JSON
+import static groovyx.net.http.Method.GET
+import static groovyx.net.http.Method.POST
+
+buildscript {
+    repositories {
+        mavenRepo(url: 'http://dl.bintray.com/content/bintray/jcenter')
+    }
+    dependencies {
+        classpath 'org.codehaus.groovy.modules.http-builder:http-builder:0.6'
+        classpath 'commons-collections:commons-collections:3.2.1'
+    }
+}
+
 apply plugin: 'java'
 apply plugin: 'maven'
 
@@ -45,3 +61,40 @@ jar {
     }
 }
 
+task createBintrayPackage << {
+    def http = getHttpBuilder()
+    http.request(GET, JSON) {
+        uri.path = '/packages/' + bintray_orgname + '/' + bintray_repo + '/' + bintray_package
+        response.'404' = {
+            http = getHttpBuilder()
+            http.request(POST, JSON) {
+                uri.path = '/packages/' + bintray_orgname + '/' + bintray_repo
+                body = [name: bintray_package, desc: 'auto', desc_url: 'auto', labels: ['JavaFX']]
+
+                response.success = { resp ->
+                    println 'Created!!!'
+                }
+            }
+        }
+    }
+}
+
+uploadArchives() {
+    repositories {
+        ivy {
+            url = bintray_api_base_url + '/content/' + bintray_orgname + '/' + bintray_repo + '/' + bintray_package + '/' + version
+            credentials {
+                username bintray_username
+                password bintray_api_key
+            }
+        }
+    }
+}
+
+uploadArchives.dependsOn createBintrayPackage
+
+def getHttpBuilder() {
+    def http = new HTTPBuilder(bintray_api_base_url)
+    http.auth.basic bintray_username, bintray_api_key
+    return http
+}
