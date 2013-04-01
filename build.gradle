@@ -32,7 +32,6 @@ configurations {
 
 dependencies {
     jdk files("${System.properties['java.home']}/../lib/tools.jar")
-    jdk files("${System.properties['java.home']}/lib/ext/jfxrt.jar")
     provided "org.fxconnector:fxconnector:$version"
 }
 
@@ -87,6 +86,15 @@ javafx {
         shortcut = ['fxexperience-32.png', 'fxexperience-64.png', 'fxexperience-128.png']
         volume = 'fxexperience-32.png'
         setup = 'fxexperience-32.png'
+    }
+}
+
+jfxDeploy {
+    doFirst {
+        copy {
+            from configurations.jdk
+            into project.libsDir
+        }
     }
 }
 
