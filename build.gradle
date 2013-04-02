@@ -27,12 +27,11 @@ repositories {
 
 configurations {
     jdk
-    provided
 }
 
 dependencies {
     jdk files("${System.properties['java.home']}/../lib/tools.jar")
-    provided "org.fxconnector:fxconnector:$version"
+    compile "org.fxconnector:fxconnector:$version"
 }
 
 sourceSets {
@@ -48,16 +47,13 @@ sourceSets {
             exclude 'deploy/**'
         }
         compileClasspath += configurations.jdk
-        compileClasspath += configurations.provided
     }
 }
 
 jar {
-    from configurations.provided.collect { it.isDirectory() ? it : zipTree(it) }
     manifest {
         attributes(
             'Main-Class': 'org.scenicview.utils.ScenicViewBooter',
-            'Agent-Class': 'org.fxconnector.remote.AgentTest',
             'Premain-Class': 'org.scenicview.utils.SVInstrumentationAgent'
         )
     }
