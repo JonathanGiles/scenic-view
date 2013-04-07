@@ -1,4 +1,3 @@
-apply from: 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/snapshot/javafx.plugin'
 apply plugin: 'java'
 apply plugin: 'maven'
 
@@ -18,6 +17,11 @@ configurations {
 
 dependencies {
     jdk files("${System.properties['java.home']}/../lib/tools.jar")
+    try {
+        jdk file(svJFXRTJar)
+    } catch (MissingPropertyException pne) {
+        jdk files("${System.properties['java.home']}/lib/ext/jfxrt.jar")
+    }
     compile "org.fxconnector:fxconnector:$version"
     binTray "org.fxconnector:fxconnector:$version"
 }
@@ -48,46 +52,9 @@ jar {
     }
 }
 
-javafx {
-
-    appID 'org.scenic-view'
-    appName "Scenic View $version"
-    mainClass 'org.scenicview.utils.ScenicViewBooter'
-
-    // deplpy/info attributes
-    category = 'public.app-category.developer-tools'
-    copyright = 'Copyright (c) 2013 Jonathan Giles'
-    description = 'Scenic View is a JavaFX application designed to make it simple to understand the current state of your application scenegraph, and to also easily manipulate properties of the scenegraph without having to keep editing your code. This lets you find bugs, and get things pixel perfect without having to do the compile-check-compile dance.'
-    licenseType = '3 clause BSD'
-    vendor = 'Jonathan Giles'
-
-    // deploy/preferences attributes
-    installSystemWide = true
-    menu = true
-    shortcut = true
-
-    // app icons
-    icons {
-        shortcut = ['fxexperience-32.png', 'fxexperience-64.png', 'fxexperience-128.png']
-        volume = 'fxexperience-32.png'
-        setup = 'fxexperience-32.png'
-    }
-}
-
-jfxDeploy {
-    doFirst {
-        copy {
-            from configurations.jdk
-            into project.libsDir
-        }
-    }
-    inputFiles.exclude "**/$jar.archiveName"
-}
-
 task jarBinTray(type: Jar, dependsOn: 'jar') {
     from { configurations.binTray.collect { it.isDirectory() ? it : zipTree(it) } }
     from zipTree(jar.archivePath)
-    destinationDir project.distsDir
     manifest {
         attributes(
                 'Main-Class': 'org.scenicview.utils.ScenicViewBooter',
@@ -98,11 +65,11 @@ task jarBinTray(type: Jar, dependsOn: 'jar') {
 }
 
 artifacts {
-    binTray(jarBinTray)
-    binTray(jar) {classifier='small'}
+    archives(jarBinTray)
+    archives(jar) {classifier='small'}
 }
 
-uploadBinTray() {
+uploadArchives() {
     repositories {
         mavenDeployer {
             repository(url: bintray_api_base_url + '/maven/' + bintray_orgname + '/' + bintray_repo + '/' + bintray_package + '/',

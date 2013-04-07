@@ -1,0 +1,77 @@
+apply from: 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/snapshot/javafx.plugin'
+apply plugin: 'java'
+apply plugin: 'maven'
+
+group = 'org.scenic-view'
+version = '8.0-dp3'
+
+defaultTasks 'assemble'
+
+repositories {
+    mavenLocal()
+}
+
+configurations {
+    jdk
+    extract
+}
+
+dependencies {
+    jdk files("${System.properties['java.home']}/../lib/tools.jar")
+    compile "org.fxconnector:fxconnector:$version"
+    extract "org.scenic-view:scenic-view:$version:small"
+}
+
+
+sourceSets {
+    main {
+        compileClasspath += configurations.jdk
+    }
+}
+
+jar {
+    jar {
+        classifier = 'small'
+        manifest {
+            attributes(
+                    'Main-Class': 'org.scenicview.utils.ScenicViewBooter',
+                    'Premain-Class': 'org.scenicview.utils.SVInstrumentationAgent'
+            )
+        }
+    }
+    doLast {
+        // copy over from repo
+        copy {
+            from configurations.jdk
+            from configurations.extract
+            into project.libsDir
+        }
+
+    }
+}
+
+javafx {
+
+    appID 'org.scenic-view'
+    appName "Scenic View $version"
+    mainClass 'org.scenicview.utils.ScenicViewBooter'
+
+    // deplpy/info attributes
+    category = 'public.app-category.developer-tools'
+    copyright = 'Copyright (c) 2013 Jonathan Giles'
+    description = 'Scenic View is a JavaFX application designed to make it simple to understand the current state of your application scenegraph, and to also easily manipulate properties of the scenegraph without having to keep editing your code. This lets you find bugs, and get things pixel perfect without having to do the compile-check-compile dance.'
+    licenseType = '3 clause BSD'
+    vendor = 'Jonathan Giles'
+
+    // deploy/preferences attributes
+    installSystemWide = true
+    menu = true
+    shortcut = true
+
+    // app icons
+    icons {
+        shortcut = ['fxexperience-32.png', 'fxexperience-64.png', 'fxexperience-128.png']
+        volume = 'fxexperience-32.png'
+        setup = 'fxexperience-32.png'
+    }
+}
