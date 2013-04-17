@@ -18,7 +18,7 @@ configurations {
 dependencies {
     jdk files("${System.properties['java.home']}/../lib/tools.jar")
     try {
-        jdk file(svJFXRTJar)
+        jdk files(svJFXRTJar)
     } catch (MissingPropertyException pne) {
         jdk files("${System.properties['java.home']}/lib/ext/jfxrt.jar")
     }
