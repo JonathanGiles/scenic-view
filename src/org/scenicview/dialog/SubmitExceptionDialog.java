@@ -32,16 +32,23 @@
 package org.scenicview.dialog;
 
 
-import org.scenicview.ScenicView;
-import javafx.geometry.*;
-import javafx.scene.*;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
-import javafx.stage.*;
-
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+
+import org.scenicview.ScenicView;
 
 public class SubmitExceptionDialog {
     private static final int SCENE_WIDTH = 500;
@@ -66,69 +73,61 @@ public class SubmitExceptionDialog {
         this.panel.setPadding(new Insets(5, 10, 10, 10));
         
         // --- Label 
-        Label label = LabelBuilder.create()
-                .text("Unfortunately an exception has occurred.\r\n\r\nDo you want to submit this to "
+        Label label = new Label("Unfortunately an exception has occurred.\r\n\r\nDo you want to submit this to "
                     + "the developers of Scenic View for analysis?\r\nNo personal information will be submitted, "
-                    + "and you can click 'Show Exception Details' to see (and edit) everything that will be submitted.")
-                .wrapText(true)
-                .build();
+                    + "and you can click 'Show Exception Details' to see (and edit) everything that will be submitted.");
+        label.setWrapText(true);
         VBox.setMargin(label, new Insets(INSETS, INSETS, 0, INSETS));
         
-        dontAskAgainCheckBox = CheckBoxBuilder.create()
-                .text("Don't ask me again (remember this answer)")
-                .build();
+        dontAskAgainCheckBox = new CheckBox("Don't ask me again (remember this answer)");
         VBox.setMargin(dontAskAgainCheckBox, new Insets(0, INSETS, 0, INSETS));
         
-        Button showDetailsButton = ButtonBuilder.create()
-                .text("Show Exception Details")
-                .minWidth(MIN_BUTTON_WIDTH)
-                .onAction(new EventHandler<ActionEvent>() {
-                    @Override public void handle(ActionEvent t) {
-                        // show info box
-                        infoBox = new InfoBox(stage, "Exception Details",
-                                "The following will be submitted. Feel free to edit the text below to "
-                                + "add any relevant information or to remove any personal information.", 
-                                submission, true, 800, 600);
-                    }
-                }).build();
+        Button showDetailsButton = new Button("Show Exception Details");
+        showDetailsButton.setMinWidth(MIN_BUTTON_WIDTH);
+        showDetailsButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent t) {
+                // show info box
+                infoBox = new InfoBox(stage, "Exception Details",
+                        "The following will be submitted. Feel free to edit the text below to "
+                        + "add any relevant information or to remove any personal information.", 
+                        submission, true, 800, 600);
+            }
+        });
         HBox.setMargin(showDetailsButton, new Insets(0, INSETS, 0, INSETS));
         
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         
-        Button okButton = ButtonBuilder.create()
-                .text("Ok")
-                .minWidth(MIN_BUTTON_WIDTH)
-                .onAction(new EventHandler<ActionEvent>() {
-                    @Override public void handle(ActionEvent t) {
-                        isSubmissionAllowed = true;
-                        stage.close();
-                    }
-                }).build();
+        Button okButton = new Button("Ok");
+        okButton.setMinWidth(MIN_BUTTON_WIDTH);
+        okButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent t) {
+                isSubmissionAllowed = true;
+                stage.close();
+            }
+        });
         HBox.setMargin(okButton, new Insets(0, INSETS, 0, 0));
         
-        Button noButton = ButtonBuilder.create()
-                .text("No")
-                .minWidth(MIN_BUTTON_WIDTH)
-                .onAction(new EventHandler<ActionEvent>() {
-                    @Override public void handle(ActionEvent t) {
-                        isSubmissionAllowed = false;
-                        stage.close();
-                    }
-                }).build();
+        Button noButton = new Button("No");
+        noButton.setMinWidth(MIN_BUTTON_WIDTH);
+        noButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent t) {
+                isSubmissionAllowed = false;
+                stage.close();
+            }
+        });
         HBox.setMargin(noButton, new Insets(0, INSETS, 0, 0));
         
-        HBox buttonsBox = HBoxBuilder.create()
-                .children(showDetailsButton, spacer, okButton, noButton)
-                .build();
+        HBox buttonsBox = new HBox(showDetailsButton, spacer, okButton, noButton);
 
         this.panel.getChildren().addAll(label,dontAskAgainCheckBox,buttonsBox);
 
         Platform.runLater(new Runnable() {
             @Override public void run() {
-                scene = SceneBuilder.create().width(SCENE_WIDTH).height(SCENE_HEIGHT).root(panel)/*.stylesheets(ScenicView.STYLESHEETS)*/.build();
+                scene = new Scene(panel, SCENE_WIDTH, SCENE_HEIGHT);
 
-                stage = StageBuilder.create().style(StageStyle.UTILITY).title("Exception").build();
+                stage = new Stage(StageStyle.UTILITY);
+                stage.setTitle("Exception");
                 stage.initModality(Modality.APPLICATION_MODAL);
                 stage.setScene(scene);
                 stage.getIcons().add(ScenicView.APP_ICON);
