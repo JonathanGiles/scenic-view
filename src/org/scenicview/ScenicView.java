@@ -132,7 +132,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
 //    public static final String STYLESHEETS = ScenicView.class.getResource("scenicview.css").toExternalForm();
     public static final Image APP_ICON = null;//DisplayUtils.getUIImage("mglass.png");
 
-    public static final String VERSION = "8.0.0 (Developer Preview 2)";
+    public static final String VERSION = "8.0.0 (Developer Preview 3)";
     // the Stage used to show Scenic View
     private final Stage scenicViewStage;
 
