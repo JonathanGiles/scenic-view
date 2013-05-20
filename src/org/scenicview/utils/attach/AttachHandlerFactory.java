@@ -148,14 +148,18 @@ public class AttachHandlerFactory {
     }
     
     private static boolean isAttachAvailable() {
-        // Test if we can load a class from tools.jar
-        try {
-            Class.forName("com.sun.tools.attach.AttachNotSupportedException").newInstance();
-            return true;
-        } catch (final Exception e) {
-            debug("Java Attach API was not found");
-            return false;
-        }
+//        // Test if we can load a class from tools.jar
+//        try {
+//            Class.forName("com.sun.tools.attach.AttachNotSupportedException").newInstance();
+//            return true;
+//        } catch (final Exception e) {
+//            debug("Java Attach API was not found");
+//            return false;
+//        }
+    	
+    	// it seems that, on Windows at least, we _need_ to instantiate the attach
+    	// library, even if it is available on the classpath.
+    	return false;
     }
     
     private static AttachHandler getAttachHandler() {

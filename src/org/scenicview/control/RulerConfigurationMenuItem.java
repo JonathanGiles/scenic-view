@@ -111,7 +111,9 @@ public class RulerConfigurationMenuItem extends MenuItem {
                 box.setLayoutY(220);
                 box.setLayoutX(10);
                 dialog.getChildren().add(box);
-                dialog.show(400, 300);
+                dialog.setLayoutX(400);
+                dialog.setLayoutY(300);
+                dialog.show();
             }
         });
     }

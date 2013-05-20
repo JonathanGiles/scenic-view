@@ -45,13 +45,7 @@ public class ScenicViewBooter extends Application {
 
     public static final String JDK_PATH_KEY = "jdkPath";
 
-    private static boolean debug = false;
-
-    private static void debug(final String log) {
-        if (debug) {
-            System.out.println(log);
-        }
-    }
+    private static boolean debug = true;
 
     public static void main(final String[] args) {
         if (args.length > 0) {
