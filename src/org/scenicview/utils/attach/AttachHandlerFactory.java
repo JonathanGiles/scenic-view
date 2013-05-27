@@ -53,7 +53,7 @@ import static org.scenicview.utils.ScenicViewBooter.JDK_PATH_KEY;
  *
  */
 public class AttachHandlerFactory {
-    
+
     private static Properties properties;
     private static AttachHandler attachHandler;
 
@@ -65,7 +65,7 @@ public class AttachHandlerFactory {
         // first we check if the classes are already on the classpath
         boolean isAttachAPIAvailable = AttachHandlerFactory.isAttachAvailable();
         if (isAttachAPIAvailable) return;
-        
+
         // we read the properties file to find previous entries
         properties = PropertiesUtils.getProperties();
 
@@ -76,7 +76,7 @@ public class AttachHandlerFactory {
 
         if (needAttachAPI) {
             AttachHandler attachHandler = getAttachHandler();
-            
+
             // firstly we try the properties reference
             String jdpPathPropertyValue = properties.getProperty(JDK_PATH_KEY);
             jdkHome = jdpPathPropertyValue == null ? null : new JDKToolsJarPair(jdpPathPropertyValue);
@@ -87,7 +87,7 @@ public class AttachHandlerFactory {
                 List<JDKToolsJarPair> jdkPaths = new ArrayList<>();
                 attachHandler.getOrderedJDKPaths(jdkPaths);
                 //System.out.println("found jdks: " + jdkPaths);
-                
+
                 // TODO we should handle this better!
                 if (! jdkPaths.isEmpty()) {
                     JDKToolsJarPair jdkPathFile = jdkPaths.get(0);
@@ -112,7 +112,7 @@ public class AttachHandlerFactory {
             if (!needAttachAPI && jdkHome == null) {
                 List<JDKToolsJarPair> jdkPaths = new ArrayList<>();
                 attachHandler.getOrderedJDKPaths(jdkPaths);
-                
+
                 // TODO we should handle this better!
                 if (! jdkPaths.isEmpty()) {
                     JDKToolsJarPair jdkPathFile = jdkPaths.get(0);
@@ -139,14 +139,14 @@ public class AttachHandlerFactory {
                 PropertiesUtils.saveProperties();
             }
         }
-        
+
         try {
             patchAttachLibrary(jdkHome);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
-    
+
     private static boolean isAttachAvailable() {
 //        // Test if we can load a class from tools.jar
 //        try {
@@ -156,12 +156,12 @@ public class AttachHandlerFactory {
 //            debug("Java Attach API was not found");
 //            return false;
 //        }
-    	
+
     	// it seems that, on Windows at least, we _need_ to instantiate the attach
     	// library, even if it is available on the classpath.
     	return false;
     }
-    
+
     private static AttachHandler getAttachHandler() {
         if (attachHandler == null) {
             if (com.sun.javafx.Utils.isWindows()) {
@@ -174,7 +174,7 @@ public class AttachHandlerFactory {
         }
         return attachHandler;
     }
-    
+
     // TODO there is interesting code at the following URL for enumerating all
     // available AttachProviders:
     // http://stackoverflow.com/questions/11209267/dynamic-library-loading-with-pre-and-post-check-using-serviceloader
@@ -187,9 +187,9 @@ public class AttachHandlerFactory {
             /**
              * Try to set or modify java.library.path
              */
-            final String path = jdkHomeFile.getAbsolutePath() + File.separator + 
-                                "jre" + File.separator + 
-                                "bin;" + 
+            final String path = jdkHomeFile.getAbsolutePath() + File.separator +
+                                "jre" + File.separator +
+                                "bin;" +
                                 System.getProperty("java.library.path");
             System.setProperty("java.library.path", path);
 
@@ -207,7 +207,7 @@ public class AttachHandlerFactory {
             }
         }
     }
-    
+
     private static void addToolsJarToClasspath(final JDKToolsJarPair jdkPath) {
         try {
             final URL url = Utils.toURI(jdkPath.getToolsPath(getAttachHandler()).getAbsolutePath()).toURL();
@@ -215,7 +215,7 @@ public class AttachHandlerFactory {
 
             final URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
             final Class<?> sysclass = URLClassLoader.class;
-        
+
             @SuppressWarnings("unchecked") final Method method = sysclass.getDeclaredMethod("addURL", URL.class);
             method.setAccessible(true);
             method.invoke(sysloader, new Object[] { url });
@@ -223,10 +223,15 @@ public class AttachHandlerFactory {
             e.printStackTrace();
         }
     }
-    
+
     static void doBasicJdkSearch(List<JDKToolsJarPair> jdkPaths) {
         final String javaHome = System.getProperty("java.home");
-        if (! isJDKFolder(javaHome)) {
+        if (isJREInsideJDKFolder(javaHome)) {
+            File jdkHome = new File(javaHome).getParentFile();// + "/../lib/tools.jar");
+            if (jdkHome.exists()) {
+                jdkPaths.add(new JDKToolsJarPair(jdkHome));
+            }
+        } else if (!isJDKFolder(javaHome)) {
             System.out.println("Error: No JDK found on system");
             return;
         }
@@ -242,11 +247,19 @@ public class AttachHandlerFactory {
             jdkPaths.add(new JDKToolsJarPair(jdkHome));
         }
     }
-    
+
     static boolean isJDKFolder(String path) {
         if (path == null) return false;
         File f = new File(path);
-        return f.exists() && f.isDirectory() && f.getName().contains("jdk");
+        return f.exists() && f.isDirectory() && f.getPath().contains("jdk");
+    }
+
+    static boolean isJREInsideJDKFolder(String path) {
+        if (path == null) {
+            return false;
+        }
+        File f = new File(path);
+        return f.exists() && f.isDirectory() && f.getPath().contains("jdk") && f.getName().contains("jre");
     }
 
     private static void debug(final String log) {
