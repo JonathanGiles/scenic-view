@@ -2,7 +2,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 
 group = 'org.scenic-view'
-version = '8.0-dp3'
+version = '8.0-dp4'
 
 defaultTasks 'install'
 
