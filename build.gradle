@@ -2,7 +2,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 
 group = 'org.scenic-view'
-version = '8.0-dp4'
+version = '8.0'
 
 defaultTasks 'install'
 
@@ -47,7 +47,7 @@ jar {
     manifest {
         attributes(
             'Main-Class': 'org.scenicview.utils.ScenicViewBooter',
-            'Premain-Class': 'org.scenicview.utils.SVInstrumentationAgent'
+            'Premain-Class': 'org.scenicview.utils.ScenicViewBooter'
         )
     }
 }
@@ -57,9 +57,9 @@ task jarBinTray(type: Jar, dependsOn: 'jar') {
     from zipTree(jar.archivePath)
     manifest {
         attributes(
-                'Main-Class': 'org.scenicview.utils.ScenicViewBooter',
-                'Agent-Class': 'org.fxconnector.remote.AgentTest',
-                'Premain-Class': 'org.scenicview.utils.SVInstrumentationAgent'
+            'Main-Class': 'org.scenicview.utils.ScenicViewBooter',
+            'Agent-Class': 'org.scenicview.utils.ScenicViewBooter',
+            'Premain-Class': 'org.scenicview.utils.ScenicViewBooter'
         )
     }
 }

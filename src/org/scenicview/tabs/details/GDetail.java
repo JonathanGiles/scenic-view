@@ -29,7 +29,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.scenicview.details;
+package org.scenicview.tabs.details;
 
 import java.util.Iterator;
 import java.util.List;
@@ -59,6 +59,9 @@ import org.fxconnector.details.Detail.EditionType;
 import org.fxconnector.details.DetailPaneType;
 import org.fxconnector.details.GridConstraintsDetail;
 import org.scenicview.ScenicView;
+import org.scenicview.license.ScenicViewLicenseManager;
+import org.scenicview.tabs.DetailsTab;
+import org.scenicview.utils.ScenicViewDebug;
 
 public class GDetail {
     public Label label;
@@ -135,7 +138,8 @@ public class GDetail {
                     GDetailPane.activeDetail.recover();
                 }
 
-                if (Detail.isEditionSupported(editionType)) {
+                // only allow editing in the paid version
+                if (ScenicViewLicenseManager.isPaid() && Detail.isEditionSupported(editionType)) {
                     switch (editionType) {
                     case COMBO:
 
@@ -210,7 +214,7 @@ public class GDetail {
             value.setOpacity(isDefault ? GDetailPane.FADE : 1.0);
         }
 
-        final boolean showDetail = (!AllDetailsPane.showDefaultProperties && !isDefault) || AllDetailsPane.showDefaultProperties;
+        final boolean showDetail = (!DetailsTab.showDefaultProperties && !isDefault) || DetailsTab.showDefaultProperties;
 
         if (label != null) {
             label.setVisible(showDetail);
@@ -268,12 +272,9 @@ public class GDetail {
     public void setDetail(final Detail detail) {
         this.detail = detail;
         if (detail.getDetailType() == DetailPaneType.FULL) {
-            label.setOnMouseClicked(new EventHandler<MouseEvent>() {
-
-                @Override public void handle(final MouseEvent ev) {
-                    if (ev.getClickCount() == 2) {
-                        loader.loadAPI(detail.getProperty());
-                    }
+            label.setOnMouseClicked(ev -> {
+                if (ev.getClickCount() == 2) {
+                    loader.loadAPI(detail.getProperty());
                 }
             });
         }
@@ -302,7 +303,7 @@ public class GDetail {
             }
             break;
         default:
-            System.out.println("GDetail strange value for" + value2);
+            ScenicViewDebug.print("GDetail strange value for" + value2);
             break;
         }
 

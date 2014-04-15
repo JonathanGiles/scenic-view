@@ -55,7 +55,6 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
@@ -68,7 +67,6 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TitledPane;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
@@ -83,7 +81,6 @@ import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
 import org.fxconnector.AppController;
-import org.fxconnector.AppControllerImpl;
 import org.fxconnector.CParent;
 import org.fxconnector.Configuration;
 import org.fxconnector.ConnectorUtils;
@@ -91,6 +88,7 @@ import org.fxconnector.StageController;
 import org.fxconnector.StageControllerImpl;
 import org.fxconnector.StageID;
 import org.fxconnector.details.Detail;
+import org.fxconnector.event.AnimationsCountEvent;
 import org.fxconnector.event.DetailsEvent;
 import org.fxconnector.event.EvLogEvent;
 import org.fxconnector.event.FXConnectorEvent;
@@ -106,33 +104,37 @@ import org.fxconnector.event.WindowDetailsEvent;
 import org.fxconnector.node.SVNode;
 import org.scenicview.ScenegraphTreeView.ConnectorController;
 import org.scenicview.control.FilterTextField;
-import org.scenicview.control.ProgressWebView;
 import org.scenicview.control.RulerConfigurationMenuItem;
-import org.scenicview.details.APILoader;
-import org.scenicview.details.AllDetailsPane;
-import org.scenicview.details.GDetailPane.RemotePropertySetter;
 import org.scenicview.dialog.AboutBox;
 import org.scenicview.dialog.HelpBox;
 import org.scenicview.dialog.InfoBox;
+import org.scenicview.license.ScenicViewLicenseManager;
+import org.scenicview.tabs.AnimationsTab;
+import org.scenicview.tabs.DetailsTab;
+import org.scenicview.tabs.EventLogTab;
+import org.scenicview.tabs.JavaDocTab;
+import org.scenicview.tabs.details.APILoader;
+import org.scenicview.tabs.details.GDetailPane.RemotePropertySetter;
 import org.scenicview.update.AppsRepository;
-import org.scenicview.update.DummyUpdateStrategy;
 import org.scenicview.update.UpdateStrategy;
 import org.scenicview.utils.ClassPathDialog;
 import org.scenicview.utils.ExceptionLogger;
 import org.scenicview.utils.PropertiesUtils;
 import org.scenicview.utils.ScenicViewBooter;
+import org.scenicview.utils.ScenicViewDebug;
 import org.scenicview.utils.VersionChecker;
 
 /**
- * 
+ * The base UI
  */
 public class ScenicView extends Region implements ConnectorController, CParent {
-
+    
     private static final String HELP_URL = "http://fxexperience.com/scenic-view/help";
-//    public static final String STYLESHEETS = ScenicView.class.getResource("scenicview.css").toExternalForm();
+    public static final String STYLESHEETS = ScenicView.class.getResource("scenicview.css").toExternalForm();
     public static final Image APP_ICON = DisplayUtils.getUIImage("mglass.png");
 
-    public static final String VERSION = "8.0.0 (Developer Preview 3)";
+    public static final String VERSION = "8.0.0";
+    
     // the Stage used to show Scenic View
     private final Stage scenicViewStage;
 
@@ -146,9 +148,6 @@ public class ScenicView extends Region implements ConnectorController, CParent {
     private final BorderPane borderPane;
     private final SplitPane splitPane;
     private final ScenegraphTreeView treeView;
-    private final AllDetailsPane allDetailsPane;
-    private final EventLogPane eventLogPane;
-//    private final AnimationsPane animationsPane;
     private static StatusBar statusBar;
     private final VBox leftPane;
 
@@ -163,12 +162,11 @@ public class ScenicView extends Region implements ConnectorController, CParent {
     private final CheckMenuItem autoRefreshStyleSheets;
     private final CheckMenuItem componentSelectOnClick;
 
-    private final Configuration configuration = new Configuration();
+    public final Configuration configuration = new Configuration();
     private final List<FXConnectorEvent> eventQueue = new LinkedList<FXConnectorEvent>();
 
     private UpdateStrategy updateStrategy;
     private long lastMousePosition;
-    private static boolean debug = false;
 
     private final FXConnectorEventDispatcher stageModelListener = new FXConnectorEventDispatcher() {
 
@@ -198,7 +196,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
                 }
 
             } else {
-                debug("Unused event " + appEvent);
+                ScenicViewDebug.print("Unused event " + appEvent);
             }
         }
 
@@ -219,20 +217,19 @@ public class ScenicView extends Region implements ConnectorController, CParent {
     };
 
     private final List<AppController> apps = new ArrayList<AppController>();
-    StageController activeStage;
+    public StageController activeStage;
     private SVNode selectedNode;
-    private ProgressWebView wview;
-    private Tab javadocTab;
+    
     private TabPane tabPane;
-    private Tab detailsTab;
-    private Tab eventsTab;
+    private DetailsTab detailsTab;
+    private EventLogTab eventsTab;
+    private AnimationsTab animationsTab;
+    private JavaDocTab javadocTab;
 
     public ScenicView(final UpdateStrategy updateStrategy, final Stage scenicViewStage) {
         Persistence.loadProperties();
         Runtime.getRuntime().addShutdownHook(shutdownHook);
         setId(StageController.FX_CONNECTOR_BASE_ID + "scenic-view");
-        
-        new Exception("Test");
         
         borderPane = new BorderPane();
         borderPane.setId("main-borderpane");
@@ -269,54 +266,25 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         });
         propertyFilterField.setDisable(true);
 
-        eventLogPane = new EventLogPane(this);
-        eventLogPane.activeProperty().addListener(new ChangeListener<Boolean>() {
-
-            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
-                configuration.setEventLogEnabled(newValue);
-                configurationUpdated();
-            }
-        });
-
         menuBar = new MenuBar();
         menuBar.setUseSystemMenuBar(true);
         // menuBar.setId("main-menubar");
 
         // ---- File Menu
-        final MenuItem classpathItem = new MenuItem("Configure Classpath");
-        classpathItem.setOnAction(new EventHandler<ActionEvent>() {
-            @Override public void handle(final ActionEvent arg0) {
-                final Properties properties = PropertiesUtils.getProperties();
-
-                final String toolsPath = properties.getProperty(ScenicViewBooter.JDK_PATH_KEY);
-//                final String jfxPath = properties.getProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY);
-//                if (!SwingClassPathDialog.hasBeenInited()) {
-//                    SwingClassPathDialog.init();
+//        final MenuItem classpathItem = new MenuItem("Configure Classpath");
+//        classpathItem.setOnAction(new EventHandler<ActionEvent>() {
+//            @Override public void handle(final ActionEvent arg0) {
+//                final Properties properties = PropertiesUtils.getProperties();
+//
+//                final String toolsPath = properties.getProperty(ScenicViewBooter.JDK_PATH_KEY);
+//                final File jdkPathFile = new ClassPathDialog(toolsPath).show(scenicViewStage);
+//                
+//                if (jdkPathFile != null) {
+//                    properties.setProperty(ScenicViewBooter.JDK_PATH_KEY, jdkPathFile.getAbsolutePath());
+//                    PropertiesUtils.saveProperties();
 //                }
-                final File jdkPathFile = new ClassPathDialog(toolsPath).show(scenicViewStage);
-                
-                if (jdkPathFile != null) {
-                    properties.setProperty(ScenicViewBooter.JDK_PATH_KEY, jdkPathFile.getAbsolutePath());
-                    PropertiesUtils.saveProperties();
-                }
-                
-//                SwingClassPathDialog.showDialog(toolsPath, false, new PathChangeListener() {
-//                    @Override public void onPathChanged(final Map<String, URI> map) {
-//
-//                        final URI toolsPath = map.get(PathChangeListener.TOOLS_JAR_KEY);
-////                        final URI jfxPath = map.get(PathChangeListener.JFXRT_JAR_KEY);
-//
-//                        properties.setProperty(ScenicViewBooter.TOOLS_JAR_PATH_KEY, toolsPath.toASCIIString());
-////                        properties.setProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY, jfxPath.toASCIIString());
-//                        PropertiesUtils.saveProperties();
-//
-//                        JOptionPane.showMessageDialog(null, "Updated classpath will be used on next Scenic View boot", "Classpath Saved",
-//                                JOptionPane.INFORMATION_MESSAGE);
-//                        SwingClassPathDialog.hideDialog();
-//                    }
-//                });
-            }
-        });
+//            }
+//        });
 
         final MenuItem exitItem = new MenuItem("E_xit Scenic View");
         exitItem.setAccelerator(KeyCombination.keyCombination("CTRL+Q"));
@@ -331,9 +299,9 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         });
 
         final Menu fileMenu = new Menu("File");
-        if (updateStrategy.needsClassPathConfiguration()) {
-            fileMenu.getItems().addAll(classpathItem, new SeparatorMenuItem());
-        }
+//        if (updateStrategy.needsClassPathConfiguration()) {
+//            fileMenu.getItems().addAll(classpathItem, new SeparatorMenuItem());
+//        }
         fileMenu.getItems().add(exitItem);
 
         // ---- Options Menu
@@ -544,13 +512,12 @@ public class ScenicView extends Region implements ConnectorController, CParent {
             }
         });
 
-        final MenuItem newVersion = new MenuItem("Check For New Version");
-        newVersion.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override public void handle(final ActionEvent arg0) {
-                checkNewVersion(true);
-            }
-        });
+//        final MenuItem newVersion = new MenuItem("Check For New Version");
+//        newVersion.setOnAction(new EventHandler<ActionEvent>() {
+//            @Override public void handle(final ActionEvent arg0) {
+//                checkNewVersion(true);
+//            }
+//        });
 
         final MenuItem about = new MenuItem("About");
         about.setOnAction(new EventHandler<ActionEvent>() {
@@ -560,7 +527,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
             }
         });
 
-        aboutMenu.getItems().addAll(help, newVersion, about);
+        aboutMenu.getItems().addAll(help/*, newVersion*/, about);
 
         menuBar.getMenus().addAll(fileMenu, displayOptionsMenu, scenegraphMenu, aboutMenu);
 
@@ -569,44 +536,11 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         splitPane = new SplitPane();
         splitPane.setId("main-splitpane");
 
-        allDetailsPane = new AllDetailsPane(new APILoader() {
-
+        detailsTab = new DetailsTab(this, new APILoader() {
             @Override public void loadAPI(final String property) {
                 ScenicView.this.loadAPI(property);
             }
-        }) {
-            Menu menu;
-
-            @Override public Menu getMenu() {
-                if (menu == null) {
-                    menu = super.getMenu();
-                    final CheckMenuItem showCSSProperties = buildCheckMenuItem("Show CSS Properties", "Show CSS properties", "Hide CSS properties",
-                            "showCSSProperties", Boolean.FALSE);
-                    showCSSProperties.selectedProperty().addListener(new InvalidationListener() {
-                        @Override public void invalidated(final Observable arg0) {
-                            configuration.setCSSPropertiesDetail(showCSSProperties.isSelected());
-                            final SVNode selected = ScenicView.this.selectedNode;
-                            configurationUpdated();
-                            setSelectedNode(activeStage, selected);
-                        }
-                    });
-                    final CheckMenuItem showDefaultProperties = buildCheckMenuItem("Show Default Properties", "Show default properties",
-                            "Hide default properties", "showDefaultProperties", Boolean.TRUE);
-                    showDefaultProperties.selectedProperty().addListener(new InvalidationListener() {
-                        @Override public void invalidated(final Observable arg0) {
-                            allDetailsPane.setShowDefaultProperties(showDefaultProperties.isSelected());
-                            final SVNode selected = ScenicView.this.selectedNode;
-                            configurationUpdated();
-                            setSelectedNode(activeStage, selected);
-                        }
-                    });
-                    allDetailsPane.setShowDefaultProperties(showDefaultProperties.isSelected());
-                    configuration.setCSSPropertiesDetail(showCSSProperties.isSelected());
-                    menu.getItems().addAll(showDefaultProperties, showCSSProperties);
-                }
-                return menu;
-            }
-        };
+        });
 
         treeView = new ScenegraphTreeView(activeNodeFilters, this);
 
@@ -700,77 +634,33 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         leftPane.getChildren().addAll(filtersPane, treeViewPane);
         VBox.setVgrow(treeViewPane, Priority.ALWAYS);
 
-//        animationsPane = new AnimationsPane(this) {
-//
-//            Menu menu;
-//
-//            @Override public Menu getMenu() {
-//                if (menu == null) {
-//                    menu = new Menu("Animations");
-//                    final CheckMenuItem animationsEnabled = buildCheckMenuItem("Animations enabled", "Animations will run on the application",
-//                            "Animations will be stopped", null, Boolean.TRUE);
-//                    animationsEnabled.selectedProperty().addListener(new ChangeListener<Boolean>() {
-//
-//                        @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
-//                            animationsEnabled(animationsEnabled.isSelected());
-//                        }
-//                    });
-//                    menu.getItems().add(animationsEnabled);
-//                }
-//                return menu;
-//            }
-//
-//        };
+        animationsTab = new AnimationsTab(this);
 
         tabPane = new TabPane();
         tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
-
             @Override public void changed(final ObservableValue<? extends Tab> arg0, final Tab oldValue, final Tab newValue) {
-                if (oldValue != null && oldValue.getContent() instanceof ContextMenuContainer) {
-                    menuBar.getMenus().remove(((ContextMenuContainer) oldValue.getContent()).getMenu());
-                }
-                if (newValue != null && newValue.getContent() instanceof ContextMenuContainer) {
-                    menuBar.getMenus().add(menuBar.getMenus().size() - 1, ((ContextMenuContainer) newValue.getContent()).getMenu());
-                }
+                updateMenuBar(oldValue, newValue);
             }
         });
-        detailsTab = new Tab("Details");
-        detailsTab.setGraphic(new ImageView(DisplayUtils.getUIImage("details.png")));
-        detailsTab.setContent(allDetailsPane);
-        detailsTab.setClosable(false);
-        javadocTab = new Tab("JavaDoc");
 
-        wview = new ProgressWebView();
-        wview.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        javadocTab.setContent(wview);
-
-        javadocTab.setGraphic(new ImageView(DisplayUtils.getUIImage("javadoc.png")));
-        javadocTab.setClosable(false);
-        javadocTab.selectedProperty().addListener(new ChangeListener<Boolean>() {
+        javadocTab = new JavaDocTab(this); 
+        
+        eventsTab = new EventLogTab(this);
+        eventsTab.activeProperty().addListener(new ChangeListener<Boolean>() {
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
-                if (newValue) {
-                    DisplayUtils.showWebView(true);
-                    loadAPI(null);
-                } else {
-                    DisplayUtils.showWebView(false);
-                }
+                configuration.setEventLogEnabled(newValue);
+                configurationUpdated();
             }
         });
-        eventsTab = new Tab("Events");
-        eventsTab.setContent(eventLogPane);
-        eventsTab.setGraphic(new ImageView(DisplayUtils.getUIImage("flag_red.png")));
-        eventsTab.setClosable(false);
-//        final Tab animationsTab = new Tab("Animations");
-//        animationsTab.setContent(animationsPane);
-//        animationsTab.setGraphic(new ImageView(DisplayUtils.getUIImage("cinema.png")));
-//        animationsTab.setClosable(false);
-//        animationsTab.selectedProperty().addListener(new ChangeListener<Boolean>() {
-//
-//            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean arg2) {
-//                updateAnimations();
-//            }
-//        });
-        tabPane.getTabs().addAll(detailsTab, eventsTab/*, animationsTab*/, javadocTab);
+        
+        // we only allow certain tabs in the free version, so we differentiate here
+        if (ScenicViewLicenseManager.isPaid()) {
+            tabPane.getTabs().addAll(detailsTab, eventsTab, /*animationsTab,*/ javadocTab);
+        } else {
+            tabPane.getTabs().addAll(detailsTab, javadocTab);
+        }
+        
+        
         Persistence.loadProperty("splitPaneDividerPosition", splitPane, 0.3);
 
         splitPane.getItems().addAll(leftPane, tabPane);
@@ -786,13 +676,30 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         this.scenicViewStage = scenicViewStage;
         Persistence.loadProperty("stageWidth", scenicViewStage, 800);
         Persistence.loadProperty("stageHeight", scenicViewStage, 800);
-        checkNewVersion(false);
+//        checkNewVersion(false);
         setUpdateStrategy(updateStrategy);
-        TimelineBuilder.create().cycleCount(Animation.INDEFINITE).keyFrames(new KeyFrame(Duration.millis(500), new EventHandler<ActionEvent>() {
+        
+        // we update Scenic View on a separate thread, based on events coming
+        // in from FX Connector. The events arrive into the eventQueue, and
+        // are processed here
+        TimelineBuilder.create().cycleCount(Animation.INDEFINITE).keyFrames(new KeyFrame(Duration.millis(64), new EventHandler<ActionEvent>() {
             @Override public void handle(final ActionEvent arg0) {
                 dispatchEvents();
             }
         })).build().play();
+    }
+    
+    private void updateMenuBar(final Tab oldValue, final Tab newValue) {
+        if (oldValue != null && oldValue instanceof ContextMenuContainer) {
+            Menu menu = ((ContextMenuContainer) oldValue).getMenu();
+            menuBar.getMenus().remove(menu);
+        }
+        if (newValue != null && newValue instanceof ContextMenuContainer) {
+            Menu newMenu = ((ContextMenuContainer) newValue).getMenu();
+            if (newMenu != null) {
+                menuBar.getMenus().add(menuBar.getMenus().size() - 1, newMenu);
+            }
+        }
     }
 
     protected void selectOnClick(final boolean newValue) {
@@ -802,44 +709,44 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         }
     }
 
-    private void checkNewVersion(final boolean forced) {
-        final SimpleDateFormat format = new SimpleDateFormat("ddMMyyyy");
-        final String value = Persistence.loadProperty("lastVersionCheck", null);
-        try {
-            if (forced || value == null || ((System.currentTimeMillis() - format.parse(value).getTime()) > 86400000)) {
-                Platform.runLater(new Runnable() {
-                    @Override public void run() {
-                        final String newVersion = VersionChecker.checkVersion(VERSION);
-                        String versionNum = null;
-                        if (newVersion != null) {
-                            // For now the version is on the first line
-                            versionNum = newVersion;
-                            if (newVersion.indexOf('\n') != -1) {
-                                versionNum = newVersion.substring(0, newVersion.indexOf('\n'));
-                            }
-                            // Now check whether our version is newer
-                            if (versionNum.compareTo(ScenicView.VERSION) < 0) {
-                                versionNum = null;
-                            }
-                        }
+//    private void checkNewVersion(final boolean forced) {
+//        final SimpleDateFormat format = new SimpleDateFormat("ddMMyyyy");
+//        final String value = Persistence.loadProperty("lastVersionCheck", null);
+//        try {
+//            if (forced || value == null || ((System.currentTimeMillis() - format.parse(value).getTime()) > 86400000)) {
+//                Platform.runLater(new Runnable() {
+//                    @Override public void run() {
+//                        final String newVersion = VersionChecker.checkVersion(VERSION);
+//                        String versionNum = null;
+//                        if (newVersion != null) {
+//                            // For now the version is on the first line
+//                            versionNum = newVersion;
+//                            if (newVersion.indexOf('\n') != -1) {
+//                                versionNum = newVersion.substring(0, newVersion.indexOf('\n'));
+//                            }
+//                            // Now check whether our version is newer
+//                            if (versionNum.compareTo(ScenicView.VERSION) < 0) {
+//                                versionNum = null;
+//                            }
+//                        }
+//
+//                        if (versionNum != null) {
+//                            new InfoBox("Version check", "New version found:" + versionNum + " (Yours is:" + ScenicView.VERSION + ")", newVersion, 400, 200);
+//                        } else if (forced) {
+//                            new InfoBox("Version check", "You already have the latest version of Scenic View.", null, 400, 150);
+//                        }
+//
+//                        Persistence.saveProperty("lastVersionCheck", format.format(new Date()));
+//                    }
+//                });
+//
+//            }
+//        } catch (final Exception e) {
+//            ExceptionLogger.submitException(e);
+//        }
+//    }
 
-                        if (versionNum != null) {
-                            new InfoBox("Version check", "New version found:" + versionNum + " (Yours is:" + ScenicView.VERSION + ")", newVersion, 400, 200);
-                        } else if (forced) {
-                            new InfoBox("Version check", "You already have the latest version of Scenic View.", null, 400, 150);
-                        }
-
-                        Persistence.saveProperty("lastVersionCheck", format.format(new Date()));
-                    }
-                });
-
-            }
-        } catch (final Exception e) {
-            ExceptionLogger.submitException(e);
-        }
-    }
-
-    protected void configurationUpdated() {
+    public void configurationUpdated() {
         for (int i = 0; i < apps.size(); i++) {
             final List<StageController> stages = apps.get(i).getStages();
             for (int j = 0; j < stages.size(); j++) {
@@ -850,7 +757,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         }
     }
 
-    private void animationsEnabled(final boolean enabled) {
+    public void animationsEnabled(final boolean enabled) {
         for (int i = 0; i < apps.size(); i++) {
             final List<StageController> stages = apps.get(i).getStages();
             for (int j = 0; j < stages.size(); j++) {
@@ -861,33 +768,32 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         }
     }
 
-//    private void updateAnimations() {
-//        animationsPane.clear();
-//        for (int i = 0; i < apps.size(); i++) {
-//            /**
-//             * Only first stage
-//             */
-//            final List<StageController> stages = apps.get(i).getStages();
-//            for (int j = 0; j < stages.size(); j++) {
-//                if (stages.get(j).isOpened()) {
-//                    stages.get(j).updateAnimations();
-//                    break;
-//                }
-//            }
-//        }
-//    }
-//
-    void pauseAnimation(final StageID id, final int animationID) {
-        throw new IllegalStateException("Functionality disabled");
-//        for (int i = 0; i < apps.size(); i++) {
-//            final List<StageController> stages = apps.get(i).getStages();
-//            for (int j = 0; j < stages.size(); j++) {
-//                if (stages.get(j).getID().equals(id)) {
-//                    stages.get(j).pauseAnimation(animationID);
-//                }
-//            }
-//        }
-//        updateAnimations();
+    public void updateAnimations() {
+        animationsTab.clear();
+        for (int i = 0; i < apps.size(); i++) {
+            /**
+             * Only first stage
+             */
+            final List<StageController> stages = apps.get(i).getStages();
+            for (int j = 0; j < stages.size(); j++) {
+                if (stages.get(j).isOpened()) {
+                    stages.get(j).updateAnimations();
+                    break;
+                }
+            }
+        }
+    }
+
+    public void pauseAnimation(final StageID id, final int animationID) {
+        for (int i = 0; i < apps.size(); i++) {
+            final List<StageController> stages = apps.get(i).getStages();
+            for (int j = 0; j < stages.size(); j++) {
+                if (stages.get(j).getID().equals(id)) {
+                    stages.get(j).pauseAnimation(animationID);
+                }
+            }
+        }
+        updateAnimations();
     }
 
     private void loadAPI(final String property) {
@@ -896,22 +802,13 @@ public class ScenicView extends Region implements ConnectorController, CParent {
                 goTo(SVTab.JAVADOC);
             }
             if (javadocTab.isSelected()) {
-                if (selectedNode == null || selectedNode.getNodeClassName() == null || !selectedNode.getNodeClassName().startsWith("javafx.")) {
-                    wview.doLoad("http://docs.oracle.com/javafx/2/api/overview-summary.html");
-                } else {
-                    String baseClass = selectedNode.getNodeClassName();
-                    if (property != null) {
-                        baseClass = findProperty(baseClass, property);
-                    }
-                    final String page = "http://docs.oracle.com/javafx/2/api/" + baseClass.replace('.', '/') + ".html"
-                            + (property != null ? ("#" + property + "Property") : "");
-                    wview.doLoad(page);
-                }
+                javadocTab.loadAPI(property);
             }
         }
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" }) private String findProperty(final String className, final String property) {
+    @SuppressWarnings({ "unchecked", "rawtypes" }) 
+    public String findProperty(final String className, final String property) {
         Class node = null;
         try {
             node = Class.forName(className);
@@ -923,7 +820,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         }
     }
 
-    void update() {
+    public void update() {
         for (int i = 0; i < apps.size(); i++) {
             final List<StageController> stages = apps.get(i).getStages();
             for (int j = 0; j < stages.size(); j++) {
@@ -948,7 +845,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
     }
 
     protected void filterProperties(final String text) {
-        allDetailsPane.filterProperties(text);
+        detailsTab.filterProperties(text);
     }
 
     @Override public void setSelectedNode(final StageController controller, final SVNode value) {
@@ -961,7 +858,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
                 activeStage = controller;
             }
             storeSelectedNode(value);
-            eventLogPane.setSelectedNode(value);
+            eventsTab.setSelectedNode(value);
             loadAPI(null);
             propertyFilterField.setText("");
             propertyFilterField.setDisable(value == null);
@@ -986,7 +883,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         activeStage.setSelectedNode(value);
     }
 
-    private CheckMenuItem buildCheckMenuItem(final String text, final String toolTipSelected, final String toolTipNotSelected, final String property,
+    public CheckMenuItem buildCheckMenuItem(final String text, final String toolTipSelected, final String toolTipNotSelected, final String property,
             final Boolean value) {
         final CheckMenuItem menuItem = new CheckMenuItem(text);
         if (property != null) {
@@ -1090,36 +987,9 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         return super.getChildren();
     }
 
-    protected static List<AppController> buildAppController(final Parent target) {
-        final List<AppController> controllers = new ArrayList<AppController>();
-        if (target != null) {
-            final AppController aController = new AppControllerImpl();
-            final boolean sceneRoot = target.getScene().getRoot() == target;
-            final StageControllerImpl sController = new StageControllerImpl(target, aController, sceneRoot);
-
-            aController.getStages().add(sController);
-            controllers.add(aController);
-        }
-        return controllers;
-    }
-
-    public static void show(final Scene target) {
-        show(target.getRoot());
-    }
-
-    public static void show(final Parent target) {
-        final Stage stage = new Stage();
-        // workaround for RT-10714
-        stage.setWidth(640);
-        stage.setHeight(800);
-        stage.setTitle("Scenic View v" + VERSION);
-        final DummyUpdateStrategy updateStrategy = new DummyUpdateStrategy(buildAppController(target));
-        show(new ScenicView(updateStrategy, stage), stage);
-    }
-
     public static void show(final ScenicView scenicview, final Stage stage) {
         final Scene scene = new Scene(scenicview);
-//        scene.getStylesheets().addAll(STYLESHEETS);
+        scene.getStylesheets().addAll(STYLESHEETS);
         stage.setScene(scene);
         stage.getIcons().add(APP_ICON);
         if (scenicview.activeStage != null && scenicview.activeStage instanceof StageControllerImpl)
@@ -1139,12 +1009,12 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         this.updateStrategy.start(new AppsRepository() {
 
             private void dumpStatus(final String operation, final int id) {
-                debug(operation + ":" + id);
+                ScenicViewDebug.print(operation + ":" + id);
                 for (int i = 0; i < apps.size(); i++) {
-                    debug("App:" + apps.get(i).getID());
+                    ScenicViewDebug.print("App:" + apps.get(i).getID());
                     final List<StageController> scs = apps.get(i).getStages();
                     for (int j = 0; j < scs.size(); j++) {
-                        debug("\tStage:" + scs.get(j).getID().getStageID());
+                        ScenicViewDebug.print("\tStage:" + scs.get(j).getID().getStageID());
                     }
                 }
             }
@@ -1238,16 +1108,6 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         controller.configurationUpdated(configuration);
     }
 
-    public static void setDebug(final boolean debug) {
-        ScenicView.debug = debug;
-    }
-
-    public static void debug(final String debug) {
-        if (ScenicView.debug) {
-            System.out.println(debug);
-        }
-    }
-
     @Override public void forceUpdate() {
         update();
     }
@@ -1270,7 +1130,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
                 break;
         }
     }
-
+    
     private void dispatchEvents() {
         // No need to synchronize
         while (!eventQueue.isEmpty()) {
@@ -1284,15 +1144,16 @@ public class ScenicView extends Region implements ConnectorController, CParent {
 
     private void doDispatchEvent(final FXConnectorEvent appEvent) {
         switch (appEvent.getType()) {
-            case EVENT_LOG:
-                eventLogPane.trace((EvLogEvent) appEvent);
+            case EVENT_LOG: {
+                eventsTab.trace((EvLogEvent) appEvent);
                 break;
-            case MOUSE_POSITION:
+            }                
+            case MOUSE_POSITION: {
                 if (isActive(appEvent.getStageID()))
                     statusBar.updateMousePosition(((MousePosEvent) appEvent).getPosition());
                 break;
-
-            case SHORTCUT:
+            }
+            case SHORTCUT: {
                 final KeyCode c = ((ShortcutEvent) appEvent).getCode();
                 switch (c) {
                     case S:
@@ -1309,37 +1170,41 @@ public class ScenicView extends Region implements ConnectorController, CParent {
                         break;
                 }
                 break;
-
-            case WINDOW_DETAILS:
+            }
+            case WINDOW_DETAILS: {
                 final WindowDetailsEvent wevent = (WindowDetailsEvent) appEvent;
                 autoRefreshStyleSheets.setDisable(!wevent.isStylesRefreshable());
 
-                if (isActive(wevent.getStageID()))
+                if (isActive(wevent.getStageID())) {
                     statusBar.updateWindowDetails(wevent.getWindowType(), wevent.getBounds(), wevent.isFocused());
+                }
                 break;
-            case NODE_SELECTED:
+            }
+            case NODE_SELECTED: {
                 componentSelectOnClick.setSelected(false);
                 treeView.nodeSelected(((NodeSelectedEvent) appEvent).getNode());
                 scenicViewStage.toFront();
                 break;
-
-            case NODE_COUNT:
+            }
+            case NODE_COUNT: {
                 statusBar.updateNodeCount(((NodeCountEvent) appEvent).getNodeCount());
                 break;
-
-            case SCENE_DETAILS:
+            }
+            case SCENE_DETAILS: {
                 if (isActive(appEvent.getStageID())) {
                     final SceneDetailsEvent sEvent = (SceneDetailsEvent) appEvent;
                     statusBar.updateSceneDetails(sEvent.getSize(), sEvent.getNodeCount());
                 }
                 break;
-
-            case ROOT_UPDATED:
-                treeView.updateStageModel(getStageController(appEvent.getStageID()), ((NodeAddRemoveEvent) appEvent).getNode(), showNodesIdInTree.isSelected(),
-                        showFilteredNodesInTree.isSelected());
+            }
+            case ROOT_UPDATED: {
+                treeView.updateStageModel(getStageController(appEvent.getStageID()), 
+                                         ((NodeAddRemoveEvent) appEvent).getNode(), 
+                                         showNodesIdInTree.isSelected(),
+                                         showFilteredNodesInTree.isSelected());
                 break;
-
-            case NODE_ADDED:
+            }
+            case NODE_ADDED: {
                 /**
                  * First check if a we have a NODE_REMOVED in the queue
                  */
@@ -1350,8 +1215,8 @@ public class ScenicView extends Region implements ConnectorController, CParent {
                     eventQueue.remove(removedPos);
                 }
                 break;
-
-            case NODE_REMOVED:
+            }
+            case NODE_REMOVED: {
                 final int addedPos = indexOfNode(((NodeAddRemoveEvent) appEvent).getNode(), false);
                 if (addedPos == -1) {
                     treeView.removeNode(((NodeAddRemoveEvent) appEvent).getNode());
@@ -1360,29 +1225,30 @@ public class ScenicView extends Region implements ConnectorController, CParent {
                 }
 
                 break;
-
-            case DETAILS:
+            }
+            case DETAILS: {
                 final DetailsEvent ev = (DetailsEvent) appEvent;
-                allDetailsPane.updateDetails(ev.getPaneType(), ev.getPaneName(), ev.getDetails(), new RemotePropertySetter() {
+                detailsTab.updateDetails(ev.getPaneType(), ev.getPaneName(), ev.getDetails(), new RemotePropertySetter() {
 
                     @Override public void set(final Detail detail, final String value) {
                         getStageController(appEvent.getStageID()).setDetail(detail.getDetailType(), detail.getDetailID(), value);
                     }
                 });
                 break;
-
-            case DETAIL_UPDATED:
+            }
+            case DETAIL_UPDATED: {
                 final DetailsEvent ev2 = (DetailsEvent) appEvent;
-                allDetailsPane.updateDetail(ev2.getPaneType(), ev2.getPaneName(), ev2.getDetails().get(0));
+                detailsTab.updateDetail(ev2.getPaneType(), ev2.getPaneName(), ev2.getDetails().get(0));
                 break;
-
-//            case ANIMATIONS_UPDATED:
-//                animationsPane.update(appEvent.getStageID(), ((AnimationsCountEvent) appEvent).getAnimations());
-//                break;
-
-            default:
-                debug("Unused event for type " + appEvent);
+            }
+            case ANIMATIONS_UPDATED: {
+                animationsTab.update(appEvent.getStageID(), ((AnimationsCountEvent) appEvent).getAnimations());
                 break;
+            }
+            default: {
+                ScenicViewDebug.print("Unused event for type " + appEvent);
+                break;
+            }
         }
     }
 

@@ -29,42 +29,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- .root {
-    -fx-base: #e0e0e0;
-    -fx-background: derive(-fx-base, 3.7%);    
-    
-/*    -fx-text-base-color: #111111;
-    -fx-focus-color: rgb(23,134,248);*/
-    
-/*    -fx-control-inner-background: white;*/
-/*    -fx-text-inner-color: -fx-text-base-color;*/
-    
-/*    -fx-box-border: derive(-fx-background, -0.291);*/
-    
-/*    -fx-shadow-highlight-color: derive(-fx-color, -0.022);*/
-/*    -fx-outer-border: derive(-fx-color, -0.291);
-    -fx-inner-border: linear-gradient(
-        to bottom,
-        derive(-fx-color, 0.579) 0%,
-        derive(-fx-color, 0.022) 100%
-    );*/
-    -fx-body-color: linear-gradient(
-        to bottom,
-        derive(-fx-color, 0.353) 0%,
-        derive(-fx-color, -0.058) 100%
-    );
-    
-/*    -fx-mark-color: derive(-fx-base, -60%);*/
-/*    -fx-mark-highlight-color: derive(-fx-color, 90%);*/
-    
-    SB_scrollbar-track: derive(-fx-color, 27.5%);
-    SB_scrollbar-thumb: derive(-fx-color, -26.3%);
-    SB_scrollbar-corner-border: derive(SB_scrollbar-track, -10%);
-}
+
 
 .split-pane {
     -fx-background-insets: 0, 1 0 1 0;
-    -fx-padding: 1 0 1 0;
+    -fx-padding: 0 0 1 0;
 }
 .split-pane *.split-pane-divider{
     -fx-padding: 0 1 0 0;
@@ -93,7 +62,6 @@
 }
 
 .detail-grid {
-    -fx-background-color: white;
     -fx-background-insets: 0,1,2;
     -fx-background-radius: 0,0,0;
     -fx-padding: 4 6 6 6;
@@ -102,13 +70,12 @@
 }
 
 .titled-pane > .title {
-    -fx-background-insets: 0, 0 0 0 0, 1 1 1 1;
     -fx-background-radius: 0, 0, 0;
+    
 }
 .titled-pane > *.content {
-    -fx-background-color: -fx-box-border, white;
-    -fx-background-insets: 0, 1 0 1 0;
-    -fx-padding: 1 0 1 0;
+    -fx-background-insets: 0, 0 0 0 0;
+    -fx-padding: 0 0 -1 0;
 }
 
 .detail-pane .detail-label {
@@ -133,10 +100,9 @@
 
 .constraints-display {
     -fx-padding: 2 2 2 2;
-    -fx-font: 11pt System;
 }
 
-.constraints-display .label {
+.constraints-display .label.key {
     -fx-text-fill: #0082dd;
 }
 
@@ -149,43 +115,7 @@
     -fx-text-fill: #0082dd;
 }
 
-.menu-bar {
-    -fx-base: #e0e0e0;
-    -fx-background: derive(-fx-base, 3.7%);
-    -fx-body-color: linear-gradient(
-        to bottom,
-        derive(-fx-color, 0.353) 0%,
-        derive(-fx-color, -0.058) 100%
-    );
-    -fx-background-color: -fx-body-color;
-}
-.menu-bar .menu .arrow {
-    -fx-padding: 0;
-    -fx-background-color: transparent;
-    -fx-shape: null;
-}
-.menu-bar .menu .arrow-button {
-    -fx-padding: 0;
-}
-/* Show nothing for background of normal menu button in a menu bar */
-.menu-bar .menu-button {
-    -fx-background-radius: 0;
-    -fx-background-color: transparent;
-    -fx-background-insets: 0; 
-}
-/* Change padding of menu buttons when in menu bar */
-.menu-bar .menu-button .label {
-    -fx-padding: 0.333em 0.5em 0.333em 0.5em;
-    -fx-effect: dropshadow( one-pass-box , derive(-fx-color, 90%), 0, 0.0 , 0 , 1 );
-}
-.menu-bar .menu-button:hover, .menu-bar .menu-button:focused, .menu-bar .menu-button:showing {
-    -fx-background: -fx-accent;
-    -fx-background-color: -fx-selection-bar;
-}
-.menu-bar .menu-button:hover .label, .menu-bar .menu-button:focused .label, .menu-bar .menu-button:showing .label {
-    -fx-text-fill: white;
-    -fx-effect: null;
-}
+
 
 #main-statusbar {
     -fx-padding: 3 4 3 4;
@@ -205,136 +135,7 @@
  }
 
 
-/* ============ SCROLL BARS ================================================= */
-.scroll-bar {
-    -fx-background-color:
-        -fx-outer-border,
-        SB_scrollbar-track;
-    -fx-background-insets: 0,1;
-}
-.scroll-bar > .track {
-    -fx-background-color: null;
-}
-.scroll-bar .thumb {
-    -fx-background-color: SB_scrollbar-thumb;
-    -fx-background-insets: 3;
-    -fx-background-radius: 5px;
-}
-.scroll-bar:horizontal .increment-button , .scroll-bar:horizontal .decrement-button{
-    -fx-background-color: null;
-    -fx-padding: 6 0 6 0;
-}
-.scroll-bar:vertical .increment-button , .scroll-bar:vertical .decrement-button{
-    -fx-background-color: null;
-    -fx-padding: 0 6 0 6;
-}
-.scroll-bar .increment-arrow, .scroll-bar .decrement-arrow {
-    -fx-background-color: null;
-    -fx-padding: 0;
-}
-.corner {
-    -fx-background-color:
-        SB_scrollbar-corner-border,
-        SB_scrollbar-track;
-    -fx-background-insets: 0,1 0 0 1;
-}
-/* Scrolbars in ScrollPane */
-.scroll-pane > * > .scroll-bar:horizontal {
-    -fx-background-insets: 0,1 0 0 0;
-    -fx-padding: 0;
-}
-.scroll-pane > * > .scroll-bar:horizontal .increment-button ,.scroll-pane > * > .scroll-bar:horizontal .decrement-button{
-    -fx-background-color: null;
-    -fx-padding: 6 0 5 0;
-}
-.scroll-pane > * > .scroll-bar:horizontal .thumb {
-    -fx-background-insets: 3 3 2 3;
-}
-.scroll-pane > * > .scroll-bar:vertical {
-    -fx-background-insets: 0, 0 0 0 1;
-    -fx-padding: 0;
-}
-.scroll-pane > * > .scroll-bar:vertical .increment-button ,.scroll-pane > * > .scroll-bar:vertical .decrement-button{
-    -fx-background-color: null;
-    -fx-padding: 0 5 0 6;
-}
-.scroll-pane > * > .scroll-bar:vertical .thumb {
-    -fx-background-insets: 3 2 3 3;
-}
-/* Scrolbars in TextArea */
-.text-area > * > .scroll-bar:horizontal {
-    -fx-background-insets: 0,1 0 0 0;
-    -fx-padding: 0;
-}
-.text-area > * > .scroll-bar:horizontal .increment-button ,.text-area > * > .scroll-bar:horizontal .decrement-button{
-    -fx-background-color: null;
-    -fx-padding: 6 0 5 0;
-}
-.text-area > * > .scroll-bar:horizontal .thumb {
-    -fx-background-insets: 3 3 2 3;
-}
-.text-area > * > .scroll-bar:vertical {
-    -fx-background-insets: 0, 0 0 0 1;
-    -fx-padding: 0;
-}
-.text-area > * > .scroll-bar:vertical .increment-button ,.text-area > * > .scroll-bar:vertical .decrement-button{
-    -fx-background-color: null;
-    -fx-padding: 0 5 0 6;
-}
-.text-area > * > .scroll-bar:vertical .thumb {
-    -fx-background-insets: 3 2 3 3;
-}
-/* Scrolbars in ListView */
-.list-view > .virtual-flow > .scroll-bar:horizontal {
-    -fx-background-insets: 0,1 0 0 0;
-    -fx-padding: 0;
-}
-.list-view > .virtual-flow > .scroll-bar:horizontal > .increment-button,
-.list-view > .scroll-bar:horizontal > .decrement-button{
-    -fx-background-color: null;
-    -fx-padding: 6 0 5 0;
-}
-.list-view > .virtual-flow > .scroll-bar:horizontal > .thumb {
-    -fx-background-insets: 3 3 2 3;
-}
-.list-view > .virtual-flow > .scroll-bar:vertical {
-    -fx-background-insets: 0, 0 0 0 1;
-    -fx-padding: 0;
-}
-.list-view > .virtual-flow > .scroll-bar:vertical > .increment-button,
-.list-view > .virtual-flow > .scroll-bar:vertical > .decrement-button {
-    -fx-background-color: null;
-    -fx-padding: 0 5 0 6;
-}
-.list-view > .virtual-flow > .scroll-bar:vertical > .thumb {
-    -fx-background-insets: 3 2 3 3;
-}
-/* Scrolbars in TreeView */
-tree-view > .virtual-flow > .scroll-bar:horizontal {
-    -fx-background-insets: 0,1 0 0 0;
-    -fx-padding: 0;
-}
-tree-view > .virtual-flow > .scroll-bar:horizontal > .increment-button,
-tree-view > .virtual-flow > .scroll-bar:horizontal > .decrement-button {
-    -fx-background-color: null;
-    -fx-padding: 6 0 5 0;
-}
-tree-view > .virtual-flow > .scroll-bar:horizontal > .thumb {
-    -fx-background-insets: 3 3 2 3;
-}
-tree-view > .virtual-flow > .scroll-bar:vertical {
-    -fx-background-color: green;
-    -fx-background-insets: 0, 0 0 0 1;
-    -fx-padding: 0;
-}
-tree-view > .virtual-flow > .scroll-bar:vertical > .increment-button,
-tree-view > .virtual-flow > .scroll-bar:vertical > .decrement-button {
-    -fx-background-color: null;
-    -fx-padding: 0 5 0 6;
-}
-tree-view > .virtual-flow > .scroll-bar:vertical > .thumb {
-    -fx-background-insets: 3 2 3 3;
-}
+
 
 
 

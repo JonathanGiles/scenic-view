@@ -29,39 +29,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.scenicview.utils;
+package org.scenicview.tabs.details;
 
-import java.lang.instrument.Instrumentation;
+public interface APILoader {
 
-import javafx.stage.Stage;
-
-import org.scenicview.ScenicView;
-import org.scenicview.update.LocalVMUpdateStrategy;
-import com.sun.javafx.application.PlatformImpl;
-
-/**
- * 
- */
-public class SVInstrumentationAgent {
-
-    public static void premain(final String agentArgs, final Instrumentation inst) {
-        new SVInstrumentationAgent();
-    }
-
-    private SVInstrumentationAgent() {
-        System.out.println("Starting Scenic View Instrumentation Agent");
-        PlatformImpl.startup(new Runnable() {
-
-            @Override public void run() {
-                final Stage stage = new Stage();
-                // workaround for RT-10714
-                stage.setWidth(640);
-                stage.setHeight(800);
-                stage.setTitle("Scenic View v" + ScenicView.VERSION);
-                final ScenicView view = new ScenicView(new LocalVMUpdateStrategy(), stage);
-                ScenicView.show(view, stage);
-            }
-        });
-    }
+    public void loadAPI(String property);
 
 }

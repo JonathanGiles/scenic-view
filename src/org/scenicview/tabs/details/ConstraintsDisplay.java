@@ -29,7 +29,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.scenicview.details;
+package org.scenicview.tabs.details;
 
 import java.util.Map;
 
@@ -59,7 +59,7 @@ public class ConstraintsDisplay extends GridPane {
         return getChildren().size() > 1;
     }
 
-    public void setPropertiesMap(@SuppressWarnings("rawtypes") final Map value) {
+    public void setPropertiesMap(final Map<String, Object> value) {
         getChildren().clear();
 
         propMap = value;
@@ -73,10 +73,12 @@ public class ConstraintsDisplay extends GridPane {
                     if (propkey.contains("pane-") || propkey.contains("box-")) {
                         final Object keyvalue = propMap.get(propkey);
                         final Label label = new Label(propkey + ":");
+                        label.getStyleClass().add("key");
                         GridPane.setConstraints(label, 0, row);
                         GridPane.setValignment(label, VPos.TOP);
                         GridPane.setHalignment(label, HPos.RIGHT);
                         getChildren().add(label);
+                        
                         if (propkey.endsWith("margin")) {
                             final InsetsDisplay marginDisplay = new InsetsDisplay();
                             marginDisplay.setInsetsTarget((Insets) keyvalue);
@@ -85,6 +87,7 @@ public class ConstraintsDisplay extends GridPane {
                             getChildren().add(marginDisplay);
                         } else {
                             final Label valueLabel = new Label(keyvalue.toString());
+                            valueLabel.getStyleClass().add("value");
                             GridPane.setConstraints(valueLabel, 1, row++);
                             GridPane.setHalignment(valueLabel, HPos.LEFT);
                             getChildren().add(valueLabel);

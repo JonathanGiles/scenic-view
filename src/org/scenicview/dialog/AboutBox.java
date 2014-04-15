@@ -31,10 +31,13 @@
  */
 package org.scenicview.dialog;
 
+import org.scenicview.license.ScenicViewLicenseManager;
 import org.scenicview.utils.ScenicViewBooter;
 import org.scenicview.utils.PropertiesUtils;
+import org.scenicview.utils.ScenicViewDebug;
 import org.scenicview.DisplayUtils;
 import org.scenicview.ScenicView;
+
 import java.util.Properties;
 
 import javafx.event.*;
@@ -109,18 +112,28 @@ public class AboutBox {
         final Properties properties = PropertiesUtils.getProperties();
         String toolsPath = properties.getProperty(ScenicViewBooter.JDK_PATH_KEY);
         toolsPath = toolsPath == null ? "Included in runtime classpath" : toolsPath;
-//        String jfxPath = properties.getProperty(ScenicViewBooter.JFXRT_JAR_PATH_KEY);
-//        jfxPath = jfxPath == null ? "Included in runtime classpath" : jfxPath;
+        
+        final StringBuilder licenseProperties = new StringBuilder();
+        ScenicViewLicenseManager.getLicenseProperties().forEach((key, value) -> {
+            licenseProperties.append("    " + key + " = " + value + "\r\n");
+        });
 
-        final String text = "JavaFX Scenic View " + ScenicView.VERSION + "\n" + "Scenic View developed by Amy Fowler, Ander Ruiz and Jonathan Giles\n" + "\n" + "JavaFX Build Information:" + "\n" + "Java FX " + System.getProperty("javafx.runtime.version") + "\n" + "\n" +
+        final String text = "JavaFX Scenic View " + ScenicView.VERSION + "\n" + 
+            "Scenic View developed by Amy Fowler, Ander Ruiz and Jonathan Giles\n" + "\n" +
+                
+            (ScenicViewLicenseManager.isPaid() ? "License Properties:\n" + licenseProperties.toString() + "\n" : "") +
+            
+            "JavaFX Build Information:" + "\n" + 
+            "    Java FX " + System.getProperty("javafx.runtime.version") + "\n" + "\n" +
 
-        "Required Libraries:\n" + 
-//        "jfxrt.jar Home: " + jfxPath + "\n" + 
-        "tools.jar Home: " + toolsPath + "\n\n" +
+            "Required Libraries:\n" + 
+            "    tools.jar Home: " + toolsPath + "\n\n" +
 
-        "Operating System\n" + System.getProperty("os.name") + ", " + System.getProperty("os.arch") + ", " + System.getProperty("os.version") +
+            "Operating System:\n" + 
+            "    " + System.getProperty("os.name") + ", " + System.getProperty("os.arch") + ", " + System.getProperty("os.version") +
 
-        "\n\nJava Version\n" + System.getProperty("java.version") + ", " + System.getProperty("java.vendor") + ", " + System.getProperty("java.runtime.version");
+            "\n\nJava Version:\n" + 
+            "    " + System.getProperty("java.version") + ", " + System.getProperty("java.vendor") + ", " + System.getProperty("java.runtime.version");
 
         return text;
     }

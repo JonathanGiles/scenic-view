@@ -29,10 +29,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.scenicview;
+package org.scenicview.tabs;
 
 import org.fxconnector.StageID;
 import org.fxconnector.SVAnimation;
+import org.scenicview.ContextMenuContainer;
+import org.scenicview.DisplayUtils;
+import org.scenicview.ScenicView;
+
 import java.util.*;
 
 import javafx.collections.*;
@@ -46,36 +50,60 @@ import javafx.scene.layout.*;
 import javafx.util.Callback;
 
 
-abstract class AnimationsPane extends VBox implements ContextMenuContainer {
+public class AnimationsTab extends Tab implements ContextMenuContainer {
 
     private final Map<Integer, List<SVAnimation>> appsAnimations = new HashMap<Integer, List<SVAnimation>>();
 
     private static final Image PAUSE = DisplayUtils.getUIImage("pause.png");
 
-    ScenicView view;
+    private final ScenicView scenicView;
+    private final VBox vbox;
 
-    AnimationsPane(final ScenicView view) {
-        this.view = view;
+    private Menu menu;
+
+    public AnimationsTab(final ScenicView view) {
+        this.scenicView = view;
+        this.vbox = new VBox();
+
+        setText("Animations");
+        setContent(vbox);
+        setGraphic(new ImageView(DisplayUtils.getUIImage("cinema.png")));
+        setClosable(false);
+        selectedProperty().addListener((o, oldValue, newValue) -> scenicView.updateAnimations());
     }
 
-    void clear() {
+    public void clear() {
         appsAnimations.clear();
     }
 
-    @SuppressWarnings("unchecked") public void update(final StageID stageID, final List<SVAnimation> animations) {
+    @Override public Menu getMenu() {
+        if (menu == null) {
+            menu = new Menu("Animations");
+            final CheckMenuItem animationsEnabled = scenicView.buildCheckMenuItem("Animations enabled", "Animations will run on the application",
+                    "Animations will be stopped", null, true);
 
+            animationsEnabled.selectedProperty().addListener((o, oldValue, newValue) -> {
+                scenicView.animationsEnabled(animationsEnabled.isSelected());
+            });
+            menu.getItems().add(animationsEnabled);
+        }
+        return menu;
+    }
+
+    @SuppressWarnings("unchecked") 
+    public void update(final StageID stageID, final List<SVAnimation> animations) {
         appsAnimations.put(stageID.getAppID(), animations);
 
-        getChildren().clear();
+        vbox.getChildren().clear();
 
         for (final Iterator<Integer> iterator = appsAnimations.keySet().iterator(); iterator.hasNext();) {
             final Integer app = iterator.next();
             final TitledPane pane = new TitledPane();
-            pane.setPrefHeight(getHeight() / appsAnimations.size());
+            pane.setPrefHeight(vbox.getHeight() / appsAnimations.size());
             pane.setText("Animations for VM - " + app);
 
             final List<SVAnimation> animationsApp = appsAnimations.get(app);
-            getChildren().add(pane);
+            vbox.getChildren().add(pane);
 
             final VBox box = new VBox();
             box.prefWidthProperty().bind(pane.widthProperty());
@@ -86,17 +114,17 @@ abstract class AnimationsPane extends VBox implements ContextMenuContainer {
             table.getStyleClass().add("animations-table-view");
             final TableColumn<SVAnimation, String> sourceCol = new TableColumn<SVAnimation, String>("Animation ID");
             sourceCol.setCellValueFactory(new PropertyValueFactory<SVAnimation, String>("toString"));
-            sourceCol.prefWidthProperty().bind(widthProperty().multiply(0.40));
+            sourceCol.prefWidthProperty().bind(vbox.widthProperty().multiply(0.40));
             final TableColumn<SVAnimation, String> rateCol = new TableColumn<SVAnimation, String>("Rate");
             rateCol.setCellValueFactory(new PropertyValueFactory<SVAnimation, String>("rate"));
-            rateCol.prefWidthProperty().bind(widthProperty().multiply(0.1));
+            rateCol.prefWidthProperty().bind(vbox.widthProperty().multiply(0.1));
             final TableColumn<SVAnimation, String> cycleCountCol = new TableColumn<SVAnimation, String>("Cycle count");
-            cycleCountCol.prefWidthProperty().bind(widthProperty().multiply(0.2));
+            cycleCountCol.prefWidthProperty().bind(vbox.widthProperty().multiply(0.2));
 
             cycleCountCol.setCellValueFactory(new PropertyValueFactory<SVAnimation, String>("cycleCount"));
             final TableColumn<SVAnimation, String> currentTimeCol = new TableColumn<SVAnimation, String>("Current time");
             currentTimeCol.setCellValueFactory(new PropertyValueFactory<SVAnimation, String>("currentTime"));
-            currentTimeCol.prefWidthProperty().bind(widthProperty().multiply(0.20));
+            currentTimeCol.prefWidthProperty().bind(vbox.widthProperty().multiply(0.20));
             final TableColumn<SVAnimation, Integer> pauseCol = new TableColumn<SVAnimation, Integer>("");
             pauseCol.setCellValueFactory(new PropertyValueFactory<SVAnimation, Integer>("id"));
             pauseCol.setCellFactory(new Callback<TableColumn<SVAnimation, Integer>, TableCell<SVAnimation, Integer>>() {
@@ -114,7 +142,7 @@ abstract class AnimationsPane extends VBox implements ContextMenuContainer {
                     cell.setOnMousePressed(new EventHandler<MouseEvent>() {
 
                         @Override public void handle(final MouseEvent arg0) {
-                            view.pauseAnimation(stageID, Integer.parseInt(cell.getId()));
+                            scenicView.pauseAnimation(stageID, Integer.parseInt(cell.getId()));
                         }
                     });
                     cell.setAlignment(Pos.CENTER);

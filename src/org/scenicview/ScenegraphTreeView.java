@@ -60,6 +60,7 @@ import org.fxconnector.StageController;
 import org.fxconnector.node.NodeType;
 import org.fxconnector.node.SVDummyNode;
 import org.fxconnector.node.SVNode;
+import org.scenicview.utils.ScenicViewDebug;
 
 public class ScenegraphTreeView extends TreeView<SVNode> {
 
@@ -488,7 +489,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                  * dangerous
                  */
                 if (treeItem == null) {
-                    System.out.println("Removing unfound treeItem:" + node.getExtendedId());
+                    ScenicViewDebug.print("Removing unfound treeItem:" + node.getExtendedId());
                     return;
                 }
                 final List<TreeItem<SVNode>> treeItemChildren = treeItem.getChildren();
@@ -563,7 +564,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                             final TreeItem<SVNode> node = items.get(i);
                             final int actualPos = childrens.indexOf(node.getValue());
                             if (previousPos > actualPos) {
-                                System.out.println("This should never happen :" + parent.getExtendedId() + " node:" + node.getValue().getExtendedId());
+                                ScenicViewDebug.print("This should never happen :" + parent.getExtendedId() + " node:" + node.getValue().getExtendedId());
                             }
                             if (pos > previousPos && pos < actualPos) {
                                 parentTreeItem.getChildren().add(i, treeItem);
@@ -595,7 +596,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
             for (final Iterator<SVNode> iterator = treeViewData.keySet().iterator(); iterator.hasNext();) {
                 final SVNode type = iterator.next();
                 if (type.equals(node)) {
-                    System.out.println("Error on hashmap:" + node.getExtendedId() + " and type:" + type.getExtendedId() + " are equals but:" + treeViewData.containsKey(node));
+                    ScenicViewDebug.print("Error on hashmap:" + node.getExtendedId() + " and type:" + type.getExtendedId() + " are equals but:" + treeViewData.containsKey(node));
                 }
             }
         }

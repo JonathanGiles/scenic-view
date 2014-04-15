@@ -29,12 +29,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.scenicview.details;
+package org.scenicview.tabs.details;
 
 import org.scenicview.DisplayUtils;
 import org.scenicview.ScenicView;
+import org.scenicview.utils.ScenicViewDebug;
 import org.fxconnector.details.Detail;
 import org.fxconnector.details.DetailPaneType;
+
 import java.text.DecimalFormat;
 import java.util.*;
 
@@ -64,8 +66,8 @@ public class GDetailPane extends TitledPane {
 
     static final String DETAIL_LABEL_STYLE = "detail-label";
 
-    DetailPaneType type;
-    GridPane gridpane;
+    public DetailPaneType type;
+    public GridPane gridpane;
     static GDetail activeDetail;
     List<Node> paneNodes = new ArrayList<Node>();
     List<GDetail> details = new ArrayList<GDetail>();
@@ -186,7 +188,7 @@ public class GDetailPane extends TitledPane {
         return prefHeight(width);
     }
 
-    void updateDetails(final List<Detail> details, final RemotePropertySetter setter) {
+    public void updateDetails(final List<Detail> details, final RemotePropertySetter setter) {
         clearPane();
         for (int i = 0; i < details.size(); i++) {
             final Detail d = details.get(i);
@@ -286,7 +288,7 @@ public class GDetailPane extends TitledPane {
             pane.updated();
             filterProperties(currentFilter);
         } else {
-            System.out.println("Pane not found for detail:" + detail);
+            ScenicViewDebug.print("Pane not found for detail:" + detail);
         }
     }
 

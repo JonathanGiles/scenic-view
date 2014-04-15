@@ -107,7 +107,8 @@ public class ProgressWebView extends StackPane {
     }
 
     public void doLoad(final String page) {
-        if (!wview.getEngine().getLocation().equals(page)) {
+        String location = wview.getEngine().getLocation();
+        if (location == null || !location.equals(page)) {
             loadedPage = page;
             wview.getEngine().load(page);
         }

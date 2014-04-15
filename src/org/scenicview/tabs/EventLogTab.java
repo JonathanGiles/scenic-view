@@ -29,7 +29,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.scenicview;
+package org.scenicview.tabs;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -46,11 +46,13 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -61,36 +63,54 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
 import org.fxconnector.event.EvLogEvent;
 import org.fxconnector.node.SVNode;
+import org.scenicview.ContextMenuContainer;
+import org.scenicview.DisplayUtils;
+import org.scenicview.ScenicView;
 import org.scenicview.control.FilterTextField;
 import org.scenicview.dialog.InfoBox;
 
-class EventLogPane extends VBox implements ContextMenuContainer {
+public class EventLogTab extends Tab implements ContextMenuContainer {
 
     private static final int MAX_EVENTS = 5000;
 
-    TableView<ScenicViewEvent> table = new TableView<ScenicViewEvent>();
-    ChoiceBox<String> showStack = new ChoiceBox<String>();
-    CheckMenuItem activateTrace = new CheckMenuItem("Enable Event Tracing");
-    ObservableList<ScenicViewEvent> events = FXCollections.observableArrayList();
-    ObservableList<ScenicViewEvent> filteredEvents = FXCollections.observableArrayList();
-    SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss.SSS");
-    FilterTextField idFilterField;
-    Label selectedNodeLabel = new Label("Enable event tracing in the Events menu");
-    SVNode selectedNode;
+    private final ScenicView scenicView;
+    
+    private TableView<ScenicViewEvent> table = new TableView<ScenicViewEvent>();
+    private ChoiceBox<String> showStack = new ChoiceBox<String>();
+    private CheckMenuItem activateTrace = new CheckMenuItem("Enable Event Tracing");
+    private ObservableList<ScenicViewEvent> events = FXCollections.observableArrayList();
+    private ObservableList<ScenicViewEvent> filteredEvents = FXCollections.observableArrayList();
+    private SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss.SSS");
+    private FilterTextField idFilterField;
+    private Label selectedNodeLabel = new Label("Enable event tracing in the Events menu");
+    private SVNode selectedNode;
 
-    Menu menu;
+    private Menu menu;
 
     private static final Image MORE_INFO = DisplayUtils.getUIImage("info.png");
-
-    @SuppressWarnings("unchecked") EventLogPane(final ScenicView view) {
+    
+    public EventLogTab(final ScenicView view) {
+        super("Events");
+        
+        this.scenicView = view;
+        
+        setContent(buildUI());
+        setGraphic(new ImageView(DisplayUtils.getUIImage("flag_red.png")));
+        setClosable(false);
+    }
+    
+    private Node buildUI() {
+        VBox vbox = new VBox();
+        
         table.setEditable(false);
         table.getStyleClass().add("trace-text-area");
-        final DoubleBinding size = widthProperty().subtract(MORE_INFO.getWidth() + 7).divide(4);
+        final DoubleBinding size = vbox.widthProperty().subtract(MORE_INFO.getWidth() + 7).divide(4);
         final TableColumn<ScenicViewEvent, String> sourceCol = new TableColumn<ScenicViewEvent, String>("source");
         sourceCol.setCellValueFactory(new PropertyValueFactory<ScenicViewEvent, String>("source"));
         sourceCol.prefWidthProperty().bind(size);
@@ -109,18 +129,21 @@ class EventLogPane extends VBox implements ContextMenuContainer {
 
             @Override public TableCell<ScenicViewEvent, StackTraceElement[]> call(final TableColumn<ScenicViewEvent, StackTraceElement[]> arg0) {
                 final TableCell<ScenicViewEvent, StackTraceElement[]> cell = new TableCell<ScenicViewEvent, StackTraceElement[]>() {
-
+                    {
+                        setId("");
+                        setAlignment(Pos.CENTER);
+                    }
+                    
                     @Override public void updateItem(final StackTraceElement[] item, final boolean empty) {
-                        if (item != null) {
+                        if (empty || item == null) {
+                            setText("");
+                            setGraphic(null);
+                        } else {
                             setGraphic(new ImageView(MORE_INFO));
-                            setId("");
-                            setAlignment(Pos.CENTER);
                         }
                     }
                 };
                 cell.setOnMousePressed(new EventHandler<MouseEvent>() {
-
-                    @SuppressWarnings("unused")
                     @Override public void handle(final MouseEvent arg0) {
                         final ScenicViewEvent newValue = table.getSelectionModel().getSelectedItem();
                         if (newValue != null) {
@@ -154,7 +177,7 @@ class EventLogPane extends VBox implements ContextMenuContainer {
         filtersGridPane.setId("structure-trace-grid-pane");
 
         idFilterField = new FilterTextField();
-        idFilterField.setMinHeight(USE_PREF_SIZE);
+        idFilterField.setMinHeight(Region.USE_PREF_SIZE);
         idFilterField.setPromptText("Insert text to filter (logical operations supported)");
         idFilterField.focusedProperty().addListener(new ChangeListener<Boolean>() {
 
@@ -181,13 +204,13 @@ class EventLogPane extends VBox implements ContextMenuContainer {
 
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean arg2) {
                 setSelectedNode(selectedNode);
-                view.update();
+                scenicView.update();
             }
         });
         /**
          * This is an ugly fix for what I think is a bug of the gridPane
          */
-        idFilterField.prefWidthProperty().bind(widthProperty().subtract(105));
+        idFilterField.prefWidthProperty().bind(vbox.widthProperty().subtract(105));
         GridPane.setHgrow(idFilterField, Priority.ALWAYS);
         GridPane.setHgrow(showStack, Priority.ALWAYS);
         GridPane.setHgrow(selectedNodeLabel, Priority.NEVER);
@@ -198,8 +221,10 @@ class EventLogPane extends VBox implements ContextMenuContainer {
         filtersGridPane.setPrefHeight(60);
         VBox.setMargin(table, new Insets(0, 5, 5, 5));
 
-        getChildren().addAll(filtersGridPane, table);
+        vbox.getChildren().addAll(filtersGridPane, table);
         VBox.setVgrow(table, Priority.ALWAYS);
+        
+        return vbox;
     }
 
     public void setSelectedNode(final SVNode selectedNode) {
@@ -313,13 +338,13 @@ class EventLogPane extends VBox implements ContextMenuContainer {
     }
 
     private void applyFilter() {
-        final List<ScenicViewEvent> events = new ArrayList<EventLogPane.ScenicViewEvent>();
-        for (int i = 0; i < EventLogPane.this.events.size(); i++) {
-            if (validForFilter(EventLogPane.this.events.get(i))) {
-                events.add(EventLogPane.this.events.get(i));
+        final List<ScenicViewEvent> events = new ArrayList<EventLogTab.ScenicViewEvent>();
+        for (int i = 0; i < EventLogTab.this.events.size(); i++) {
+            if (validForFilter(EventLogTab.this.events.get(i))) {
+                events.add(EventLogTab.this.events.get(i));
             }
         }
-        EventLogPane.this.filteredEvents.setAll(events);
+        EventLogTab.this.filteredEvents.setAll(events);
     }
 
     public class ScenicViewEvent {

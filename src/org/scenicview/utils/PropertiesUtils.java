@@ -69,7 +69,7 @@ public class PropertiesUtils {
                 }
             }
         } catch (final Exception e) {
-            System.out.println("Error while loading preferences");
+            ScenicViewDebug.print("Error while loading preferences");
         }
         return _properties;
     }

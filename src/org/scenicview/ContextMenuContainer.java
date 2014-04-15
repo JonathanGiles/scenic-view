@@ -33,6 +33,7 @@ package org.scenicview;
 
 import javafx.scene.control.Menu;
 
+@FunctionalInterface
 public interface ContextMenuContainer {
 
     public Menu getMenu();

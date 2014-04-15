@@ -32,6 +32,7 @@
 package org.scenicview.utils.attach;
 
 import org.scenicview.utils.Utils;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -41,12 +42,16 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
 import javafx.application.Platform;
 import javafx.stage.Stage;
+
 import org.scenicview.utils.ClassPathDialog;
 import org.scenicview.utils.ExceptionLogger;
 import org.scenicview.utils.PropertiesUtils;
 import org.scenicview.utils.ScenicViewBooter;
+import org.scenicview.utils.ScenicViewDebug;
+
 import static org.scenicview.utils.ScenicViewBooter.JDK_PATH_KEY;
 
 /**
@@ -203,7 +208,7 @@ public class AttachHandlerFactory {
                 System.loadLibrary("attach");
             } catch (final Throwable e2) {
                 ExceptionLogger.submitException(e2);
-                System.out.println("Error while trying to put attach.dll in path");
+                ScenicViewDebug.print("Error while trying to put attach.dll in path");
             }
         }
     }
@@ -211,7 +216,7 @@ public class AttachHandlerFactory {
     private static void addToolsJarToClasspath(final JDKToolsJarPair jdkPath) {
         try {
             final URL url = Utils.toURI(jdkPath.getToolsPath(getAttachHandler()).getAbsolutePath()).toURL();
-            debug("Adding to classpath: " + url);
+            ScenicViewDebug.print("Adding to classpath: " + url);
 
             final URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
             final Class<?> sysclass = URLClassLoader.class;
@@ -232,7 +237,7 @@ public class AttachHandlerFactory {
                 jdkPaths.add(new JDKToolsJarPair(jdkHome));
             }
         } else if (!isJDKFolder(javaHome)) {
-            System.out.println("Error: No JDK found on system");
+            ScenicViewDebug.print("Error: No JDK found on system");
             return;
         }
 
@@ -240,7 +245,7 @@ public class AttachHandlerFactory {
         // (x86)\Java\jdk1.6.0_30\jre"
         // This is one level too deep. We want to pop up and then go into the
         // lib directory to find tools.jar
-        debug("JDK found at: " + javaHome);
+        ScenicViewDebug.print("JDK found at: " + javaHome);
 
         File jdkHome = new File(javaHome);// + "/../lib/tools.jar");
         if (jdkHome.exists()) {
@@ -260,11 +265,5 @@ public class AttachHandlerFactory {
         }
         File f = new File(path);
         return f.exists() && f.isDirectory() && f.getPath().contains("jdk") && f.getName().contains("jre");
-    }
-
-    private static void debug(final String log) {
-//        if (debug) {
-//            System.out.println(log);
-//        }
     }
 }

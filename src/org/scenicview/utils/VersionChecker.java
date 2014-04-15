@@ -57,7 +57,7 @@ public class VersionChecker {
         } catch (final MalformedURLException mue) {
             ExceptionLogger.submitException(mue);
         } catch (final IOException ioe) {
-            System.out.println("Cannot check last version");
+            ScenicViewDebug.print("Cannot check last version");
         } finally {
             try {
                 if (is != null)
