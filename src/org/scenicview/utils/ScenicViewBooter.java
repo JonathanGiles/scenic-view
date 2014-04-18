@@ -44,9 +44,9 @@ import javafx.stage.Stage;
 import org.fxconnector.AppController;
 import org.fxconnector.AppControllerImpl;
 import org.fxconnector.StageControllerImpl;
+import org.fxconnector.remote.FXConnector;
 import org.fxconnector.remote.FXConnectorFactory;
 import org.scenicview.ScenicView;
-import org.scenicview.dialog.InfoBox;
 import org.scenicview.license.ScenicViewLicenseManager;
 import org.scenicview.update.DummyUpdateStrategy;
 import org.scenicview.update.LocalVMUpdateStrategy;
@@ -59,53 +59,50 @@ import com.sun.javafx.application.PlatformImpl;
  * This is the entry point for all different versions of Scenic View.
  */
 public class ScenicViewBooter extends Application {
-    
+
     /**************************************************************************
-    *
-    * fields
-    * 
-    *************************************************************************/
+     *
+     * fields
+     * 
+     *************************************************************************/
 
     public static final String JDK_PATH_KEY = "jdkPath";
 
     private static boolean debug = true;
-    
-    
-    
+
     /**************************************************************************
-    *
-    * general-purpose code
-    * 
-    *************************************************************************/
-    
+     *
+     * general-purpose code
+     * 
+     *************************************************************************/
+
     private static void activateDebug() {
         FXConnectorFactory.setDebug(debug);
         ScenicViewDebug.setDebug(debug);
     }
-    
+
     private static void runLicenseCheck() {
         ScenicViewLicenseManager.start();
     }
-    
+
     private static void startup() {
         activateDebug();
         runLicenseCheck();
     }
-    
-    
+
     /**************************************************************************
-    *
-    * Scenic View 'hardcoded show(..)' start point
-    * 
-    *************************************************************************/
-    
+     *
+     * Scenic View 'hardcoded show(..)' start point
+     * 
+     *************************************************************************/
+
     public static void show(final Scene target) {
         show(target.getRoot());
     }
 
     public static void show(final Parent target) {
         startup();
-        
+
         final Stage stage = new Stage();
         // workaround for RT-10714
         stage.setWidth(640);
@@ -114,7 +111,7 @@ public class ScenicViewBooter extends Application {
         final DummyUpdateStrategy updateStrategy = new DummyUpdateStrategy(buildAppController(target));
         ScenicView.show(new ScenicView(updateStrategy, stage), stage);
     }
-    
+
     private static List<AppController> buildAppController(final Parent target) {
         final List<AppController> controllers = new ArrayList<AppController>();
         if (target != null) {
@@ -127,15 +124,13 @@ public class ScenicViewBooter extends Application {
         }
         return controllers;
     }
-    
-    
-    
+
     /**************************************************************************
-    *
-    *  Agent start point
-    * 
-    *************************************************************************/
-    
+     *
+     * Agent start point
+     * 
+     *************************************************************************/
+
     /**
      * agentmain is invoked when an agent is started after the application is already 
      * running. Agents started with agentmain can be attached programatically using 
@@ -145,7 +140,7 @@ public class ScenicViewBooter extends Application {
     public static void agentmain(final String agentArgs, final Instrumentation inst) {
         agentStart();
     }
-    
+
     /**
      * premain is invoked when an agent is started before the application. Agents 
      * invoked using premain are specified with the -javaagent switch.
@@ -153,12 +148,12 @@ public class ScenicViewBooter extends Application {
     public static void premain(final String agentArgs, final Instrumentation inst) {
         agentStart();
     }
-    
+
     private static void agentStart() {
         startup();
 
         // we only allow thsi mode in the paid version, so check now
-        if (! ScenicViewLicenseManager.isPaid()) {
+        if (!ScenicViewLicenseManager.isPaid()) {
             System.out.println(
                     "This startup mode is not supported in the free version of Scenic View.\n" +
                     "The only way to use Scenic View in the free version is by adding calls" +
@@ -170,16 +165,14 @@ public class ScenicViewBooter extends Application {
         PlatformImpl.startup(() -> {
             final Stage stage = new Stage();
             // workaround for RT-10714
-            stage.setWidth(640);
-            stage.setHeight(800);
-            stage.setTitle("Scenic View v" + ScenicView.VERSION);
-            final ScenicView view = new ScenicView(new LocalVMUpdateStrategy(), stage);
-            ScenicView.show(view, stage);
-        });
+                stage.setWidth(640);
+                stage.setHeight(800);
+                stage.setTitle("Scenic View v" + ScenicView.VERSION);
+                final ScenicView view = new ScenicView(new LocalVMUpdateStrategy(), stage);
+                ScenicView.show(view, stage);
+            });
     }
 
-    
-    
     /**************************************************************************
      *
      * runtime discovery start point
@@ -199,7 +192,7 @@ public class ScenicViewBooter extends Application {
     @Override public void start(final Stage stage) throws Exception {
         // This mode is only available when we are in the commercial Scenic View,
         // so we must start up the license checker and validate
-        
+
         // Test if we can load a class from jfxrt.jar
         try {
             Class.forName("javafx.beans.property.SimpleBooleanProperty").newInstance();
@@ -210,22 +203,22 @@ public class ScenicViewBooter extends Application {
             ScenicViewDebug.print("Error: JavaFX not found");
             System.exit(-1);
         }
-        
+
         AttachHandlerFactory.initAttachAPI(stage);
-        
+        System.setProperty(FXConnector.SCENIC_VIEW_VM, "true");
         startup();
-        
+
         // we only allow thsi mode in the paid version, so check now
-        if (! ScenicViewLicenseManager.isPaid()) {
+        if (!ScenicViewLicenseManager.isPaid()) {
             System.out.println(
                     "This startup mode is not supported in the free version of Scenic View.\n" +
                     "The only way to use Scenic View in the free version is by adding calls" +
                     " to ScenicViewBooter.show(scene / parent) into your code base.");
             System.exit(0);
         }
-        
+
         setUserAgentStylesheet(STYLESHEET_MODENA);
-        
+
         final RemoteVMsUpdateStrategy strategy = new RemoteVMsUpdateStrategy();
 
         FXConnectorFactory.debug("Platform running");
