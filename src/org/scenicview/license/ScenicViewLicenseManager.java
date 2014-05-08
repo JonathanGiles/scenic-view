@@ -36,7 +36,9 @@ public class ScenicViewLicenseManager {
     }
 
     public static boolean isPaid() {
-        return scenicViewMode == Mode.PAID;
+        // for now, everyone gets all the features! :-)
+        return true;
+        //return scenicViewMode == Mode.PAID;
     }
     
     public static Map<String, String> getLicenseProperties() {
