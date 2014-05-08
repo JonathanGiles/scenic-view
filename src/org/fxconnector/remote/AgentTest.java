@@ -31,13 +31,6 @@
  */
 package org.fxconnector.remote;
 
-import org.fxconnector.StageController;
-import org.fxconnector.StageID;
-import org.fxconnector.Configuration;
-import org.fxconnector.StageControllerImpl;
-import org.fxconnector.AppControllerImpl;
-import org.fxconnector.ConnectorUtils;
-
 import java.lang.instrument.Instrumentation;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -54,10 +47,6 @@ import org.fxconnector.ConnectorUtils;
 import org.fxconnector.StageController;
 import org.fxconnector.StageControllerImpl;
 import org.fxconnector.StageID;
-import org.fxconnector.details.DetailPaneType;
-import org.fxconnector.event.FXConnectorEventDispatcher;
-import org.fxconnector.node.SVNode;
-import org.fxconnector.remote.util.ScenicViewExceptionLogger;
 import org.fxconnector.details.DetailPaneType;
 import org.fxconnector.event.FXConnectorEventDispatcher;
 import org.fxconnector.node.SVNode;

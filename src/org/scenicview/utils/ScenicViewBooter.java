@@ -127,54 +127,6 @@ public class ScenicViewBooter extends Application {
 
     /**************************************************************************
      *
-     * Agent start point
-     * 
-     *************************************************************************/
-
-    /**
-     * agentmain is invoked when an agent is started after the application is already 
-     * running. Agents started with agentmain can be attached programatically using 
-     * the Sun tools API (for Sun/Oracle JVMs only -- the method for introducing 
-     * dynamic agents is implementation-dependent).
-     */
-    public static void agentmain(final String agentArgs, final Instrumentation inst) {
-        agentStart();
-    }
-
-    /**
-     * premain is invoked when an agent is started before the application. Agents 
-     * invoked using premain are specified with the -javaagent switch.
-     */
-    public static void premain(final String agentArgs, final Instrumentation inst) {
-        agentStart();
-    }
-
-    private static void agentStart() {
-        startup();
-
-        // we only allow thsi mode in the paid version, so check now
-        if (!ScenicViewLicenseManager.isPaid()) {
-            System.out.println(
-                    "This startup mode is not supported in the free version of Scenic View.\n" +
-                    "The only way to use Scenic View in the free version is by adding calls" +
-                    " to ScenicViewBooter.show(scene / parent) into your code base.");
-            System.exit(0);
-        }
-
-        ScenicViewDebug.print("Starting Scenic View via the instrumentation agent");
-        PlatformImpl.startup(() -> {
-            final Stage stage = new Stage();
-            // workaround for RT-10714
-                stage.setWidth(640);
-                stage.setHeight(800);
-                stage.setTitle("Scenic View v" + ScenicView.VERSION);
-                final ScenicView view = new ScenicView(new LocalVMUpdateStrategy(), stage);
-                ScenicView.show(view, stage);
-            });
-    }
-
-    /**************************************************************************
-     *
      * runtime discovery start point
      * 
      *************************************************************************/
