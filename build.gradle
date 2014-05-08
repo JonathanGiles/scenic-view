@@ -22,8 +22,6 @@ dependencies {
     } catch (MissingPropertyException pne) {
         jdk files("${System.properties['java.home']}/lib/ext/jfxrt.jar")
     }
-    compile "org.fxconnector:fxconnector:$version"
-    binTray "org.fxconnector:fxconnector:$version"
 }
 
 sourceSets {
@@ -43,18 +41,6 @@ sourceSets {
 }
 
 jar {
-    classifier = 'small'
-    manifest {
-        attributes(
-            'Main-Class': 'org.scenicview.utils.ScenicViewBooter',
-            'Premain-Class': 'org.scenicview.utils.ScenicViewBooter'
-        )
-    }
-}
-
-task jarBinTray(type: Jar, dependsOn: 'jar') {
-    from { configurations.binTray.collect { it.isDirectory() ? it : zipTree(it) } }
-    from zipTree(jar.archivePath)
     manifest {
         attributes(
             'Main-Class': 'org.scenicview.utils.ScenicViewBooter',
@@ -65,8 +51,7 @@ task jarBinTray(type: Jar, dependsOn: 'jar') {
 }
 
 artifacts {
-    archives(jarBinTray)
-    archives(jar) {classifier='small'}
+    archives(jar)
 }
 
 uploadArchives() {
