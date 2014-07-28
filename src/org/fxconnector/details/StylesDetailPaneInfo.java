@@ -119,10 +119,10 @@ class StylesDetailPaneInfo extends DetailPaneInfo {
 //                    origin = (StyleOrigin) invoke(Class.forName("javafx.css.StyleableProperty"), "getStyleOrigin", cssMetaData.getStyleableProperty(value));
                     
                     ObservableMap<StyleableProperty<?>, List<Style>> styleMap = value.impl_getStyleMap();
-                    FXConnectorFactory.debug(styleMap);
+                    org.fxconnector.Debugger.debug(styleMap);
                     if (styleMap != null && styleMap.containsKey(styleableProperty)) {
                         List<Style> styles = value.impl_getStyleMap().get(styleableProperty);
-                        FXConnectorFactory.debug("styles size: " + styles.size());
+                        org.fxconnector.Debugger.debug("styles size: " + styles.size());
                         if (styles.size() == 1) {
                             style = styles.get(0).toString();
                         }

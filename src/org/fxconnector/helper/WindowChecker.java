@@ -70,7 +70,7 @@ public abstract class WindowChecker extends WorkerThread {
             onWindowsFound(windows);
             try {
                 if (verbose) {
-                    FXConnectorFactory.debug("No JavaFX window found - sleeping for " + sleepTime / 1000 + " seconds");
+                    org.fxconnector.Debugger.debug("No JavaFX window found - sleeping for " + sleepTime / 1000 + " seconds");
                 }
                 Thread.sleep(sleepTime);
                 if (maxWaitTime != -1) {

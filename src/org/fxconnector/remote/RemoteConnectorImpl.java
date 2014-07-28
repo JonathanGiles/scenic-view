@@ -61,6 +61,7 @@ import org.fxconnector.node.SVNode;
 import org.fxconnector.remote.util.ScenicViewExceptionLogger;
 
 import com.sun.javafx.Utils;
+import com.sun.javafx.scene.web.Debugger;
 import com.sun.tools.attach.AttachNotSupportedException;
 import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
@@ -86,18 +87,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
     private final int port;
     private final List<String> attachError = new ArrayList<String>();
 
-    private static boolean debug = true;
     private File agentFile;
-
-    public static void setDebug(final boolean debug) {
-        RemoteConnectorImpl.debug = debug;
-    }
-
-    public static void debug(final Object debug) {
-        if (RemoteConnectorImpl.debug) {
-            System.out.println(debug);
-        }
-    }
 
     RemoteConnectorImpl() throws RemoteException {
         super();
@@ -108,7 +98,6 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
     @Override public void dispatchEvent(final FXConnectorEvent event) {
         if (dispatcher != null) {
             Platform.runLater(new Runnable() {
-
                 @Override public void run() {
                     synchronized (previous) {
                         if (!previous.isEmpty()) {
@@ -121,17 +110,15 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                     dispatcher.dispatchEvent(event);
                 }
             });
-
         } else {
             synchronized (previous) {
                 previous.add(event);
             }
-
         }
     }
 
     @Override public void onAgentStarted(final int port) {
-        debug("Remote agent started on port:" + port);
+        org.fxconnector.Debugger.debug("Remote agent started on port:" + port);
         RMIUtils.findApplication(port, new Observer() {
 
             @Override public void update(final Observable o, final Object obj) {
@@ -164,7 +151,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
 
         };
         for (int i = 0; i < ids.length; i++) {
-            debug("RemoteApp connected on:" + port + " stageID:" + ids[i]);
+            org.fxconnector.Debugger.debug("RemoteApp connected on:" + port + " stageID:" + ids[i]);
             final int cont = i;
             impl.getStages().add(new StageController() {
 
@@ -290,9 +277,9 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
         apps = new ArrayList<AppController>();
         vmInfo.clear();
         final List<VirtualMachine> machines = getRunningJavaFXApplications();
-        debug(machines.size() + " JavaFX VMs found");
+        org.fxconnector.Debugger.debug(machines.size() + " JavaFX applications found");
         count.set(machines.size());
-        if(agentFile==null) {
+        if (agentFile == null) {
             agentFile = findAgent();
         }
         try {
@@ -326,7 +313,6 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
             /**
              * Remove obsolete VM
              */
-            
             for (Iterator<String> iterator = applications.keySet().iterator(); iterator.hasNext();) {
                 String ids = (String) iterator.next();
                 if(!validIDs.contains(ids)) {
@@ -348,7 +334,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                 // no-op
             }
         }
-        debug = false;
+        org.fxconnector.Debugger.setDebug(false);
         return apps;
     }
 
@@ -385,13 +371,13 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
         return port;
     }
 
-    private void loadAgent(final VirtualMachine machine, final File f) {
+    private void loadAgent(final VirtualMachine machine, final File agentFile) {
         try {
             final long start = System.currentTimeMillis();
             final int port = getValidPort();
-            debug("Loading agent for:" + machine + " ID:" + machine.id() + " on port:" + port + " took:" + (System.currentTimeMillis() - start) + "ms");
+            org.fxconnector.Debugger.debug("Loading agent for:" + machine + " ID:" + machine.id() + " on port:" + port + " took:" + (System.currentTimeMillis() - start) + "ms using agent defined in " + agentFile.getAbsolutePath());
             vmInfo.put(port, machine.id());
-            machine.loadAgent(f.getAbsolutePath(), Integer.toString(port) + ":" + this.port + ":" + machine.id() + ":" + debug);
+            machine.loadAgent(agentFile.getAbsolutePath(), Integer.toString(port) + ":" + this.port + ":" + machine.id() + ":" + org.fxconnector.Debugger.isDebug());
             machine.detach();
         } catch (final Exception e) {
             ScenicViewExceptionLogger.submitException(e);
@@ -402,7 +388,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
 
     private List<VirtualMachine> getRunningJavaFXApplications() {
         final List<VirtualMachineDescriptor> machines = VirtualMachine.list();
-        debug("Number of JVMs:" + machines.size());
+        org.fxconnector.Debugger.debug("Number of running Java applications found: " + machines.size());
         final List<VirtualMachine> javaFXMachines = new ArrayList<VirtualMachine>();
 
         final Map<String, Properties> vmsProperties = new HashMap<String, Properties>(machines.size());
@@ -410,7 +396,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
             final VirtualMachineDescriptor vmd = machines.get(i);
             try {
                 final VirtualMachine virtualMachine = VirtualMachine.attach(vmd);
-                debug("Obtaining properties for JVM:" + virtualMachine.id());
+                org.fxconnector.Debugger.debug("Obtaining properties for Java application with PID:" + virtualMachine.id());
                 final Properties sysPropertiesMap = virtualMachine.getSystemProperties();
                 vmsProperties.put(virtualMachine.id(), sysPropertiesMap);
                 if (sysPropertiesMap != null && sysPropertiesMap.containsKey(JAVAFX_SYSTEM_PROPERTIES_KEY) && !sysPropertiesMap.containsKey(SCENIC_VIEW_VM)) {
@@ -418,7 +404,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                 } else {
                     virtualMachine.detach();
                 }
-                debug("JVM:" + virtualMachine.id() + " detection finished");
+//                org.fxconnector.Debugger.debug("JVM:" + virtualMachine.id() + " detection finished");
             } catch (final AttachNotSupportedException ex) {
                 dumpAttachError(vmd, ex);
             } catch (final IOException ex) {
@@ -428,22 +414,21 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
             }
 
         }
-        if (debug && javaFXMachines.isEmpty() && machines.size() > 1) {
-            debug("No JavaFX VM found? dumping properties");
-            for (final Iterator<String> iterator = vmsProperties.keySet().iterator(); iterator.hasNext();) {
-                final String id = iterator.next();
-
-                final Properties properties = vmsProperties.get(id);
-                if (!properties.containsKey(JAVAFX_SYSTEM_PROPERTIES_KEY)) {
-                    debug("ID:" + id);
-                    for (@SuppressWarnings("rawtypes") final Iterator iterator2 = properties.keySet().iterator(); iterator2.hasNext();) {
-                        final String value = (String) iterator2.next();
-                        debug("\t" + value + "=" + properties.getProperty(value));
-                    }
-                }
-
-            }
-        }
+//        if (debug && javaFXMachines.isEmpty() && machines.size() > 1) {
+//            debug("No running JavaFX applications found.");
+//            for (final Iterator<String> iterator = vmsProperties.keySet().iterator(); iterator.hasNext();) {
+//                final String id = iterator.next();
+//
+//                final Properties properties = vmsProperties.get(id);
+//                if (!properties.containsKey(JAVAFX_SYSTEM_PROPERTIES_KEY)) {
+//                    debug("ID:" + id);
+//                    for (@SuppressWarnings("rawtypes") final Iterator iterator2 = properties.keySet().iterator(); iterator2.hasNext();) {
+//                        final String value = (String) iterator2.next();
+//                        debug("\t" + value + "=" + properties.getProperty(value));
+//                    }
+//                }
+//            }
+//        }
 
         return javaFXMachines;
     }
@@ -460,15 +445,11 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
         File tempf = null;
 
         try {
-            URL url = AgentTest.class.getResource("/org/fxconnector/remote/AgentTest.class");
-            FXConnectorFactory.debug("URL:");
-            FXConnectorFactory.debug(url.toExternalForm());
+            URL url = RuntimeAttach.class.getResource("/org/fxconnector/remote/RuntimeAttach.class");
             if (url.getProtocol().equals("jar")) {
                 String urlFile = url.getFile();
                 String fileUrl = urlFile.substring(0, urlFile.indexOf('!'));
                 tempf = new File(new URL(fileUrl).toURI());
-                FXConnectorFactory.debug("file:");
-                FXConnectorFactory.debug(tempf);
             }
         } catch (MalformedURLException | URISyntaxException e) {
             ScenicViewExceptionLogger.submitException(e, "Attempting to get agent jar.");
@@ -504,12 +485,11 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                         tempf = jarFile;
                     }
                 }
-                FXConnectorFactory.debug(tempf.getAbsolutePath());
             }
 
             // System.err.println("Cannot load the agent, ScenicView.jar not found here:" + tempf.getAbsolutePath());
         }
-        debug("Loading agent from file:" + tempf.getAbsolutePath());
+        org.fxconnector.Debugger.debug("Loading agent from:" + tempf.getAbsolutePath());
         return tempf;
     }
 

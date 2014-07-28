@@ -83,7 +83,7 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
         dispatcher = new RemoteDispatcher();
         dispatcher.start();
 
-        FXConnectorFactory.debug("RemoteConnector found:" + scenicView);
+        org.fxconnector.Debugger.debug("RemoteConnector found:" + scenicView);
 
         try {
             scenicView.onAgentStarted(port);
@@ -122,14 +122,14 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
     }
 
     @Override public void setEventDispatcher(final StageID id, final FXConnectorEventDispatcher dispatcher) throws RemoteException {
-        FXConnectorFactory.debug("Remote application setEventDispatcher!!!");
+        org.fxconnector.Debugger.debug("Remote application setEventDispatcher!!!");
         application.setEventDispatcher(id, new FXConnectorEventDispatcher() {
 
             @Override public void dispatchEvent(final FXConnectorEvent appEvent) {
                 if (scenicView != null)
                     RemoteApplicationImpl.this.dispatcher.addEvent(appEvent);
                 else
-                    FXConnectorFactory.debug("Cannot dispatch event:" + appEvent);
+                    org.fxconnector.Debugger.debug("Cannot dispatch event:" + appEvent);
             }
         });
     }

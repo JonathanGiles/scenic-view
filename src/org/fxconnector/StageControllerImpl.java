@@ -474,7 +474,7 @@ public class StageControllerImpl implements StageController {
         }
         overlayParent = SCUtils.findFertileParent(value);
         if (overlayParent == null) {
-            FXConnectorFactory.debug("warning: could not find writable parent to add overlay nodes; overlays disabled.");
+            org.fxconnector.Debugger.debug("warning: could not find writable parent to add overlay nodes; overlays disabled.");
             /**
              * This should be improved
              */

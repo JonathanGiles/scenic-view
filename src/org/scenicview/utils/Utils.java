@@ -52,17 +52,18 @@ public class Utils {
     }
 
     public static boolean checkPath(final String path) {
-        try {
+//        try {
             if (path != null && !path.equals("")) {
-                if (new File(path).exists()) {
+                File file = new File(path);
+                if (file.exists()) {
                     return true;
-                } else if (new File(new URI(path)).exists()) {
-                    return true;
+//                } else if (new File(new URI(path)).exists()) {
+//                    return true;
                 }
             }
-        } catch (final URISyntaxException e) {
-            ExceptionLogger.submitException(e);
-        }
+//        } catch (final URISyntaxException e) {
+//            ExceptionLogger.submitException(e);
+//        }
         return false;
     }
 

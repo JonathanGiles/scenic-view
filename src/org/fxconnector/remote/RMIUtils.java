@@ -94,7 +94,7 @@ class RMIUtils {
 
                 while (scenicView == null) {
                     try {
-                        FXConnectorFactory.debug("Finding " + REMOTE_CONNECTOR + " connection for agent...");
+                        org.fxconnector.Debugger.debug("Finding " + REMOTE_CONNECTOR + " connection for agent...");
                         scenicView = findScenicView("127.0.0.1", port);
                         if (scenicView == null) {
                             sleep(50);

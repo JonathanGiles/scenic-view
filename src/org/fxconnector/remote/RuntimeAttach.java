@@ -52,24 +52,26 @@ import org.fxconnector.event.FXConnectorEventDispatcher;
 import org.fxconnector.node.SVNode;
 import org.fxconnector.remote.util.ScenicViewExceptionLogger;
 
-public class AgentTest {
-
+public class RuntimeAttach {
+    
+    private static boolean debug = true;
     private static RemoteApplicationImpl application;
 
     public static void agentmain(final String agentArgs, final Instrumentation instrumentation) {
+        System.out.println("Starting runtime attach of Scenic View");
         /**
          * Do it first to see first trace, this should be change if any other
          * boolean argument is included in the future
          */
-        FXConnectorFactory.setDebug(agentArgs.indexOf("true") != -1);
-        FXConnectorFactory.debug("Launching agent server on:" + agentArgs);
+        debug = agentArgs.indexOf("true") != -1;
+        debug("Launching agent server on:" + agentArgs);
         try {
             final String[] args = agentArgs.split(":");
 
             final int port = Integer.parseInt(args[0]);
             final int serverPort = Integer.parseInt(args[1]);
             final int appID = Integer.parseInt(args[2]);
-            FXConnectorFactory.setDebug(Boolean.parseBoolean(args[3]));
+            debug = Boolean.parseBoolean(args[3]);
             final AppControllerImpl acontroller = new AppControllerImpl(appID, args[2]);
 
             final RemoteApplication application = new RemoteApplication() {
@@ -122,7 +124,7 @@ public class AgentTest {
                     while (it.hasNext()) {
                         final Window window = it.next();
                         if (ConnectorUtils.acceptWindow(window)) {
-                            FXConnectorFactory.debug("Local JavaFX Stage found:" + ((Stage) window).getTitle());
+                            debug("Local JavaFX Stage found:" + ((Stage) window).getTitle());
                             final StageControllerImpl scontroller = new StageControllerImpl((Stage) window, acontroller);
                             scontroller.setRemote(true);
                             finded.add(scontroller);
@@ -162,7 +164,7 @@ public class AgentTest {
                     Platform.runLater(new Runnable() {
 
                         @Override public void run() {
-                            FXConnectorFactory.debug("Setting selected node:" + (value != null ? (" id:" + value.getNodeId() + " class:" + value.getClass()) : ""));
+                            debug("Setting selected node:" + (value != null ? (" id:" + value.getNodeId() + " class:" + value.getClass()) : ""));
                             final StageController sc = getSC(id);
                             if (sc != null)
                                 sc.setSelectedNode(value);
@@ -235,14 +237,20 @@ public class AgentTest {
                 }
 
                 @Override public void close() throws RemoteException {
-                    AgentTest.application.close();
+                    RuntimeAttach.application.close();
                 }
 
             };
-            FXConnectorFactory.setDebug(false);
-            AgentTest.application = new RemoteApplicationImpl(application, port, serverPort);
+            debug = false;
+            RuntimeAttach.application = new RemoteApplicationImpl(application, port, serverPort);
         } catch (final RemoteException e) {
             ScenicViewExceptionLogger.submitException(e);
+        }
+    }
+    
+    private static void debug(String msg) {
+        if (debug) {
+            System.out.println(msg);
         }
     }
 }

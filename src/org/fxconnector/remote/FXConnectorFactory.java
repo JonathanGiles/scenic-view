@@ -40,14 +40,6 @@ public class FXConnectorFactory {
     private FXConnectorFactory() {
     }
 
-    public static void setDebug(final boolean debug) {
-        RemoteConnectorImpl.setDebug(debug);
-    }
-
-    public static void debug(final Object debug) {
-        RemoteConnectorImpl.debug(debug);
-    }
-
     public static synchronized FXConnector getConnector() throws RemoteException {
         if (connector == null) {
             connector = new RemoteConnectorImpl();

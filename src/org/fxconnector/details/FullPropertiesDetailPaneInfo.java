@@ -157,7 +157,7 @@ class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
             if (observable instanceof ReadOnlyProperty) {
                 detail.unavailableEdition(Detail.STATUS_READ_ONLY);
             } else {
-                FXConnectorFactory.debug("Strange Property:" + observable);
+                org.fxconnector.Debugger.debug("Strange Property:" + observable);
             }
         }
         if (!all)

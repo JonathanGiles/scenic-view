@@ -58,6 +58,7 @@ abstract class CommonUpdateStrategy extends WorkerThread implements UpdateStrate
         for (int i = 0; i < actualApps.size(); i++) {
             unused.addAll(actualApps.get(i).getStages());
         }
+        
         /**
          * First check new apps
          */
@@ -68,6 +69,7 @@ abstract class CommonUpdateStrategy extends WorkerThread implements UpdateStrate
                 modifications = true;
             }
         }
+        
         /**
          * Then check remove apps
          */
@@ -77,6 +79,7 @@ abstract class CommonUpdateStrategy extends WorkerThread implements UpdateStrate
                 modifications = true;
             }
         }
+        
         /**
          * Then check added/removed Stages
          */

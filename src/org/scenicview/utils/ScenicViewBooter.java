@@ -77,7 +77,7 @@ public class ScenicViewBooter extends Application {
      *************************************************************************/
 
     private static void activateDebug() {
-        FXConnectorFactory.setDebug(debug);
+        org.fxconnector.Debugger.setDebug(debug);
         ScenicViewDebug.setDebug(debug);
     }
 
@@ -173,16 +173,16 @@ public class ScenicViewBooter extends Application {
 
         final RemoteVMsUpdateStrategy strategy = new RemoteVMsUpdateStrategy();
 
-        FXConnectorFactory.debug("Platform running");
+        org.fxconnector.Debugger.debug("Platform running");
         // workaround for RT-10714
         stage.setWidth(640);
         stage.setHeight(800);
         stage.setTitle("Scenic View v" + ScenicView.VERSION);
-        FXConnectorFactory.debug("Launching ScenicView v" + ScenicView.VERSION);
+        org.fxconnector.Debugger.debug("Launching ScenicView v" + ScenicView.VERSION);
         ScenicView view = new ScenicView(strategy, stage);
         ScenicView.show(view, stage);
 
-        FXConnectorFactory.debug("Startup done");
+        org.fxconnector.Debugger.debug("Startup done");
         while (view == null) {
             try {
                 Thread.sleep(500);
@@ -191,12 +191,12 @@ public class ScenicViewBooter extends Application {
             }
         }
 
-        FXConnectorFactory.debug("Creating server");
+        org.fxconnector.Debugger.debug("Creating server");
         try {
             strategy.setFXConnector(FXConnectorFactory.getConnector());
         } catch (final RemoteException e1) {
             ExceptionLogger.submitException(e1);
         }
-        FXConnectorFactory.debug("Server done");
+        org.fxconnector.Debugger.debug("Server done");
     }
 }
