@@ -95,8 +95,8 @@ public class ScenicViewBooter extends Application {
 
         final Stage stage = new Stage();
         // workaround for RT-10714
-        stage.setWidth(640);
-        stage.setHeight(800);
+        stage.setWidth(1024);
+        stage.setHeight(768);
         stage.setTitle("Scenic View v" + ScenicView.VERSION);
         final DummyUpdateStrategy updateStrategy = new DummyUpdateStrategy(buildAppController(target));
         ScenicView.show(new ScenicView(updateStrategy, stage), stage);
@@ -156,8 +156,8 @@ public class ScenicViewBooter extends Application {
 
         org.fxconnector.Debugger.debug("Platform running");
         // workaround for RT-10714
-        stage.setWidth(640);
-        stage.setHeight(800);
+        stage.setWidth(1024);
+        stage.setHeight(768);
         stage.setTitle("Scenic View v" + ScenicView.VERSION);
         org.fxconnector.Debugger.debug("Launching ScenicView v" + ScenicView.VERSION);
         ScenicView view = new ScenicView(strategy, stage);
