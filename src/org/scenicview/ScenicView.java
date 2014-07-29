@@ -39,18 +39,13 @@ import java.util.List;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.TimelineBuilder;
-import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.HPos;
 import javafx.geometry.Insets;
-import javafx.geometry.VPos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
@@ -69,7 +64,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -77,7 +71,6 @@ import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
 import org.fxconnector.AppController;
-import org.fxconnector.CParent;
 import org.fxconnector.Configuration;
 import org.fxconnector.ConnectorUtils;
 import org.fxconnector.StageController;
@@ -116,7 +109,7 @@ import org.scenicview.utils.ScenicViewDebug;
 /**
  * The base UI
  */
-public class ScenicView extends Region implements CParent {
+public class ScenicView {
     
     private static final String HELP_URL = "http://fxexperience.com/scenic-view/help";
     public static final String STYLESHEETS = ScenicView.class.getResource("scenicview.css").toExternalForm();
@@ -124,9 +117,6 @@ public class ScenicView extends Region implements CParent {
 
     public static final String VERSION = "8.0.0";
     
-    // the Stage used to show Scenic View
-    private final Stage scenicViewStage;
-
     private final Thread shutdownHook = new Thread() {
         @Override public void run() {
             // We can't use close() because we are not in FXThread
@@ -134,22 +124,24 @@ public class ScenicView extends Region implements CParent {
         }
     };
 
-    private final BorderPane borderPane;
-    private final SplitPane splitPane;
-    private final ScenegraphTreeView treeView;
-    private static StatusBar statusBar;
-    private final VBox leftPane;
+    // Scenic View UI
+    private Stage scenicViewStage;
+    private BorderPane rootBorderPane;
+    private SplitPane splitPane;
+    private ScenegraphTreeView treeView;
+    private VBox leftPane;
+    private StatusBar statusBar;
 
     FilterTextField propertyFilterField;
 
     /**
      * Menu Options
      */
-    protected final MenuBar menuBar;
-    private final CheckMenuItem showFilteredNodesInTree;
-    private final CheckMenuItem showNodesIdInTree;
-    private final CheckMenuItem autoRefreshStyleSheets;
-    private final CheckMenuItem componentSelectOnClick;
+    private MenuBar menuBar;
+    private CheckMenuItem showFilteredNodesInTree;
+    private CheckMenuItem showNodesIdInTree;
+    private CheckMenuItem autoRefreshStyleSheets;
+    private CheckMenuItem componentSelectOnClick;
 
     public final Configuration configuration = new Configuration();
     private final List<FXConnectorEvent> eventQueue = new LinkedList<FXConnectorEvent>();
@@ -178,8 +170,6 @@ public class ScenicView extends Region implements CParent {
                     default:
                         // No need to synchronize here
                         eventQueue.add(appEvent);
-                        // if (eventQueue.size() > 1)
-                        // System.out.println("QUEUE SIZE:" + eventQueue.size());
                         break;
                 }
 
@@ -189,9 +179,9 @@ public class ScenicView extends Region implements CParent {
         }
 
         private boolean isValid(final FXConnectorEvent appEvent) {
-            for (int i = 0; i < apps.size(); i++) {
-                if (apps.get(i).getID() == appEvent.getStageID().getAppID()) {
-                    final List<StageController> stages = apps.get(i).getStages();
+            for (int i = 0; i < appRepository.getApps().size(); i++) {
+                if (appRepository.getApps().get(i).getID() == appEvent.getStageID().getAppID()) {
+                    final List<StageController> stages = appRepository.getApps().get(i).getStages();
                     for (int j = 0; j < stages.size(); j++) {
                         if (stages.get(j).getID().getStageID() == appEvent.getStageID().getStageID()) {
                             return true;
@@ -204,7 +194,9 @@ public class ScenicView extends Region implements CParent {
         }
     };
 
-    private final List<AppController> apps = new ArrayList<AppController>();
+//    private final List<AppController> apps = new ArrayList<AppController>();
+    private final AppsRepository appRepository; 
+    
     public StageController activeStage;
     private SVNode selectedNode;
     
@@ -217,10 +209,35 @@ public class ScenicView extends Region implements CParent {
     public ScenicView(final UpdateStrategy updateStrategy, final Stage scenicViewStage) {
         Persistence.loadProperties();
         Runtime.getRuntime().addShutdownHook(shutdownHook);
-        setId(StageController.FX_CONNECTOR_BASE_ID + "scenic-view");
+        buildUI();
+//        checkNewVersion(false);
         
-        borderPane = new BorderPane();
-        borderPane.setId("main-borderpane");
+        this.appRepository = new AppsRepository(this);
+        this.updateStrategy = updateStrategy;
+        this.updateStrategy.start(appRepository);
+        
+        // we update Scenic View on a separate thread, based on events coming
+        // in from FX Connector. The events arrive into the eventQueue, and
+        // are processed here
+        TimelineBuilder.create().cycleCount(Animation.INDEFINITE).keyFrames(new KeyFrame(Duration.millis(64), new EventHandler<ActionEvent>() {
+            @Override public void handle(final ActionEvent arg0) {
+             // No need to synchronize
+                while (!eventQueue.isEmpty()) {
+                    try {
+                        doDispatchEvent(eventQueue.remove(0));
+                    } catch (final Exception e) {
+                        ExceptionLogger.submitException(e);
+                    }
+                }
+            }
+        })).build().play();
+    }
+    
+    private void buildUI() {
+//        setId(StageController.FX_CONNECTOR_BASE_ID + "scenic-view");
+        
+        rootBorderPane = new BorderPane();
+        rootBorderPane.setId("main-borderpane");
 
         final List<NodeFilter> activeNodeFilters = new ArrayList<NodeFilter>();
 
@@ -519,7 +536,7 @@ public class ScenicView extends Region implements CParent {
 
         menuBar.getMenus().addAll(fileMenu, displayOptionsMenu, scenegraphMenu, aboutMenu);
 
-        borderPane.setTop(menuBar);
+        rootBorderPane.setTop(menuBar);
 
         splitPane = new SplitPane();
         splitPane.setId("main-splitpane");
@@ -639,35 +656,14 @@ public class ScenicView extends Region implements CParent {
 
         splitPane.getItems().addAll(leftPane, tabPane);
 
-        borderPane.setCenter(splitPane);
+        rootBorderPane.setCenter(splitPane);
 
         statusBar = new StatusBar();
 
-        borderPane.setBottom(statusBar);
+        rootBorderPane.setBottom(statusBar);
 
-        getChildren().add(borderPane);
-
-        this.scenicViewStage = scenicViewStage;
         Persistence.loadProperty("stageWidth", scenicViewStage, 800);
         Persistence.loadProperty("stageHeight", scenicViewStage, 800);
-//        checkNewVersion(false);
-        setUpdateStrategy(updateStrategy);
-        
-        // we update Scenic View on a separate thread, based on events coming
-        // in from FX Connector. The events arrive into the eventQueue, and
-        // are processed here
-        TimelineBuilder.create().cycleCount(Animation.INDEFINITE).keyFrames(new KeyFrame(Duration.millis(64), new EventHandler<ActionEvent>() {
-            @Override public void handle(final ActionEvent arg0) {
-             // No need to synchronize
-                while (!eventQueue.isEmpty()) {
-                    try {
-                        doDispatchEvent(eventQueue.remove(0));
-                    } catch (final Exception e) {
-                        ExceptionLogger.submitException(e);
-                    }
-                }
-            }
-        })).build().play();
     }
     
     private void updateMenuBar(final Tab oldValue, final Tab newValue) {
@@ -726,10 +722,26 @@ public class ScenicView extends Region implements CParent {
 //            ExceptionLogger.submitException(e);
 //        }
 //    }
+    
+    public void removeApp(final AppController appController) {
+        treeView.removeApp(appController);
+    }
+    
+    public void removeStage(final StageController stageController) {
+        treeView.removeStage(stageController);
+    }
+    
+    public void setActiveStage(final StageController activeStage) {
+        this.activeStage = activeStage;
+    }
+    
+    public FXConnectorEventDispatcher getStageModelListener() {
+        return stageModelListener;
+    }
 
     public void configurationUpdated() {
-        for (int i = 0; i < apps.size(); i++) {
-            final List<StageController> stages = apps.get(i).getStages();
+        for (int i = 0; i < appRepository.getApps().size(); i++) {
+            final List<StageController> stages = appRepository.getApps().get(i).getStages();
             for (int j = 0; j < stages.size(); j++) {
                 if (stages.get(j).isOpened()) {
                     stages.get(j).configurationUpdated(configuration);
@@ -739,8 +751,8 @@ public class ScenicView extends Region implements CParent {
     }
 
     public void animationsEnabled(final boolean enabled) {
-        for (int i = 0; i < apps.size(); i++) {
-            final List<StageController> stages = apps.get(i).getStages();
+        for (int i = 0; i < appRepository.getApps().size(); i++) {
+            final List<StageController> stages = appRepository.getApps().get(i).getStages();
             for (int j = 0; j < stages.size(); j++) {
                 if (stages.get(j).isOpened()) {
                     stages.get(j).animationsEnabled(enabled);
@@ -751,11 +763,11 @@ public class ScenicView extends Region implements CParent {
 
     public void updateAnimations() {
         animationsTab.clear();
-        for (int i = 0; i < apps.size(); i++) {
+        for (int i = 0; i < appRepository.getApps().size(); i++) {
             /**
              * Only first stage
              */
-            final List<StageController> stages = apps.get(i).getStages();
+            final List<StageController> stages = appRepository.getApps().get(i).getStages();
             for (int j = 0; j < stages.size(); j++) {
                 if (stages.get(j).isOpened()) {
                     stages.get(j).updateAnimations();
@@ -766,8 +778,8 @@ public class ScenicView extends Region implements CParent {
     }
 
     public void pauseAnimation(final StageID id, final int animationID) {
-        for (int i = 0; i < apps.size(); i++) {
-            final List<StageController> stages = apps.get(i).getStages();
+        for (int i = 0; i < appRepository.getApps().size(); i++) {
+            final List<StageController> stages = appRepository.getApps().get(i).getStages();
             for (int j = 0; j < stages.size(); j++) {
                 if (stages.get(j).getID().equals(id)) {
                     stages.get(j).pauseAnimation(animationID);
@@ -802,8 +814,8 @@ public class ScenicView extends Region implements CParent {
     }
 
     public void update() {
-        for (int i = 0; i < apps.size(); i++) {
-            final List<StageController> stages = apps.get(i).getStages();
+        for (int i = 0; i < appRepository.getApps().size(); i++) {
+            final List<StageController> stages = appRepository.getApps().get(i).getStages();
             for (int j = 0; j < stages.size(); j++) {
                 if (stages.get(j).isOpened()) {
                     stages.get(j).update();
@@ -813,15 +825,15 @@ public class ScenicView extends Region implements CParent {
     }
 
     StageController getStageController(final StageID id) {
-        for (int i = 0; i < apps.size(); i++) {
-            final List<StageController> stages = apps.get(i).getStages();
+        for (int i = 0; i < appRepository.getApps().size(); i++) {
+            final List<StageController> stages = appRepository.getApps().get(i).getStages();
             for (int j = 0; j < stages.size(); j++) {
                 if (stages.get(j).getID().equals(id)) {
                     return stages.get(j);
                 }
             }
         }
-        return apps.get(0).getStages().get(0);
+        return appRepository.getApps().get(0).getStages().get(0);
         // return null;
     }
 
@@ -907,7 +919,7 @@ public class ScenicView extends Region implements CParent {
     }
 
     private void closeApps() {
-        for (final Iterator<AppController> iterator = apps.iterator(); iterator.hasNext();) {
+        for (final Iterator<AppController> iterator = appRepository.getApps().iterator(); iterator.hasNext();) {
             final AppController stage = iterator.next();
             stage.close();
         }
@@ -923,52 +935,52 @@ public class ScenicView extends Region implements CParent {
         Persistence.saveProperties();
     }
 
-    public static void setStatusText(final String text) {
+    public void setStatusText(final String text) {
         statusBar.setStatusText(text);
     }
 
-    public static void setStatusText(final String text, final long timeout) {
+    public void setStatusText(final String text, final long timeout) {
         statusBar.setStatusText(text, timeout);
     }
 
-    public static void clearStatusText() {
+    public void clearStatusText() {
         statusBar.clearStatusText();
     }
 
-    public static boolean hasStatusText() {
+    public boolean hasStatusText() {
         return statusBar.hasStatus();
     }
 
-    @Override protected double computePrefWidth(final double height) {
-        return 600;
-    }
-
-    @Override protected double computePrefHeight(final double width) {
-        return 600;
-    }
-
-    @Override protected void layoutChildren() {
-        layoutInArea(borderPane, getPadding().getLeft(), getPadding().getTop(), getWidth() - getPadding().getLeft() - getPadding().getRight(), getHeight()
-                - getPadding().getTop() - getPadding().getBottom(), 0, HPos.LEFT, VPos.TOP);
-    }
+//    @Override protected double computePrefWidth(final double height) {
+//        return 600;
+//    }
+//
+//    @Override protected double computePrefHeight(final double width) {
+//        return 600;
+//    }
+//
+//    @Override protected void layoutChildren() {
+//        layoutInArea(borderPane, getPadding().getLeft(), getPadding().getTop(), getWidth() - getPadding().getLeft() - getPadding().getRight(), getHeight()
+//                - getPadding().getTop() - getPadding().getBottom(), 0, HPos.LEFT, VPos.TOP);
+//    }
 
     public final BorderPane getBorderPane() {
-        return borderPane;
+        return rootBorderPane;
     }
 
     public final VBox getLeftPane() {
         return leftPane;
     }
 
-    /**
-     * For autoTesting purposes
-     */
-    @Override public ObservableList<Node> getChildren() {
-        return super.getChildren();
-    }
+//    /**
+//     * For autoTesting purposes
+//     */
+//    @Override public ObservableList<Node> getChildren() {
+//        return super.getChildren();
+//    }
 
     public static void show(final ScenicView scenicview, final Stage stage) {
-        final Scene scene = new Scene(scenicview);
+        final Scene scene = new Scene(scenicview.rootBorderPane);
         scene.getStylesheets().addAll(STYLESHEETS);
         stage.setScene(scene);
         stage.getIcons().add(APP_ICON);
@@ -982,105 +994,6 @@ public class ScenicView extends Region implements CParent {
             }
         });
         stage.show();
-    }
-
-    public void setUpdateStrategy(final UpdateStrategy updateStrategy) {
-        this.updateStrategy = updateStrategy;
-        this.updateStrategy.start(new AppsRepository() {
-
-            private void dumpStatus(final String operation, final int id) {
-                ScenicViewDebug.print(operation + ":" + id);
-                for (int i = 0; i < apps.size(); i++) {
-                    ScenicViewDebug.print("App:" + apps.get(i).getID());
-                    final List<StageController> scs = apps.get(i).getStages();
-                    for (int j = 0; j < scs.size(); j++) {
-                        ScenicViewDebug.print("\tStage:" + scs.get(j).getID().getStageID());
-                    }
-                }
-            }
-
-            int findAppControllerIndex(final int appID) {
-                for (int i = 0; i < apps.size(); i++) {
-                    if (apps.get(i).getID() == appID) {
-                        return i;
-                    }
-                }
-                return -1;
-            }
-
-            int findStageIndex(final List<StageController> stages, final int stageID) {
-                for (int i = 0; i < stages.size(); i++) {
-                    if (stages.get(i).getID().getStageID() == stageID) {
-                        return i;
-                    }
-                }
-                return -1;
-            }
-
-            @Override public void stageRemoved(final StageController stageController) {
-                Platform.runLater(new Runnable() {
-
-                    @Override public void run() {
-                        dumpStatus("stageRemovedStart", stageController.getID().getStageID());
-                        final List<StageController> stages = apps.get(findAppControllerIndex(stageController.getID().getAppID())).getStages();
-                        // Remove and close
-                        stages.remove(findStageIndex(stages, stageController.getID().getStageID())).close();
-                        treeView.clearStage(stageController);
-                        dumpStatus("stageRemovedStop", stageController.getID().getStageID());
-                    }
-                });
-            }
-
-            @Override public void stageAdded(final StageController stageController) {
-                Platform.runLater(new Runnable() {
-
-                    @Override public void run() {
-                        dumpStatus("stageAddedStart", stageController.getID().getStageID());
-                        apps.get(findAppControllerIndex(stageController.getID().getAppID())).getStages().add(stageController);
-                        stageController.setEventDispatcher(stageModelListener);
-                        configurationUpdated();
-                        dumpStatus("stageAddedStop", stageController.getID().getStageID());
-                    }
-                });
-
-            }
-
-            @Override public void appRemoved(final AppController appController) {
-                Platform.runLater(new Runnable() {
-
-                    @Override public void run() {
-                        dumpStatus("appRemovedStart", appController.getID());
-                        // Remove and close
-                        apps.remove(findAppControllerIndex(appController.getID())).close();
-                        treeView.clearApp(appController);
-                        dumpStatus("appRemovedStop", appController.getID());
-                    }
-                });
-
-            }
-
-            @Override public void appAdded(final AppController appController) {
-                Platform.runLater(new Runnable() {
-
-                    @Override public void run() {
-                        dumpStatus("appAddedStart", appController.getID());
-                        if (!apps.contains(appController)) {
-                            if (apps.isEmpty() && !appController.getStages().isEmpty()) {
-                                activeStage = appController.getStages().get(0);
-                            }
-                            apps.add(appController);
-                        }
-                        final List<StageController> stages = appController.getStages();
-                        for (int j = 0; j < stages.size(); j++) {
-                            stages.get(j).setEventDispatcher(stageModelListener);
-                        }
-                        configurationUpdated();
-                        dumpStatus("appAddedStop", appController.getID());
-                    }
-                });
-
-            }
-        });
     }
 
     public void openStage(final StageController controller) {

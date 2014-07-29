@@ -31,11 +31,10 @@
  */
 package org.fxconnector.helper;
 
-import java.util.*;
-
-import org.fxconnector.StageController;
-import org.fxconnector.remote.FXConnectorFactory;
-import org.fxconnector.remote.util.ScenicViewExceptionLogger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 import javafx.stage.Window;
 

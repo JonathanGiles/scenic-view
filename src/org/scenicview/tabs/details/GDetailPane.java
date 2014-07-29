@@ -65,6 +65,8 @@ public class GDetailPane extends TitledPane {
     private static final Image LOCK_IMAGE = DisplayUtils.getUIImage("lock.png");
 
     static final String DETAIL_LABEL_STYLE = "detail-label";
+    
+    private final ScenicView scenicView;
 
     public DetailPaneType type;
     public GridPane gridpane;
@@ -73,7 +75,8 @@ public class GDetailPane extends TitledPane {
     List<GDetail> details = new ArrayList<GDetail>();
     APILoader loader;
 
-    public GDetailPane(final DetailPaneType type, final String name, final APILoader loader) {
+    public GDetailPane(ScenicView scenicView, final DetailPaneType type, final String name, final APILoader loader) {
+        this.scenicView = scenicView;
         this.type = type;
         this.loader = loader;
         setText(name);
@@ -109,7 +112,7 @@ public class GDetailPane extends TitledPane {
             label.setGraphic(labelGraphic);
             label.setContentDisplay(ContentDisplay.LEFT);
         }
-        final GDetail detail = new GDetail(label, valueNode);
+        final GDetail detail = new GDetail(scenicView, label, valueNode);
         detail.setAPILoader(loader);
         GridPane.setConstraints(detail.label, LABEL_COLUMN, row);
         GridPane.setHalignment(detail.label, HPos.RIGHT);
@@ -262,7 +265,7 @@ public class GDetailPane extends TitledPane {
                     try {
                         setter.set(d, value);
                     } catch (final Exception e) {
-                        ScenicView.setStatusText(Detail.STATUS_EXCEPTION + e.getMessage(), 10000);
+                        scenicView.setStatusText(Detail.STATUS_EXCEPTION + e.getMessage(), 10000);
                     }
                 }
 

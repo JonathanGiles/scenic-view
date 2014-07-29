@@ -132,8 +132,4 @@ abstract class CommonUpdateStrategy extends WorkerThread implements UpdateStrate
     }
 
     abstract List<AppController> getActiveApps();
-
-    @Override public boolean needsClassPathConfiguration() {
-        return false;
-    }
 }

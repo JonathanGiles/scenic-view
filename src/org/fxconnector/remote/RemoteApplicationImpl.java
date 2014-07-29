@@ -32,13 +32,10 @@
 package org.fxconnector.remote;
 
 import java.rmi.AccessException;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
 import org.fxconnector.Configuration;
 import org.fxconnector.StageID;
@@ -50,9 +47,6 @@ import org.fxconnector.remote.util.ScenicViewExceptionLogger;
 
 class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplication {
 
-    /**
-	 * 
-	 */
     private static final long serialVersionUID = 1L;
     RemoteApplication application;
     private RemoteConnector scenicView;
@@ -68,11 +62,7 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
             throw new RemoteException("Error starting agent", e);
         }
 
-        RMIUtils.findScenicView(serverPort, new Observer() {
-            @Override public void update(final Observable o, final Object obj) {
-                scenicView = (RemoteConnector) obj;
-            }
-        });
+        RMIUtils.findScenicView(serverPort, (o, obj) -> scenicView = (RemoteConnector) obj);
         while (scenicView == null) {
             try {
                 Thread.sleep(50);
@@ -90,6 +80,7 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
         } catch (final RemoteException e) {
            ScenicViewExceptionLogger.submitException(e);
         }
+        
         try {
             Thread.sleep(3000);
         } catch (final InterruptedException e) {
@@ -105,10 +96,8 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
                 dispatcher.running = false;
             }
         } catch (final AccessException e) {
-            // TODO Auto-generated catch block
            ScenicViewExceptionLogger.submitException(e);
         } catch (final RemoteException e) {
-            // TODO Auto-generated catch block
            ScenicViewExceptionLogger.submitException(e);
         }
     }
@@ -123,13 +112,11 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
 
     @Override public void setEventDispatcher(final StageID id, final FXConnectorEventDispatcher dispatcher) throws RemoteException {
         org.fxconnector.Debugger.debug("Remote application setEventDispatcher!!!");
-        application.setEventDispatcher(id, new FXConnectorEventDispatcher() {
-
-            @Override public void dispatchEvent(final FXConnectorEvent appEvent) {
-                if (scenicView != null)
-                    RemoteApplicationImpl.this.dispatcher.addEvent(appEvent);
-                else
-                    org.fxconnector.Debugger.debug("Cannot dispatch event:" + appEvent);
+        application.setEventDispatcher(id, appEvent -> {
+            if (scenicView != null) {
+                RemoteApplicationImpl.this.dispatcher.addEvent(appEvent);
+            } else {
+                org.fxconnector.Debugger.debug("Cannot dispatch event:" + appEvent);
             }
         });
     }
@@ -146,9 +133,7 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
         application.setSelectedNode(id, value);
     }
     
-
-    @Override
-    public void removeSelectedNode(final StageID id) throws RemoteException {
+    @Override public void removeSelectedNode(final StageID id) throws RemoteException {
         application.removeSelectedNode(id);
     }
 
@@ -202,7 +187,6 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
                             ScenicViewExceptionLogger.submitException(e1);
                         }
                     }
-
                 }
             }
         }

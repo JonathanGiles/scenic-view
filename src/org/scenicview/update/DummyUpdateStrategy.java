@@ -53,11 +53,6 @@ public class DummyUpdateStrategy implements UpdateStrategy {
     }
 
     @Override public void finish() {
-        // TODO Auto-generated method stub
 
-    }
-
-    @Override public boolean needsClassPathConfiguration() {
-        return false;
     }
 }

@@ -81,7 +81,7 @@ public class GDetail {
     private EditionType editionType;
     private APILoader loader;
 
-    public GDetail(final Label label, final Node value) {
+    public GDetail(ScenicView scenicView, final Label label, final Node value) {
         this.label = label;
 
         this.value = value;
@@ -170,7 +170,7 @@ public class GDetail {
                     GDetail.this.field.requestFocus();
                     GDetailPane.activeDetail = GDetail.this;
                 } else {
-                    ScenicView.setStatusText(reason, 4000);
+                    scenicView.setStatusText(reason, 4000);
                 }
             }
 
@@ -179,19 +179,20 @@ public class GDetail {
             this.valueLabel = (Label) value;
             valueLabel.setOnMouseEntered(new EventHandler<MouseEvent>() {
                 @Override public void handle(final MouseEvent arg0) {
-                    if (!ScenicView.hasStatusText()) {
+                    if (!scenicView.hasStatusText()) {
                         if (Detail.isEditionSupported(editionType))
-                            ScenicView.setStatusText("Properties which can be changed will show this icon");
+                            scenicView.setStatusText("Properties which can be changed will show this icon");
                         else if (editionType == EditionType.NONE_BOUND) {
-                            ScenicView.setStatusText("Bound Properties will show this icon");
+                            scenicView.setStatusText("Bound Properties will show this icon");
                         }
                     }
                 }
             });
             valueLabel.setOnMouseExited(new EventHandler<MouseEvent>() {
                 @Override public void handle(final MouseEvent arg0) {
-                    if (editionType != EditionType.NONE)
-                        ScenicView.clearStatusText();
+                    if (editionType != EditionType.NONE) {
+                        scenicView.clearStatusText();
+                    }
                 }
             });
         } else {

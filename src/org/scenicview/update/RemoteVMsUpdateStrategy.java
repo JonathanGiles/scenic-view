@@ -66,7 +66,6 @@ public class RemoteVMsUpdateStrategy extends CommonUpdateStrategy {
     }
 
     @Override public void finish() {
-        // TODO Auto-generated method stub
         super.finish();
         connector.close();
         System.exit(0);
@@ -78,12 +77,7 @@ public class RemoteVMsUpdateStrategy extends CommonUpdateStrategy {
         // }
     }
 
-    @Override public boolean needsClassPathConfiguration() {
-        return true;
-    }
-
     public void setFXConnector(final FXConnector connector) {
         this.connector = connector;
     }
-
 }

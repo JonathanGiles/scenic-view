@@ -365,7 +365,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         }
     }
 
-    void clearApp(final AppController appController) {
+    void removeApp(final AppController appController) {
         for (final Iterator<TreeItem<SVNode>> iterator = apps.getChildren().iterator(); iterator.hasNext();) {
             final TreeItem<SVNode> type = iterator.next();
             if (type.getValue().getNodeId() == appController.getID()) {
@@ -376,7 +376,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         updateRoot();
     }
 
-    void clearStage(final StageController stageController) {
+    void removeStage(final StageController stageController) {
         for (final Iterator<TreeItem<SVNode>> iterator = apps.getChildren().iterator(); iterator.hasNext();) {
             final TreeItem<SVNode> type = iterator.next();
             if (type.getValue().getNodeId() == stageController.getID().getAppID()) {

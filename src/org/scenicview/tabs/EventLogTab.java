@@ -185,9 +185,9 @@ public class EventLogTab extends Tab implements ContextMenuContainer {
 
             @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
                 if (newValue)
-                    ScenicView.setStatusText("Type any text for filtering (logical expressions NOT AND and OR are supported, example NOT MOUSE_MOVED AND TilePane)");
+                    scenicView.setStatusText("Type any text for filtering (logical expressions NOT AND and OR are supported, example NOT MOUSE_MOVED AND TilePane)");
                 else
-                    ScenicView.clearStatusText();
+                    scenicView.clearStatusText();
             }
         });
         idFilterField.getTextField().setOnKeyReleased(new EventHandler<KeyEvent>() {

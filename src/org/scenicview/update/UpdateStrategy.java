@@ -37,5 +37,4 @@ public interface UpdateStrategy {
 
     public void finish();
 
-    public boolean needsClassPathConfiguration();
 }

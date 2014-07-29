@@ -142,7 +142,7 @@ public class DetailsTab extends Tab implements ContextMenuContainer {
             }
         }
         if (!found) {
-            pane = new GDetailPane(type, paneName, loader);
+            pane = new GDetailPane(scenicView, type, paneName, loader);
             gDetailPanes.add(pane);
             vbox.getChildren().add(pane);
         }

@@ -58,7 +58,6 @@ public class RuntimeAttach {
     private static RemoteApplicationImpl application;
 
     public static void agentmain(final String agentArgs, final Instrumentation instrumentation) {
-        System.out.println("Starting runtime attach of Scenic View");
         /**
          * Do it first to see first trace, this should be change if any other
          * boolean argument is included in the future
