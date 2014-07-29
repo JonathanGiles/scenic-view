@@ -234,10 +234,8 @@ public class ScenicView {
     }
     
     private void buildUI() {
-//        setId(StageController.FX_CONNECTOR_BASE_ID + "scenic-view");
-        
         rootBorderPane = new BorderPane();
-        rootBorderPane.setId("main-borderpane");
+        rootBorderPane.setId(StageController.FX_CONNECTOR_BASE_ID + "scenic-view");
 
         final List<NodeFilter> activeNodeFilters = new ArrayList<NodeFilter>();
 
