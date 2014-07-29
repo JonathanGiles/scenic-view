@@ -108,7 +108,6 @@ import org.scenicview.control.RulerConfigurationMenuItem;
 import org.scenicview.dialog.AboutBox;
 import org.scenicview.dialog.HelpBox;
 import org.scenicview.dialog.InfoBox;
-import org.scenicview.license.ScenicViewLicenseManager;
 import org.scenicview.tabs.AnimationsTab;
 import org.scenicview.tabs.DetailsTab;
 import org.scenicview.tabs.EventLogTab;
@@ -653,13 +652,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
             }
         });
         
-        // we only allow certain tabs in the free version, so we differentiate here
-        if (ScenicViewLicenseManager.isPaid()) {
-            tabPane.getTabs().addAll(detailsTab, eventsTab, /*animationsTab,*/ javadocTab);
-        } else {
-            tabPane.getTabs().addAll(detailsTab, javadocTab);
-        }
-        
+        tabPane.getTabs().addAll(detailsTab, eventsTab, /*animationsTab,*/ javadocTab);
         
         Persistence.loadProperty("splitPaneDividerPosition", splitPane, 0.3);
 

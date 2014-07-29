@@ -54,7 +54,6 @@ import org.fxconnector.node.SVNode;
 import org.scenicview.ContextMenuContainer;
 import org.scenicview.DisplayUtils;
 import org.scenicview.ScenicView;
-import org.scenicview.license.ScenicViewLicenseManager;
 import org.scenicview.tabs.details.APILoader;
 import org.scenicview.tabs.details.GDetailPane;
 import org.scenicview.tabs.details.GDetailPane.RemotePropertySetter;
@@ -182,25 +181,18 @@ public class DetailsTab extends Tab implements ContextMenuContainer {
             menu.getItems().addAll(showDefaultProperties);
 
             // --- show css properties
-            // we only allow css properties to be shown in the paid version
-            if (ScenicViewLicenseManager.isPaid()) {
-                final CheckMenuItem showCSSProperties = scenicView.buildCheckMenuItem("Show CSS Properties", "Show CSS properties", "Hide CSS properties",
-                        "showCSSProperties", Boolean.FALSE);
-                showCSSProperties.selectedProperty().addListener(new InvalidationListener() {
-                    @Override public void invalidated(final Observable arg0) {
-                        scenicView.configuration.setCSSPropertiesDetail(showCSSProperties.isSelected());
-                        final SVNode selected = scenicView.getSelectedNode();
-                        scenicView.configurationUpdated();
-                        scenicView.setSelectedNode(scenicView.activeStage, selected);
-                    }
-                });
-                scenicView.configuration.setCSSPropertiesDetail(showCSSProperties.isSelected());
-                menu.getItems().addAll(showCSSProperties);
-            } else {
-                scenicView.configuration.setCSSPropertiesDetail(false);
-            }
-            
-            
+            final CheckMenuItem showCSSProperties = scenicView.buildCheckMenuItem("Show CSS Properties", "Show CSS properties", "Hide CSS properties",
+                    "showCSSProperties", Boolean.FALSE);
+            showCSSProperties.selectedProperty().addListener(new InvalidationListener() {
+                @Override public void invalidated(final Observable arg0) {
+                    scenicView.configuration.setCSSPropertiesDetail(showCSSProperties.isSelected());
+                    final SVNode selected = scenicView.getSelectedNode();
+                    scenicView.configurationUpdated();
+                    scenicView.setSelectedNode(scenicView.activeStage, selected);
+                }
+            });
+            scenicView.configuration.setCSSPropertiesDetail(showCSSProperties.isSelected());
+            menu.getItems().addAll(showCSSProperties);
         }
         return menu;
     }

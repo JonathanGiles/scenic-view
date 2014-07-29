@@ -31,7 +31,6 @@
  */
 package org.scenicview.utils;
 
-import java.lang.instrument.Instrumentation;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,13 +46,9 @@ import org.fxconnector.StageControllerImpl;
 import org.fxconnector.remote.FXConnector;
 import org.fxconnector.remote.FXConnectorFactory;
 import org.scenicview.ScenicView;
-import org.scenicview.license.ScenicViewLicenseManager;
 import org.scenicview.update.DummyUpdateStrategy;
-import org.scenicview.update.LocalVMUpdateStrategy;
 import org.scenicview.update.RemoteVMsUpdateStrategy;
 import org.scenicview.utils.attach.AttachHandlerFactory;
-
-import com.sun.javafx.application.PlatformImpl;
 
 /**
  * This is the entry point for all different versions of Scenic View.
@@ -81,13 +76,8 @@ public class ScenicViewBooter extends Application {
         ScenicViewDebug.setDebug(debug);
     }
 
-    private static void runLicenseCheck() {
-        ScenicViewLicenseManager.start();
-    }
-
     private static void startup() {
         activateDebug();
-        runLicenseCheck();
     }
 
     /**************************************************************************
@@ -159,15 +149,6 @@ public class ScenicViewBooter extends Application {
         AttachHandlerFactory.initAttachAPI(stage);
         System.setProperty(FXConnector.SCENIC_VIEW_VM, "true");
         startup();
-
-        // we only allow thsi mode in the paid version, so check now
-        if (!ScenicViewLicenseManager.isPaid()) {
-            System.out.println(
-                    "This startup mode is not supported in the free version of Scenic View.\n" +
-                    "The only way to use Scenic View in the free version is by adding calls" +
-                    " to ScenicViewBooter.show(scene / parent) into your code base.");
-            System.exit(0);
-        }
 
         setUserAgentStylesheet(STYLESHEET_MODENA);
 

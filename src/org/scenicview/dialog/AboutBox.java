@@ -31,7 +31,6 @@
  */
 package org.scenicview.dialog;
 
-import org.scenicview.license.ScenicViewLicenseManager;
 import org.scenicview.utils.ScenicViewBooter;
 import org.scenicview.utils.PropertiesUtils;
 import org.scenicview.utils.ScenicViewDebug;
@@ -113,16 +112,9 @@ public class AboutBox {
         String toolsPath = properties.getProperty(ScenicViewBooter.JDK_PATH_KEY);
         toolsPath = toolsPath == null ? "Included in runtime classpath" : toolsPath;
         
-        final StringBuilder licenseProperties = new StringBuilder();
-        ScenicViewLicenseManager.getLicenseProperties().forEach((key, value) -> {
-            licenseProperties.append("    " + key + " = " + value + "\r\n");
-        });
-
         final String text = "JavaFX Scenic View " + ScenicView.VERSION + "\n" + 
             "Scenic View developed by Amy Fowler, Ander Ruiz and Jonathan Giles\n" + "\n" +
                 
-            (ScenicViewLicenseManager.isPaid() ? "License Properties:\n" + licenseProperties.toString() + "\n" : "") +
-            
             "JavaFX Build Information:" + "\n" + 
             "    Java FX " + System.getProperty("javafx.runtime.version") + "\n" + "\n" +
 

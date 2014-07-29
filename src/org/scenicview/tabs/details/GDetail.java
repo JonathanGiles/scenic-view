@@ -59,7 +59,6 @@ import org.fxconnector.details.Detail.EditionType;
 import org.fxconnector.details.DetailPaneType;
 import org.fxconnector.details.GridConstraintsDetail;
 import org.scenicview.ScenicView;
-import org.scenicview.license.ScenicViewLicenseManager;
 import org.scenicview.tabs.DetailsTab;
 import org.scenicview.utils.ScenicViewDebug;
 
@@ -139,7 +138,7 @@ public class GDetail {
                 }
 
                 // only allow editing in the paid version
-                if (ScenicViewLicenseManager.isPaid() && Detail.isEditionSupported(editionType)) {
+                if (Detail.isEditionSupported(editionType)) {
                     switch (editionType) {
                     case COMBO:
 
