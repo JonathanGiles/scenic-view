@@ -74,47 +74,30 @@ public class RuntimeAttach {
             final AppControllerImpl acontroller = new AppControllerImpl(appID, args[2]);
 
             final RemoteApplication application = new RemoteApplication() {
-
                 final List<StageControllerImpl> finded = new ArrayList<StageControllerImpl>();
                 final List<StageControllerImpl> controller = new ArrayList<StageControllerImpl>();
 
                 @Override public void update(final StageID id) {
-                    Platform.runLater(new Runnable() {
-
-                        @Override public void run() {
-                            getSC(id).update();
-                        }
-                    });
-
+                    Platform.runLater(() -> getSC(id).update());
                 }
 
                 @Override public void configurationUpdated(final StageID id, final Configuration configuration) throws RemoteException {
-                    Platform.runLater(new Runnable() {
-
-                        @Override public void run() {
-                            getSC(id).configurationUpdated(configuration);
-                        }
-                    });
-
+                    Platform.runLater(() -> getSC(id).configurationUpdated(configuration));
                 }
 
                 @Override public void setEventDispatcher(final StageID id, final FXConnectorEventDispatcher dispatcher) throws RemoteException {
-                    Platform.runLater(new Runnable() {
-
-                        @Override public void run() {
-                            /**
-                             * Move from finded to controllers
-                             */
-                            for (int i = 0; i < finded.size(); i++) {
-                                if (finded.get(i).getID().equals(id)) {
-                                    controller.add(finded.get(i));
-                                    break;
-                                }
+                    Platform.runLater(() -> {
+                        /**
+                         * Move from finded to controllers
+                         */
+                        for (int i = 0; i < finded.size(); i++) {
+                            if (finded.get(i).getID().equals(id)) {
+                                controller.add(finded.get(i));
+                                break;
                             }
-                            getSC(id).setEventDispatcher(dispatcher);
                         }
+                        getSC(id).setEventDispatcher(dispatcher);
                     });
-
                 }
 
                 @Override public StageID[] getStageIDs() throws RemoteException {
@@ -138,84 +121,55 @@ public class RuntimeAttach {
                 }
 
                 @Override public void close(final StageID id) throws RemoteException {
-                    Platform.runLater(new Runnable() {
-
-                        @Override public void run() {
-                            /**
-                             * Special for closing the server
-                             */
-                            if (id == null) {
-                                for (int i = 0; i < controller.size(); i++) {
-                                    controller.get(i).close();
-                                }
-                                controller.clear();
-                            } else {
-                                final StageController c = getSC(id, true);
-                                if (c != null)
-                                    c.close();
-
+                    Platform.runLater(() -> {
+                        /**
+                         * Special for closing the server
+                         */
+                        if (id == null) {
+                            for (int i = 0; i < controller.size(); i++) {
+                                controller.get(i).close();
+                            }
+                            controller.clear();
+                        } else {
+                            final StageController c = getSC(id, true);
+                            if (c != null) {
+                                c.close();
                             }
                         }
                     });
                 }
 
                 @Override public void setSelectedNode(final StageID id, final SVNode value) throws RemoteException {
-                    Platform.runLater(new Runnable() {
-
-                        @Override public void run() {
-                            debug("Setting selected node:" + (value != null ? (" id:" + value.getNodeId() + " class:" + value.getClass()) : ""));
-                            final StageController sc = getSC(id);
-                            if (sc != null)
-                                sc.setSelectedNode(value);
-                        }
+                    Platform.runLater(() -> {
+                        debug("Setting selected node:" + (value != null ? (" id:" + value.getNodeId() + " class:" + value.getClass()) : ""));
+                        final StageController sc = getSC(id);
+                        if (sc != null)
+                            sc.setSelectedNode(value);
                     });
                 }
                 
                 @Override public void removeSelectedNode(final StageID id) throws RemoteException {
-                    Platform.runLater(new Runnable() {
-
-                        @Override public void run() {
-                            final StageController sc = getSC(id);
-                            if (sc != null)
-                                sc.removeSelectedNode();
-                        }
+                    Platform.runLater(() -> {
+                        final StageController sc = getSC(id);
+                        if (sc != null)
+                            sc.removeSelectedNode();
                     });
                 }
 
                 @Override public void setDetail(final StageID id, final DetailPaneType detailType, final int detailID, final String value) {
-                    Platform.runLater(new Runnable() {
-
-                        @Override public void run() {
-                            getSC(id).setDetail(detailType, detailID, value);
-                        }
-                    });
+                    Platform.runLater(() -> getSC(id).setDetail(detailType, detailID, value));
                 }
 
                 @Override public void animationsEnabled(final StageID id, final boolean enabled) throws RemoteException {
-                    Platform.runLater(new Runnable() {
-
-                        @Override public void run() {
-                            getSC(id).animationsEnabled(enabled);
-                        }
-                    });
+                    Platform.runLater(() -> getSC(id).animationsEnabled(enabled));
                 }
 
                 @Override public void updateAnimations(final StageID id) throws RemoteException {
-                    Platform.runLater(new Runnable() {
-
-                        @Override public void run() {
-                            getSC(id).updateAnimations();
-                        }
-                    });
+                    Platform.runLater(() -> getSC(id).updateAnimations());
                 }
 
                 @Override public void pauseAnimation(final StageID id, final int animationID) throws RemoteException {
-                    Platform.runLater(new Runnable() {
-
-                        @Override public void run() {
-                            getSC(id).pauseAnimation(animationID);
-                        }
-                    });
+                    Platform.runLater(() -> getSC(id).pauseAnimation(animationID));
                 }
 
                 private StageController getSC(final StageID id) {
@@ -238,7 +192,6 @@ public class RuntimeAttach {
                 @Override public void close() throws RemoteException {
                     RuntimeAttach.application.close();
                 }
-
             };
             debug = false;
             RuntimeAttach.application = new RemoteApplicationImpl(application, port, serverPort);

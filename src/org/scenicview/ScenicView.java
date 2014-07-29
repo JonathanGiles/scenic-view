@@ -219,7 +219,7 @@ public class ScenicView {
         // we update Scenic View on a separate thread, based on events coming
         // in from FX Connector. The events arrive into the eventQueue, and
         // are processed here
-        TimelineBuilder.create().cycleCount(Animation.INDEFINITE).keyFrames(new KeyFrame(Duration.millis(64), new EventHandler<ActionEvent>() {
+        TimelineBuilder.create().cycleCount(Animation.INDEFINITE).keyFrames(new KeyFrame(Duration.millis(60), new EventHandler<ActionEvent>() {
             @Override public void handle(final ActionEvent arg0) {
              // No need to synchronize
                 while (!eventQueue.isEmpty()) {

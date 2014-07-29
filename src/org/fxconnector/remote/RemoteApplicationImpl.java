@@ -157,7 +157,7 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
         @Override public void run() {
             while (running) {
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(60); // roughly synced with pulse
                 } catch (final InterruptedException e) {
                     ScenicViewExceptionLogger.submitException(e);
                 }

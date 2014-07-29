@@ -31,15 +31,15 @@
  */
 package org.fxconnector.remote;
 
-import org.fxconnector.StageController;
-import org.fxconnector.StageID;
-import org.fxconnector.Configuration;
-import org.fxconnector.AppController;
-import org.fxconnector.AppControllerImpl;
-
-import java.net.*;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.Socket;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.rmi.ConnectException;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
@@ -47,13 +47,16 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javafx.application.Platform;
 
+import org.fxconnector.AppController;
+import org.fxconnector.AppControllerImpl;
+import org.fxconnector.Configuration;
+import org.fxconnector.StageController;
+import org.fxconnector.StageID;
 import org.fxconnector.details.DetailPaneType;
 import org.fxconnector.event.FXConnectorEvent;
 import org.fxconnector.event.FXConnectorEventDispatcher;
@@ -61,21 +64,12 @@ import org.fxconnector.node.SVNode;
 import org.fxconnector.remote.util.ScenicViewExceptionLogger;
 
 import com.sun.javafx.Utils;
-import com.sun.javafx.scene.web.Debugger;
 import com.sun.tools.attach.AttachNotSupportedException;
 import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.rmi.AccessException;
-
 class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector, FXConnector {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = -8263538629805832734L;
 
     private final Map<Integer, String> vmInfo = new HashMap<Integer, String>();
