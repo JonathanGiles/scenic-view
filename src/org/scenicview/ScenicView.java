@@ -237,30 +237,6 @@ public class ScenicView {
         rootBorderPane = new BorderPane();
         rootBorderPane.setId(StageController.FX_CONNECTOR_BASE_ID + "scenic-view");
 
-        final List<NodeFilter> activeNodeFilters = new ArrayList<NodeFilter>();
-
-        /**
-         * Create a filter for our own nodes
-         */
-        activeNodeFilters.add(new NodeFilter() {
-            @Override public boolean allowChildrenOnRejection() {
-                return false;
-            }
-
-            @Override public boolean accept(final SVNode node) {
-                // do not create tree nodes for our bounds rectangles
-                return ConnectorUtils.isNormalNode(node);
-            }
-
-            @Override public boolean ignoreShowFilteredNodesInTree() {
-                return true;
-            }
-
-            @Override public boolean expandAllNodes() {
-                return false;
-            }
-        });
-
         propertyFilterField = createFilterField("Property name or value", null);
         propertyFilterField.setOnKeyReleased(new EventHandler<KeyEvent>() {
             @Override public void handle(final KeyEvent arg0) {
@@ -385,24 +361,6 @@ public class ScenicView {
             }
         };
         showInvisibleNodes.selectedProperty().addListener(visilityListener);
-
-        activeNodeFilters.add(new NodeFilter() {
-            @Override public boolean allowChildrenOnRejection() {
-                return false;
-            }
-
-            @Override public boolean accept(final SVNode node) {
-                return showInvisibleNodes.isSelected() || node.isVisible();
-            }
-
-            @Override public boolean ignoreShowFilteredNodesInTree() {
-                return false;
-            }
-
-            @Override public boolean expandAllNodes() {
-                return false;
-            }
-        });
 
         showNodesIdInTree = buildCheckMenuItem("Show Node IDs", "Node IDs will be shown on the scenegraph tree",
                 "Node IDs will not be shown the Scenegraph tree", "showNodesIdInTree", Boolean.FALSE);
@@ -544,16 +502,86 @@ public class ScenicView {
                 ScenicView.this.loadAPI(property);
             }
         });
-
-        treeView = new ScenegraphTreeView(activeNodeFilters, this);
-
-        leftPane = new VBox();
-        leftPane.setId("main-nodeStructure");
-
+        
+        
+        
+        // filters box
         final FilterTextField idFilterField = createFilterField("Node ID");
         idFilterField.setOnButtonClick(() -> {
             idFilterField.setText("");
             update();
+        });
+        
+        final FilterTextField classNameFilterField = createFilterField("Node className");
+        classNameFilterField.setOnButtonClick(() -> {
+            classNameFilterField.setText("");
+            update();
+        });
+        
+        final GridPane filtersGridPane = new GridPane();
+        filtersGridPane.setVgap(5);
+        filtersGridPane.setHgap(5);
+        filtersGridPane.setSnapToPixel(true);
+        filtersGridPane.setPadding(new Insets(0, 5, 5, 0));
+        filtersGridPane.setId("main-filters-grid-pane");
+
+        GridPane.setHgrow(idFilterField, Priority.ALWAYS);
+        GridPane.setHgrow(classNameFilterField, Priority.ALWAYS);
+        GridPane.setHgrow(propertyFilterField, Priority.ALWAYS);
+
+        filtersGridPane.add(new Label("ID Filter:"), 1, 1);
+        filtersGridPane.add(idFilterField, 2, 1);
+        filtersGridPane.add(new Label("Class Filter:"), 1, 2);
+        filtersGridPane.add(classNameFilterField, 2, 2);
+        filtersGridPane.add(new Label("Property Filter:"), 1, 3);
+        filtersGridPane.add(propertyFilterField, 2, 3);
+
+        final TitledPane filtersPane = new TitledPane("Filters", filtersGridPane);
+        filtersPane.setId("main-filters");
+        filtersPane.setMinHeight(filtersGridPane.getPrefHeight());
+        
+        
+        // create filters for nodes
+        final List<NodeFilter> activeNodeFilters = new ArrayList<NodeFilter>();
+
+        /**
+         * Create a filter for our own nodes
+         */
+        activeNodeFilters.add(new NodeFilter() {
+            @Override public boolean allowChildrenOnRejection() {
+                return false;
+            }
+
+            @Override public boolean accept(final SVNode node) {
+                // do not create tree nodes for our bounds rectangles
+                return ConnectorUtils.isNormalNode(node);
+            }
+
+            @Override public boolean ignoreShowFilteredNodesInTree() {
+                return true;
+            }
+
+            @Override public boolean expandAllNodes() {
+                return false;
+            }
+        });
+        
+        activeNodeFilters.add(new NodeFilter() {
+            @Override public boolean allowChildrenOnRejection() {
+                return false;
+            }
+
+            @Override public boolean accept(final SVNode node) {
+                return showInvisibleNodes.isSelected() || node.isVisible();
+            }
+
+            @Override public boolean ignoreShowFilteredNodesInTree() {
+                return false;
+            }
+
+            @Override public boolean expandAllNodes() {
+                return false;
+            }
         });
         
         activeNodeFilters.add(new NodeFilter() {
@@ -574,12 +602,6 @@ public class ScenicView {
             @Override public boolean expandAllNodes() {
                 return !idFilterField.getText().equals("");
             }
-        });
-
-        final FilterTextField classNameFilterField = createFilterField("Node className");
-        classNameFilterField.setOnButtonClick(() -> {
-            classNameFilterField.setText("");
-            update();
         });
         
         activeNodeFilters.add(new NodeFilter() {
@@ -603,28 +625,15 @@ public class ScenicView {
                 return !classNameFilterField.getText().equals("");
             }
         });
+        
+        
 
-        final GridPane filtersGridPane = new GridPane();
-        filtersGridPane.setVgap(5);
-        filtersGridPane.setHgap(5);
-        filtersGridPane.setSnapToPixel(true);
-        filtersGridPane.setPadding(new Insets(0, 5, 5, 0));
-        filtersGridPane.setId("main-filters-grid-pane");
+        treeView = new ScenegraphTreeView(activeNodeFilters, this);
 
-        GridPane.setHgrow(idFilterField, Priority.ALWAYS);
-        GridPane.setHgrow(classNameFilterField, Priority.ALWAYS);
-        GridPane.setHgrow(propertyFilterField, Priority.ALWAYS);
+        leftPane = new VBox();
+        leftPane.setId("main-nodeStructure");
 
-        filtersGridPane.add(new Label("ID Filter:"), 1, 1);
-        filtersGridPane.add(idFilterField, 2, 1);
-        filtersGridPane.add(new Label("Class Filter:"), 1, 2);
-        filtersGridPane.add(classNameFilterField, 2, 2);
-        filtersGridPane.add(new Label("Property Filter:"), 1, 3);
-        filtersGridPane.add(propertyFilterField, 2, 3);
-
-        final TitledPane filtersPane = new TitledPane("Filters", filtersGridPane);
-        filtersPane.setId("main-filters");
-        filtersPane.setMinHeight(filtersGridPane.getPrefHeight());
+        
 
         treeView.setMaxHeight(Double.MAX_VALUE);
         final TitledPane treeViewPane = new TitledPane("JavaFX Apps", treeView);

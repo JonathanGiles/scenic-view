@@ -44,9 +44,9 @@ import java.util.List;
 import java.util.Properties;
 
 import javafx.application.Platform;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
-import org.scenicview.utils.ClassPathDialog;
 import org.scenicview.utils.ExceptionLogger;
 import org.scenicview.utils.PropertiesUtils;
 import org.scenicview.utils.ScenicViewBooter;
@@ -132,7 +132,12 @@ public class AttachHandlerFactory {
                 System.setProperty("javafx.macosx.embedded", "true");
             }
 
-            final File jdkPathFile = new ClassPathDialog(null).show(stage);
+            DirectoryChooser jdkChooser = new DirectoryChooser();
+            jdkChooser.setTitle("Please find an installed JDK");
+            
+            File initialDirectory = new File("/");
+            jdkChooser.setInitialDirectory(initialDirectory);
+            final File jdkPathFile = jdkChooser.showDialog(stage);
             if (jdkPathFile != null) {
                 String jdkPath = jdkPathFile.getAbsolutePath();
                 if (jdkPath == null || jdkPath.isEmpty()) {

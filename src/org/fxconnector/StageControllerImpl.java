@@ -186,43 +186,27 @@ public class StageControllerImpl implements StageController {
     public StageControllerImpl(final Parent target, final AppController appController, final boolean realStageController) {
         this.appController = appController;
         this.stageID = new StageID(appController.getID(), ConnectorUtils.getNodeUniqueID(target));
-        targetScenePropListener = new InvalidationListener() {
-            @Override public void invalidated(final Observable value) {
-                updateSceneDetails();
+        
+        targetScenePropListener = o -> updateSceneDetails();
+        targetWindowPropListener = o -> updateWindowDetails();
+        targetWindowSceneListener = o -> {
+            if (realStageController) {
+                setTarget(targetWindow.getScene().getRoot());
+                update();
             }
         };
-
-        targetWindowPropListener = new InvalidationListener() {
-            @Override public void invalidated(final Observable value) {
-                updateWindowDetails();
+        targetSceneRootListener = o -> {
+            if (realStageController) {
+                setTarget(targetScene.getRoot());
+                update();
             }
         };
-        targetWindowSceneListener = new InvalidationListener() {
-
-            @Override public void invalidated(final Observable arg0) {
-                if (realStageController) {
-                    setTarget(targetWindow.getScene().getRoot());
-                    update();
-                }
-            }
-        };
-        targetSceneRootListener = new InvalidationListener() {
-
-            @Override public void invalidated(final Observable arg0) {
-                if (realStageController) {
-                    setTarget(targetScene.getRoot());
-                    update();
-                }
-            }
-        };
+        
         selectedNodePropListener = new InvalidationListener() {
-
             boolean recursive;
 
-            @Override public void invalidated(final Observable arg0) {
-                /**
-                 * Prevent stackOverflow
-                 */
+            @Override public void invalidated(final Observable o) {
+                 // Prevent stackOverflow
                 if (!recursive) {
                     recursive = true;
                     updateBoundsRects();
@@ -230,80 +214,68 @@ public class StageControllerImpl implements StageController {
                 }
             }
         };
-        shortcutsHandler = new EventHandler<KeyEvent>() {
-
-            @Override public void handle(final KeyEvent ev) {
-                if (isSVEvent(ev)) {
-                    dispatchEvent(new ShortcutEvent(getID(), ev.getCode()));
-                }
-
-            }
-
-            private boolean isSVEvent(final KeyEvent ev) {
-                return ev.isControlDown() && ev.isShiftDown();
+        
+        shortcutsHandler = ev -> {
+            if (ev.isControlDown() && ev.isShiftDown()) {
+                dispatchEvent(new ShortcutEvent(getID(), ev.getCode()));
             }
         };
 
-        visibilityInvalidationListener = new ChangeListener<Boolean>() {
-
-            @Override public void changed(final ObservableValue<? extends Boolean> observable, final Boolean arg1, final Boolean newValue) {
-                try {
-                    if (configuration.isAutoRefreshSceneGraph()) {
-                        @SuppressWarnings("unchecked") final Node bean = (Node) ((Property<Boolean>) observable).getBean();
-                        final boolean filteringActive = configuration.isVisibilityFilteringActive();
-                        if (filteringActive && !newValue) {
-                            removeNode(bean, false);
-                        } else if (filteringActive && newValue) {
-                            addNewNode(bean);
-                        } else {
-                            /**
-                             * This should be improved ideally we use request a
-                             * repaint for the TreeItem
-                             */
-                            removeNode(bean, false);
-                            addNewNode(bean);
-                        }
+        visibilityInvalidationListener = (o, oldValue, newValue) -> {
+            try {
+                if (configuration.isAutoRefreshSceneGraph()) {
+                    @SuppressWarnings("unchecked") final Node bean = (Node) ((Property<Boolean>) o).getBean();
+                    final boolean filteringActive = configuration.isVisibilityFilteringActive();
+                    if (filteringActive && !newValue) {
+                        removeNode(bean, false);
+                    } else if (filteringActive && newValue) {
+                        addNewNode(bean);
+                    } else {
+                        /**
+                         * This should be improved ideally we use request a
+                         * repaint for the TreeItem
+                         */
+                        removeNode(bean, false);
+                        addNewNode(bean);
                     }
-                } catch (final Exception e) {
-                    // Protect the application from ScenicView problems
-                    ScenicViewExceptionLogger.submitException(e);
                 }
+            } catch (final Exception e) {
+                // Protect the application from ScenicView problems
+                ScenicViewExceptionLogger.submitException(e);
             }
         };
 
-        structureInvalidationListener = new ListChangeListener<Node>() {
-            @Override public void onChanged(final Change<? extends Node> c) {
-                try {
-                    if (configuration.isAutoRefreshSceneGraph()) {
-                        int difference = 0;
-                        while (c.next()) {
-                            for (final Node dead : c.getRemoved()) {
-                                final SVNode node = createNode(dead);
-                                dispatchEvent(new EvLogEvent(getID(), node, EvLogEvent.NODE_REMOVED, ""));
-                                removeNode(dead, true);
-                                if (SCUtils.isNormalNode(dead)) {
-                                    difference -= ConnectorUtils.getBranchCount(dead);
-                                }
-                            }
-                            for (final Node alive : c.getAddedSubList()) {
-                                final SVNode node = createNode(alive);
-                                dispatchEvent(new EvLogEvent(getID(), node, EvLogEvent.NODE_ADDED, ""));
-
-                                addNewNode(alive);
-                                if (SCUtils.isNormalNode(alive)) {
-                                    difference += ConnectorUtils.getBranchCount(alive);
-                                }
+        structureInvalidationListener = c -> {
+            try {
+                if (configuration.isAutoRefreshSceneGraph()) {
+                    int difference = 0;
+                    while (c.next()) {
+                        for (final Node dead : c.getRemoved()) {
+                            final SVNode node = createNode(dead);
+                            dispatchEvent(new EvLogEvent(getID(), node, EvLogEvent.NODE_REMOVED, ""));
+                            removeNode(dead, true);
+                            if (SCUtils.isNormalNode(dead)) {
+                                difference -= ConnectorUtils.getBranchCount(dead);
                             }
                         }
-                        if (difference != 0) {
-                            setNodeCount(nodeCount + difference);
-                            dispatchEvent(new NodeCountEvent(getID(), nodeCount));
+                        for (final Node alive : c.getAddedSubList()) {
+                            final SVNode node = createNode(alive);
+                            dispatchEvent(new EvLogEvent(getID(), node, EvLogEvent.NODE_ADDED, ""));
+
+                            addNewNode(alive);
+                            if (SCUtils.isNormalNode(alive)) {
+                                difference += ConnectorUtils.getBranchCount(alive);
+                            }
                         }
                     }
-                } catch (final Exception e) {
-                    // Protect the application from ScenicView problems
-                    ScenicViewExceptionLogger.submitException(e);
+                    if (difference != 0) {
+                        setNodeCount(nodeCount + difference);
+                        dispatchEvent(new NodeCountEvent(getID(), nodeCount));
+                    }
                 }
+            } catch (final Exception e) {
+                // Protect the application from ScenicView problems
+                ScenicViewExceptionLogger.submitException(e);
             }
         };
 

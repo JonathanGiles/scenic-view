@@ -92,8 +92,6 @@ class SCUtils {
     static void addToNode(final Parent parent, final Node node) {
         if (parent instanceof Group) {
             ((Group) parent).getChildren().add(node);
-//        } else if (parent instanceof CParent) {
-//            ((CParent) parent).getChildren().add(node);
         } else if (parent instanceof Pane) { // instanceof Pane
             ((Pane) parent).getChildren().add(node);
         } else if (parent != null) {
@@ -104,8 +102,6 @@ class SCUtils {
     static void removeFromNode(final Parent parent, final Node node) {
         if (parent instanceof Group) {
             ((Group) parent).getChildren().remove(node);
-//        } else if (parent instanceof CParent) {
-//            ((CParent) parent).getChildren().remove(node);
         } else if (parent instanceof Pane) { // instanceof Pane
             ((Pane) parent).getChildren().remove(node);
         } else if (parent != null) {

@@ -34,8 +34,8 @@ package org.fxconnector.remote;
 import java.rmi.*;
 import java.rmi.registry.*;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Observer;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 class RMIUtils {
 
@@ -86,10 +86,9 @@ class RMIUtils {
         registry.unbind(REMOTE_CONNECTOR);
     }
 
-    public static final void findScenicView(final int port, final Observer observer) {
+    public static final void findScenicView(final int port, final Consumer<RemoteConnector> consumer) {
         new Thread(REMOTE_CONNECTOR + ".Finder") {
             @Override public void run() {
-
                 RemoteConnector scenicView = null;
 
                 while (scenicView == null) {
@@ -103,21 +102,19 @@ class RMIUtils {
 
                     }
                 }
-                observer.update(null, scenicView);
+                consumer.accept(scenicView);
             }
         }.start();
     }
 
-    public static final void findApplication(final int port, final Observer observer) {
+    public static final void findApplication(final int port, final Consumer<RemoteApplication> consumer) {
         final Thread remoteBrowserFinder = new Thread(REMOTE_AGENT + ".Finder") {
-
             @Override public void run() {
-
                 RemoteApplication application = null;
 
                 while (application == null) {
                     try {
-                        application = RMIUtils.findApplication("127.0.0.1", port);
+                        application = findApplication("127.0.0.1", port);
                         if (application != null) {
                             sleep(50);
                         }
@@ -125,7 +122,7 @@ class RMIUtils {
 
                     }
                 }
-                observer.update(null, application);
+                consumer.accept(application);
             }
         };
         remoteBrowserFinder.start();

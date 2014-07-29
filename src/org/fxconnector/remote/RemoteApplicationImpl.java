@@ -62,30 +62,26 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
             throw new RemoteException("Error starting agent", e);
         }
 
-        RMIUtils.findScenicView(serverPort, (o, obj) -> scenicView = (RemoteConnector) obj);
-        while (scenicView == null) {
+        RMIUtils.findScenicView(serverPort, scenicView -> {
+            this.scenicView = scenicView;
+            
+            dispatcher = new RemoteDispatcher();
+            dispatcher.start();
+
+            org.fxconnector.Debugger.debug("RemoteConnector found:" + scenicView);
+
             try {
-                Thread.sleep(50);
-            } catch (final InterruptedException e) {
+                scenicView.onAgentStarted(port);
+            } catch (final RemoteException e) {
                ScenicViewExceptionLogger.submitException(e);
             }
-        }
-        dispatcher = new RemoteDispatcher();
-        dispatcher.start();
-
-        org.fxconnector.Debugger.debug("RemoteConnector found:" + scenicView);
-
-        try {
-            scenicView.onAgentStarted(port);
-        } catch (final RemoteException e) {
-           ScenicViewExceptionLogger.submitException(e);
-        }
-        
-        try {
-            Thread.sleep(3000);
-        } catch (final InterruptedException e) {
-            ScenicViewExceptionLogger.submitException(e);
-        }
+            
+            try {
+                Thread.sleep(3000);
+            } catch (final InterruptedException e) {
+                ScenicViewExceptionLogger.submitException(e);
+            }
+        });
     }
 
     @Override public void close() {

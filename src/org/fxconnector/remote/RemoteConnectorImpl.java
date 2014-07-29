@@ -97,18 +97,16 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
 
     @Override public void dispatchEvent(final FXConnectorEvent event) {
         if (dispatcher != null) {
-            Platform.runLater(new Runnable() {
-                @Override public void run() {
-                    synchronized (previous) {
-                        if (!previous.isEmpty()) {
-                            for (int i = 0; i < previous.size(); i++) {
-                                dispatcher.dispatchEvent(previous.get(i));
-                            }
-                            previous.clear();
+            Platform.runLater(() -> {
+                synchronized (previous) {
+                    if (!previous.isEmpty()) {
+                        for (int i = 0; i < previous.size(); i++) {
+                            dispatcher.dispatchEvent(previous.get(i));
                         }
+                        previous.clear();
                     }
-                    dispatcher.dispatchEvent(event);
                 }
+                dispatcher.dispatchEvent(event);
             });
         } else {
             synchronized (previous) {
@@ -119,28 +117,22 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
 
     @Override public void onAgentStarted(final int port) {
         org.fxconnector.Debugger.debug("Remote agent started on port:" + port);
-        RMIUtils.findApplication(port, new Observer() {
-
-            @Override public void update(final Observable o, final Object obj) {
-                final RemoteApplication application = (RemoteApplication) obj;
-                applications.put(vmInfo.get(port), application);
-                try {
-                    final int appsID = Integer.parseInt(vmInfo.get(port));
-                    final StageID[] ids = application.getStageIDs();
-                    addStages(appsID, ids, application);
-                } catch (final RemoteException e) {
-                    ScenicViewExceptionLogger.submitException(e);
-                }
-                count.decrementAndGet();
+        RMIUtils.findApplication(port, application -> {
+            applications.put(vmInfo.get(port), application);
+            try {
+                final int appsID = Integer.parseInt(vmInfo.get(port));
+                final StageID[] ids = application.getStageIDs();
+                addStages(appsID, ids, application);
+            } catch (final RemoteException e) {
+                ScenicViewExceptionLogger.submitException(e);
             }
+            count.decrementAndGet();
         });
     }
 
     private void addStages(final int appsID, final StageID[] ids, final RemoteApplication application) {
         final AppControllerImpl impl = new AppControllerImpl(appsID, Integer.toString(appsID)) {
-
             @Override public void close() {
-                // TODO Auto-generated method stub
                 super.close();
                 try {
                     application.close();
@@ -148,8 +140,8 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                     // Nothing to do
                 }
             }
-
         };
+        
         for (int i = 0; i < ids.length; i++) {
             org.fxconnector.Debugger.debug("RemoteApp connected on:" + port + " stageID:" + ids[i]);
             final int cont = i;
@@ -341,14 +333,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
     @Override public void close() {
         try {
             RMIUtils.unbindScenicView(port);
-        } catch (final AccessException e) {
-            // TODO Auto-generated catch block
-            ScenicViewExceptionLogger.submitException(e);
-        } catch (final RemoteException e) {
-            // TODO Auto-generated catch block
-            ScenicViewExceptionLogger.submitException(e);
-        } catch (final NotBoundException e) {
-            // TODO Auto-generated catch block
+        } catch (final Exception e) {
             ScenicViewExceptionLogger.submitException(e);
         }
     }
