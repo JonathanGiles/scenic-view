@@ -51,6 +51,8 @@ import javafx.util.Callback;
 
 
 public class AnimationsTab extends Tab implements ContextMenuContainer {
+    
+    public static final String TAB_NAME = "Animations";
 
     private final Map<Integer, List<SVAnimation>> appsAnimations = new HashMap<Integer, List<SVAnimation>>();
 
@@ -62,10 +64,10 @@ public class AnimationsTab extends Tab implements ContextMenuContainer {
     private Menu menu;
 
     public AnimationsTab(final ScenicView view) {
+        super(TAB_NAME);
         this.scenicView = view;
         this.vbox = new VBox();
 
-        setText("Animations");
         setContent(vbox);
         setGraphic(new ImageView(DisplayUtils.getUIImage("cinema.png")));
         setClosable(false);

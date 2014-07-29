@@ -37,8 +37,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.CheckMenuItem;
@@ -52,7 +50,6 @@ import javafx.scene.control.TreeView;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import javafx.util.Callback;
 
 import org.fxconnector.AppController;
 import org.fxconnector.ConnectorUtils;
@@ -60,6 +57,9 @@ import org.fxconnector.StageController;
 import org.fxconnector.node.NodeType;
 import org.fxconnector.node.SVDummyNode;
 import org.fxconnector.node.SVNode;
+import org.scenicview.tabs.DetailsTab;
+import org.scenicview.tabs.EventLogTab;
+import org.scenicview.tabs.JavaDocTab;
 import org.scenicview.utils.ScenicViewDebug;
 
 public class ScenegraphTreeView extends TreeView<SVNode> {
@@ -67,7 +67,8 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     private TreeItem<SVNode> previouslySelectedItem;
     private final Map<SVNode, TreeItem<SVNode>> treeViewData = new HashMap<>();
     private final List<NodeFilter> activeNodeFilters;
-    private final ConnectorController container;
+//    private final ConnectorController container;
+    private final ScenicView scenicView;
     private final Map<SVNode, StageController> stages = new HashMap<>();
 
     TreeItem<SVNode> apps;
@@ -81,80 +82,59 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     private final List<String> forcedExpandedNodeClassItems = new ArrayList<>();
     ContextMenu selectedCM;
 
-    public ScenegraphTreeView(final List<NodeFilter> activeNodeFilters, final ConnectorController container) {
+    public ScenegraphTreeView(final List<NodeFilter> activeNodeFilters, final ScenicView scenicView) {
         this.activeNodeFilters = activeNodeFilters;
-        this.container = container;
+        this.scenicView = scenicView;
         setId("main-treeview");
         setShowRoot(false);
-        setPrefSize(200, 500);
-        getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<SVNode>>() {
-            @Override public void changed(final ObservableValue<? extends TreeItem<SVNode>> arg0, final TreeItem<SVNode> arg1, final TreeItem<SVNode> newValue) {
-                if (!blockSelection) {
-                    final TreeItem<SVNode> selected = newValue;
-                    setSelectedNode(selected != null && !(selected.getValue() instanceof SVDummyNode) ? selected : null);
+        
+        getSelectionModel().selectedItemProperty().addListener((ov, oldValue, newValue) -> {
+            if (!blockSelection) {
+                final TreeItem<SVNode> selected = newValue;
+                setSelectedNode(selected != null && !(selected.getValue() instanceof SVDummyNode) ? selected : null);
+            }
+        });
+        
+        setCellFactory(node -> new TreeCell<SVNode>() {
+            @Override public void updateItem(final SVNode item, final boolean empty) {
+                super.updateItem(item, empty);
+
+                TreeItem<SVNode> treeItem = getTreeItem();
+                setGraphic(treeItem == null ? null : treeItem.getGraphic());
+
+                setText(item == null ? null : item.toString());
+                setOpacity(1);
+
+                if (item == null) return;
+                if (!item.isVisible() || item.isInvalidForFilter()) {
+                    setOpacity(0.3);
+                }
+
+                if (item.isFocused()) {
+                    setTextFill(Color.RED);
                 }
             }
         });
-        setCellFactory(new Callback<TreeView<SVNode>, TreeCell<SVNode>>() {
-            @Override public TreeCell<SVNode> call(final TreeView<SVNode> node) {
-                return new TreeCell<SVNode>() {
-                    @Override public void updateItem(final SVNode item, final boolean empty) {
-                        super.updateItem(item, empty);
-
-                        TreeItem treeItem = getTreeItem();
-                        setGraphic(treeItem == null ? null : treeItem.getGraphic());
-
-                        setText(item == null ? null : item.toString());
-                        setOpacity(1);
-
-                        if (item == null) return;
-                        if (!item.isVisible() || item.isInvalidForFilter()) {
-                            setOpacity(0.3);
-                        }
-
-                        if (item.isFocused()) {
-                            setTextFill(Color.RED);
-                        }
-                    }
-                };
+        
+        setOnMousePressed(ev -> {
+            if (selectedCM != null) {
+                selectedCM.hide();
+                selectedCM = null;
+            }
+            if (ev.isSecondaryButtonDown()) {
+                showContextMenu(ev);
             }
         });
-        setOnMousePressed(new EventHandler<MouseEvent>() {
-
-            @Override public void handle(final MouseEvent ev) {
-                if (selectedCM != null) {
-                    selectedCM.hide();
-                    selectedCM = null;
-                }
-                if (ev.isSecondaryButtonDown()) {
-                    showContextMenu(ev);
-                }
-                // if (ev.isMiddleButtonDown() &&
-                // getSelectionModel().getSelectedItem() != null) {
-                // showContextMenu(ev); }
-                // if (ev.isSecondaryButtonDown()) {
-                // secPressed = true;
-                // getSelectionModel().clearSelection();
-                // }
-            }
-        });
+        
         /**
          * Ugly patch for a problem that causes a reselection of the TreeItem on
          * mouseRelease even if the selection has been cleared
          */
-        setOnMouseReleased(new EventHandler<MouseEvent>() {
-
-            @Override public void handle(final MouseEvent ev) {
-                if (ev.isSecondaryButtonDown()) {
-                    showContextMenu(ev);
-                }
-                // if (secPressed) {
-                // secPressed = false;
-                // getSelectionModel().clearSelection();
-                // }
+        setOnMouseReleased(ev -> {
+            if (ev.isSecondaryButtonDown()) {
+                showContextMenu(ev);
             }
         });
-
     }
 
     private void showContextMenu(final MouseEvent ev) {
@@ -192,26 +172,19 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
             forcedExpand.getItems().addAll(expandNode, expandNodeType);
 
             final Menu goTo = new Menu("Go to");
-            goTo.getItems().addAll(goToTab("Details", SVTab.DETAILS), goToTab("Events", SVTab.EVENTS), goToTab("JavaDoc", SVTab.JAVADOC));
+            goTo.getItems().addAll(
+                    goToTab(DetailsTab.TAB_NAME), 
+                    goToTab(EventLogTab.TAB_NAME), 
+                    goToTab(JavaDocTab.TAB_NAME));
 
             final MenuItem close = new MenuItem("Close");
-            close.setOnAction(new EventHandler<ActionEvent>() {
-                @Override public void handle(final ActionEvent e) {
-                    selectedCM.hide();
-                }
-            });
+            close.setOnAction(e -> selectedCM.hide());
+            
             final MenuItem deselect = new MenuItem("Clear selection");
-            deselect.setOnAction(new EventHandler<ActionEvent>() {
-                @Override public void handle(final ActionEvent e) {
-                    getSelectionModel().clearSelection();
-                }
-            });
+            deselect.setOnAction(e -> getSelectionModel().clearSelection());
+            
             final MenuItem removeNode = new MenuItem("Remove node");
-            removeNode.setOnAction(new EventHandler<ActionEvent>() {
-                @Override public void handle(final ActionEvent e) {
-                    container.removeNode();
-                }
-            });
+            removeNode.setOnAction(e -> scenicView.removeNode());
             deselect.disableProperty().bind(getSelectionModel().selectedItemProperty().isNull());
 
             selectedCM.getItems().addAll(deselect, removeNode, forcedCollapse, forcedExpand, goTo, close);
@@ -219,27 +192,21 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         }
     }
 
-    private MenuItem goToTab(final String text, final SVTab tab) {
+    private MenuItem goToTab(final String text) {
         final MenuItem goTo = new MenuItem(text);
-        goTo.setOnAction(new EventHandler<ActionEvent>() {
-            @Override public void handle(final ActionEvent e) {
-                container.goTo(tab);
-            }
-        });
+        goTo.setOnAction(e -> scenicView.goToTab(text));
         return goTo;
     }
 
     @SuppressWarnings({ "unchecked" }) private EventHandler<ActionEvent> forceExpandCollapse(final TreeItem<SVNode> node, @SuppressWarnings("rawtypes") final List filter, final Object data, final boolean remove, final boolean expandIfRemoved) {
-        return new EventHandler<ActionEvent>() {
-            @Override public void handle(final ActionEvent e) {
-                if (remove) {
-                    filter.remove(data);
-                    // This is not completely correct but...
-                    container.forceUpdate();
-                } else {
-                    filter.add(data);
-                    container.forceUpdate();
-                }
+        return e -> {
+            if (remove) {
+                filter.remove(data);
+                // This is not completely correct but...
+                scenicView.forceUpdate();
+            } else {
+                filter.add(data);
+                scenicView.forceUpdate();
             }
         };
     }
@@ -251,9 +218,9 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
             if (stageItem == null) return;
             
             SVNode stageSVNode = stageItem.getValue();
-            container.setSelectedNode(stages.get(stageSVNode), item.getValue());
+            scenicView.setSelectedNode(stages.get(stageSVNode), item.getValue());
         } else {
-            container.setSelectedNode(null, null);
+            scenicView.setSelectedNode(null, null);
         }
     }
 
@@ -469,7 +436,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         try {
             if (ConnectorUtils.isNormalNode(node)) {
                 TreeItem<SVNode> selected = null;
-                if (container.getSelectedNode() == node) {
+                if (scenicView.getSelectedNode() == node) {
                     getSelectionModel().clearSelection();
                     setSelectedNode(null);
                 } else {
@@ -633,7 +600,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         graphic.setFitHeight(16);
         graphic.setFitWidth(16);
         final TreeItem<SVNode> treeItem = new TreeItem<SVNode>(node, graphic);
-        if (node.equals(container.getSelectedNode())) {
+        if (node.equals(scenicView.getSelectedNode())) {
             previouslySelectedItem = treeItem;
         }
         /**
@@ -698,24 +665,24 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         return found;
     }
 
-    /**
-     * TODO Remove this
-     * 
-     */
-    interface ConnectorController {
-        void setSelectedNode(StageController controller, SVNode node);
-
-        void removeNode();
-
-        SVNode getSelectedNode();
-
-        void forceUpdate();
-
-        void goTo(final SVTab tab);
-
-        void openStage(StageController controller);
-
-    }
+//    /**
+//     * TODO Remove this
+//     * 
+//     */
+//    interface ConnectorController {
+//        void setSelectedNode(StageController controller, SVNode node);
+//
+//        void removeNode();
+//
+//        SVNode getSelectedNode();
+//
+//        void forceUpdate();
+//
+////        void goTo(final SVTab tab);
+//
+//        void openStage(StageController controller);
+//
+//    }
 
     private void removeForNode(final TreeItem<SVNode> treeItem) {
         if (treeItem != null) {
@@ -760,7 +727,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                 controller.close();
             } else if (root.isExpanded() && !controller.isOpened()) {
                 // Opening controller
-                container.openStage(controller);
+                scenicView.openStage(controller);
             }
         }
     }

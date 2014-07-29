@@ -31,14 +31,10 @@
  */
 package org.scenicview;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Properties;
 
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -102,12 +98,10 @@ import org.fxconnector.event.SceneDetailsEvent;
 import org.fxconnector.event.ShortcutEvent;
 import org.fxconnector.event.WindowDetailsEvent;
 import org.fxconnector.node.SVNode;
-import org.scenicview.ScenegraphTreeView.ConnectorController;
 import org.scenicview.control.FilterTextField;
 import org.scenicview.control.RulerConfigurationMenuItem;
 import org.scenicview.dialog.AboutBox;
 import org.scenicview.dialog.HelpBox;
-import org.scenicview.dialog.InfoBox;
 import org.scenicview.tabs.AnimationsTab;
 import org.scenicview.tabs.DetailsTab;
 import org.scenicview.tabs.EventLogTab;
@@ -116,17 +110,13 @@ import org.scenicview.tabs.details.APILoader;
 import org.scenicview.tabs.details.GDetailPane.RemotePropertySetter;
 import org.scenicview.update.AppsRepository;
 import org.scenicview.update.UpdateStrategy;
-import org.scenicview.utils.ClassPathDialog;
 import org.scenicview.utils.ExceptionLogger;
-import org.scenicview.utils.PropertiesUtils;
-import org.scenicview.utils.ScenicViewBooter;
 import org.scenicview.utils.ScenicViewDebug;
-import org.scenicview.utils.VersionChecker;
 
 /**
  * The base UI
  */
-public class ScenicView extends Region implements ConnectorController, CParent {
+public class ScenicView extends Region implements CParent {
     
     private static final String HELP_URL = "http://fxexperience.com/scenic-view/help";
     public static final String STYLESHEETS = ScenicView.class.getResource("scenicview.css").toExternalForm();
@@ -168,7 +158,6 @@ public class ScenicView extends Region implements ConnectorController, CParent {
     private long lastMousePosition;
 
     private final FXConnectorEventDispatcher stageModelListener = new FXConnectorEventDispatcher() {
-
         @Override public void dispatchEvent(final FXConnectorEvent appEvent) {
             if (isValid(appEvent)) {
                 // doDispatchEvent(appEvent);
@@ -547,12 +536,11 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         leftPane.setId("main-nodeStructure");
 
         final FilterTextField idFilterField = createFilterField("Node ID");
-        idFilterField.setOnButtonClick(new Runnable() {
-            @Override public void run() {
-                idFilterField.setText("");
-                update();
-            }
+        idFilterField.setOnButtonClick(() -> {
+            idFilterField.setText("");
+            update();
         });
+        
         activeNodeFilters.add(new NodeFilter() {
             @Override public boolean allowChildrenOnRejection() {
                 return true;
@@ -574,12 +562,11 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         });
 
         final FilterTextField classNameFilterField = createFilterField("Node className");
-        classNameFilterField.setOnButtonClick(new Runnable() {
-            @Override public void run() {
-                classNameFilterField.setText("");
-                update();
-            }
+        classNameFilterField.setOnButtonClick(() -> {
+            classNameFilterField.setText("");
+            update();
         });
+        
         activeNodeFilters.add(new NodeFilter() {
             @Override public boolean allowChildrenOnRejection() {
                 return true;
@@ -636,20 +623,14 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         animationsTab = new AnimationsTab(this);
 
         tabPane = new TabPane();
-        tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
-            @Override public void changed(final ObservableValue<? extends Tab> arg0, final Tab oldValue, final Tab newValue) {
-                updateMenuBar(oldValue, newValue);
-            }
-        });
+        tabPane.getSelectionModel().selectedItemProperty().addListener((ov, oldValue, newValue) -> updateMenuBar(oldValue, newValue));
 
         javadocTab = new JavaDocTab(this); 
         
         eventsTab = new EventLogTab(this);
-        eventsTab.activeProperty().addListener(new ChangeListener<Boolean>() {
-            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
-                configuration.setEventLogEnabled(newValue);
-                configurationUpdated();
-            }
+        eventsTab.activeProperty().addListener((ov, oldValue, newValue) -> {
+            configuration.setEventLogEnabled(newValue);
+            configurationUpdated();
         });
         
         tabPane.getTabs().addAll(detailsTab, eventsTab, /*animationsTab,*/ javadocTab);
@@ -677,7 +658,14 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         // are processed here
         TimelineBuilder.create().cycleCount(Animation.INDEFINITE).keyFrames(new KeyFrame(Duration.millis(64), new EventHandler<ActionEvent>() {
             @Override public void handle(final ActionEvent arg0) {
-                dispatchEvents();
+             // No need to synchronize
+                while (!eventQueue.isEmpty()) {
+                    try {
+                        doDispatchEvent(eventQueue.remove(0));
+                    } catch (final Exception e) {
+                        ExceptionLogger.submitException(e);
+                    }
+                }
             }
         })).build().play();
     }
@@ -792,7 +780,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
     private void loadAPI(final String property) {
         if (tabPane.getTabs().contains(javadocTab)) {
             if (property != null) {
-                goTo(SVTab.JAVADOC);
+                goToTab(JavaDocTab.TAB_NAME);
             }
             if (javadocTab.isSelected()) {
                 javadocTab.loadAPI(property);
@@ -841,7 +829,7 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         detailsTab.filterProperties(text);
     }
 
-    @Override public void setSelectedNode(final StageController controller, final SVNode value) {
+    public void setSelectedNode(final StageController controller, final SVNode value) {
         if (value != selectedNode) {
             if (controller != null && activeStage != controller) {
                 /**
@@ -859,11 +847,10 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         }
     }
 
-    @Override public SVNode getSelectedNode() {
+    public SVNode getSelectedNode() {
         return selectedNode;
     }
     
-    @Override
     public void removeNode() {
         activeStage.removeSelectedNode();
     }
@@ -1096,45 +1083,29 @@ public class ScenicView extends Region implements ConnectorController, CParent {
         });
     }
 
-    @Override public void openStage(final StageController controller) {
+    public void openStage(final StageController controller) {
         controller.setEventDispatcher(stageModelListener);
         controller.configurationUpdated(configuration);
     }
 
-    @Override public void forceUpdate() {
+    public void forceUpdate() {
         update();
     }
-
-    @Override public void goTo(final SVTab tab) {
-        switch (tab) {
-            case JAVADOC:
-                tabPane.getSelectionModel().select(javadocTab);
+    
+    public void goToTab(String tabName) {
+        Tab switchToTab = null;
+        for (Tab tab : tabPane.getTabs()) {
+            if (tabName == tab.getText()) {
+                switchToTab = tab;
                 break;
-
-            case DETAILS:
-                tabPane.getSelectionModel().select(detailsTab);
-                break;
-
-            case EVENTS:
-                tabPane.getSelectionModel().select(eventsTab);
-                break;
-
-            default:
-                break;
+            }
+        }
+        
+        if (switchToTab != null) {
+            tabPane.getSelectionModel().select(switchToTab);
         }
     }
     
-    private void dispatchEvents() {
-        // No need to synchronize
-        while (!eventQueue.isEmpty()) {
-            try {
-                doDispatchEvent(eventQueue.remove(0));
-            } catch (final Exception e) {
-                ExceptionLogger.submitException(e);
-            }
-        }
-    }
-
     private void doDispatchEvent(final FXConnectorEvent appEvent) {
         switch (appEvent.getType()) {
             case EVENT_LOG: {

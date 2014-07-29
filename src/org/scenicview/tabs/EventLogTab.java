@@ -77,6 +77,8 @@ import org.scenicview.dialog.InfoBox;
 
 public class EventLogTab extends Tab implements ContextMenuContainer {
 
+    public static final String TAB_NAME = "Events";
+    
     private static final int MAX_EVENTS = 5000;
 
     private final ScenicView scenicView;
@@ -96,7 +98,7 @@ public class EventLogTab extends Tab implements ContextMenuContainer {
     private static final Image MORE_INFO = DisplayUtils.getUIImage("info.png");
     
     public EventLogTab(final ScenicView view) {
-        super("Events");
+        super(TAB_NAME);
         
         this.scenicView = view;
         

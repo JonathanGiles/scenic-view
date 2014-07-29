@@ -48,9 +48,11 @@ public class JavaDocTab extends Tab implements ContextMenuContainer {
     private final ScenicView scenicView;
     
     private final ProgressWebView webView;
+    
+    public static final String TAB_NAME = "JavaDoc";
 
     public JavaDocTab(final ScenicView view) {
-        super("JavaDoc");
+        super(TAB_NAME);
         
         this.scenicView = view;
         this.webView = new ProgressWebView();

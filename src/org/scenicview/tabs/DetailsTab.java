@@ -62,6 +62,8 @@ import org.scenicview.tabs.details.GDetailPane.RemotePropertySetter;
  * 
  */
 public class DetailsTab extends Tab implements ContextMenuContainer {
+    
+    public static final String TAB_NAME = "Details";
 
     List<GDetailPane> gDetailPanes = new ArrayList<GDetailPane>();
 
@@ -77,7 +79,7 @@ public class DetailsTab extends Tab implements ContextMenuContainer {
     MenuItem dumpDetails;
     
     public DetailsTab(final ScenicView view, final APILoader loader) {
-        super("Details");
+        super(TAB_NAME);
         this.scenicView = view;
         this.loader = loader;
 
