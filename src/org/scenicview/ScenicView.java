@@ -615,37 +615,44 @@ public class ScenicView {
 
         final Menu displayOptionsMenu = new Menu("Display Options");
 
-        final Menu ruler = new Menu("Ruler");
+//        final Menu ruler = new Menu("Ruler");
         final CheckMenuItem showRuler = buildCheckMenuItem("Show Ruler", "Show ruler in the scene for alignment purposes", "", null, null);
         showRuler.selectedProperty().addListener((ChangeListener<Boolean>) (o, oldValue, newValue) -> {
             configuration.setShowRuler(newValue.booleanValue());
             configurationUpdated();
         });
+//
+//        final RulerConfigurationMenuItem rulerConfig = new RulerConfigurationMenuItem();
+//        rulerConfig.colorProperty().addListener(new ChangeListener<Color>() {
+//
+//            @Override public void changed(final ObservableValue<? extends Color> arg0, final Color arg1, final Color newValue) {
+//                final int red = (int) (newValue.getRed() * 255);
+//                final int green = (int) (newValue.getGreen() * 255);
+//                final int blue = (int) (newValue.getBlue() * 255);
+//                configuration.setRulerColor(toHexByte(red) + toHexByte(green) + toHexByte(blue));
+//                configurationUpdated();
+//            }
+//
+//            private String toHexByte(final int value) {
+//                return (value < 16) ? "0" + Integer.toString(value, 16) : Integer.toString(value, 16);
+//            }
+//        });
+//        rulerConfig.rulerSeparationProperty().addListener((ChangeListener<Number>) (o, oldValue, newValue) -> {
+//            configuration.setRulerSeparation(newValue.intValue());
+//            configurationUpdated();
+//        });
+//        configuration.setRulerSeparation(rulerConfig.rulerSeparationProperty().get());
+//        ruler.getItems().addAll(showRuler, rulerConfig);
 
-        final RulerConfigurationMenuItem rulerConfig = new RulerConfigurationMenuItem();
-        rulerConfig.colorProperty().addListener(new ChangeListener<Color>() {
-
-            @Override public void changed(final ObservableValue<? extends Color> arg0, final Color arg1, final Color newValue) {
-                final int red = (int) (newValue.getRed() * 255);
-                final int green = (int) (newValue.getGreen() * 255);
-                final int blue = (int) (newValue.getBlue() * 255);
-                configuration.setRulerColor(toHexByte(red) + toHexByte(green) + toHexByte(blue));
-                configurationUpdated();
-            }
-
-            private String toHexByte(final int value) {
-                return (value < 16) ? "0" + Integer.toString(value, 16) : Integer.toString(value, 16);
-            }
-        });
-        rulerConfig.rulerSeparationProperty().addListener((ChangeListener<Number>) (o, oldValue, newValue) -> {
-            configuration.setRulerSeparation(newValue.intValue());
-            configurationUpdated();
-        });
-        configuration.setRulerSeparation(rulerConfig.rulerSeparationProperty().get());
-        ruler.getItems().addAll(showRuler, rulerConfig);
-
-        displayOptionsMenu.getItems().addAll(showBoundsCheckbox, showBaselineCheckbox, new SeparatorMenuItem(), ruler, new SeparatorMenuItem(),
-                showSearchBar, showFilteredNodesInTree, showInvisibleNodes, showNodesIdInTree, collapseControls, collapseContentControls);
+        displayOptionsMenu.getItems().addAll(showBoundsCheckbox, 
+                                             showBaselineCheckbox, 
+                                             showRuler,
+                                             showSearchBar, 
+                                             showFilteredNodesInTree, 
+                                             showInvisibleNodes, 
+                                             showNodesIdInTree, 
+                                             collapseControls, 
+                                             collapseContentControls);
 
         final Menu aboutMenu = new Menu("Help");
 
