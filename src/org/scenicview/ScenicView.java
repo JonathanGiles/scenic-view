@@ -127,7 +127,7 @@ public class ScenicView {
     };
 
     // Scenic View UI
-    private Stage scenicViewStage;
+    private final Stage scenicViewStage;
     private BorderPane rootBorderPane;
     private SplitPane splitPane;
     
@@ -218,6 +218,7 @@ public class ScenicView {
     private JavaDocTab javadocTab;
 
     public ScenicView(final UpdateStrategy updateStrategy, final Stage scenicViewStage) {
+        this.scenicViewStage = scenicViewStage;
         Persistence.loadProperties();
         Runtime.getRuntime().addShutdownHook(shutdownHook);
         buildUI();
