@@ -31,10 +31,14 @@
  */
  package org.scenicview.control;
 
-import javafx.animation.*;
-import javafx.beans.value.*;
+import javafx.animation.Animation;
+import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.ParallelTransition;
+import javafx.animation.Timeline;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
-import javafx.event.*;
 import javafx.scene.Node;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.StackPane;
@@ -55,13 +59,11 @@ public class ProgressWebView extends StackPane {
 
             @Override public void changed(final ObservableValue<? extends State> arg0, final State old, final State newValue) {
                 if (newValue == State.READY) {
-                    anim = TimelineBuilder.create().keyFrames(new KeyFrame(Duration.seconds(2), new EventHandler<ActionEvent>() {
-                        @Override public void handle(final ActionEvent arg0) {
-                            if (wview.getEngine().getLoadWorker().getProgress() == -1) {
-                                doLoad(loadedPage);
-                            }
+                    anim = new Timeline(new KeyFrame(Duration.seconds(2), event -> {
+                        if (wview.getEngine().getLoadWorker().getProgress() == -1) {
+                            doLoad(loadedPage);
                         }
-                    })).build();
+                    }));
                     anim.play();
                 } else if (anim != null) {
                     anim.stop();
@@ -113,5 +115,4 @@ public class ProgressWebView extends StackPane {
             wview.getEngine().load(page);
         }
     }
-
 }

@@ -35,7 +35,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javafx.animation.KeyFrame;
-import javafx.animation.TimelineBuilder;
+import javafx.animation.Timeline;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WritableValue;
@@ -244,12 +244,11 @@ public class GDetail {
     public final void updated() {
         label.getStyleClass().remove(GDetailPane.DETAIL_LABEL_STYLE);
         label.getStyleClass().add("updated-detail-label");
-        TimelineBuilder.create().keyFrames(new KeyFrame(Duration.millis(5000), new EventHandler<ActionEvent>() {
-            @Override public void handle(final ActionEvent arg0) {
-                label.getStyleClass().remove("updated-detail-label");
-                label.getStyleClass().add(GDetailPane.DETAIL_LABEL_STYLE);
-            }
-        })).build().play();
+        
+        new Timeline(new KeyFrame(Duration.millis(5000), event -> {
+            label.getStyleClass().remove("updated-detail-label");
+            label.getStyleClass().add(GDetailPane.DETAIL_LABEL_STYLE);
+        })).play();
     }
 
     public void setValidItems(final String[] validItems) {

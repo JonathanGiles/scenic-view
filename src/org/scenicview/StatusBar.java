@@ -31,14 +31,18 @@
  */
 package org.scenicview;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-import javafx.animation.*;
-import javafx.event.*;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.util.Duration;
 
 class StatusBar extends HBox {
@@ -144,11 +148,8 @@ class StatusBar extends HBox {
 
     public void setStatusText(final String text, final long timeout) {
         setStatusText(text);
-        clearTimeout = TimelineBuilder.create().keyFrames(new KeyFrame(Duration.millis(timeout), new EventHandler<ActionEvent>() {
-            @Override public void handle(final ActionEvent arg0) {
-                clearStatusText();
-            }
-        })).build();
+        
+        clearTimeout = new Timeline(new KeyFrame(Duration.millis(timeout), event -> clearStatusText()));
         clearTimeout.play();
     }
 

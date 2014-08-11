@@ -133,11 +133,6 @@
     -fx-font-weight: bold;
 }
 
-#aboutDialogDetails:focused {
-    -fx-background-color: -fx-shadow-highlight-color, -fx-text-box-border, -fx-control-inner-background;
-    -fx-background-insets: 0, 1, 2;
-    -fx-background-radius: 3, 2, 2;
-}
 .animations-table-view .table-cell {
      -fx-alignment: BASELINE_RIGHT;
  }

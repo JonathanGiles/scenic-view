@@ -31,10 +31,9 @@
  */
 package org.scenicview.utils.attach;
 
-import org.scenicview.utils.Utils;
+import static org.scenicview.utils.ScenicViewBooter.JDK_PATH_KEY;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -51,8 +50,7 @@ import org.scenicview.utils.ExceptionLogger;
 import org.scenicview.utils.PropertiesUtils;
 import org.scenicview.utils.ScenicViewBooter;
 import org.scenicview.utils.ScenicViewDebug;
-
-import static org.scenicview.utils.ScenicViewBooter.JDK_PATH_KEY;
+import org.scenicview.utils.Utils;
 
 /**
  *
@@ -227,7 +225,7 @@ public class AttachHandlerFactory {
             final URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
             final Class<?> sysclass = URLClassLoader.class;
 
-            @SuppressWarnings("unchecked") final Method method = sysclass.getDeclaredMethod("addURL", URL.class);
+            final Method method = sysclass.getDeclaredMethod("addURL", URL.class);
             method.setAccessible(true);
             method.invoke(sysloader, new Object[] { url });
         } catch (Exception e) {

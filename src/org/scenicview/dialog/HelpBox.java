@@ -31,17 +31,17 @@
  */
 package org.scenicview.dialog;
 
-import org.scenicview.DisplayUtils;
-import org.scenicview.ScenicView;
 import java.util.logging.Level;
 
 import javafx.event.EventHandler;
-import javafx.scene.*;
+import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
-import javafx.stage.*;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import org.fxconnector.StageController;
+import org.scenicview.DisplayUtils;
 import org.scenicview.control.ProgressWebView;
 
 public class HelpBox {
@@ -63,8 +63,9 @@ public class HelpBox {
         wview.setPrefWidth(SCENE_WIDTH);
         wview.doLoad(url);
         pane.setCenter(wview);
-        final Scene scene = SceneBuilder.create().width(SCENE_WIDTH).height(SCENE_HEIGHT).root(pane)/*.stylesheets(ScenicView.STYLESHEETS)*/.build();
-        stage = StageBuilder.create().title(title).build();
+        final Scene scene = new Scene(pane, SCENE_WIDTH, SCENE_HEIGHT); 
+        stage = new Stage();
+        stage.setTitle(title);
         stage.setScene(scene);
         stage.getIcons().add(HELP_ICON);
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {

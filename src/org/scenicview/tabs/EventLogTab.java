@@ -107,6 +107,7 @@ public class EventLogTab extends Tab implements ContextMenuContainer {
         setClosable(false);
     }
     
+    @SuppressWarnings("unchecked")
     private Node buildUI() {
         VBox vbox = new VBox();
         

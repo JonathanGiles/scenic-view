@@ -33,7 +33,6 @@ package org.scenicview.dialog;
 
 import org.scenicview.utils.ScenicViewBooter;
 import org.scenicview.utils.PropertiesUtils;
-import org.scenicview.utils.ScenicViewDebug;
 import org.scenicview.DisplayUtils;
 import org.scenicview.ScenicView;
 
@@ -51,7 +50,7 @@ import org.fxconnector.StageController;
 
 public class AboutBox {
     private static final int SCENE_WIDTH = 476;
-    private static final int SCENE_HEIGHT = 474;
+    private static final int SCENE_HEIGHT = 500;
     private static final int LEFT_AND_RIGHT_MARGIN = 30;
     private static final int SPACER_Y = 38;
     private final VBox panel;
@@ -75,17 +74,18 @@ public class AboutBox {
         });
         VBox.setMargin(this.footer, new Insets(SPACER_Y / 2, LEFT_AND_RIGHT_MARGIN, SPACER_Y / 2, LEFT_AND_RIGHT_MARGIN));
 
-        this.header = ((ImageViewBuilder.create().id("AboutHeader")).image(DisplayUtils.getUIImage("about-header.png"))).build();
+        this.header = new ImageView(DisplayUtils.getUIImage("about-header.png"));
+        this.header.setId("AboutHeader");
 
         VBox.setMargin(this.header, new Insets(42.0D, LEFT_AND_RIGHT_MARGIN, 0.0D, LEFT_AND_RIGHT_MARGIN));
 
         this.textArea = new TextArea();
         this.textArea.setFocusTraversable(false);
         this.textArea.setEditable(false);
-        this.textArea.setId("aboutDialogDetails");
+//        this.textArea.setId("aboutDialogDetails");
         this.textArea.setText(getAboutText());
         this.textArea.setWrapText(true);
-        this.textArea.setPrefHeight(250.0D);
+//        this.textArea.setPrefHeight(250.0D);
         VBox.setMargin(this.textArea, new Insets(SPACER_Y, LEFT_AND_RIGHT_MARGIN, 0.0D, LEFT_AND_RIGHT_MARGIN));
         VBox.setVgrow(this.textArea, Priority.ALWAYS);
         this.panel.setAlignment(Pos.TOP_CENTER);
@@ -93,7 +93,8 @@ public class AboutBox {
 
         this.scene = new Scene(panel, SCENE_WIDTH, SCENE_HEIGHT);
 
-        this.stage = StageBuilder.create().style(StageStyle.UTILITY).title(title).build();
+        this.stage = new Stage(StageStyle.UTILITY);
+        this.stage.setTitle(title);
         this.stage.initModality(Modality.APPLICATION_MODAL);
         this.stage.setScene(this.scene);
         this.stage.getIcons().add(ScenicView.APP_ICON);

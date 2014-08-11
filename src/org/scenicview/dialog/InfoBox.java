@@ -31,12 +31,20 @@
  */
 package org.scenicview.dialog;
 
-import javafx.event.*;
-import javafx.geometry.*;
-import javafx.scene.*;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
-import javafx.stage.*;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.stage.Window;
 
 import org.fxconnector.StageController;
 import org.scenicview.ScenicView;
@@ -63,9 +71,10 @@ public class InfoBox {
             final String textAreaText, final boolean editable, final int width, final int height) {
         final VBox pane = new VBox(20);
         pane.setId(StageController.FX_CONNECTOR_BASE_ID + "InfoBox");
-        final Scene scene = SceneBuilder.create().width(width).height(height).root(pane)/*.stylesheets(ScenicView.STYLESHEETS)*/.build();
+        final Scene scene = new Scene(pane, width, height); 
 
-        final Stage stage = StageBuilder.create().style(StageStyle.UTILITY).title(title).build();
+        final Stage stage = new Stage(StageStyle.UTILITY);
+        stage.setTitle(title);
         stage.initModality(Modality.WINDOW_MODAL);
         stage.initOwner(owner);
         stage.setScene(scene);

@@ -38,13 +38,9 @@ import java.util.List;
 
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
-import javafx.animation.TimelineBuilder;
-import javafx.beans.InvalidationListener;
-import javafx.beans.binding.Bindings;
+import javafx.animation.Timeline;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ListChangeListener;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -60,18 +56,15 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.TitledPane;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
@@ -97,7 +90,6 @@ import org.fxconnector.event.ShortcutEvent;
 import org.fxconnector.event.WindowDetailsEvent;
 import org.fxconnector.node.SVNode;
 import org.scenicview.control.FilterTextField;
-import org.scenicview.control.RulerConfigurationMenuItem;
 import org.scenicview.dialog.AboutBox;
 import org.scenicview.dialog.HelpBox;
 import org.scenicview.tabs.AnimationsTab;
@@ -238,18 +230,18 @@ public class ScenicView {
         // we update Scenic View on a separate thread, based on events coming
         // in from FX Connector. The events arrive into the eventQueue, and
         // are processed here
-        TimelineBuilder.create().cycleCount(Animation.INDEFINITE).keyFrames(new KeyFrame(Duration.millis(60), new EventHandler<ActionEvent>() {
-            @Override public void handle(final ActionEvent arg0) {
-             // No need to synchronize
-                while (!eventQueue.isEmpty()) {
-                    try {
-                        doDispatchEvent(eventQueue.remove(0));
-                    } catch (final Exception e) {
-                        ExceptionLogger.submitException(e);
-                    }
+        Timeline eventDispatcher = new Timeline(new KeyFrame(Duration.millis(60), event -> {
+            // No need to synchronize
+            while (!eventQueue.isEmpty()) {
+                try {
+                    doDispatchEvent(eventQueue.remove(0));
+                } catch (final Exception e) {
+                    ExceptionLogger.submitException(e);
                 }
             }
-        })).build().play();
+        }));
+        eventDispatcher.setCycleCount(Animation.INDEFINITE);
+        eventDispatcher.play();
     }
     
     private void buildUI() {

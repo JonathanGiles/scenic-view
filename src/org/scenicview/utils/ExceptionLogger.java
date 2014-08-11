@@ -69,11 +69,11 @@ public class ExceptionLogger implements Thread.UncaughtExceptionHandler {
     }
     
     public void uncaughtException(final Thread t, final Throwable e) {
-        exceptionLogger.submitException(e);
+        ExceptionLogger.submitException(e);
     }
 
     public static void submitException(final Throwable t) {
-        exceptionLogger.submitException(t, "");
+        ExceptionLogger.submitException(t, "");
     }
 
     public static void submitException(final Throwable t, final String summary) {
