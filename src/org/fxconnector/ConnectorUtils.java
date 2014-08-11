@@ -31,7 +31,6 @@
  */
 package org.fxconnector;
 
-import java.lang.reflect.Field;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ArrayList;

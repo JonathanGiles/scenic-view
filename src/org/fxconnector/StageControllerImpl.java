@@ -32,8 +32,6 @@
 package org.fxconnector;
 
 
-import com.sun.javafx.tk.quantum.MasterTimer;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -88,8 +86,9 @@ import org.fxconnector.node.NodeType;
 import org.fxconnector.node.SVDummyNode;
 import org.fxconnector.node.SVNode;
 import org.fxconnector.node.SVNodeFactory;
-import org.fxconnector.remote.FXConnectorFactory;
 import org.fxconnector.remote.util.ScenicViewExceptionLogger;
+
+import com.sun.javafx.tk.quantum.MasterTimer;
 
 public class StageControllerImpl implements StageController {
 

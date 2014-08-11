@@ -31,12 +31,15 @@
  */
  package org.fxconnector;
 
-import java.util.*;
-
-import org.fxconnector.helper.WindowChecker;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javafx.application.Platform;
-import javafx.stage.*;
+import javafx.stage.PopupWindow;
+import javafx.stage.Window;
 
 import org.fxconnector.helper.WindowChecker;
 

@@ -31,21 +31,14 @@
  */
 package org.fxconnector.details;
 
-import org.fxconnector.StageID;
-import org.fxconnector.ConnectorUtils;
 import static org.fxconnector.ConnectorUtils.boundsToString;
 
-import java.lang.reflect.Field;
-import java.util.*;
-
-import org.fxconnector.*;
-import org.fxconnector.details.Detail.LabelType;
-import org.fxconnector.details.Detail.ValueType;
-import org.fxconnector.event.FXConnectorEventDispatcher;
-import org.fxconnector.remote.util.ScenicViewExceptionLogger;
+import java.util.Set;
 
 import javafx.beans.value.WritableValue;
-import javafx.collections.*;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableMap;
+import javafx.css.PseudoClass;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.effect.Effect;
@@ -53,11 +46,11 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Transform;
 
+import org.fxconnector.ConnectorUtils;
+import org.fxconnector.StageID;
 import org.fxconnector.details.Detail.LabelType;
 import org.fxconnector.details.Detail.ValueType;
 import org.fxconnector.event.FXConnectorEventDispatcher;
-import org.fxconnector.remote.util.ScenicViewExceptionLogger;
-import javafx.css.PseudoClass;
 
 /**
  * 
@@ -89,7 +82,6 @@ class NodeDetailPaneInfo extends DetailPaneInfo {
 
     ListChangeListener<Transform> transformListener;
 //    private final Map<Long, String> pseudoStates = new HashMap<Long, String>();
-    private Set<PseudoClass> pseudoClassStates;
 
     NodeDetailPaneInfo(final FXConnectorEventDispatcher dispatcher, final StageID stageID) {
         super(dispatcher, stageID, DetailPaneType.NODE);
@@ -165,7 +157,7 @@ class NodeDetailPaneInfo extends DetailPaneInfo {
 
     private void fillPseudoStates(final Node node) {
 //        pseudoStates.clear();
-        pseudoClassStates = node == null ? null : node.getPseudoClassStates();
+//        pseudoClassStates = node == null ? null : node.getPseudoClassStates();
 //        if (node != null) {
 //            PseudoClass.States states = node.getPseudoClassStates();
 //            

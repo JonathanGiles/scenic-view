@@ -33,9 +33,8 @@ package org.fxconnector.node;
 
 import java.util.List;
 
-import org.fxconnector.Configuration;
-
-import javafx.scene.*;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 
 import org.fxconnector.Configuration;
 

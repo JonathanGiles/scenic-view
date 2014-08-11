@@ -42,9 +42,9 @@ public class ScenicViewExceptionLogger {
     private static Method submitExceptionMethod = null;;
     
     static {
-        Class exceptionLoggerClass = null;
+        Class<?> exceptionLoggerClass = null;
         try {
-            exceptionLoggerClass = ScenicViewExceptionLogger.class.forName("org.scenicview.utils.ExceptionLogger");
+            exceptionLoggerClass = Class.forName("org.scenicview.utils.ExceptionLogger");
         } catch (Exception ex) {
             ex.printStackTrace();
         }

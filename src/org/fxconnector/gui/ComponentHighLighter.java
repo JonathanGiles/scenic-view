@@ -31,18 +31,16 @@
  */
 package org.fxconnector.gui;
 
-import org.fxconnector.*;
-import org.fxconnector.node.SVNode;
-
-import org.fxconnector.StageController;
-import org.fxconnector.ConnectorUtils;
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.control.TitledPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.*;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 
+import org.fxconnector.ConnectorUtils;
+import org.fxconnector.StageController;
 import org.fxconnector.node.SVNode;
 
 public class ComponentHighLighter extends Group {

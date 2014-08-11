@@ -31,8 +31,6 @@
  */
 package org.fxconnector.event;
 
-import org.fxconnector.StageID;
-
 import javafx.scene.input.KeyCode;
 
 import org.fxconnector.StageID;

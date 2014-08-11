@@ -31,12 +31,11 @@
  */
 package org.fxconnector.details;
 
-import org.fxconnector.StageID;
-import org.fxconnector.event.FXConnectorEventDispatcher;
-
 import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.text.*;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
+import javafx.scene.text.TextBoundsType;
 
 import org.fxconnector.StageID;
 import org.fxconnector.event.FXConnectorEventDispatcher;

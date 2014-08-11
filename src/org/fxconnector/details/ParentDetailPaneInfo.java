@@ -32,12 +32,8 @@
 package org.fxconnector.details;
 
 import static org.fxconnector.ConnectorUtils.getBranchCount;
-
-import org.fxconnector.StageID;
-import org.fxconnector.event.FXConnectorEventDispatcher;
-
-import static org.fxconnector.ConnectorUtils.getBranchCount;
-import javafx.scene.*;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 
 import org.fxconnector.StageID;
 import org.fxconnector.event.FXConnectorEventDispatcher;

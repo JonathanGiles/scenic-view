@@ -31,13 +31,17 @@
  */
 package org.fxconnector.details;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
-import org.fxconnector.StageID;
-import org.fxconnector.event.FXConnectorEventDispatcher;
-
-import javafx.beans.property.*;
-import javafx.beans.value.*;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
+import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.value.ObservableValue;
+import javafx.beans.value.WritableValue;
 import javafx.css.CssMetaData;
 import javafx.css.Styleable;
 import javafx.scene.Node;
@@ -46,8 +50,6 @@ import javafx.scene.paint.Color;
 
 import org.fxconnector.StageID;
 import org.fxconnector.event.FXConnectorEventDispatcher;
-import org.fxconnector.remote.FXConnector;
-import org.fxconnector.remote.FXConnectorFactory;
 
 @SuppressWarnings("rawtypes")
 class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
@@ -85,7 +87,7 @@ class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
 
     }
 
-    @SuppressWarnings({ "deprecation", "unchecked" }) private void createPropertiesPanel() {
+    @SuppressWarnings("unchecked") private void createPropertiesPanel() {
         final Node node = (Node) getTarget();
         styles = new HashMap<WritableValue, String>();
         details.clear();

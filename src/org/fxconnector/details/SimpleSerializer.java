@@ -31,14 +31,18 @@
  */
 package org.fxconnector.details;
 
-import org.fxconnector.remote.util.ScenicViewExceptionLogger;
 import java.lang.reflect.Method;
 
-import org.fxconnector.remote.util.ScenicViewExceptionLogger;
-
-import javafx.beans.property.*;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.WritableValue;
 import javafx.scene.paint.Color;
+
+import org.fxconnector.remote.util.ScenicViewExceptionLogger;
 
 @SuppressWarnings("rawtypes")
 class SimpleSerializer implements WritableValue<String> {

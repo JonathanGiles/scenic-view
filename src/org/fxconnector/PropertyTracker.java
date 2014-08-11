@@ -31,15 +31,15 @@
  */
 package org.fxconnector;
 
-import org.fxconnector.remote.util.ScenicViewExceptionLogger;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.fxconnector.remote.util.ScenicViewExceptionLogger;
-
-import javafx.beans.*;
+import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.value.ObservableValue;
+
+import org.fxconnector.remote.util.ScenicViewExceptionLogger;
 
 @SuppressWarnings("rawtypes")
 public abstract class PropertyTracker {

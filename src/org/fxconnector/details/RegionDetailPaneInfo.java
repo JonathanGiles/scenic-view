@@ -31,15 +31,11 @@
  */
 package org.fxconnector.details;
 
-import org.fxconnector.*;
-import org.fxconnector.details.Detail.ValueType;
-import org.fxconnector.event.FXConnectorEventDispatcher;
-
-import org.fxconnector.StageID;
-import org.fxconnector.ConnectorUtils;
 import javafx.scene.Node;
 import javafx.scene.layout.Region;
 
+import org.fxconnector.ConnectorUtils;
+import org.fxconnector.StageID;
 import org.fxconnector.details.Detail.ValueType;
 import org.fxconnector.event.FXConnectorEventDispatcher;
 

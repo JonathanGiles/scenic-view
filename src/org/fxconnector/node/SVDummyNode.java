@@ -31,12 +31,14 @@
  */
 package org.fxconnector.node;
 
-import org.fxconnector.remote.util.ScenicViewExceptionLogger;
 import java.awt.image.BufferedImage;
-import java.io.*;
-import java.util.*;
-import javafx.embed.swing.SwingFXUtils;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 
@@ -158,11 +160,11 @@ public class SVDummyNode extends SVNodeImpl implements SVNode, Serializable {
         }
     }
 
-    @SuppressWarnings("deprecation") private static javafx.scene.image.Image convertToFxImage(final java.awt.image.BufferedImage awtImage) {
+    private static javafx.scene.image.Image convertToFxImage(final java.awt.image.BufferedImage awtImage) {
         return SwingFXUtils.toFXImage(awtImage, null);
     }
 
-    @SuppressWarnings("deprecation") private static java.awt.image.BufferedImage convertToAwtImage(final javafx.scene.image.Image fxImage) {
+    private static java.awt.image.BufferedImage convertToAwtImage(final javafx.scene.image.Image fxImage) {
         return SwingFXUtils.fromFXImage(fxImage, null);
     }
 
