@@ -40,7 +40,6 @@ import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.TimelineBuilder;
 import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -81,7 +80,6 @@ import org.fxconnector.ConnectorUtils;
 import org.fxconnector.StageController;
 import org.fxconnector.StageControllerImpl;
 import org.fxconnector.StageID;
-import org.fxconnector.details.Detail;
 import org.fxconnector.event.AnimationsCountEvent;
 import org.fxconnector.event.DetailsEvent;
 import org.fxconnector.event.EvLogEvent;
@@ -105,7 +103,6 @@ import org.scenicview.tabs.DetailsTab;
 import org.scenicview.tabs.EventLogTab;
 import org.scenicview.tabs.JavaDocTab;
 import org.scenicview.tabs.details.APILoader;
-import org.scenicview.tabs.details.GDetailPane.RemotePropertySetter;
 import org.scenicview.update.AppsRepository;
 import org.scenicview.update.UpdateStrategy;
 import org.scenicview.utils.ExceptionLogger;
@@ -488,14 +485,12 @@ public class ScenicView {
 
         final MenuItem exitItem = new MenuItem("E_xit Scenic View");
         exitItem.setAccelerator(KeyCombination.keyCombination("CTRL+Q"));
-        exitItem.setOnAction(new EventHandler<ActionEvent>() {
-            @Override public void handle(final ActionEvent arg0) {
-                Runtime.getRuntime().removeShutdownHook(shutdownHook);
-                close();
-                // TODO Why closing the Stage does not dispatch
-                // WINDOW_CLOSE_REQUEST??
-                scenicViewStage.close();
-            }
+        exitItem.setOnAction(event -> {
+            Runtime.getRuntime().removeShutdownHook(shutdownHook);
+            close();
+            // TODO Why closing the Stage does not dispatch
+            // WINDOW_CLOSE_REQUEST??
+            scenicViewStage.close();
         });
 
         final Menu fileMenu = new Menu("File");
@@ -511,38 +506,24 @@ public class ScenicView {
         // showBoundsCheckbox.setTooltip(new
         // Tooltip("Display a yellow highlight for boundsInParent and green outline for layoutBounds."));
         configuration.setShowBounds(showBoundsCheckbox.isSelected());
-        showBoundsCheckbox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-
-            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
-                configuration.setShowBounds(newValue);
-                configurationUpdated();
-            }
+        showBoundsCheckbox.selectedProperty().addListener((ChangeListener<Boolean>) (o, oldValue, newValue) -> {
+            configuration.setShowBounds(newValue);
+            configurationUpdated();
         });
 
-        final InvalidationListener menuTreeChecksListener = new InvalidationListener() {
-            @Override public void invalidated(final Observable arg0) {
-                update();
-            }
-        };
         final CheckMenuItem collapseControls = buildCheckMenuItem("Collapse controls In Tree", "Controls will be collapsed", "Controls will be expanded",
                 "collapseControls", Boolean.TRUE);
-        collapseControls.selectedProperty().addListener(new ChangeListener<Boolean>() {
-
-            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
-                configuration.setCollapseControls(newValue);
-                configurationUpdated();
-            }
+        collapseControls.selectedProperty().addListener((ChangeListener<Boolean>) (o, oldValue, newValue) -> {
+            configuration.setCollapseControls(newValue);
+            configurationUpdated();
         });
         configuration.setCollapseControls(collapseControls.isSelected());
 
         final CheckMenuItem collapseContentControls = buildCheckMenuItem("Collapse container controls In Tree", "Container controls will be collapsed",
                 "Container controls will be expanded", "collapseContainerControls", Boolean.FALSE);
-        collapseContentControls.selectedProperty().addListener(new ChangeListener<Boolean>() {
-
-            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
-                configuration.setCollapseContentControls(newValue);
-                configurationUpdated();
-            }
+        collapseContentControls.selectedProperty().addListener((ChangeListener<Boolean>) (o, oldValue, newValue) -> {
+            configuration.setCollapseContentControls(newValue);
+            configurationUpdated();
         });
         collapseContentControls.disableProperty().bind(collapseControls.selectedProperty().not());
         configuration.setCollapseContentControls(collapseContentControls.isSelected());
@@ -551,41 +532,31 @@ public class ScenicView {
                 "Do not show baseline overlay", "showBaseline", Boolean.FALSE);
         showBaselineCheckbox.setId("show-baseline-overlay");
         configuration.setShowBaseline(showBaselineCheckbox.isSelected());
-        showBaselineCheckbox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-
-            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
-                configuration.setShowBaseline(newValue);
-                configurationUpdated();
-            }
+        showBaselineCheckbox.selectedProperty().addListener((ChangeListener<Boolean>) (o, oldValue, newValue) -> {
+            configuration.setShowBaseline(newValue);
+            configurationUpdated();
         });
 
         final CheckMenuItem automaticScenegraphStructureRefreshing = buildCheckMenuItem("Auto-Refresh Scenegraph",
                 "Scenegraph structure will be automatically updated on change", "Scenegraph structure will NOT be automatically updated on change",
                 "automaticScenegraphStructureRefreshing", Boolean.TRUE);
-        automaticScenegraphStructureRefreshing.selectedProperty().addListener(new ChangeListener<Boolean>() {
-
-            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
-                configuration.setAutoRefreshSceneGraph(automaticScenegraphStructureRefreshing.isSelected());
-                configurationUpdated();
-
-            }
+        automaticScenegraphStructureRefreshing.selectedProperty().addListener((ChangeListener<Boolean>) (o, oldValue, newValue) -> {
+            configuration.setAutoRefreshSceneGraph(automaticScenegraphStructureRefreshing.isSelected());
+            configurationUpdated();
         });
         configuration.setAutoRefreshSceneGraph(automaticScenegraphStructureRefreshing.isSelected());
 
         showInvisibleNodes = buildCheckMenuItem("Show Invisible Nodes In Tree", "Invisible nodes will be faded in the scenegraph tree",
                 "Invisible nodes will not be shown in the scenegraph tree", "showInvisibleNodes", Boolean.FALSE);
-        final ChangeListener<Boolean> visilityListener = new ChangeListener<Boolean>() {
-
-            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean arg2) {
-                configuration.setVisibilityFilteringActive(!showInvisibleNodes.isSelected() && !showFilteredNodesInTree.isSelected());
-                configurationUpdated();
-            }
+        final ChangeListener<Boolean> visilityListener = (o, oldValue, newValue) -> {
+            configuration.setVisibilityFilteringActive(!showInvisibleNodes.isSelected() && !showFilteredNodesInTree.isSelected());
+            configurationUpdated();
         };
         showInvisibleNodes.selectedProperty().addListener(visilityListener);
 
         showNodesIdInTree = buildCheckMenuItem("Show Node IDs", "Node IDs will be shown on the scenegraph tree",
                 "Node IDs will not be shown the Scenegraph tree", "showNodesIdInTree", Boolean.FALSE);
-        showNodesIdInTree.selectedProperty().addListener(menuTreeChecksListener);
+        showNodesIdInTree.selectedProperty().addListener(o -> update());
 
         showFilteredNodesInTree = buildCheckMenuItem("Show Filtered Nodes In Tree", "Filtered nodes will be faded in the tree",
                 "Filtered nodes will not be shown in tree (unless they are parents of non-filtered nodes)", "showFilteredNodesInTree", Boolean.TRUE);
@@ -599,44 +570,30 @@ public class ScenicView {
         showInvisibleNodes.disableProperty().bind(showFilteredNodesInTree.selectedProperty());
 
         componentSelectOnClick = buildCheckMenuItem("Component highlight/select on click", "Click on the scene to select a component", "", null, null);
-        componentSelectOnClick.selectedProperty().addListener(new ChangeListener<Boolean>() {
-
-            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean oldValue, final Boolean newValue) {
-                selectOnClick(newValue);
-            }
-        });
+        componentSelectOnClick.selectedProperty().addListener((ChangeListener<Boolean>) (o, oldValue, newValue) -> selectOnClick(newValue));
 
         final CheckMenuItem ignoreMouseTransparentNodes = buildCheckMenuItem("Ignore MouseTransparent Nodes", "Transparent nodes will not be selectable",
                 "Transparent nodes can be selected", "ignoreMouseTransparentNodes", Boolean.TRUE);
-        ignoreMouseTransparentNodes.selectedProperty().addListener(new ChangeListener<Boolean>() {
-
-            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
-                configuration.setIgnoreMouseTransparent(newValue);
-                configurationUpdated();
-            }
+        ignoreMouseTransparentNodes.selectedProperty().addListener((ChangeListener<Boolean>) (o, oldValue, newValue) -> {
+            configuration.setIgnoreMouseTransparent(newValue);
+            configurationUpdated();
         });
         configuration.setIgnoreMouseTransparent(ignoreMouseTransparentNodes.isSelected());
 
         final CheckMenuItem registerShortcuts = buildCheckMenuItem("Register shortcuts", "SV Keyboard shortcuts will be registered on your app",
                 "SV Keyboard shortcuts will be removed on your app", "registerShortcuts", Boolean.TRUE);
-        registerShortcuts.selectedProperty().addListener(new ChangeListener<Boolean>() {
-
-            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
-                configuration.setRegisterShortcuts(newValue);
-                configurationUpdated();
-            }
+        registerShortcuts.selectedProperty().addListener((ChangeListener<Boolean>) (o, oldValue, newValue) -> {
+            configuration.setRegisterShortcuts(newValue);
+            configurationUpdated();
         });
         configuration.setRegisterShortcuts(registerShortcuts.isSelected());
 
         autoRefreshStyleSheets = buildCheckMenuItem("Auto-Refresh StyleSheets",
                 "A background thread will check modifications on the css files to reload them if needed", "StyleSheets autorefreshing disabled",
                 "autoRefreshStyleSheets", Boolean.FALSE);
-        autoRefreshStyleSheets.selectedProperty().addListener(new ChangeListener<Boolean>() {
-
-            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
-                configuration.setAutoRefreshStyles(newValue);
-                configurationUpdated();
-            }
+        autoRefreshStyleSheets.selectedProperty().addListener((ChangeListener<Boolean>) (o, oldValue, newValue) -> {
+            configuration.setAutoRefreshStyles(newValue);
+            configurationUpdated();
         });
         configuration.setAutoRefreshStyles(autoRefreshStyleSheets.isSelected());
 
@@ -648,12 +605,9 @@ public class ScenicView {
 
         final Menu ruler = new Menu("Ruler");
         final CheckMenuItem showRuler = buildCheckMenuItem("Show Ruler", "Show ruler in the scene for alignment purposes", "", null, null);
-        showRuler.selectedProperty().addListener(new ChangeListener<Boolean>() {
-
-            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean oldValue, final Boolean newValue) {
-                configuration.setShowRuler(newValue.booleanValue());
-                configurationUpdated();
-            }
+        showRuler.selectedProperty().addListener((ChangeListener<Boolean>) (o, oldValue, newValue) -> {
+            configuration.setShowRuler(newValue.booleanValue());
+            configurationUpdated();
         });
 
         final RulerConfigurationMenuItem rulerConfig = new RulerConfigurationMenuItem();
@@ -671,12 +625,9 @@ public class ScenicView {
                 return (value < 16) ? "0" + Integer.toString(value, 16) : Integer.toString(value, 16);
             }
         });
-        rulerConfig.rulerSeparationProperty().addListener(new ChangeListener<Number>() {
-
-            @Override public void changed(final ObservableValue<? extends Number> arg0, final Number arg1, final Number newValue) {
-                configuration.setRulerSeparation(newValue.intValue());
-                configurationUpdated();
-            }
+        rulerConfig.rulerSeparationProperty().addListener((ChangeListener<Number>) (o, oldValue, newValue) -> {
+            configuration.setRulerSeparation(newValue.intValue());
+            configurationUpdated();
         });
         configuration.setRulerSeparation(rulerConfig.rulerSeparationProperty().get());
         ruler.getItems().addAll(showRuler, rulerConfig);
@@ -687,12 +638,7 @@ public class ScenicView {
         final Menu aboutMenu = new Menu("Help");
 
         final MenuItem help = new MenuItem("Help Contents");
-        help.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override public void handle(final ActionEvent arg0) {
-                HelpBox.make("Help Contents", HELP_URL, scenicViewStage);
-            }
-        });
+        help.setOnAction(event -> HelpBox.make("Help Contents", HELP_URL, scenicViewStage));
 
 //        final MenuItem newVersion = new MenuItem("Check For New Version");
 //        newVersion.setOnAction(new EventHandler<ActionEvent>() {
@@ -702,12 +648,7 @@ public class ScenicView {
 //        });
 
         final MenuItem about = new MenuItem("About");
-        about.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override public void handle(final ActionEvent arg0) {
-                AboutBox.make("About", scenicViewStage);
-            }
-        });
+        about.setOnAction(event -> AboutBox.make("About", scenicViewStage));
 
         aboutMenu.getItems().addAll(help/*, newVersion*/, about);
 
@@ -943,11 +884,7 @@ public class ScenicView {
     }
 
     private FilterTextField createFilterField(final String prompt) {
-        return createFilterField(prompt, new EventHandler<KeyEvent>() {
-            @Override public void handle(final KeyEvent arg0) {
-                update();
-            }
-        });
+        return createFilterField(prompt, event -> update());
     }
 
     private FilterTextField createFilterField(final String prompt, final EventHandler<KeyEvent> keyHandler) {
@@ -956,13 +893,11 @@ public class ScenicView {
         if (keyHandler != null) {
             filterField.setOnKeyReleased(keyHandler);
         }
-        filterField.focusedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override public void changed(final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) {
-                if (newValue) {
-                    setStatusText("Type any text for filtering");
-                } else {
-                    clearStatusText();
-                }
+        filterField.focusedProperty().addListener((ChangeListener<Boolean>) (o, oldValue, newValue) -> {
+            if (newValue) {
+                setStatusText("Type any text for filtering");
+            } else {
+                clearStatusText();
             }
         });
         return filterField;
@@ -1037,11 +972,9 @@ public class ScenicView {
         if (scenicview.activeStage != null && scenicview.activeStage instanceof StageControllerImpl)
             ((StageControllerImpl) scenicview.activeStage).placeStage(stage);
 
-        stage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, new EventHandler<WindowEvent>() {
-            @Override public void handle(final WindowEvent arg0) {
-                Runtime.getRuntime().removeShutdownHook(scenicview.shutdownHook);
-                scenicview.close();
-            }
+        stage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, event -> {
+            Runtime.getRuntime().removeShutdownHook(scenicview.shutdownHook);
+            scenicview.close();
         });
         stage.show();
     }
@@ -1155,11 +1088,8 @@ public class ScenicView {
             }
             case DETAILS: {
                 final DetailsEvent ev = (DetailsEvent) appEvent;
-                detailsTab.updateDetails(ev.getPaneType(), ev.getPaneName(), ev.getDetails(), new RemotePropertySetter() {
-
-                    @Override public void set(final Detail detail, final String value) {
-                        getStageController(appEvent.getStageID()).setDetail(detail.getDetailType(), detail.getDetailID(), value);
-                    }
+                detailsTab.updateDetails(ev.getPaneType(), ev.getPaneName(), ev.getDetails(), (detail, value) -> {
+                    getStageController(appEvent.getStageID()).setDetail(detail.getDetailType(), detail.getDetailID(), value);   
                 });
                 break;
             }
