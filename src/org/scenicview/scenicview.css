@@ -52,6 +52,11 @@
     -fx-padding: 0;
 }
 
+.scanning-label {
+    -fx-font-size:12;
+    -fx-font-weight: bold;
+}
+
 .scroll-pane {
     -fx-padding: 0;
     -fx-background-insets: 0;

@@ -154,11 +154,11 @@ public class ScenicViewBooter extends Application {
 
         final RemoteVMsUpdateStrategy strategy = new RemoteVMsUpdateStrategy();
 
-        org.fxconnector.Debugger.debug("Platform running");
         // workaround for RT-10714
         stage.setWidth(1024);
         stage.setHeight(768);
         stage.setTitle("Scenic View v" + ScenicView.VERSION);
+        org.fxconnector.Debugger.debug("Platform running");
         org.fxconnector.Debugger.debug("Launching ScenicView v" + ScenicView.VERSION);
         ScenicView view = new ScenicView(strategy, stage);
         ScenicView.show(view, stage);

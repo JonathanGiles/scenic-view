@@ -41,17 +41,21 @@ import javafx.animation.KeyFrame;
 import javafx.animation.TimelineBuilder;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
@@ -64,6 +68,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -128,20 +133,29 @@ public class ScenicView {
     private Stage scenicViewStage;
     private BorderPane rootBorderPane;
     private SplitPane splitPane;
-    private ScenegraphTreeView treeView;
-    private VBox leftPane;
-    private StatusBar statusBar;
-
-    FilterTextField propertyFilterField;
-
-    /**
-     * Menu Options
-     */
+    
+    // menu bar area
     private MenuBar menuBar;
     private CheckMenuItem showFilteredNodesInTree;
     private CheckMenuItem showNodesIdInTree;
     private CheckMenuItem autoRefreshStyleSheets;
     private CheckMenuItem componentSelectOnClick;
+    private CheckMenuItem showInvisibleNodes;
+    
+    // filter area
+    private TitledPane filtersPane;
+    private FilterTextField propertyFilterField;
+    private List<NodeFilter> activeNodeFilters;
+    
+    // tree area
+    private Node treeViewScanningPlaceholder;
+    private ScenegraphTreeView treeView;
+    private VBox leftPane;
+    
+    // status bar area
+    private StatusBar statusBar;
+
+    
 
     public final Configuration configuration = new Configuration();
     private final List<FXConnectorEvent> eventQueue = new LinkedList<FXConnectorEvent>();
@@ -237,6 +251,91 @@ public class ScenicView {
         rootBorderPane = new BorderPane();
         rootBorderPane.setId(StageController.FX_CONNECTOR_BASE_ID + "scenic-view");
 
+        // menubar
+        buildMenuBar();
+
+        // main splitpane
+        splitPane = new SplitPane();
+        splitPane.setId("main-splitpane");
+
+        
+        // filters box
+        buildFiltersBox();
+        
+        
+        // treeview
+        treeView = new ScenegraphTreeView(activeNodeFilters, this);
+        treeViewScanningPlaceholder = new VBox(10) {
+            {
+                ProgressIndicator progress = new ProgressIndicator();
+                Label label = new Label("Scanning for JavaFX applications");
+                label.getStyleClass().add("scanning-label");
+                getChildren().addAll(progress, label);
+                
+                setAlignment(Pos.CENTER);
+                
+                treeView.expandedItemCountProperty().addListener(o -> {
+                    setVisible(treeView.getExpandedItemCount() == 0);
+                });
+                
+            }
+        };
+        
+        StackPane treeViewStackPane = new StackPane(treeView, treeViewScanningPlaceholder);
+        treeViewStackPane.setStyle("-fx-background-color: white");
+
+        leftPane = new VBox();
+        leftPane.setId("main-nodeStructure");
+
+        
+
+        treeView.setMaxHeight(Double.MAX_VALUE);
+        final TitledPane treeViewPane = new TitledPane("JavaFX Apps", treeViewStackPane);
+        treeViewPane.setCollapsible(false);
+        treeViewPane.setMaxHeight(Double.MAX_VALUE);
+        // This solves the resizing of filtersPane
+        treeViewPane.setPrefHeight(50);
+        leftPane.getChildren().addAll(filtersPane, treeViewPane);
+        VBox.setVgrow(treeViewPane, Priority.ALWAYS);
+        
+        
+        // right side
+        detailsTab = new DetailsTab(this, new APILoader() {
+            @Override public void loadAPI(final String property) {
+                ScenicView.this.loadAPI(property);
+            }
+        });
+
+        animationsTab = new AnimationsTab(this);
+
+        tabPane = new TabPane();
+        tabPane.getSelectionModel().selectedItemProperty().addListener((ov, oldValue, newValue) -> updateMenuBar(oldValue, newValue));
+
+        javadocTab = new JavaDocTab(this); 
+        
+        eventsTab = new EventLogTab(this);
+        eventsTab.activeProperty().addListener((ov, oldValue, newValue) -> {
+            configuration.setEventLogEnabled(newValue);
+            configurationUpdated();
+        });
+        
+        tabPane.getTabs().addAll(detailsTab, eventsTab, /*animationsTab,*/ javadocTab);
+        
+        Persistence.loadProperty("splitPaneDividerPosition", splitPane, 0.3);
+
+        splitPane.getItems().addAll(leftPane, tabPane);
+
+        rootBorderPane.setCenter(splitPane);
+
+        statusBar = new StatusBar();
+
+        rootBorderPane.setBottom(statusBar);
+
+        Persistence.loadProperty("stageWidth", scenicViewStage, 800);
+        Persistence.loadProperty("stageHeight", scenicViewStage, 800);
+    }
+    
+    private void buildFiltersBox() {
         propertyFilterField = createFilterField("Property name or value", null);
         propertyFilterField.setOnKeyReleased(new EventHandler<KeyEvent>() {
             @Override public void handle(final KeyEvent arg0) {
@@ -244,7 +343,129 @@ public class ScenicView {
             }
         });
         propertyFilterField.setDisable(true);
+        
+        final FilterTextField idFilterField = createFilterField("Node ID");
+        idFilterField.setOnButtonClick(() -> {
+            idFilterField.setText("");
+            update();
+        });
+        
+        final FilterTextField classNameFilterField = createFilterField("Node className");
+        classNameFilterField.setOnButtonClick(() -> {
+            classNameFilterField.setText("");
+            update();
+        });
+        
+        final GridPane filtersGridPane = new GridPane();
+        filtersGridPane.setVgap(5);
+        filtersGridPane.setHgap(5);
+        filtersGridPane.setSnapToPixel(true);
+        filtersGridPane.setPadding(new Insets(0, 5, 5, 0));
+        filtersGridPane.setId("main-filters-grid-pane");
 
+        GridPane.setHgrow(idFilterField, Priority.ALWAYS);
+        GridPane.setHgrow(classNameFilterField, Priority.ALWAYS);
+        GridPane.setHgrow(propertyFilterField, Priority.ALWAYS);
+
+        filtersGridPane.add(new Label("ID Filter:"), 1, 1);
+        filtersGridPane.add(idFilterField, 2, 1);
+        filtersGridPane.add(new Label("Class Filter:"), 1, 2);
+        filtersGridPane.add(classNameFilterField, 2, 2);
+        filtersGridPane.add(new Label("Property Filter:"), 1, 3);
+        filtersGridPane.add(propertyFilterField, 2, 3);
+
+        filtersPane = new TitledPane("Filters", filtersGridPane);
+        filtersPane.setId("main-filters");
+        filtersPane.setMinHeight(filtersGridPane.getPrefHeight());
+        
+        
+        // create filters for nodes
+        activeNodeFilters = new ArrayList<NodeFilter>();
+
+        /**
+         * Create a filter for our own nodes
+         */
+        activeNodeFilters.add(new NodeFilter() {
+            @Override public boolean allowChildrenOnRejection() {
+                return false;
+            }
+
+            @Override public boolean accept(final SVNode node) {
+                // do not create tree nodes for our bounds rectangles
+                return ConnectorUtils.isNormalNode(node);
+            }
+
+            @Override public boolean ignoreShowFilteredNodesInTree() {
+                return true;
+            }
+
+            @Override public boolean expandAllNodes() {
+                return false;
+            }
+        });
+        
+        activeNodeFilters.add(new NodeFilter() {
+            @Override public boolean allowChildrenOnRejection() {
+                return false;
+            }
+
+            @Override public boolean accept(final SVNode node) {
+                return showInvisibleNodes.isSelected() || node.isVisible();
+            }
+
+            @Override public boolean ignoreShowFilteredNodesInTree() {
+                return false;
+            }
+
+            @Override public boolean expandAllNodes() {
+                return false;
+            }
+        });
+        
+        activeNodeFilters.add(new NodeFilter() {
+            @Override public boolean allowChildrenOnRejection() {
+                return true;
+            }
+
+            @Override public boolean accept(final SVNode node) {
+                if (idFilterField.getText().equals(""))
+                    return true;
+                return node.getId() != null && node.getId().toLowerCase().indexOf(idFilterField.getText().toLowerCase()) != -1;
+            }
+
+            @Override public boolean ignoreShowFilteredNodesInTree() {
+                return false;
+            }
+
+            @Override public boolean expandAllNodes() {
+                return !idFilterField.getText().equals("");
+            }
+        });
+        
+        activeNodeFilters.add(new NodeFilter() {
+            @Override public boolean allowChildrenOnRejection() {
+                return true;
+            }
+
+            @Override public boolean accept(final SVNode node) {
+                if (classNameFilterField.getText().equals(""))
+                    return true;
+
+                // Allow reduces or complete className
+                return node.getNodeClass().toLowerCase().indexOf(classNameFilterField.getText().toLowerCase()) != -1;
+            }
+
+            @Override public boolean ignoreShowFilteredNodesInTree() {
+                return false;
+            }
+
+            @Override public boolean expandAllNodes() {
+                return !classNameFilterField.getText().equals("");
+            }
+        });
+    }
+    
+    private void buildMenuBar() {
         menuBar = new MenuBar();
         menuBar.setUseSystemMenuBar(true);
         // menuBar.setId("main-menubar");
@@ -351,7 +572,7 @@ public class ScenicView {
         });
         configuration.setAutoRefreshSceneGraph(automaticScenegraphStructureRefreshing.isSelected());
 
-        final CheckMenuItem showInvisibleNodes = buildCheckMenuItem("Show Invisible Nodes In Tree", "Invisible nodes will be faded in the scenegraph tree",
+        showInvisibleNodes = buildCheckMenuItem("Show Invisible Nodes In Tree", "Invisible nodes will be faded in the scenegraph tree",
                 "Invisible nodes will not be shown in the scenegraph tree", "showInvisibleNodes", Boolean.FALSE);
         final ChangeListener<Boolean> visilityListener = new ChangeListener<Boolean>() {
 
@@ -493,184 +714,6 @@ public class ScenicView {
         menuBar.getMenus().addAll(fileMenu, displayOptionsMenu, scenegraphMenu, aboutMenu);
 
         rootBorderPane.setTop(menuBar);
-
-        splitPane = new SplitPane();
-        splitPane.setId("main-splitpane");
-
-        detailsTab = new DetailsTab(this, new APILoader() {
-            @Override public void loadAPI(final String property) {
-                ScenicView.this.loadAPI(property);
-            }
-        });
-        
-        
-        
-        // filters box
-        final FilterTextField idFilterField = createFilterField("Node ID");
-        idFilterField.setOnButtonClick(() -> {
-            idFilterField.setText("");
-            update();
-        });
-        
-        final FilterTextField classNameFilterField = createFilterField("Node className");
-        classNameFilterField.setOnButtonClick(() -> {
-            classNameFilterField.setText("");
-            update();
-        });
-        
-        final GridPane filtersGridPane = new GridPane();
-        filtersGridPane.setVgap(5);
-        filtersGridPane.setHgap(5);
-        filtersGridPane.setSnapToPixel(true);
-        filtersGridPane.setPadding(new Insets(0, 5, 5, 0));
-        filtersGridPane.setId("main-filters-grid-pane");
-
-        GridPane.setHgrow(idFilterField, Priority.ALWAYS);
-        GridPane.setHgrow(classNameFilterField, Priority.ALWAYS);
-        GridPane.setHgrow(propertyFilterField, Priority.ALWAYS);
-
-        filtersGridPane.add(new Label("ID Filter:"), 1, 1);
-        filtersGridPane.add(idFilterField, 2, 1);
-        filtersGridPane.add(new Label("Class Filter:"), 1, 2);
-        filtersGridPane.add(classNameFilterField, 2, 2);
-        filtersGridPane.add(new Label("Property Filter:"), 1, 3);
-        filtersGridPane.add(propertyFilterField, 2, 3);
-
-        final TitledPane filtersPane = new TitledPane("Filters", filtersGridPane);
-        filtersPane.setId("main-filters");
-        filtersPane.setMinHeight(filtersGridPane.getPrefHeight());
-        
-        
-        // create filters for nodes
-        final List<NodeFilter> activeNodeFilters = new ArrayList<NodeFilter>();
-
-        /**
-         * Create a filter for our own nodes
-         */
-        activeNodeFilters.add(new NodeFilter() {
-            @Override public boolean allowChildrenOnRejection() {
-                return false;
-            }
-
-            @Override public boolean accept(final SVNode node) {
-                // do not create tree nodes for our bounds rectangles
-                return ConnectorUtils.isNormalNode(node);
-            }
-
-            @Override public boolean ignoreShowFilteredNodesInTree() {
-                return true;
-            }
-
-            @Override public boolean expandAllNodes() {
-                return false;
-            }
-        });
-        
-        activeNodeFilters.add(new NodeFilter() {
-            @Override public boolean allowChildrenOnRejection() {
-                return false;
-            }
-
-            @Override public boolean accept(final SVNode node) {
-                return showInvisibleNodes.isSelected() || node.isVisible();
-            }
-
-            @Override public boolean ignoreShowFilteredNodesInTree() {
-                return false;
-            }
-
-            @Override public boolean expandAllNodes() {
-                return false;
-            }
-        });
-        
-        activeNodeFilters.add(new NodeFilter() {
-            @Override public boolean allowChildrenOnRejection() {
-                return true;
-            }
-
-            @Override public boolean accept(final SVNode node) {
-                if (idFilterField.getText().equals(""))
-                    return true;
-                return node.getId() != null && node.getId().toLowerCase().indexOf(idFilterField.getText().toLowerCase()) != -1;
-            }
-
-            @Override public boolean ignoreShowFilteredNodesInTree() {
-                return false;
-            }
-
-            @Override public boolean expandAllNodes() {
-                return !idFilterField.getText().equals("");
-            }
-        });
-        
-        activeNodeFilters.add(new NodeFilter() {
-            @Override public boolean allowChildrenOnRejection() {
-                return true;
-            }
-
-            @Override public boolean accept(final SVNode node) {
-                if (classNameFilterField.getText().equals(""))
-                    return true;
-
-                // Allow reduces or complete className
-                return node.getNodeClass().toLowerCase().indexOf(classNameFilterField.getText().toLowerCase()) != -1;
-            }
-
-            @Override public boolean ignoreShowFilteredNodesInTree() {
-                return false;
-            }
-
-            @Override public boolean expandAllNodes() {
-                return !classNameFilterField.getText().equals("");
-            }
-        });
-        
-        
-
-        treeView = new ScenegraphTreeView(activeNodeFilters, this);
-
-        leftPane = new VBox();
-        leftPane.setId("main-nodeStructure");
-
-        
-
-        treeView.setMaxHeight(Double.MAX_VALUE);
-        final TitledPane treeViewPane = new TitledPane("JavaFX Apps", treeView);
-        treeViewPane.setCollapsible(false);
-        treeViewPane.setMaxHeight(Double.MAX_VALUE);
-        // This solves the resizing of filtersPane
-        treeViewPane.setPrefHeight(50);
-        leftPane.getChildren().addAll(filtersPane, treeViewPane);
-        VBox.setVgrow(treeViewPane, Priority.ALWAYS);
-
-        animationsTab = new AnimationsTab(this);
-
-        tabPane = new TabPane();
-        tabPane.getSelectionModel().selectedItemProperty().addListener((ov, oldValue, newValue) -> updateMenuBar(oldValue, newValue));
-
-        javadocTab = new JavaDocTab(this); 
-        
-        eventsTab = new EventLogTab(this);
-        eventsTab.activeProperty().addListener((ov, oldValue, newValue) -> {
-            configuration.setEventLogEnabled(newValue);
-            configurationUpdated();
-        });
-        
-        tabPane.getTabs().addAll(detailsTab, eventsTab, /*animationsTab,*/ javadocTab);
-        
-        Persistence.loadProperty("splitPaneDividerPosition", splitPane, 0.3);
-
-        splitPane.getItems().addAll(leftPane, tabPane);
-
-        rootBorderPane.setCenter(splitPane);
-
-        statusBar = new StatusBar();
-
-        rootBorderPane.setBottom(statusBar);
-
-        Persistence.loadProperty("stageWidth", scenicViewStage, 800);
-        Persistence.loadProperty("stageHeight", scenicViewStage, 800);
     }
     
     private void updateMenuBar(final Tab oldValue, final Tab newValue) {
