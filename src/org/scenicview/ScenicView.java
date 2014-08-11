@@ -279,7 +279,7 @@ public class ScenicView {
         };
         
         StackPane treeViewStackPane = new StackPane(treeView, treeViewScanningPlaceholder);
-        treeViewStackPane.setStyle("-fx-background-color: white");
+        treeViewStackPane.setStyle(" -fx-padding: 0");
 
         leftPane = new VBox();
         leftPane.setId("main-nodeStructure");
