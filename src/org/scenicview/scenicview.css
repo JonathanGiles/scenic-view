@@ -121,6 +121,9 @@
 }
 
 
+.search-bar .label {
+    -fx-font-weight: bold;
+}
 
 #main-statusbar {
     -fx-padding: 3 4 3 4;
