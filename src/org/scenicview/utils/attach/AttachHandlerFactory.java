@@ -46,6 +46,7 @@ import javafx.application.Platform;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
+import org.fxconnector.Debugger;
 import org.scenicview.utils.ExceptionLogger;
 import org.scenicview.utils.PropertiesUtils;
 import org.scenicview.utils.ScenicViewBooter;
@@ -161,8 +162,8 @@ public class AttachHandlerFactory {
             Class.forName("com.sun.tools.attach.AttachNotSupportedException").newInstance();
             return true;
         } catch (final Exception e) {
-//            debug("Java Attach API was not found");
-            e.printStackTrace();
+            Debugger.debug("Java Attach API was not found on classpath, will attempt manual lookup...");
+//            e.printStackTrace();
             return false;
         }
 
@@ -192,6 +193,7 @@ public class AttachHandlerFactory {
 
         try {
             System.loadLibrary("attach");
+            Debugger.debug("Loading attach library from " + jdkHome);
         } catch (final UnsatisfiedLinkError e) {
             /**
              * Try to set or modify java.library.path
