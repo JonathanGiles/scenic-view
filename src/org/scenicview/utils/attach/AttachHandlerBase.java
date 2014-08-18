@@ -31,11 +31,27 @@
  */
 package org.scenicview.utils.attach;
 
+import java.io.File;
+import java.util.List;
+import static org.scenicview.utils.attach.AttachHandlerFactory.doBasicJdkSearch;
 
 /**
  *
  */
-public class WindowsAttachHandler extends AttachHandlerBase {
+public class AttachHandlerBase implements AttachHandler {
 
-    
+    @Override public void getOrderedJDKPaths(List<JDKToolsJarPair> jdkPaths) {
+        doBasicJdkSearch(jdkPaths);
+    }
+
+    @Override public File resolveToolsJarPath(JDKToolsJarPair jdkPath) {
+        // TODO
+        // For now we assume tools.jar is in the lib/ folder beneath the jdk
+        // folder
+        File toolsJarPath = new File(jdkPath.getJdkPath(), "lib/tools.jar");
+        if (! toolsJarPath.exists()) {
+            // FIXME
+        }
+        return toolsJarPath;
+    }
 }

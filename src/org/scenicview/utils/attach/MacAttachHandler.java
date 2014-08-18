@@ -43,7 +43,7 @@ import java.util.List;
 /**
  *
  */
-public class MacAttachHandler implements AttachHandler {
+public class MacAttachHandler extends AttachHandlerBase {
     private static final String[] PATHS_TO_TOOLS_JAR = new String[] {
         "Contents/Home/lib/tools.jar",
         "lib/tools.jar"
@@ -78,24 +78,15 @@ public class MacAttachHandler implements AttachHandler {
                 String versionString = bufferedReader.readLine();
                 versionString = versionString.trim();
                 
-                String version;
                 String path;
                 String[] splitted = versionString.split("\t");
                 
                 if (splitted.length == 3) {
-                    version = splitted[0];
                     path = splitted[splitted.length - 1];
-                    
-                    if (version.endsWith(":")) {
-                        version = version.substring(0, version.length() - 1);
-                    }
-//                    versions.add(new JavaVersion(splitted[0], splitted[1], splitted[2]));
                     
                     final File jdkHome = new File(path);
                     final File toolsFile = searchForToolsJar(jdkHome);
                     if (toolsFile != null && toolsFile.exists()) {
-//                        debug("Tools file found on Mac OS in:" + toolsFile.getAbsolutePath());
-                        // System.out.println("Tools file found on Mac OS in:" + toolsFile.getAbsolutePath());
                         jdkPaths.add(new JDKToolsJarPair(jdkHome, toolsFile));
                     }
                 }
@@ -103,17 +94,6 @@ public class MacAttachHandler implements AttachHandler {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-    
-    @Override public File resolveToolsJarPath(JDKToolsJarPair jdkPath) {
-        // TODO
-        // For now we assume tools.jar is in the lib/ folder beneath the jdk
-        // folder
-        File toolsJarPath = searchForToolsJar(jdkPath.getJdkPath());
-        if (! toolsJarPath.exists()) {
-            // FIXME
-        }
-        return toolsJarPath;
     }
 
     private File searchForToolsJar(File jdkHome) {

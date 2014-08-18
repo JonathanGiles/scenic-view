@@ -180,6 +180,7 @@ public class AttachHandlerFactory {
                 attachHandler = new MacAttachHandler();
             } else {
                 // TODO handle alternate operating systems like Linux, etc
+                attachHandler = new AttachHandlerBase();
             }
         }
         return attachHandler;
