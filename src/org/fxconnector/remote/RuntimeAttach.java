@@ -56,8 +56,16 @@ public class RuntimeAttach {
     
     private static boolean debug = true;
     private static RemoteApplicationImpl application;
+    
+    public static void premain(final String agentArgs, final Instrumentation instrumentation) {
+        init(agentArgs, instrumentation);
+    }
 
     public static void agentmain(final String agentArgs, final Instrumentation instrumentation) {
+        init(agentArgs, instrumentation);
+    }
+    
+    private static void init(final String agentArgs, final Instrumentation instrumentation) {
         /**
          * Do it first to see first trace, this should be change if any other
          * boolean argument is included in the future

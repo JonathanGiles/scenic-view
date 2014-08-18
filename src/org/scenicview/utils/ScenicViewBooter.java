@@ -118,6 +118,7 @@ public class ScenicViewBooter extends Application {
     /**************************************************************************
      *
      * runtime discovery start point
+     * (Also refer to RuntimeAttach class)
      * 
      *************************************************************************/
     public static void main(final String[] args) {
