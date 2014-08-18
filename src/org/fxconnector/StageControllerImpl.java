@@ -45,6 +45,7 @@ import javafx.beans.property.Property;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
@@ -81,6 +82,7 @@ import org.fxconnector.event.ShortcutEvent;
 import org.fxconnector.event.WindowDetailsEvent;
 import org.fxconnector.gui.ComponentHighLighter;
 import org.fxconnector.gui.RuleGrid;
+import org.fxconnector.helper.ChildrenGetter;
 import org.fxconnector.helper.StyleSheetRefresher;
 import org.fxconnector.node.NodeType;
 import org.fxconnector.node.SVDummyNode;
@@ -741,30 +743,27 @@ public class StageControllerImpl implements StageController {
                 node.removeEventFilter(Event.ANY, traceEventHandler);
                 if (configuration.isEventLogEnabled())
                     node.addEventFilter(Event.ANY, traceEventHandler);
-                if (node instanceof Parent) {
-                    ((Parent) node).getChildrenUnmodifiable().removeListener(structureInvalidationListener);
-                    ((Parent) node).getChildrenUnmodifiable().addListener(structureInvalidationListener);
-                    final List<Node> childrens = ((Parent) node).getChildrenUnmodifiable();
-                    for (int i = 0; i < childrens.size(); i++) {
-                        updateListeners(childrens.get(i), add, removeVisibilityListener);
-                    }
+                
+                ObservableList<Node> children = ChildrenGetter.getChildren(node);
+                children.removeListener(structureInvalidationListener);
+                children.addListener(structureInvalidationListener);
+                for (int i = 0; i < children.size(); i++) {
+                    updateListeners(children.get(i), add, removeVisibilityListener);
                 }
             }
         } else {
-            if (node instanceof Parent) {
-                final List<Node> childrens = ((Parent) node).getChildrenUnmodifiable();
-                for (int i = 0; i < childrens.size(); i++) {
-                    /**
-                     * If we are removing a node: 1) If it is a real node
-                     * removal removeVisibilityListener is true 2) If it is a
-                     * visibility remove we should remove the visibility
-                     * listeners of its childrens because the visibility is
-                     * reduced by their parent
-                     */
-                    updateListeners(childrens.get(i), add, true);
-                }
-                ((Parent) node).getChildrenUnmodifiable().removeListener(structureInvalidationListener);
+            ObservableList<Node> children = ChildrenGetter.getChildren(node);
+            for (int i = 0; i < children.size(); i++) {
+                /**
+                 * If we are removing a node: 1) If it is a real node
+                 * removal removeVisibilityListener is true 2) If it is a
+                 * visibility remove we should remove the visibility
+                 * listeners of its childrens because the visibility is
+                 * reduced by their parent
+                 */
+                updateListeners(children.get(i), add, true);
             }
+            children.removeListener(structureInvalidationListener);
             if (node != null && removeVisibilityListener) {
                 node.visibleProperty().removeListener(visibilityInvalidationListener);
                 propertyTracker(node, false);

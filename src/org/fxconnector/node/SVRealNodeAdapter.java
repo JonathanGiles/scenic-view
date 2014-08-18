@@ -34,6 +34,7 @@ package org.fxconnector.node;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -45,6 +46,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TitledPane;
 
 import org.fxconnector.ConnectorUtils;
+import org.fxconnector.helper.ChildrenGetter;
 
 class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
 
@@ -87,18 +89,10 @@ class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
     }
 
     @Override public List<SVNode> getChildren() {
-        /**
-         * This should be improved
-         */
-        if (node instanceof Parent) {
-            final List<SVNode> nodes = new ArrayList<SVNode>();
-            final List<Node> realNodes = ((Parent) node).getChildrenUnmodifiable();
-            for (int i = 0; i < realNodes.size(); i++) {
-                nodes.add(new SVRealNodeAdapter(realNodes.get(i), collapseControls, collapseContentControls));
-            }
-            return nodes;
-        }
-        return Collections.emptyList();
+        return ChildrenGetter.getChildren(node)
+                .stream()
+                .map(childNode -> new SVRealNodeAdapter(childNode, collapseControls, collapseContentControls))
+                .collect(Collectors.toList());
     }
 
     /**

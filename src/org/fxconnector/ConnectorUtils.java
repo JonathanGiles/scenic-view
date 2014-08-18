@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import javafx.animation.Animation;
 import javafx.geometry.Bounds;
@@ -55,6 +56,7 @@ import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
+import org.fxconnector.helper.ChildrenGetter;
 import org.fxconnector.node.SVNode;
 import org.fxconnector.remote.util.ScenicViewExceptionLogger;
 
@@ -73,13 +75,10 @@ public class ConnectorUtils {
         if (!isNormalNode(node))
             return 0;
         int c = 1;
-        if (node instanceof Parent) {
-            final Parent p = (Parent) node;
-            final List<Node> children = p.getChildrenUnmodifiable();
-            for (int i = 0; i < children.size(); i++) {
-                final Node child = children.get(i);
-                c += getBranchCount(child);
-            }
+        final List<Node> children = ChildrenGetter.getChildren(node);
+        for (int i = 0; i < children.size(); i++) {
+            final Node child = children.get(i);
+            c += getBranchCount(child);
         }
         return c;
     }

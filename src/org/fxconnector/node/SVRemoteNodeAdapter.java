@@ -35,9 +35,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import java.util.stream.Stream;
 
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.SubScene;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Control;
 import javafx.scene.control.ScrollPane;
@@ -45,7 +49,9 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TitledPane;
 
+
 import org.fxconnector.ConnectorUtils;
+import org.fxconnector.helper.ChildrenGetter;
 
 class SVRemoteNodeAdapter extends SVNodeImpl implements Serializable {
 
@@ -91,17 +97,13 @@ class SVRemoteNodeAdapter extends SVNodeImpl implements Serializable {
         this.visible = node.isVisible() && (this.parent == null || this.parent.isVisible());
 
         /**
-         * This should be improved
+         * TODO This should be improved
          */
-        if (node instanceof Parent && fillChildren) {
-            final List<Node> realNodes = ((Parent) node).getChildrenUnmodifiable();
-            final int size = realNodes.size();
-            nodes = new ArrayList<SVNode>(size);
-            for (int i = 0; i < size; i++) {
-                nodes.add(new SVRemoteNodeAdapter(realNodes.get(i), collapseControls, collapseContentControls, true, this));
-            }
-        } else if (fillChildren) {
-            nodes = Collections.emptyList();
+        if (fillChildren) {
+            nodes = ChildrenGetter.getChildren(node)
+                      .stream()
+                      .map(childNode -> new SVRemoteNodeAdapter(childNode, collapseControls, collapseContentControls, true, this))
+                      .collect(Collectors.toList());
         }
     }
 

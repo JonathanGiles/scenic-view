@@ -33,6 +33,8 @@ package org.fxconnector;
 
 import java.util.*;
 
+import org.fxconnector.helper.ChildrenGetter;
+
 import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.layout.Pane;
@@ -47,23 +49,21 @@ class SCUtils {
         /**
          * We should any component associated with ScenicView on close
          */
-        if (target instanceof Parent) {
-            if (target instanceof Group) {
-                final List<Node> nodes = ((Group) target).getChildren();
-                for (final Iterator<Node> iterator = nodes.iterator(); iterator.hasNext();) {
-                    final Node node = iterator.next();
-                    if (!isNormalNode(node)) {
-                        iterator.remove();
-                    }
+        if (target instanceof Group) {
+            final List<Node> nodes = ((Group) target).getChildren();
+            for (final Iterator<Node> iterator = nodes.iterator(); iterator.hasNext();) {
+                final Node node = iterator.next();
+                if (!isNormalNode(node)) {
+                    iterator.remove();
                 }
             }
-            if (target instanceof Pane) {
-                final List<Node> nodes = ((Pane) target).getChildren();
-                for (final Iterator<Node> iterator = nodes.iterator(); iterator.hasNext();) {
-                    final Node node = iterator.next();
-                    if (!isNormalNode(node)) {
-                        iterator.remove();
-                    }
+        }
+        if (target instanceof Pane) {
+            final List<Node> nodes = ((Pane) target).getChildren();
+            for (final Iterator<Node> iterator = nodes.iterator(); iterator.hasNext();) {
+                final Node node = iterator.next();
+                if (!isNormalNode(node)) {
+                    iterator.remove();
                 }
             }
         }
@@ -110,16 +110,16 @@ class SCUtils {
     }
 
     static Node findNode(final Node target, final int nodeUniqueID) {
-        if (!isNormalNode(target))
+        if (!isNormalNode(target)) {
             return null;
-        if (target instanceof Parent) {
-            final List<Node> childrens = ((Parent) target).getChildrenUnmodifiable();
-            for (int i = childrens.size() - 1; i >= 0; i--) {
-                final Node node = childrens.get(i);
-                final Node child = findNode(node, nodeUniqueID);
-                if (child != null)
-                    return child;
-            }
+        }
+        
+        final List<Node> children = ChildrenGetter.getChildren(target);
+        for (int i = children.size() - 1; i >= 0; i--) {
+            final Node node = children.get(i);
+            final Node child = findNode(node, nodeUniqueID);
+            if (child != null)
+                return child;
         }
         if (ConnectorUtils.getNodeUniqueID(target) == nodeUniqueID) {
             return target;
@@ -133,17 +133,16 @@ class SCUtils {
     }
 
     static Node getHoveredNode(final Configuration configuration, final Node target, final double x, final double y) {
-
-        if (!SCUtils.isNormalNode(target))
+        if (!SCUtils.isNormalNode(target)) {
             return null;
-        if (target instanceof Parent) {
-            final List<Node> childrens = ((Parent) target).getChildrenUnmodifiable();
-            for (int i = childrens.size() - 1; i >= 0; i--) {
-                final Node node = childrens.get(i);
-                final Node hovered = getHoveredNode(configuration, node, x, y);
-                if (hovered != null)
-                    return hovered;
-            }
+        }
+        
+        final List<Node> childrens = ChildrenGetter.getChildren(target);
+        for (int i = childrens.size() - 1; i >= 0; i--) {
+            final Node node = childrens.get(i);
+            final Node hovered = getHoveredNode(configuration, node, x, y);
+            if (hovered != null)
+                return hovered;
         }
         final Point2D localPoint = target.sceneToLocal(x, y);
         if (target.contains(localPoint) && ((!configuration.isIgnoreMouseTransparent() || !ConnectorUtils.isMouseTransparent(target)) && ConnectorUtils.isNodeVisible(target))) {
