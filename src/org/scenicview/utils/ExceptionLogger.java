@@ -42,7 +42,7 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.Properties;
 
-import org.scenicview.ScenicView;
+import org.scenicview.ScenicViewGui;
 import org.scenicview.dialog.SubmitExceptionDialog;
 
 /**
@@ -120,7 +120,7 @@ public class ExceptionLogger implements Thread.UncaughtExceptionHandler {
         sb.append("Email: \n");
         
         sb.append("Scenic View version ");
-        sb.append(ScenicView.VERSION);
+        sb.append(ScenicViewGui.VERSION);
         sb.append("\n\n");
         
         sb.append("Summary: ");

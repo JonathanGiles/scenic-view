@@ -32,7 +32,7 @@
 package org.scenicview.tabs.details;
 
 import org.scenicview.DisplayUtils;
-import org.scenicview.ScenicView;
+import org.scenicview.ScenicViewGui;
 import org.scenicview.utils.ScenicViewDebug;
 import org.fxconnector.details.Detail;
 import org.fxconnector.details.DetailPaneType;
@@ -66,7 +66,7 @@ public class GDetailPane extends TitledPane {
 
     static final String DETAIL_LABEL_STYLE = "detail-label";
     
-    private final ScenicView scenicView;
+    private final ScenicViewGui scenicView;
 
     public DetailPaneType type;
     public GridPane gridpane;
@@ -75,7 +75,7 @@ public class GDetailPane extends TitledPane {
     List<GDetail> details = new ArrayList<GDetail>();
     APILoader loader;
 
-    public GDetailPane(ScenicView scenicView, final DetailPaneType type, final String name, final APILoader loader) {
+    public GDetailPane(ScenicViewGui scenicView, final DetailPaneType type, final String name, final APILoader loader) {
         this.scenicView = scenicView;
         this.type = type;
         this.loader = loader;

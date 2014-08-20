@@ -53,7 +53,7 @@ import org.fxconnector.details.DetailPaneType;
 import org.fxconnector.node.SVNode;
 import org.scenicview.ContextMenuContainer;
 import org.scenicview.DisplayUtils;
-import org.scenicview.ScenicView;
+import org.scenicview.ScenicViewGui;
 import org.scenicview.tabs.details.APILoader;
 import org.scenicview.tabs.details.GDetailPane;
 import org.scenicview.tabs.details.GDetailPane.RemotePropertySetter;
@@ -70,7 +70,7 @@ public class DetailsTab extends Tab implements ContextMenuContainer {
     public static boolean showDefaultProperties = true;
     
     private final APILoader loader;
-    private final ScenicView scenicView;
+    private final ScenicViewGui scenicView;
 
     VBox vbox;
 
@@ -78,7 +78,7 @@ public class DetailsTab extends Tab implements ContextMenuContainer {
 
     MenuItem dumpDetails;
     
-    public DetailsTab(final ScenicView view, final APILoader loader) {
+    public DetailsTab(final ScenicViewGui view, final APILoader loader) {
         super(TAB_NAME);
         this.scenicView = view;
         this.loader = loader;

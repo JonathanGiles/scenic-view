@@ -47,7 +47,7 @@ import javafx.stage.StageStyle;
 import javafx.stage.Window;
 
 import org.fxconnector.StageController;
-import org.scenicview.ScenicView;
+import org.scenicview.ScenicViewGui;
 
 public class InfoBox {
     
@@ -78,7 +78,7 @@ public class InfoBox {
         stage.initModality(Modality.WINDOW_MODAL);
         stage.initOwner(owner);
         stage.setScene(scene);
-        stage.getIcons().add(ScenicView.APP_ICON);
+        stage.getIcons().add(ScenicViewGui.APP_ICON);
 
         final Label label = new Label(labelText);
         stage.setWidth(width);

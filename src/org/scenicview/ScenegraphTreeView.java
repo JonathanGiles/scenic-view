@@ -68,7 +68,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     private final Map<SVNode, TreeItem<SVNode>> treeViewData = new HashMap<>();
     private final List<NodeFilter> activeNodeFilters;
 //    private final ConnectorController container;
-    private final ScenicView scenicView;
+    private final ScenicViewGui scenicView;
     private final Map<SVNode, StageController> stages = new HashMap<>();
 
     TreeItem<SVNode> apps;
@@ -82,7 +82,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     private final List<String> forcedExpandedNodeClassItems = new ArrayList<>();
     ContextMenu selectedCM;
 
-    public ScenegraphTreeView(final List<NodeFilter> activeNodeFilters, final ScenicView scenicView) {
+    public ScenegraphTreeView(final List<NodeFilter> activeNodeFilters, final ScenicViewGui scenicView) {
         this.activeNodeFilters = activeNodeFilters;
         this.scenicView = scenicView;
         setId("main-treeview");

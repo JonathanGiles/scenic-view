@@ -57,11 +57,11 @@ public class DisplayUtils {
     public static final Image CLEAR_HOVER_IMAGE = getUIImage("search-clear-over.png");
 
     public static Image getUIImage(final String image) {
-        return new Image(ScenicView.class.getResource("images/ui/" + image).toString());
+        return new Image(ScenicViewGui.class.getResource("images/ui/" + image).toString());
     }
 
     private static URL getNodeIcon(final String node) {
-        return ScenicView.class.getResource("images/nodeicons/" + node + ".png");
+        return ScenicViewGui.class.getResource("images/nodeicons/" + node + ".png");
     }
 
     public static Image getIcon(final SVNode svNode) {

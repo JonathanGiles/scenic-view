@@ -31,10 +31,10 @@
  */
 package org.scenicview.dialog;
 
-import org.scenicview.utils.ScenicViewBooter;
+import org.scenicview.utils.ScenicView;
 import org.scenicview.utils.PropertiesUtils;
 import org.scenicview.DisplayUtils;
-import org.scenicview.ScenicView;
+import org.scenicview.ScenicViewGui;
 
 import java.util.Properties;
 
@@ -97,7 +97,7 @@ public class AboutBox {
         this.stage.setTitle(title);
         this.stage.initModality(Modality.APPLICATION_MODAL);
         this.stage.setScene(this.scene);
-        this.stage.getIcons().add(ScenicView.APP_ICON);
+        this.stage.getIcons().add(ScenicViewGui.APP_ICON);
         this.stage.setResizable(false);
         this.stage.setX(x);
         this.stage.setY(y);
@@ -110,10 +110,10 @@ public class AboutBox {
 
     private static String getAboutText() {
         final Properties properties = PropertiesUtils.getProperties();
-        String toolsPath = properties.getProperty(ScenicViewBooter.JDK_PATH_KEY);
+        String toolsPath = properties.getProperty(ScenicView.JDK_PATH_KEY);
         toolsPath = toolsPath == null ? "Included in runtime classpath" : toolsPath;
         
-        final String text = "JavaFX Scenic View " + ScenicView.VERSION + "\n" + 
+        final String text = "JavaFX Scenic View " + ScenicViewGui.VERSION + "\n" + 
             "Scenic View developed by Amy Fowler, Ander Ruiz and Jonathan Giles\n" + "\n" +
                 
             "JavaFX Build Information:" + "\n" + 

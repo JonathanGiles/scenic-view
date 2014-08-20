@@ -71,7 +71,7 @@ import org.fxconnector.event.EvLogEvent;
 import org.fxconnector.node.SVNode;
 import org.scenicview.ContextMenuContainer;
 import org.scenicview.DisplayUtils;
-import org.scenicview.ScenicView;
+import org.scenicview.ScenicViewGui;
 import org.scenicview.control.FilterTextField;
 import org.scenicview.dialog.InfoBox;
 
@@ -81,7 +81,7 @@ public class EventLogTab extends Tab implements ContextMenuContainer {
     
     private static final int MAX_EVENTS = 5000;
 
-    private final ScenicView scenicView;
+    private final ScenicViewGui scenicView;
     
     private TableView<ScenicViewEvent> table = new TableView<ScenicViewEvent>();
     private ChoiceBox<String> showStack = new ChoiceBox<String>();
@@ -97,7 +97,7 @@ public class EventLogTab extends Tab implements ContextMenuContainer {
 
     private static final Image MORE_INFO = DisplayUtils.getUIImage("info.png");
     
-    public EventLogTab(final ScenicView view) {
+    public EventLogTab(final ScenicViewGui view) {
         super(TAB_NAME);
         
         this.scenicView = view;

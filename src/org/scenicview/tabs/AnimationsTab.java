@@ -35,7 +35,7 @@ import org.fxconnector.StageID;
 import org.fxconnector.SVAnimation;
 import org.scenicview.ContextMenuContainer;
 import org.scenicview.DisplayUtils;
-import org.scenicview.ScenicView;
+import org.scenicview.ScenicViewGui;
 
 import java.util.*;
 
@@ -58,12 +58,12 @@ public class AnimationsTab extends Tab implements ContextMenuContainer {
 
     private static final Image PAUSE = DisplayUtils.getUIImage("pause.png");
 
-    private final ScenicView scenicView;
+    private final ScenicViewGui scenicView;
     private final VBox vbox;
 
     private Menu menu;
 
-    public AnimationsTab(final ScenicView view) {
+    public AnimationsTab(final ScenicViewGui view) {
         super(TAB_NAME);
         this.scenicView = view;
         this.vbox = new VBox();

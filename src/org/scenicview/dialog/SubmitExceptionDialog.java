@@ -48,7 +48,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import org.scenicview.ScenicView;
+import org.scenicview.ScenicViewGui;
 
 public class SubmitExceptionDialog {
     private static final int SCENE_WIDTH = 500;
@@ -130,7 +130,7 @@ public class SubmitExceptionDialog {
                 stage.setTitle("Exception");
                 stage.initModality(Modality.APPLICATION_MODAL);
                 stage.setScene(scene);
-                stage.getIcons().add(ScenicView.APP_ICON);
+                stage.getIcons().add(ScenicViewGui.APP_ICON);
                 stage.setResizable(false);
 
                 stage.showAndWait();

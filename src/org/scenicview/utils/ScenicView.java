@@ -45,7 +45,7 @@ import org.fxconnector.AppControllerImpl;
 import org.fxconnector.StageControllerImpl;
 import org.fxconnector.remote.FXConnector;
 import org.fxconnector.remote.FXConnectorFactory;
-import org.scenicview.ScenicView;
+import org.scenicview.ScenicViewGui;
 import org.scenicview.update.DummyUpdateStrategy;
 import org.scenicview.update.RemoteVMsUpdateStrategy;
 import org.scenicview.utils.attach.AttachHandlerFactory;
@@ -53,7 +53,7 @@ import org.scenicview.utils.attach.AttachHandlerFactory;
 /**
  * This is the entry point for all different versions of Scenic View.
  */
-public class ScenicViewBooter extends Application {
+public class ScenicView extends Application {
 
     /**************************************************************************
      *
@@ -97,9 +97,9 @@ public class ScenicViewBooter extends Application {
         // workaround for RT-10714
         stage.setWidth(1024);
         stage.setHeight(768);
-        stage.setTitle("Scenic View v" + ScenicView.VERSION);
+        stage.setTitle("Scenic View v" + ScenicViewGui.VERSION);
         final DummyUpdateStrategy updateStrategy = new DummyUpdateStrategy(buildAppController(target));
-        ScenicView.show(new ScenicView(updateStrategy, stage), stage);
+        ScenicViewGui.show(new ScenicViewGui(updateStrategy, stage), stage);
     }
 
     private static List<AppController> buildAppController(final Parent target) {
@@ -158,11 +158,11 @@ public class ScenicViewBooter extends Application {
         // workaround for RT-10714
         stage.setWidth(1024);
         stage.setHeight(768);
-        stage.setTitle("Scenic View v" + ScenicView.VERSION);
+        stage.setTitle("Scenic View v" + ScenicViewGui.VERSION);
         org.fxconnector.Debugger.debug("Platform running");
-        org.fxconnector.Debugger.debug("Launching ScenicView v" + ScenicView.VERSION);
-        ScenicView view = new ScenicView(strategy, stage);
-        ScenicView.show(view, stage);
+        org.fxconnector.Debugger.debug("Launching ScenicView v" + ScenicViewGui.VERSION);
+        ScenicViewGui view = new ScenicViewGui(strategy, stage);
+        ScenicViewGui.show(view, stage);
 
         org.fxconnector.Debugger.debug("Startup done");
         while (view == null) {

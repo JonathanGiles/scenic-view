@@ -105,10 +105,10 @@ import org.scenicview.utils.ScenicViewDebug;
 /**
  * The base UI
  */
-public class ScenicView {
+public class ScenicViewGui {
     
     private static final String HELP_URL = "http://fxexperience.com/scenic-view/help";
-    public static final String STYLESHEETS = ScenicView.class.getResource("scenicview.css").toExternalForm();
+    public static final String STYLESHEETS = ScenicViewGui.class.getResource("scenicview.css").toExternalForm();
     public static final Image APP_ICON = DisplayUtils.getUIImage("mglass.png");
 
     public static final String VERSION = "8.0.0";
@@ -216,7 +216,7 @@ public class ScenicView {
     private AnimationsTab animationsTab;
     private JavaDocTab javadocTab;
 
-    public ScenicView(final UpdateStrategy updateStrategy, final Stage scenicViewStage) {
+    public ScenicViewGui(final UpdateStrategy updateStrategy, final Stage scenicViewStage) {
         this.scenicViewStage = scenicViewStage;
         Persistence.loadProperties();
         Runtime.getRuntime().addShutdownHook(shutdownHook);
@@ -285,7 +285,7 @@ public class ScenicView {
         // right side
         detailsTab = new DetailsTab(this, new APILoader() {
             @Override public void loadAPI(final String property) {
-                ScenicView.this.loadAPI(property);
+                ScenicViewGui.this.loadAPI(property);
             }
         });
 
@@ -971,7 +971,7 @@ public class ScenicView {
 //        return super.getChildren();
 //    }
 
-    public static void show(final ScenicView scenicview, final Stage stage) {
+    public static void show(final ScenicViewGui scenicview, final Stage stage) {
         final Scene scene = new Scene(scenicview.rootBorderPane);
         scene.getStylesheets().addAll(STYLESHEETS);
         stage.setScene(scene);

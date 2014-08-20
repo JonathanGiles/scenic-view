@@ -58,7 +58,7 @@ import org.fxconnector.details.Detail;
 import org.fxconnector.details.Detail.EditionType;
 import org.fxconnector.details.DetailPaneType;
 import org.fxconnector.details.GridConstraintsDetail;
-import org.scenicview.ScenicView;
+import org.scenicview.ScenicViewGui;
 import org.scenicview.tabs.DetailsTab;
 import org.scenicview.utils.ScenicViewDebug;
 
@@ -81,7 +81,7 @@ public class GDetail {
     private EditionType editionType;
     private APILoader loader;
 
-    public GDetail(ScenicView scenicView, final Label label, final Node value) {
+    public GDetail(ScenicViewGui scenicView, final Label label, final Node value) {
         this.label = label;
 
         this.value = value;

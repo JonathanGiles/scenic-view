@@ -40,18 +40,18 @@ import javafx.scene.image.ImageView;
 import org.fxconnector.node.SVNode;
 import org.scenicview.ContextMenuContainer;
 import org.scenicview.DisplayUtils;
-import org.scenicview.ScenicView;
+import org.scenicview.ScenicViewGui;
 import org.scenicview.control.ProgressWebView;
 
 public class JavaDocTab extends Tab implements ContextMenuContainer {
     
-    private final ScenicView scenicView;
+    private final ScenicViewGui scenicView;
     
     private final ProgressWebView webView;
     
     public static final String TAB_NAME = "JavaDoc";
 
-    public JavaDocTab(final ScenicView view) {
+    public JavaDocTab(final ScenicViewGui view) {
         super(TAB_NAME);
         
         this.scenicView = view;

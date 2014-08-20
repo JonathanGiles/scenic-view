@@ -38,15 +38,15 @@ import javafx.application.Platform;
 
 import org.fxconnector.AppController;
 import org.fxconnector.StageController;
-import org.scenicview.ScenicView;
+import org.scenicview.ScenicViewGui;
 import org.scenicview.utils.ScenicViewDebug;
 
 public final class AppsRepository {
     
     private final List<AppController> apps = new ArrayList<AppController>();
-    private final ScenicView scenicView;
+    private final ScenicViewGui scenicView;
     
-    public AppsRepository(ScenicView scenicView) {
+    public AppsRepository(ScenicViewGui scenicView) {
         this.scenicView = scenicView;
     }
     
