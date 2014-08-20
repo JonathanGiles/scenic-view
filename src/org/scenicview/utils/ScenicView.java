@@ -31,6 +31,7 @@
  */
 package org.scenicview.utils;
 
+import java.lang.instrument.Instrumentation;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
@@ -121,6 +122,10 @@ public class ScenicView extends Application {
      * (Also refer to RuntimeAttach class)
      * 
      *************************************************************************/
+    public static void premain(final String agentArgs, final Instrumentation instrumentation) {
+        launch(agentArgs);
+    }
+
     public static void main(final String[] args) {
         if (args.length > 0) {
             for (int i = 0; i < args.length; i++) {

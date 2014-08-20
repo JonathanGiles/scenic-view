@@ -57,10 +57,6 @@ public class RuntimeAttach {
     private static boolean debug = true;
     private static RemoteApplicationImpl application;
     
-    public static void premain(final String agentArgs, final Instrumentation instrumentation) {
-        init(agentArgs, instrumentation);
-    }
-
     public static void agentmain(final String agentArgs, final Instrumentation instrumentation) {
         init(agentArgs, instrumentation);
     }
