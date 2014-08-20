@@ -635,6 +635,23 @@ public class StageControllerImpl implements StageController {
             if (selectedNode != null) {
                 selectedNode.boundsInParentProperty().addListener(selectedNodePropListener);
                 selectedNode.layoutBoundsProperty().addListener(selectedNodePropListener);
+                
+//                // we also need to track if this node is contained within a SubScene,
+//                // as that will impact the bounds
+//                Parent p = selectedNode.getParent();
+//                while (p != null) {
+//                    Parent nextParent = p.getParent();
+//                    if (nextParent == null) {
+//                        break;
+//                    }
+//                    p = nextParent;
+//                }
+//                if (p != null && p.getScene() != null && ! p.getScene().getRoot().equals(p)) {
+//                    // we've found a subscene!
+//                    System.out.println("Subscene found: " + p);
+//                    p.boundsInParentProperty().addListener(selectedNodePropListener);
+//                    p.layoutBoundsProperty().addListener(selectedNodePropListener);
+//                }
             }
         } else {
             selectedNode = null;
