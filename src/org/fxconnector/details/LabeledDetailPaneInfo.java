@@ -79,7 +79,6 @@ class LabeledDetailPaneInfo extends DetailPaneInfo {
         wrapTextDetail = addDetail("wrapText", "wrapText:");
         underlineDetail = addDetail("underline", "underline:");
         fontDetail = addDetail("font", "font:");
-
     }
 
     @Override protected void updateDetail(final String propertyName) {

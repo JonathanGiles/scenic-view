@@ -44,7 +44,8 @@ public class AllDetails {
 
     public AllDetails(final FXConnectorEventDispatcher dispatcher, final StageID stageID) {
         details = new DetailPaneInfo[] { 
-            new NodeDetailPaneInfo(dispatcher, stageID), 
+            new NodeDetailPaneInfo(dispatcher, stageID),
+            new ShapeDetailPaneInfo(dispatcher, stageID),
             new ParentDetailPaneInfo(dispatcher, stageID), 
             new RegionDetailPaneInfo(dispatcher, stageID), 
             new GridPaneDetailPaneInfo(dispatcher, stageID), 
@@ -52,7 +53,6 @@ public class AllDetails {
             new TextDetailPaneInfo(dispatcher, stageID), 
             new LabeledDetailPaneInfo(dispatcher, stageID), 
             new FullPropertiesDetailPaneInfo(dispatcher, stageID)
-//            new StylesDetailPaneInfo(dispatcher, stageID) 
         };
     }
 

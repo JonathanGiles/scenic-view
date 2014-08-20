@@ -62,12 +62,18 @@ public class Detail implements Serializable {
     public static final String STATUS_EXCEPTION = STATUS_NOT_SET + "an exception has ocurred:";
     public static final String STATUS_READ_ONLY = STATUS_NOT_SET + "(Read-Only property)";
 
+    /**
+     * Represents the left-hand side of the two columns in the detail grid
+     */
     public enum LabelType {
         NORMAL, LAYOUT_BOUNDS, BOUNDS_PARENT, BASELINE
     }
 
+    /**
+     * Represents the right-hand side of the two columns in the detail grid
+     */
     public enum ValueType {
-        NORMAL, INSETS, CONSTRAINTS, GRID_CONSTRAINTS
+        NORMAL, INSETS, CONSTRAINTS, GRID_CONSTRAINTS, COLOR
     };
 
     public enum EditionType {
@@ -150,28 +156,29 @@ public class Detail implements Serializable {
             if (serializer instanceof SimpleSerializer) {
                 final org.fxconnector.details.SimpleSerializer.EditionType type = ((SimpleSerializer) serializer).getEditionType();
                 switch (type) {
-                case COMBO:
-                    editionType = EditionType.COMBO;
-                    validItems = ((SimpleSerializer) serializer).getValidValues();
-
-                    break;
-                case SLIDER:
-                    editionType = EditionType.SLIDER;
-                    maxValue = ((SimpleSerializer) serializer).getMaxValue();
-                    minValue = ((SimpleSerializer) serializer).getMinValue();
-
-                    break;
-                case COLOR_PICKER:
-                    editionType = EditionType.COLOR_PICKER;
-                    break;
-                default:
-                    editionType = EditionType.TEXT;
-                    break;
+                    case COMBO: {
+                        editionType = EditionType.COMBO;
+                        validItems = ((SimpleSerializer) serializer).getValidValues();
+                        break;
+                    }
+                    case SLIDER: {
+                        editionType = EditionType.SLIDER;
+                        maxValue = ((SimpleSerializer) serializer).getMaxValue();
+                        minValue = ((SimpleSerializer) serializer).getMinValue();
+                        break;
+                    }
+                    case COLOR_PICKER: {
+                        valueType = ValueType.COLOR;
+                        editionType = EditionType.COLOR_PICKER;
+                        break;
+                    }
+                    default: {
+                        editionType = EditionType.TEXT;
+                        break;
+                    }
                 }
-
             } else {
                 editionType = EditionType.TEXT;
-
             }
         }
     }

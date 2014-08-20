@@ -153,6 +153,11 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
     class RemoteDispatcher extends Thread {
         boolean running = true;
         List<FXConnectorEvent> events = new LinkedList<FXConnectorEvent>();
+        
+        {
+            // we don't want to keep the application running needlessly
+            setDaemon(true);
+        }
 
         @Override public void run() {
             while (running) {

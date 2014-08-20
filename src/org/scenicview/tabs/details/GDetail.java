@@ -36,12 +36,8 @@ import java.util.List;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WritableValue;
 import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.ColorPicker;
@@ -49,7 +45,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
@@ -83,116 +78,100 @@ public class GDetail {
 
     public GDetail(ScenicViewGui scenicView, final Label label, final Node value) {
         this.label = label;
-
         this.value = value;
+        
         /**
          * Initial implementation...
          */
         final TextField field = new TextField();
         field.getStyleClass().add("detail-field");
-        field.setOnAction(new EventHandler<ActionEvent>() {
-            @Override public void handle(final ActionEvent arg0) {
-                if (serializer != null) {
-                    serializer.setValue(field.getText());
-                }
+        field.setOnAction(event -> {
+            if (serializer != null) {
+                serializer.setValue(field.getText());
+            }
+            recover();
+        });
+        
+        final ComboBox<String> options = new ComboBox<String>();
+        options.getStyleClass().add("detail-field");
+        options.getSelectionModel().selectedItemProperty().addListener((o, oldValue, newValue) -> {
+            if (newValue != null && !newValue.equals(realValue)) {
+                serializer.setValue(newValue.toString());
                 recover();
             }
         });
-        final ComboBox<String> options = new ComboBox<String>();
-        options.getStyleClass().add("detail-field");
-        options.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-            @Override public void changed(final ObservableValue<? extends String> arg0, final String arg1, final String newValue) {
-                if (newValue != null && !newValue.equals(realValue)) {
-                    serializer.setValue(newValue.toString());
-                    recover();
-                }
-
+        
+        options.setOnMouseClicked(ev -> {
+            if (ev.isSecondaryButtonDown()) {
+                recover();
             }
         });
-        options.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override public void handle(final MouseEvent ev) {
-                if (ev.isSecondaryButtonDown()) {
-                    recover();
-                }
-            }
-        });
+        
         final Slider slider = new Slider();
         slider.getStyleClass().add("detail-field");
-        slider.valueProperty().addListener(new ChangeListener<Number>() {
-            @Override public void changed(final ObservableValue<? extends Number> arg0, final Number arg1, final Number newValue) {
-                serializer.setValue(newValue.toString());
-            }
-        });
+        slider.valueProperty().addListener((o, oldValue, newValue) -> serializer.setValue(newValue.toString()));
+        
         final ColorPicker picker = new ColorPicker();
         picker.getStyleClass().add("detail-field");
-        picker.valueProperty().addListener(new ChangeListener<Color>() {
-            @Override public void changed(final ObservableValue<? extends Color> arg0, final Color arg1, final Color newValue) {
-                serializer.setValue(newValue.toString());
+        picker.valueProperty().addListener((o, oldValue, newValue) -> serializer.setValue(newValue.toString()));
+        
+        value.setOnMouseClicked(event -> {
+            if (GDetailPane.activeDetail != null) {
+                GDetailPane.activeDetail.recover();
             }
-        });
-        value.setOnMouseClicked(new EventHandler<MouseEvent>() {
 
-            @Override public void handle(final MouseEvent arg0) {
-                if (GDetailPane.activeDetail != null) {
-                    GDetailPane.activeDetail.recover();
-                }
-
-                // only allow editing in the paid version
-                if (Detail.isEditionSupported(editionType)) {
-                    switch (editionType) {
-                    case COMBO:
-
+            // only allow editing in the paid version
+            if (Detail.isEditionSupported(editionType)) {
+                switch (editionType) {
+                    case COMBO: {
                         options.setItems(FXCollections.observableArrayList(validItems));
                         options.getSelectionModel().select(realValue);
                         GDetail.this.field = options;
                         break;
-                    case SLIDER:
-
+                    }
+                    case SLIDER: {
                         slider.setMax(max);
                         slider.setMin(min);
                         slider.setValue(Double.parseDouble(realValue));
                         GDetail.this.field = slider;
-
                         break;
-                    case COLOR_PICKER:
+                    }
+                    case COLOR_PICKER: {
                         picker.setValue(Color.valueOf(realValue));
                         GDetail.this.field = picker;
                         break;
-                    default:
+                    }
+                    default: {
                         field.setText(realValue);
                         GDetail.this.field = field;
                         break;
-
                     }
-                    final Group group = (Group) value.getParent();
-                    group.getChildren().clear();
-                    group.getChildren().add(GDetail.this.field);
-                    GDetail.this.field.requestFocus();
-                    GDetailPane.activeDetail = GDetail.this;
-                } else {
-                    scenicView.setStatusText(reason, 4000);
                 }
+                final Group group = (Group) value.getParent();
+                group.getChildren().clear();
+                group.getChildren().add(GDetail.this.field);
+                GDetail.this.field.requestFocus();
+                GDetailPane.activeDetail = GDetail.this;
+            } else {
+                scenicView.setStatusText(reason, 4000);
             }
-
         });
+        
         if (value instanceof Label) {
             this.valueLabel = (Label) value;
-            valueLabel.setOnMouseEntered(new EventHandler<MouseEvent>() {
-                @Override public void handle(final MouseEvent arg0) {
-                    if (!scenicView.hasStatusText()) {
-                        if (Detail.isEditionSupported(editionType))
-                            scenicView.setStatusText("Properties which can be changed will show this icon");
-                        else if (editionType == EditionType.NONE_BOUND) {
-                            scenicView.setStatusText("Bound Properties will show this icon");
-                        }
+            valueLabel.setOnMouseEntered(event -> {
+                if (!scenicView.hasStatusText()) {
+                    if (Detail.isEditionSupported(editionType))
+                        scenicView.setStatusText("Properties which can be changed will show this icon");
+                    else if (editionType == EditionType.NONE_BOUND) {
+                        scenicView.setStatusText("Bound Properties will show this icon");
                     }
                 }
             });
-            valueLabel.setOnMouseExited(new EventHandler<MouseEvent>() {
-                @Override public void handle(final MouseEvent arg0) {
-                    if (editionType != EditionType.NONE) {
-                        scenicView.clearStatusText();
-                    }
+            
+            valueLabel.setOnMouseExited(event -> {
+                if (editionType != EditionType.NONE) {
+                    scenicView.clearStatusText();
                 }
             });
         } else {
@@ -281,31 +260,32 @@ public class GDetail {
 
     public void setValue(final String value2) {
         switch (detail.getValueType()) {
-        case NORMAL:
-            ((Label) value).setText(value2);
-            break;
-
-        case INSETS:
-            ((InsetsDisplay) value).setInsetsTarget(ConnectorUtils.deserializeInsets(value2));
-            break;
-
-        case CONSTRAINTS:
-            ((ConstraintsDisplay) value).setPropertiesMap(ConnectorUtils.deserializeMap(value2));
-            break;
-
-        case GRID_CONSTRAINTS:
-            ((GridConstraintDisplay) value).setConstraints(detail.hasGridConstraints());
-            final List<GridConstraintsDetail> constraints = detail.getGridConstraintsDetails();
-            for (final Iterator<GridConstraintsDetail> iterator = constraints.iterator(); iterator.hasNext();) {
-                final GridConstraintsDetail d = iterator.next();
-                ((GridConstraintDisplay) value).addObject(d.getText(), d.getRowIndex(), d.getColIndex());
+            case NORMAL: {
+                ((Label) value).setText(value2);
+                break;
             }
-            break;
-        default:
-            ScenicViewDebug.print("GDetail strange value for" + value2);
-            break;
+            case INSETS: {
+                ((InsetsDisplay) value).setInsetsTarget(ConnectorUtils.deserializeInsets(value2));
+                break;
+            }
+            case CONSTRAINTS: {
+                ((ConstraintsDisplay) value).setPropertiesMap(ConnectorUtils.deserializeMap(value2));
+                break;
+            }
+            case GRID_CONSTRAINTS: {
+                ((GridConstraintDisplay) value).setConstraints(detail.hasGridConstraints());
+                final List<GridConstraintsDetail> constraints = detail.getGridConstraintsDetails();
+                for (final Iterator<GridConstraintsDetail> iterator = constraints.iterator(); iterator.hasNext();) {
+                    final GridConstraintsDetail d = iterator.next();
+                    ((GridConstraintDisplay) value).addObject(d.getText(), d.getRowIndex(), d.getColIndex());
+                }
+                break;
+            }
+//            default: {
+//                ScenicViewDebug.print("GDetail strange value for" + value2);
+//                break;
+//            }
         }
-
     }
 
     public void setAPILoader(final APILoader loader) {

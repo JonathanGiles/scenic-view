@@ -41,12 +41,10 @@ import java.text.DecimalFormat;
 import java.util.*;
 
 import javafx.beans.value.WritableValue;
-import javafx.event.EventHandler;
 import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
@@ -90,12 +88,9 @@ public class GDetailPane extends TitledPane {
 
         gridpane = new GridPane();
         gridpane.getStyleClass().add("detail-grid");
-        gridpane.setOnMousePressed(new EventHandler<MouseEvent>() {
-
-            @Override public void handle(final MouseEvent arg0) {
-                if (activeDetail != null)
-                    activeDetail.recover();
-            }
+        gridpane.setOnMousePressed(event -> {
+            if (activeDetail != null)
+                activeDetail.recover();
         });
         gridpane.setHgap(4);
         gridpane.setVgap(2);
@@ -112,6 +107,7 @@ public class GDetailPane extends TitledPane {
             label.setGraphic(labelGraphic);
             label.setContentDisplay(ContentDisplay.LEFT);
         }
+        
         final GDetail detail = new GDetail(scenicView, label, valueNode);
         detail.setAPILoader(loader);
         GridPane.setConstraints(detail.label, LABEL_COLUMN, row);
@@ -134,6 +130,7 @@ public class GDetailPane extends TitledPane {
             GridPane.setValignment(group, VPos.TOP);
             addToPane(detail.label, group);
         }
+        
         details.add(detail);
         return detail;
     }
@@ -197,70 +194,84 @@ public class GDetailPane extends TitledPane {
             final Detail d = details.get(i);
             Node labelGraphic;
             switch (d.getLabelType()) {
-            case LAYOUT_BOUNDS:
-                final Rectangle layoutBoundsIcon = new Rectangle(12, 12);
-                layoutBoundsIcon.setFill(null);
-                layoutBoundsIcon.setStroke(Color.GREEN);
-                layoutBoundsIcon.setOpacity(.8);
-                layoutBoundsIcon.getStrokeDashArray().addAll(3.0, 3.0);
-                layoutBoundsIcon.setStrokeWidth(1);
-                labelGraphic = layoutBoundsIcon;
-                break;
-
-            case BOUNDS_PARENT:
-                final Rectangle boundsInParentIcon = new Rectangle(12, 12);
-                boundsInParentIcon.setFill(Color.YELLOW);
-                boundsInParentIcon.setOpacity(.5);
-                labelGraphic = boundsInParentIcon;
-                break;
-
-            case BASELINE:
-                final Group baselineIcon = new Group();
-                final Line line = new Line(0, 8, 14, 8);
-                line.setStroke(Color.RED);
-                line.setOpacity(.75);
-                line.setStrokeWidth(1);
-                baselineIcon.getChildren().addAll(new Rectangle(10, 10, Color.TRANSPARENT), line);
-                labelGraphic = baselineIcon;
-                break;
-
-            default:
-                labelGraphic = null;
-                break;
-            }
-            Node value = null;
-            switch (d.getValueType()) {
-            case NORMAL:
-                final Label valueLabel = new Label();
-                if (Detail.isEditionSupported(d.getEditionType())) {
-                    final ImageView graphic = new ImageView(GDetailPane.EDIT_IMAGE);
-                    valueLabel.setGraphic(graphic);
-                } else if (d.getEditionType() == EditionType.NONE_BOUND) {
-                    final ImageView graphic = new ImageView(GDetailPane.LOCK_IMAGE);
-                    valueLabel.setGraphic(graphic);
+                case LAYOUT_BOUNDS: {
+                    final Rectangle layoutBoundsIcon = new Rectangle(12, 12);
+                    layoutBoundsIcon.setFill(null);
+                    layoutBoundsIcon.setStroke(Color.GREEN);
+                    layoutBoundsIcon.setOpacity(.8);
+                    layoutBoundsIcon.getStrokeDashArray().addAll(3.0, 3.0);
+                    layoutBoundsIcon.setStrokeWidth(1);
+                    labelGraphic = layoutBoundsIcon;
+                    break;
                 }
-                value = valueLabel;
-                break;
-            case INSETS:
-                final InsetsDisplay display = new InsetsDisplay();
-                value = display;
-                break;
-
-            case CONSTRAINTS:
-                final ConstraintsDisplay display2 = new ConstraintsDisplay();
-                value = display2;
-                break;
-
-            case GRID_CONSTRAINTS:
-                final GridConstraintDisplay display3 = new GridConstraintDisplay();
-                value = display3;
-                break;
+                case BOUNDS_PARENT: {
+                    final Rectangle boundsInParentIcon = new Rectangle(12, 12);
+                    boundsInParentIcon.setFill(Color.YELLOW);
+                    boundsInParentIcon.setOpacity(.5);
+                    labelGraphic = boundsInParentIcon;
+                    break;
+                }
+                case BASELINE: {
+                    final Group baselineIcon = new Group();
+                    final Line line = new Line(0, 8, 14, 8);
+                    line.setStroke(Color.RED);
+                    line.setOpacity(.75);
+                    line.setStrokeWidth(1);
+                    baselineIcon.getChildren().addAll(new Rectangle(10, 10, Color.TRANSPARENT), line);
+                    labelGraphic = baselineIcon;
+                    break;
+                }
+                default: {
+                    labelGraphic = null;
+                    break;
+                }
+            }
+            
+            Node value = null;
+            final boolean isEditingSupported = Detail.isEditionSupported(d.getEditionType());
+            final boolean isPropertyBound = d.getEditionType() == EditionType.NONE_BOUND;
+            final Node graphic = isEditingSupported ? new ImageView(GDetailPane.EDIT_IMAGE) :
+                                 isPropertyBound    ? new ImageView(GDetailPane.LOCK_IMAGE) :
+                                 null;
+                
+            switch (d.getValueType()) {
+                case NORMAL: {
+                    final Label valueLabel = new Label();
+                    valueLabel.setGraphic(graphic);
+                    value = valueLabel;
+                    break;
+                }
+                case INSETS: {
+                    final InsetsDisplay display = new InsetsDisplay();
+                    value = display;
+                    break;
+                }
+                case CONSTRAINTS: {
+                    final ConstraintsDisplay display2 = new ConstraintsDisplay();
+                    value = display2;
+                    break;
+                }
+                case GRID_CONSTRAINTS: {
+                    final GridConstraintDisplay display3 = new GridConstraintDisplay();
+                    value = display3;
+                    break;
+                }
+                case COLOR: {
+                    final Label valueLabel = new Label();
+                    Color c = Color.valueOf(d.getValue());
+                    Rectangle rect = new Rectangle(10, 10, c);
+                    HBox hbox = new HBox(5, graphic, rect);
+                    hbox.setAlignment(Pos.CENTER_LEFT);
+                    valueLabel.setGraphic(hbox);
+                    valueLabel.setText(d.getValue());
+                    value = valueLabel;
+                    break;
+                }
             }
 
             final GDetail detail = addDetail(d.getProperty(), d.getLabel(), labelGraphic, value, i);
             doUpdateDetail(detail, d);
             detail.setSerializer(new WritableValue<String>() {
-
                 @Override public void setValue(final String value) {
                     try {
                         setter.set(d, value);
@@ -311,8 +322,9 @@ public class GDetailPane extends TitledPane {
     }
 
     @Override public String toString() {
-        if (details.isEmpty())
+        if (details.isEmpty()) {
             return "";
+        }
         final StringBuilder sb = new StringBuilder();
         sb.append(type).append('\n');
         for (int i = 0; i < details.size(); i++) {
