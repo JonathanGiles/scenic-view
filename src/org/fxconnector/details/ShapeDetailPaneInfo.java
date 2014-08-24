@@ -47,7 +47,6 @@ class ShapeDetailPaneInfo extends DetailPaneInfo {
 
     ShapeDetailPaneInfo(final FXConnectorEventDispatcher dispatcher, final StageID stageID) {
         super(dispatcher, stageID, DetailPaneType.SHAPE);
-        System.out.println("Booya");
     }
 
     @Override Class<? extends Node> getTargetClass() {
@@ -55,7 +54,6 @@ class ShapeDetailPaneInfo extends DetailPaneInfo {
     }
 
     @Override public boolean targetMatches(final Object candidate) {
-        System.out.println("Candidate: " + candidate);
         return candidate instanceof Shape;
     }
 
