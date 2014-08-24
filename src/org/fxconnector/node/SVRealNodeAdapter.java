@@ -31,13 +31,10 @@
  */
 package org.fxconnector.node;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Control;
 import javafx.scene.control.ScrollPane;

@@ -55,7 +55,6 @@ import org.fxconnector.details.DetailPaneType;
 import org.fxconnector.details.GridConstraintsDetail;
 import org.scenicview.ScenicViewGui;
 import org.scenicview.tabs.DetailsTab;
-import org.scenicview.utils.ScenicViewDebug;
 
 public class GDetail {
     public Label label;
@@ -260,6 +259,7 @@ public class GDetail {
 
     public void setValue(final String value2) {
         switch (detail.getValueType()) {
+            case COLOR:
             case NORMAL: {
                 ((Label) value).setText(value2);
                 break;

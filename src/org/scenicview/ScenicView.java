@@ -129,6 +129,7 @@ public class ScenicView extends Application {
     public static void premain(final String agentArgs, final Instrumentation instrumentation) {
         // we start up a new thread to take care of initialising Scenic View
         // so that we don't block the loading of the actual application.
+        @SuppressWarnings("unused")
         Thread scenicViewBootThread = new Thread(() -> {
             Toolkit tk = Toolkit.getToolkit();   
             Platform.runLater(() -> {

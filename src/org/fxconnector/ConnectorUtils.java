@@ -39,13 +39,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import javafx.animation.Animation;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.layout.Region;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;

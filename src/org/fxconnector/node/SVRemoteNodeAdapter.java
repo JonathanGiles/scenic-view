@@ -32,23 +32,16 @@
 package org.fxconnector.node;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import java.util.stream.Stream;
-
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.SubScene;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Control;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TitledPane;
-
 
 import org.fxconnector.ConnectorUtils;
 import org.fxconnector.helper.ChildrenGetter;
