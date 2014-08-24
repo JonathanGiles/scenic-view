@@ -91,7 +91,7 @@ public class GDetail {
             recover();
         });
         
-        final ComboBox<String> options = new ComboBox<String>();
+        final ComboBox<String> options = new ComboBox<>();
         options.getStyleClass().add("detail-field");
         options.getSelectionModel().selectedItemProperty().addListener((o, oldValue, newValue) -> {
             if (newValue != null && !newValue.equals(realValue)) {

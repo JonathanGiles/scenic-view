@@ -105,7 +105,7 @@ public class StageControllerImpl implements StageController {
     /**
      * Simplification for now, only a plain structure for now
      */
-    final List<PopupWindow> popupWindows = new ArrayList<PopupWindow>();
+    final List<PopupWindow> popupWindows = new ArrayList<>();
 
     private final Rectangle boundsInParentRect;
     private final Rectangle layoutBoundsRect;
@@ -124,7 +124,7 @@ public class StageControllerImpl implements StageController {
 
     private final InvalidationListener selectedNodePropListener;
 
-    private final Map<Node, PropertyTracker> propertyTrackers = new HashMap<Node, PropertyTracker>();
+    private final Map<Node, PropertyTracker> propertyTrackers = new HashMap<>();
 
     private final Configuration configuration = new Configuration();
 
@@ -132,35 +132,23 @@ public class StageControllerImpl implements StageController {
 
     AllDetails details;
 
-    private final EventHandler<? super MouseEvent> sceneHoverListener = new EventHandler<MouseEvent>() {
-
-        @Override public void handle(final MouseEvent ev) {
-            try {
-                highlightHovered(ev.getX(), ev.getY());
-            } catch (final Exception e) {
-                ScenicViewExceptionLogger.submitException(e);
-            }
+    private final EventHandler<? super MouseEvent> sceneHoverListener = ev -> {
+        try {
+            highlightHovered(ev.getX(), ev.getY());
+        } catch (final Exception e) {
+            ScenicViewExceptionLogger.submitException(e);
         }
-
     };
 
-    private final EventHandler<? super MouseEvent> scenePressListener = new EventHandler<MouseEvent>() {
-
-        @Override public void handle(final MouseEvent ev) {
-            dispatchEvent(new NodeSelectedEvent(getID(), createNode(getHoveredNode(ev.getX(), ev.getY()))));
-        }
-
-    };
+    private final EventHandler<? super MouseEvent> scenePressListener = 
+            ev -> dispatchEvent(new NodeSelectedEvent(getID(), createNode(getHoveredNode(ev.getX(), ev.getY()))));
 
     /**
      * Listeners and EventHandlers
      */
-    private final EventHandler<? super Event> traceEventHandler = new EventHandler<Event>() {
-
-        @Override public void handle(final Event event) {
-            if (configuration.isEventLogEnabled()) {
-                dispatchEvent(new EvLogEvent(getID(), createNode((Node) event.getSource()), event.getEventType().toString(), ""));
-            }
+    private final EventHandler<? super Event> traceEventHandler = event -> {
+        if (configuration.isEventLogEnabled()) {
+            dispatchEvent(new EvLogEvent(getID(), createNode((Node) event.getSource()), event.getEventType().toString(), ""));
         }
     };
 
@@ -171,12 +159,8 @@ public class StageControllerImpl implements StageController {
     final AppController appController;
     int nodeCount;
 
-    private final EventHandler<? super MouseEvent> mousePosListener = new EventHandler<MouseEvent>() {
-
-        @Override public void handle(final MouseEvent ev) {
-            dispatchEvent(new MousePosEvent(getID(), (int) ev.getSceneX() + "x" + (int) ev.getSceneY()));
-        }
-    };
+    private final EventHandler<? super MouseEvent> mousePosListener = 
+            ev -> dispatchEvent(new MousePosEvent(getID(), (int) ev.getSceneX() + "x" + (int) ev.getSceneY()));
 
     private final EventHandler<? super KeyEvent> shortcutsHandler;
 
@@ -819,7 +803,7 @@ public class StageControllerImpl implements StageController {
 
     @Override public void updateAnimations() {
         final List<Animation> animations = ConnectorUtils.getAnimations();
-        final List<SVAnimation> svAnimations = new ArrayList<SVAnimation>();
+        final List<SVAnimation> svAnimations = new ArrayList<>();
         for (int i = 0; i < animations.size(); i++) {
             final Animation a = animations.get(i);
             svAnimations.add(new SVAnimation(ConnectorUtils.getAnimationUniqueID(a), animations.get(i)));

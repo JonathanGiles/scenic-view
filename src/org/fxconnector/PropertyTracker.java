@@ -44,7 +44,7 @@ import org.fxconnector.remote.util.ScenicViewExceptionLogger;
 @SuppressWarnings("rawtypes")
 public abstract class PropertyTracker {
 
-    Map<ObservableValue, String> properties = new HashMap<ObservableValue, String>();
+    Map<ObservableValue, String> properties = new HashMap<>();
     private final InvalidationListener propListener;
 
     public PropertyTracker() {

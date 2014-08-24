@@ -78,8 +78,8 @@ public class RuntimeAttach {
             final AppControllerImpl acontroller = new AppControllerImpl(appID, args[2]);
 
             final RemoteApplication application = new RemoteApplication() {
-                final List<StageControllerImpl> finded = new ArrayList<StageControllerImpl>();
-                final List<StageControllerImpl> controller = new ArrayList<StageControllerImpl>();
+                final List<StageControllerImpl> finded = new ArrayList<>();
+                final List<StageControllerImpl> controller = new ArrayList<>();
 
                 @Override public void update(final StageID id) {
                     Platform.runLater(() -> getSC(id).update());

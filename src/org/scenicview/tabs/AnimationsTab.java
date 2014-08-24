@@ -54,7 +54,7 @@ public class AnimationsTab extends Tab implements ContextMenuContainer {
     
     public static final String TAB_NAME = "Animations";
 
-    private final Map<Integer, List<SVAnimation>> appsAnimations = new HashMap<Integer, List<SVAnimation>>();
+    private final Map<Integer, List<SVAnimation>> appsAnimations = new HashMap<>();
 
     private static final Image PAUSE = DisplayUtils.getUIImage("pause.png");
 
@@ -111,23 +111,23 @@ public class AnimationsTab extends Tab implements ContextMenuContainer {
             box.prefWidthProperty().bind(pane.widthProperty());
             final ObservableList<SVAnimation> animationsItems = FXCollections.observableArrayList();
             animationsItems.addAll(animationsApp);
-            final TableView<SVAnimation> table = new TableView<SVAnimation>();
+            final TableView<SVAnimation> table = new TableView<>();
             table.setEditable(false);
             table.getStyleClass().add("animations-table-view");
-            final TableColumn<SVAnimation, String> sourceCol = new TableColumn<SVAnimation, String>("Animation ID");
+            final TableColumn<SVAnimation, String> sourceCol = new TableColumn<>("Animation ID");
             sourceCol.setCellValueFactory(new PropertyValueFactory<SVAnimation, String>("toString"));
             sourceCol.prefWidthProperty().bind(vbox.widthProperty().multiply(0.40));
-            final TableColumn<SVAnimation, String> rateCol = new TableColumn<SVAnimation, String>("Rate");
+            final TableColumn<SVAnimation, String> rateCol = new TableColumn<>("Rate");
             rateCol.setCellValueFactory(new PropertyValueFactory<SVAnimation, String>("rate"));
             rateCol.prefWidthProperty().bind(vbox.widthProperty().multiply(0.1));
-            final TableColumn<SVAnimation, String> cycleCountCol = new TableColumn<SVAnimation, String>("Cycle count");
+            final TableColumn<SVAnimation, String> cycleCountCol = new TableColumn<>("Cycle count");
             cycleCountCol.prefWidthProperty().bind(vbox.widthProperty().multiply(0.2));
 
             cycleCountCol.setCellValueFactory(new PropertyValueFactory<SVAnimation, String>("cycleCount"));
-            final TableColumn<SVAnimation, String> currentTimeCol = new TableColumn<SVAnimation, String>("Current time");
+            final TableColumn<SVAnimation, String> currentTimeCol = new TableColumn<>("Current time");
             currentTimeCol.setCellValueFactory(new PropertyValueFactory<SVAnimation, String>("currentTime"));
             currentTimeCol.prefWidthProperty().bind(vbox.widthProperty().multiply(0.20));
-            final TableColumn<SVAnimation, Integer> pauseCol = new TableColumn<SVAnimation, Integer>("");
+            final TableColumn<SVAnimation, Integer> pauseCol = new TableColumn<>("");
             pauseCol.setCellValueFactory(new PropertyValueFactory<SVAnimation, Integer>("id"));
             pauseCol.setCellFactory(new Callback<TableColumn<SVAnimation, Integer>, TableCell<SVAnimation, Integer>>() {
 

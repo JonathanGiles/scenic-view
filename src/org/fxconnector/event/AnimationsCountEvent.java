@@ -43,7 +43,7 @@ public class AnimationsCountEvent extends FXConnectorEvent {
      * 
      */
     private static final long serialVersionUID = 1245351064842340102L;
-    List<SVAnimation> animations = new ArrayList<SVAnimation>();
+    List<SVAnimation> animations = new ArrayList<>();
 
     public AnimationsCountEvent(final StageID id, final List<SVAnimation> animations) {
         super(SVEventType.ANIMATIONS_UPDATED, id);

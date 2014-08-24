@@ -53,7 +53,7 @@ public class SVDummyNode extends SVNodeImpl implements SVNode, Serializable {
      */
     private static final long serialVersionUID = 5879997163440845764L;
     private String name;
-    private final List<SVNode> childrens = new ArrayList<SVNode>();
+    private final List<SVNode> childrens = new ArrayList<>();
     private transient Image icon;
     private int nodeID;
     private byte[] imageInByte;

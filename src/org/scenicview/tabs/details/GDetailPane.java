@@ -69,8 +69,8 @@ public class GDetailPane extends TitledPane {
     public DetailPaneType type;
     public GridPane gridpane;
     static GDetail activeDetail;
-    List<Node> paneNodes = new ArrayList<Node>();
-    List<GDetail> details = new ArrayList<GDetail>();
+    List<Node> paneNodes = new ArrayList<>();
+    List<GDetail> details = new ArrayList<>();
     APILoader loader;
 
     public GDetailPane(ScenicViewGui scenicView, final DetailPaneType type, final String name, final APILoader loader) {

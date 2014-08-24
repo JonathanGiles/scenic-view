@@ -38,7 +38,7 @@ public class AppControllerImpl implements AppController {
     private static final String LOCAL_ID = "Local";
 
     private final String name;
-    private final List<StageController> stages = new ArrayList<StageController>();
+    private final List<StageController> stages = new ArrayList<>();
 
     private final int id;
 

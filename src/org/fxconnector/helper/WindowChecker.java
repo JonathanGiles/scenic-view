@@ -96,7 +96,7 @@ public abstract class WindowChecker extends WorkerThread {
         @SuppressWarnings("deprecation") final Iterator<Window> windows = Window.impl_getWindows();
         if (!windows.hasNext())
             return Collections.emptyList();
-        final List<Window> list = new ArrayList<Window>();
+        final List<Window> list = new ArrayList<>();
         while (windows.hasNext()) {
             final Window window = windows.next();
             if (filter.accept(window)) {

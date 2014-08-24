@@ -72,14 +72,14 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
 
     private static final long serialVersionUID = -8263538629805832734L;
 
-    private final Map<Integer, String> vmInfo = new HashMap<Integer, String>();
-    private final Map<String, RemoteApplication> applications = new HashMap<String, RemoteApplication>();
+    private final Map<Integer, String> vmInfo = new HashMap<>();
+    private final Map<String, RemoteApplication> applications = new HashMap<>();
     private FXConnectorEventDispatcher dispatcher;
-    private final List<FXConnectorEvent> previous = new ArrayList<FXConnectorEvent>();
+    private final List<FXConnectorEvent> previous = new ArrayList<>();
     private List<AppController> apps;
     private final AtomicInteger count = new AtomicInteger();
     private final int port;
-    private final List<String> attachError = new ArrayList<String>();
+    private final List<String> attachError = new ArrayList<>();
 
     private File agentFile;
 
@@ -260,7 +260,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
      * This method is periodically call to connect to remote VM that may have JavaFX Application running on them
      */
     @Override public List<AppController> connect() {
-        apps = new ArrayList<AppController>();
+        apps = new ArrayList<>();
         vmInfo.clear();
         final List<VirtualMachine> machines = getRunningJavaFXApplications();
         org.fxconnector.Debugger.debug(machines.size() + " JavaFX applications found");
@@ -368,9 +368,9 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
     private List<VirtualMachine> getRunningJavaFXApplications() {
         final List<VirtualMachineDescriptor> machines = VirtualMachine.list();
         org.fxconnector.Debugger.debug("Number of running Java applications found: " + machines.size());
-        final List<VirtualMachine> javaFXMachines = new ArrayList<VirtualMachine>();
+        final List<VirtualMachine> javaFXMachines = new ArrayList<>();
 
-        final Map<String, Properties> vmsProperties = new HashMap<String, Properties>(machines.size());
+        final Map<String, Properties> vmsProperties = new HashMap<>(machines.size());
         for (int i = 0; i < machines.size(); i++) {
             final VirtualMachineDescriptor vmd = machines.get(i);
             try {
@@ -468,7 +468,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
 
             // System.err.println("Cannot load the agent, ScenicView.jar not found here:" + tempf.getAbsolutePath());
         }
-        org.fxconnector.Debugger.debug("Loading agent from:" + tempf.getAbsolutePath());
+        org.fxconnector.Debugger.debug("Loading agent from: " + (tempf == null ? "null" : tempf.getAbsolutePath()));
         return tempf;
     }
 

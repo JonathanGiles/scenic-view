@@ -83,8 +83,8 @@ public class EventLogTab extends Tab implements ContextMenuContainer {
 
     private final ScenicViewGui scenicView;
     
-    private TableView<ScenicViewEvent> table = new TableView<ScenicViewEvent>();
-    private ChoiceBox<String> showStack = new ChoiceBox<String>();
+    private TableView<ScenicViewEvent> table = new TableView<>();
+    private ChoiceBox<String> showStack = new ChoiceBox<>();
     private CheckMenuItem activateTrace = new CheckMenuItem("Enable Event Tracing");
     private ObservableList<ScenicViewEvent> events = FXCollections.observableArrayList();
     private ObservableList<ScenicViewEvent> filteredEvents = FXCollections.observableArrayList();
@@ -114,19 +114,19 @@ public class EventLogTab extends Tab implements ContextMenuContainer {
         table.setEditable(false);
         table.getStyleClass().add("trace-text-area");
         final DoubleBinding size = vbox.widthProperty().subtract(MORE_INFO.getWidth() + 7).divide(4);
-        final TableColumn<ScenicViewEvent, String> sourceCol = new TableColumn<ScenicViewEvent, String>("source");
+        final TableColumn<ScenicViewEvent, String> sourceCol = new TableColumn<>("source");
         sourceCol.setCellValueFactory(new PropertyValueFactory<ScenicViewEvent, String>("source"));
         sourceCol.prefWidthProperty().bind(size);
-        final TableColumn<ScenicViewEvent, String> eventTypeCol = new TableColumn<ScenicViewEvent, String>("eventType");
+        final TableColumn<ScenicViewEvent, String> eventTypeCol = new TableColumn<>("eventType");
         eventTypeCol.setCellValueFactory(new PropertyValueFactory<ScenicViewEvent, String>("eventType"));
         eventTypeCol.prefWidthProperty().bind(size);
-        final TableColumn<ScenicViewEvent, String> eventValueCol = new TableColumn<ScenicViewEvent, String>("eventValue");
+        final TableColumn<ScenicViewEvent, String> eventValueCol = new TableColumn<>("eventValue");
         eventValueCol.prefWidthProperty().bind(size);
         eventValueCol.setCellValueFactory(new PropertyValueFactory<ScenicViewEvent, String>("eventValue"));
-        final TableColumn<ScenicViewEvent, String> momentCol = new TableColumn<ScenicViewEvent, String>("moment");
+        final TableColumn<ScenicViewEvent, String> momentCol = new TableColumn<>("moment");
         momentCol.setCellValueFactory(new PropertyValueFactory<ScenicViewEvent, String>("moment"));
         momentCol.prefWidthProperty().bind(size);
-        final TableColumn<ScenicViewEvent, StackTraceElement[]> moreInfoCol = new TableColumn<ScenicViewEvent, StackTraceElement[]>("info");
+        final TableColumn<ScenicViewEvent, StackTraceElement[]> moreInfoCol = new TableColumn<>("info");
         moreInfoCol.setCellValueFactory(new PropertyValueFactory<ScenicViewEvent, StackTraceElement[]>("stackTrace"));
         moreInfoCol.setCellFactory(new Callback<TableColumn<ScenicViewEvent, StackTraceElement[]>, TableCell<ScenicViewEvent, StackTraceElement[]>>() {
 
@@ -341,7 +341,7 @@ public class EventLogTab extends Tab implements ContextMenuContainer {
     }
 
     private void applyFilter() {
-        final List<ScenicViewEvent> events = new ArrayList<EventLogTab.ScenicViewEvent>();
+        final List<ScenicViewEvent> events = new ArrayList<>();
         for (int i = 0; i < EventLogTab.this.events.size(); i++) {
             if (validForFilter(EventLogTab.this.events.get(i))) {
                 events.add(EventLogTab.this.events.get(i));

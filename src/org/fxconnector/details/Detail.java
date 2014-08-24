@@ -102,14 +102,14 @@ public class Detail implements Serializable {
     private double minValue;
     private String realValue;
     private boolean hasGridConstraints;
-    private final List<GridConstraintsDetail> gridConstraintsDetails = new ArrayList<GridConstraintsDetail>();
+    private final List<GridConstraintsDetail> gridConstraintsDetails = new ArrayList<>();
 
     public Detail(final FXConnectorEventDispatcher dispatcher, final StageID stageID, final DetailPaneType detailType, final int detailID) {
         this.dispatcher = dispatcher;
         this.stageID = stageID;
         this.detailType = detailType;
         this.detailID = detailID;
-        this.details = new ArrayList<Detail>(1);
+        this.details = new ArrayList<>(1);
         details.add(this);
 
     }

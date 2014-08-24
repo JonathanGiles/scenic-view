@@ -247,7 +247,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
          * Create the main root which will not be visible
          */
         if (apps == null) {
-            apps = new TreeItem<SVNode>(new SVDummyNode("Apps", "Java", 0, NodeType.VMS_ROOT));
+            apps = new TreeItem<>(new SVDummyNode("Apps", "Java", 0, NodeType.VMS_ROOT));
             apps.setExpanded(true);
         }
         TreeItem<SVNode> app = null;
@@ -267,7 +267,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
          */
         if (app == null) {
             final SVNode dummy = new SVDummyNode("VM - " + controller.getAppController(), "Java", controller.getAppController().getID(), NodeType.VM);
-            app = new TreeItem<SVNode>(dummy, new ImageView(DisplayUtils.getIcon(dummy)));
+            app = new TreeItem<>(dummy, new ImageView(DisplayUtils.getIcon(dummy)));
             app.setExpanded(false);
             this.apps.getChildren().add(app);
         }
@@ -327,7 +327,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
      */
     void patchRoot(final TreeItem<SVNode> realNode) {
         this.patchedNode = realNode;
-        final TreeItem<SVNode> real = new TreeItem<SVNode>(realNode.getValue(), realNode.getGraphic());
+        final TreeItem<SVNode> real = new TreeItem<>(realNode.getValue(), realNode.getGraphic());
         real.getChildren().addAll(realNode.getChildren());
         setRoot(real);
     }
@@ -599,7 +599,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         final ImageView graphic = new ImageView(DisplayUtils.getIcon(node));
         graphic.setFitHeight(16);
         graphic.setFitWidth(16);
-        final TreeItem<SVNode> treeItem = new TreeItem<SVNode>(node, graphic);
+        final TreeItem<SVNode> treeItem = new TreeItem<>(node, graphic);
         if (node.equals(scenicView.getSelectedNode())) {
             previouslySelectedItem = treeItem;
         }
@@ -610,7 +610,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
          */
         treeViewData.put(node, treeItem);
 
-        final List<TreeItem<SVNode>> childItems = new ArrayList<TreeItem<SVNode>>();
+        final List<TreeItem<SVNode>> childItems = new ArrayList<>();
         for (final SVNode child : node.getChildren()) {
             childItems.add(createTreeItem(child, showNodesIdInTree, showFilteredNodesInTree));
         }

@@ -41,7 +41,7 @@ import org.scenicview.utils.PropertiesUtils;
 class Persistence {
 
     private static Properties properties;// = PropertiesUtils.loadProperties();
-    private static final Map<String, Object> persistentComponents = new HashMap<String, Object>();
+    private static final Map<String, Object> persistentComponents = new HashMap<>();
 
     static void loadProperties() {
         properties = PropertiesUtils.getProperties();

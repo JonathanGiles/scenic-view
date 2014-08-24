@@ -47,7 +47,7 @@ import com.sun.javafx.scene.control.skin.CustomColorDialog;
 
 public class RulerConfigurationMenuItem extends MenuItem {
 
-    ObjectProperty<Color> color = new SimpleObjectProperty<Color>();
+    ObjectProperty<Color> color = new SimpleObjectProperty<>();
     IntegerProperty rulerSeparation = new SimpleIntegerProperty(10);
 
     public RulerConfigurationMenuItem() {

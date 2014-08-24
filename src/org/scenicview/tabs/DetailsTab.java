@@ -65,7 +65,7 @@ public class DetailsTab extends Tab implements ContextMenuContainer {
     
     public static final String TAB_NAME = "Details";
 
-    List<GDetailPane> gDetailPanes = new ArrayList<GDetailPane>();
+    List<GDetailPane> gDetailPanes = new ArrayList<>();
 
     public static boolean showDefaultProperties = true;
     

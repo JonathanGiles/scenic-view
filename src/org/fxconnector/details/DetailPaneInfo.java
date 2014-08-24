@@ -63,7 +63,7 @@ abstract class DetailPaneInfo {
     private final DetailPaneType type;
     private int id;
     private final StageID stageID;
-    protected final List<Detail> details = new ArrayList<Detail>();
+    protected final List<Detail> details = new ArrayList<>();
 
     DetailPaneInfo(final FXConnectorEventDispatcher dispatcher, final StageID stageID, final DetailPaneType type) {
         this.dispatcher = dispatcher;

@@ -68,7 +68,7 @@ public class ExceptionLogger implements Thread.UncaughtExceptionHandler {
         // no-op
     }
     
-    public void uncaughtException(final Thread t, final Throwable e) {
+    @Override public void uncaughtException(final Thread t, final Throwable e) {
         ExceptionLogger.submitException(e);
     }
 

@@ -152,7 +152,7 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
     // This is what pushes the events to Scenic View
     class RemoteDispatcher extends Thread {
         boolean running = true;
-        List<FXConnectorEvent> events = new LinkedList<FXConnectorEvent>();
+        List<FXConnectorEvent> events = new LinkedList<>();
         
         {
             // we don't want to keep the application running needlessly

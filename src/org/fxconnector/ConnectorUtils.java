@@ -64,7 +64,7 @@ public class ConnectorUtils {
 
     static final DecimalFormat df = new DecimalFormat("0.0");
 
-    static final Map<Class<?>, String> classNames = new ConcurrentHashMap<Class<?>, String>();
+    static final Map<Class<?>, String> classNames = new ConcurrentHashMap<>();
 
     private ConnectorUtils() {
     }
@@ -187,7 +187,7 @@ public class ConnectorUtils {
         if (value.length() == 0)
             return Collections.emptyMap();
         int pos = 0;
-        final Map<String, Object> map = new HashMap<String, Object>();
+        final Map<String, Object> map = new HashMap<>();
         do {
             final int next = value.indexOf(':', pos);
             String temp;
@@ -211,7 +211,7 @@ public class ConnectorUtils {
     }
 
     public static List<Animation> getAnimations() {
-        final List<Animation> animationList = new ArrayList<Animation>();
+        final List<Animation> animationList = new ArrayList<>();
         
         // FIXME disabled as JavaFX 8.0 has removed the AnimationPulseReceiver class
         

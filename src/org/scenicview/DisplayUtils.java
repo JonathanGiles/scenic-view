@@ -46,7 +46,7 @@ import org.fxconnector.node.SVNode;
 public class DisplayUtils {
 
     private static final String CUSTOM_NODE_IMAGE = DisplayUtils.getNodeIcon("CustomNode").toString();
-    private static final Map<String, Image> loadedImages = new HashMap<String, Image>();
+    private static final Map<String, Image> loadedImages = new HashMap<>();
 
     public static DecimalFormat DFMT = new DecimalFormat("0.0#");
     private static Level wLevel;

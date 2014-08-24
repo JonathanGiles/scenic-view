@@ -45,7 +45,6 @@ import javafx.stage.Stage;
 import org.fxconnector.AppController;
 import org.fxconnector.AppControllerImpl;
 import org.fxconnector.StageControllerImpl;
-import org.fxconnector.remote.FXConnector;
 import org.fxconnector.remote.FXConnectorFactory;
 import org.scenicview.update.DummyUpdateStrategy;
 import org.scenicview.update.RemoteVMsUpdateStrategy;
@@ -108,7 +107,7 @@ public class ScenicView extends Application {
     }
 
     private static List<AppController> buildAppController(final Parent target) {
-        final List<AppController> controllers = new ArrayList<AppController>();
+        final List<AppController> controllers = new ArrayList<>();
         if (target != null) {
             final AppController aController = new AppControllerImpl();
             final boolean sceneRoot = target.getScene().getRoot() == target;

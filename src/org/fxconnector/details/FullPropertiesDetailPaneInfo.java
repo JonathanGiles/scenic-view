@@ -89,7 +89,7 @@ class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
 
     @SuppressWarnings("unchecked") private void createPropertiesPanel() {
         final Node node = (Node) getTarget();
-        styles = new HashMap<WritableValue, String>();
+        styles = new HashMap<>();
         details.clear();
         if (node != null) {
             final List<CssMetaData<? extends Styleable, ?>> list = node.getCssMetaData();
@@ -100,8 +100,8 @@ class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
             }
         }
 
-        orderedProperties = new TreeMap<String, ObservableValue>();
-        fullPropertiesDetails = new HashMap<String, Detail>();
+        orderedProperties = new TreeMap<>();
+        fullPropertiesDetails = new HashMap<>();
         final Map<ObservableValue, String> properties = tracker.getProperties();
         for (final Iterator<ObservableValue> iterator = properties.keySet().iterator(); iterator.hasNext();) {
             final ObservableValue type = iterator.next();

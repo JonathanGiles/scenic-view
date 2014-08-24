@@ -52,7 +52,7 @@ class StatusBar extends HBox {
     private final Label sceneMousePosText;
     private final Label nodeCountText;
     private final Label statusLabel = createValueLabel(null);
-    private final List<Node> standardNodes = new ArrayList<Node>();
+    private final List<Node> standardNodes = new ArrayList<>();
     private Timeline clearTimeout;
 
     StatusBar() {

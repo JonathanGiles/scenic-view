@@ -154,7 +154,7 @@ public class ScenicViewGui {
     
 
     public final Configuration configuration = new Configuration();
-    private final List<FXConnectorEvent> eventQueue = new LinkedList<FXConnectorEvent>();
+    private final List<FXConnectorEvent> eventQueue = new LinkedList<>();
 
     private UpdateStrategy updateStrategy;
     private long lastMousePosition;
@@ -368,7 +368,7 @@ public class ScenicViewGui {
         searchBar.add(propertyFilterField, column++, 1);
 
         // create filters for nodes
-        activeNodeFilters = new ArrayList<NodeFilter>();
+        activeNodeFilters = new ArrayList<>();
 
         /**
          * Create a filter for our own nodes

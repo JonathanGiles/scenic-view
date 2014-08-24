@@ -82,7 +82,7 @@ public class StyleSheetRefresher extends WorkerThread {
                 }
             }
             if (needsRefresh) {
-                final List<String> styleSheets = new ArrayList<String>(sheets);
+                final List<String> styleSheets = new ArrayList<>(sheets);
                 Platform.runLater(new Runnable() {
 
                     @Override public void run() {

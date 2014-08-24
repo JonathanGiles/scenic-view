@@ -51,7 +51,7 @@ public class RuleGrid extends Path {
     public void updateSeparation(final double separation) {
         double x = separation;
         double y = 0;
-        final List<PathElement> pElements = new ArrayList<PathElement>();
+        final List<PathElement> pElements = new ArrayList<>();
         getElements().clear();
         while (y < height) {
             pElements.add(new MoveTo(0, y));
