@@ -31,7 +31,7 @@
  */
 package org.scenicview.utils.attach;
 
-import static org.scenicview.utils.ScenicView.JDK_PATH_KEY;
+import static org.scenicview.ScenicView.JDK_PATH_KEY;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -47,9 +47,9 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
 import org.fxconnector.Debugger;
+import org.scenicview.ScenicView;
 import org.scenicview.utils.ExceptionLogger;
 import org.scenicview.utils.PropertiesUtils;
-import org.scenicview.utils.ScenicView;
 import org.scenicview.utils.ScenicViewDebug;
 import org.scenicview.utils.Utils;
 

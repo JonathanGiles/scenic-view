@@ -43,9 +43,9 @@ sourceSets {
 jar {
     manifest {
         attributes(
-            'Main-Class': 'org.scenicview.utils.ScenicView',            /* Used for standalone Scenic View */
-            'Agent-Class': 'org.fxconnector.remote.RuntimeAttach',      /* But the standalone Scenic View starts up this agent when in runtime attach mode */
-            'Premain-Class': 'org.scenicview.utils.ScenicView'          /* Alternatively, this will be called if Scenic View is started as an agent */
+            'Main-Class': 'org.scenicview.ScenicView',            /* Used for standalone Scenic View */
+            'Agent-Class': 'org.fxconnector.remote.RuntimeAttach',/* But the standalone Scenic View starts up this agent when in runtime attach mode */
+            'Premain-Class': 'org.scenicview.ScenicView'          /* Alternatively, this will be called if Scenic View is started as an agent */
         )
     }
 }

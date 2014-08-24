@@ -29,7 +29,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.scenicview.utils;
+package org.scenicview;
 
 import java.lang.instrument.Instrumentation;
 import java.rmi.RemoteException;
@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -46,10 +47,13 @@ import org.fxconnector.AppControllerImpl;
 import org.fxconnector.StageControllerImpl;
 import org.fxconnector.remote.FXConnector;
 import org.fxconnector.remote.FXConnectorFactory;
-import org.scenicview.ScenicViewGui;
 import org.scenicview.update.DummyUpdateStrategy;
 import org.scenicview.update.RemoteVMsUpdateStrategy;
+import org.scenicview.utils.ExceptionLogger;
+import org.scenicview.utils.ScenicViewDebug;
 import org.scenicview.utils.attach.AttachHandlerFactory;
+
+import com.sun.javafx.tk.Toolkit;
 
 /**
  * This is the entry point for all different versions of Scenic View.
@@ -123,7 +127,20 @@ public class ScenicView extends Application {
      * 
      *************************************************************************/
     public static void premain(final String agentArgs, final Instrumentation instrumentation) {
-        launch(agentArgs);
+        // we start up a new thread to take care of initialising Scenic View
+        // so that we don't block the loading of the actual application.
+        Thread scenicViewBootThread = new Thread(() -> {
+            Toolkit tk = Toolkit.getToolkit();   
+            Platform.runLater(() -> {
+                try {
+                    new ScenicView().start(new Stage());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }, "scenic-view-boot");
+        scenicViewBootThread.setDaemon(true);
+        scenicViewBootThread.start();
     }
 
     public static void main(final String[] args) {

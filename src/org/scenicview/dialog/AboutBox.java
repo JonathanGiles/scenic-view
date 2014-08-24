@@ -31,9 +31,9 @@
  */
 package org.scenicview.dialog;
 
-import org.scenicview.utils.ScenicView;
 import org.scenicview.utils.PropertiesUtils;
 import org.scenicview.DisplayUtils;
+import org.scenicview.ScenicView;
 import org.scenicview.ScenicViewGui;
 
 import java.util.Properties;
