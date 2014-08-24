@@ -171,7 +171,7 @@ public class ScenicView extends Application {
         }
 
         AttachHandlerFactory.initAttachAPI(stage);
-        System.setProperty(FXConnector.SCENIC_VIEW_VM, "true");
+//        System.setProperty(FXConnector.SCENIC_VIEW_VM, "true");
         startup();
 
         setUserAgentStylesheet(STYLESHEET_MODENA);

@@ -378,7 +378,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                 org.fxconnector.Debugger.debug("Obtaining properties for Java application with PID:" + virtualMachine.id());
                 final Properties sysPropertiesMap = virtualMachine.getSystemProperties();
                 vmsProperties.put(virtualMachine.id(), sysPropertiesMap);
-                if (sysPropertiesMap != null && sysPropertiesMap.containsKey(JAVAFX_SYSTEM_PROPERTIES_KEY) && !sysPropertiesMap.containsKey(SCENIC_VIEW_VM)) {
+                if (sysPropertiesMap != null && sysPropertiesMap.containsKey(JAVAFX_SYSTEM_PROPERTIES_KEY)/* && !sysPropertiesMap.containsKey(SCENIC_VIEW_VM)*/) {
                     javaFXMachines.add(virtualMachine);
                 } else {
                     virtualMachine.detach();
