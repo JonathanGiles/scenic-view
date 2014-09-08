@@ -33,7 +33,7 @@ import org.fxconnector.AppControllerImpl;
 import org.fxconnector.StageControllerImpl;
 import org.fxconnector.remote.FXConnectorFactory;
 import org.scenicview.model.attach.AttachHandlerFactory;
-import org.scenicview.model.update.DummyUpdateStrategy;
+import org.scenicview.model.update.LocalUpdateStrategy;
 import org.scenicview.model.update.RemoteVMsUpdateStrategy;
 import org.scenicview.utils.ExceptionLogger;
 import org.scenicview.utils.Logger;
@@ -81,29 +81,31 @@ public class ScenicView extends Application {
     }
 
     public static void show(final Parent target) {
+        if (target == null) {
+            return;
+        }
+        
         startup();
 
         final Stage stage = new Stage();
+        
         // workaround for RT-10714
         stage.setWidth(1024);
         stage.setHeight(768);
         stage.setTitle("Scenic View v" + ScenicViewGui.VERSION);
-        final DummyUpdateStrategy updateStrategy = new DummyUpdateStrategy(buildAppController(target));
+        
+        final List<AppController> controllers = new ArrayList<>();
+        final AppController aController = new AppControllerImpl();
+        final boolean sceneRoot = target.getScene().getRoot() == target;
+        final StageControllerImpl sController = new StageControllerImpl(target, aController, sceneRoot);
+
+        aController.getStages().add(sController);
+        controllers.add(aController);
+        
+        final LocalUpdateStrategy updateStrategy = new LocalUpdateStrategy(controllers);
         ScenicViewGui.show(new ScenicViewGui(updateStrategy, stage), stage);
     }
 
-    private static List<AppController> buildAppController(final Parent target) {
-        final List<AppController> controllers = new ArrayList<>();
-        if (target != null) {
-            final AppController aController = new AppControllerImpl();
-            final boolean sceneRoot = target.getScene().getRoot() == target;
-            final StageControllerImpl sController = new StageControllerImpl(target, aController, sceneRoot);
-
-            aController.getStages().add(sController);
-            controllers.add(aController);
-        }
-        return controllers;
-    }
 
     /**************************************************************************
      *

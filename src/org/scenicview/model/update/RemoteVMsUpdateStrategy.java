@@ -33,7 +33,7 @@ public class RemoteVMsUpdateStrategy extends WorkerThread implements UpdateStrat
     private FXConnector connector;
     
     AppsRepository repository;
-    List<AppController> previous = new ArrayList<AppController>();
+    List<AppController> previous = new ArrayList<>();
 
     public RemoteVMsUpdateStrategy() {
         super(RemoteVMsUpdateStrategy.class.getName(), 500);
@@ -76,7 +76,7 @@ public class RemoteVMsUpdateStrategy extends WorkerThread implements UpdateStrat
         boolean modifications = false;
         final List<AppController> actualApps = getActiveApps();
         
-        final List<StageController> unused = new ArrayList<StageController>();
+        final List<StageController> unused = new ArrayList<>();
         for (int i = 0; i < actualApps.size(); i++) {
             unused.addAll(actualApps.get(i).getStages());
         }

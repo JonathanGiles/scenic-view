@@ -34,9 +34,6 @@ import org.fxconnector.helper.ChildrenGetter;
 
 class SVRemoteNodeAdapter extends SVNodeImpl implements Serializable {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = -5972848763525174505L;
     private String id;
     private int nodeId;
@@ -45,10 +42,6 @@ class SVRemoteNodeAdapter extends SVNodeImpl implements Serializable {
     private boolean focused;
     private List<SVNode> nodes;
     private SVRemoteNodeAdapter parent;
-
-    public SVRemoteNodeAdapter() {
-        super();
-    }
 
     public SVRemoteNodeAdapter(final Node node, final boolean collapseControls, final boolean collapseContentControls) {
         this(node, collapseControls, collapseContentControls, true, null);

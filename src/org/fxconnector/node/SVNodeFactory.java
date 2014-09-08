@@ -27,7 +27,7 @@ import org.fxconnector.Configuration;
 public class SVNodeFactory {
 
     private SVNodeFactory() {
-        // TODO Auto-generated constructor stub
+        // no-op
     }
 
     public static SVNode createNode(final Node node, final Configuration configuration, final boolean remote) {

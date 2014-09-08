@@ -69,6 +69,7 @@ import org.fxconnector.gui.ComponentHighLighter;
 import org.fxconnector.gui.RuleGrid;
 import org.fxconnector.helper.ChildrenGetter;
 import org.fxconnector.helper.StyleSheetRefresher;
+import org.fxconnector.helper.SubWindowChecker;
 import org.fxconnector.node.NodeType;
 import org.fxconnector.node.SVDummyNode;
 import org.fxconnector.node.SVNode;
@@ -91,7 +92,7 @@ public class StageControllerImpl implements StageController {
     /**
      * Simplification for now, only a plain structure for now
      */
-    final List<PopupWindow> popupWindows = new ArrayList<>();
+    public final List<PopupWindow> popupWindows = new ArrayList<>();
 
     private final Rectangle boundsInParentRect;
     private final Rectangle layoutBoundsRect;
@@ -287,10 +288,12 @@ public class StageControllerImpl implements StageController {
          */
         setTargetWindow(null);
         updateListeners(target, false, true);
-        if (refresher != null)
+        if (refresher != null) {
             refresher.finish();
-        if (windowChecker != null)
+        }
+        if (windowChecker != null) { 
             windowChecker.finish();
+        }
         dispatcher = null;
     }
 
@@ -497,10 +500,12 @@ public class StageControllerImpl implements StageController {
             final boolean canBeRefreshed = StyleSheetRefresher.canStylesBeRefreshed(targetScene);
 
             if (refresher == null || refresher.getScene() != value) {
-                if (refresher != null)
+                if (refresher != null) {
                     refresher.finish();
-                if (canBeRefreshed && configuration.isAutoRefreshStyles())
+                }
+                if (canBeRefreshed && configuration.isAutoRefreshStyles()) {
                     startRefresher();
+                }
             }
         }
         updateSceneDetails();

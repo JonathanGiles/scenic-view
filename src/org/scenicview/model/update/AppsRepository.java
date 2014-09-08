@@ -29,7 +29,7 @@ import org.scenicview.view.ScenicViewGui;
 
 public final class AppsRepository {
     
-    private final List<AppController> apps = new ArrayList<AppController>();
+    private final List<AppController> apps = new ArrayList<>();
     private final ScenicViewGui scenicView;
     
     public AppsRepository(ScenicViewGui scenicView) {
@@ -40,7 +40,7 @@ public final class AppsRepository {
         return apps;
     }
 
-    int findAppControllerIndex(final int appID) {
+    private int findAppControllerIndex(final int appID) {
         for (int i = 0; i < apps.size(); i++) {
             if (apps.get(i).getID() == appID) {
                 return i;
@@ -49,7 +49,7 @@ public final class AppsRepository {
         return -1;
     }
 
-    int findStageIndex(final List<StageController> stages, final int stageID) {
+    private int findStageIndex(final List<StageController> stages, final int stageID) {
         for (int i = 0; i < stages.size(); i++) {
             if (stages.get(i).getID().getStageID() == stageID) {
                 return i;

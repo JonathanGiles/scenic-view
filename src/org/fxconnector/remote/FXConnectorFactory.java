@@ -24,6 +24,7 @@ public class FXConnectorFactory {
     static FXConnector connector;
 
     private FXConnectorFactory() {
+        // no-op
     }
 
     public static synchronized FXConnector getConnector() throws RemoteException {

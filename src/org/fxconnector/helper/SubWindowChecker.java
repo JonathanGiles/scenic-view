@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- package org.fxconnector;
+ package org.fxconnector.helper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,16 +27,14 @@ import javafx.application.Platform;
 import javafx.stage.PopupWindow;
 import javafx.stage.Window;
 
-import org.fxconnector.helper.WindowChecker;
+import org.fxconnector.StageControllerImpl;
 
-@SuppressWarnings("rawtypes")
-class SubWindowChecker extends WindowChecker {
+public class SubWindowChecker extends WindowChecker {
 
     StageControllerImpl model;
 
     public SubWindowChecker(final StageControllerImpl model) {
         super(new WindowFilter() {
-
             @Override public boolean accept(final Window window) {
                 return window instanceof PopupWindow;
             }
@@ -44,9 +42,9 @@ class SubWindowChecker extends WindowChecker {
         this.model = model;
     }
 
-    Map<PopupWindow, Map> previousTree = new HashMap<PopupWindow, Map>();
-    List<PopupWindow> windows = new ArrayList<PopupWindow>();
-    final Map<PopupWindow, Map> tree = new HashMap<PopupWindow, Map>();
+    Map<PopupWindow, Map> previousTree = new HashMap<>();
+    List<PopupWindow> windows = new ArrayList<>();
+    final Map<PopupWindow, Map> tree = new HashMap<>();
 
     @Override protected void onWindowsFound(final List<Window> tempPopups) {
         tree.clear();
@@ -62,7 +60,7 @@ class SubWindowChecker extends WindowChecker {
         if (!tree.equals(previousTree)) {
             previousTree.clear();
             previousTree.putAll(tree);
-            final List<PopupWindow> actualWindows = new ArrayList<PopupWindow>(windows);
+            final List<PopupWindow> actualWindows = new ArrayList<>(windows);
             Platform.runLater(new Runnable() {
 
                 @Override public void run() {

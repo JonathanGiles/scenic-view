@@ -24,11 +24,11 @@ import org.fxconnector.AppController;
 /**
  * This strategy will be used when we are showing only one stage
  */
-public class DummyUpdateStrategy implements UpdateStrategy {
+public class LocalUpdateStrategy implements UpdateStrategy {
 
     List<AppController> controller;
 
-    public DummyUpdateStrategy(final List<AppController> controller) {
+    public LocalUpdateStrategy(final List<AppController> controller) {
         this.controller = controller;
     }
 
