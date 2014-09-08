@@ -42,7 +42,7 @@ import javafx.stage.Window;
 
 import org.fxconnector.helper.ChildrenGetter;
 import org.fxconnector.node.SVNode;
-import org.fxconnector.remote.util.ScenicViewExceptionLogger;
+import org.scenicview.utils.ExceptionLogger;
 
 public class ConnectorUtils {
 
@@ -87,7 +87,7 @@ public class ConnectorUtils {
         try {
             return df.parse(data).doubleValue();
         } catch (final ParseException e) {
-            ScenicViewExceptionLogger.submitException(e);
+            ExceptionLogger.submitException(e);
             return 10;
         }
     }

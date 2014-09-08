@@ -19,37 +19,16 @@ package org.scenicview.utils;
 
 import java.io.File;
 import java.net.*;
-import java.util.logging.*;
 
-/**
- * 
- */
 public class Utils {
-    public static URI encodePath(final String path) {
-        try {
-            @SuppressWarnings("deprecation") final URL url = new File(path).toURL();
-            return new URI(url.getProtocol(), url.getHost(), url.getPath(), null);
-        } catch (final URISyntaxException ex) {
-            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (final MalformedURLException ex) {
-            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
 
     public static boolean checkPath(final String path) {
-//        try {
-            if (path != null && !path.equals("")) {
-                File file = new File(path);
-                if (file.exists()) {
-                    return true;
-//                } else if (new File(new URI(path)).exists()) {
-//                    return true;
-                }
+        if (path != null && !path.equals("")) {
+            File file = new File(path);
+            if (file.exists()) {
+                return true;
             }
-//        } catch (final URISyntaxException e) {
-//            ExceptionLogger.submitException(e);
-//        }
+        }
         return false;
     }
 
@@ -65,4 +44,15 @@ public class Utils {
         }
     }
 
+    private static URI encodePath(final String path) {
+        try {
+            @SuppressWarnings("deprecation") final URL url = new File(path).toURL();
+            return new URI(url.getProtocol(), url.getHost(), url.getPath(), null);
+        } catch (final URISyntaxException ex) {
+            ex.printStackTrace();
+        } catch (final MalformedURLException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
 }

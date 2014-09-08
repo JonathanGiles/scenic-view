@@ -28,12 +28,9 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.Properties;
 
-import org.scenicview.ScenicViewGui;
-import org.scenicview.dialog.SubmitExceptionDialog;
+import org.scenicview.view.ScenicViewGui;
+import org.scenicview.view.dialog.SubmitExceptionDialog;
 
-/**
- *
- */
 public class ExceptionLogger implements Thread.UncaughtExceptionHandler {
     private static final boolean EXCEPTION_LOGGING_ENABLED = false;
     private static final String SUBMIT_EXCEPTIONS_KEY = "submitExceptions";

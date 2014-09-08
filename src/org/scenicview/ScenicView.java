@@ -32,11 +32,12 @@ import org.fxconnector.AppController;
 import org.fxconnector.AppControllerImpl;
 import org.fxconnector.StageControllerImpl;
 import org.fxconnector.remote.FXConnectorFactory;
-import org.scenicview.update.DummyUpdateStrategy;
-import org.scenicview.update.RemoteVMsUpdateStrategy;
+import org.scenicview.model.attach.AttachHandlerFactory;
+import org.scenicview.model.update.DummyUpdateStrategy;
+import org.scenicview.model.update.RemoteVMsUpdateStrategy;
 import org.scenicview.utils.ExceptionLogger;
-import org.scenicview.utils.ScenicViewDebug;
-import org.scenicview.utils.attach.AttachHandlerFactory;
+import org.scenicview.utils.Logger;
+import org.scenicview.view.ScenicViewGui;
 
 import com.sun.javafx.tk.Toolkit;
 
@@ -62,8 +63,7 @@ public class ScenicView extends Application {
      *************************************************************************/
 
     private static void activateDebug() {
-        org.fxconnector.Debugger.setDebug(debug);
-        ScenicViewDebug.setDebug(debug);
+        Logger.setEnabled(debug);
     }
 
     private static void startup() {
@@ -151,7 +151,7 @@ public class ScenicView extends Application {
             // Fatal error - JavaFX should be on the classpath for all users
             // of Java 8.0 and above (which is what Scenic View 8.0 and above
             // targets.
-            ScenicViewDebug.print("Error: JavaFX not found");
+            Logger.print("Error: JavaFX not found");
             System.exit(-1);
         }
 
@@ -167,12 +167,12 @@ public class ScenicView extends Application {
         stage.setWidth(1024);
         stage.setHeight(768);
         stage.setTitle("Scenic View v" + ScenicViewGui.VERSION);
-        org.fxconnector.Debugger.debug("Platform running");
-        org.fxconnector.Debugger.debug("Launching ScenicView v" + ScenicViewGui.VERSION);
+        Logger.print("Platform running");
+        Logger.print("Launching ScenicView v" + ScenicViewGui.VERSION);
         ScenicViewGui view = new ScenicViewGui(strategy, stage);
         ScenicViewGui.show(view, stage);
 
-        org.fxconnector.Debugger.debug("Startup done");
+        Logger.print("Startup done");
         while (view == null) {
             try {
                 Thread.sleep(500);
@@ -181,12 +181,12 @@ public class ScenicView extends Application {
             }
         }
 
-        org.fxconnector.Debugger.debug("Creating server");
+        Logger.print("Creating server");
         try {
             strategy.setFXConnector(FXConnectorFactory.getConnector());
         } catch (final RemoteException e1) {
             ExceptionLogger.submitException(e1);
         }
-        org.fxconnector.Debugger.debug("Server done");
+        Logger.print("Server done");
     }
 }

@@ -21,11 +21,11 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.scenicview.utils.ExceptionLogger;
+
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.value.ObservableValue;
-
-import org.fxconnector.remote.util.ScenicViewExceptionLogger;
 
 @SuppressWarnings("rawtypes")
 public abstract class PropertyTracker {
@@ -67,7 +67,7 @@ public abstract class PropertyTracker {
                         properties.put(property, propertyName);
                     }
                 } catch (final Exception e) {
-                    ScenicViewExceptionLogger.submitException(e, "Failed to get property " + method.getName());
+                    ExceptionLogger.submitException(e, "Failed to get property " + method.getName());
                 }
             }
         }

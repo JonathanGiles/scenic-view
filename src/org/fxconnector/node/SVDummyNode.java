@@ -24,13 +24,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+
+import org.scenicview.utils.ExceptionLogger;
+
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
-
-import javax.imageio.ImageIO;
-
-import org.fxconnector.remote.util.ScenicViewExceptionLogger;
 
 public class SVDummyNode extends SVNodeImpl implements SVNode, Serializable {
 
@@ -122,7 +122,7 @@ public class SVDummyNode extends SVNodeImpl implements SVNode, Serializable {
                 icon = convertToFxImage(image);
                 imageInByte = null;
             } catch (final Exception e) {
-                ScenicViewExceptionLogger.submitException(e);
+                ExceptionLogger.submitException(e);
             }
         }
         return icon;
@@ -141,7 +141,7 @@ public class SVDummyNode extends SVNodeImpl implements SVNode, Serializable {
                 imageInByte = baos.toByteArray();
                 baos.close();
             } catch (final Exception e) {
-                ScenicViewExceptionLogger.submitException(e);
+                ExceptionLogger.submitException(e);
             }
         }
     }

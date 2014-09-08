@@ -19,6 +19,8 @@ package org.fxconnector.details;
 
 import java.lang.reflect.Method;
 
+import org.scenicview.utils.ExceptionLogger;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
@@ -27,8 +29,6 @@ import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.WritableValue;
 import javafx.scene.paint.Color;
-
-import org.fxconnector.remote.util.ScenicViewExceptionLogger;
 
 @SuppressWarnings("rawtypes")
 class SimpleSerializer implements WritableValue<String> {
@@ -86,7 +86,7 @@ class SimpleSerializer implements WritableValue<String> {
                 }
                 return sValues;
             } catch (final Exception e) {
-                ScenicViewExceptionLogger.submitException(e);
+                ExceptionLogger.submitException(e);
                 return null;
             }
         } else if (property instanceof BooleanProperty) {

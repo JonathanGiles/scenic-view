@@ -17,7 +17,7 @@
  */
 package org.fxconnector.helper;
 
-import org.fxconnector.remote.util.ScenicViewExceptionLogger;
+import org.scenicview.utils.ExceptionLogger;
 
 public abstract class WorkerThread extends Thread {
 
@@ -42,7 +42,7 @@ public abstract class WorkerThread extends Thread {
                 work();
             } catch (final Exception e) {
                 if (running) {
-                    ScenicViewExceptionLogger.submitException(e);
+                    ExceptionLogger.submitException(e);
                 }
             }
             sleepTime = this.sleepTime;

@@ -23,6 +23,8 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
+import org.scenicview.utils.Logger;
+
 class RMIUtils {
 
     private static AtomicInteger rmiPort = new AtomicInteger(7557);
@@ -79,7 +81,7 @@ class RMIUtils {
 
                 while (scenicView == null) {
                     try {
-                        org.fxconnector.Debugger.debug("Finding " + REMOTE_CONNECTOR + " connection for agent...");
+                        Logger.print("Finding " + REMOTE_CONNECTOR + " connection for agent...");
                         scenicView = findScenicView("127.0.0.1", port);
                         if (scenicView == null) {
                             sleep(50);

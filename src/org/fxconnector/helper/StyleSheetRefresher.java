@@ -17,10 +17,11 @@
  */
 package org.fxconnector.helper;
 
-import org.fxconnector.remote.util.ScenicViewExceptionLogger;
 import java.io.File;
 import java.net.URL;
 import java.util.*;
+
+import org.scenicview.utils.ExceptionLogger;
 
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -79,7 +80,7 @@ public class StyleSheetRefresher extends WorkerThread {
                 });
             }
         } catch (final Exception e) {
-            ScenicViewExceptionLogger.submitException(e);
+            ExceptionLogger.submitException(e);
         }
     }
 

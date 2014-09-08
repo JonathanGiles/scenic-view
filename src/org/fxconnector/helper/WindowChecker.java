@@ -25,21 +25,17 @@ import java.util.List;
 import javafx.stage.Window;
 
 import org.fxconnector.StageController;
-import org.fxconnector.remote.util.ScenicViewExceptionLogger;
+import org.scenicview.utils.ExceptionLogger;
+import org.scenicview.utils.Logger;
 
 public abstract class WindowChecker extends WorkerThread {
 
     private long maxWaitTime = -1;
     private final WindowFilter filter;
-    private boolean verbose = false;
 
     public WindowChecker(final WindowFilter filter, final String name) {
         super(StageController.FX_CONNECTOR_BASE_ID + "SubWindowChecker." + name, 1000);
         this.filter = filter;
-    }
-
-    public void verbose() {
-        verbose = true;
     }
 
     public interface WindowFilter {
@@ -54,9 +50,7 @@ public abstract class WindowChecker extends WorkerThread {
         while (running) {
             onWindowsFound(windows);
             try {
-                if (verbose) {
-                    org.fxconnector.Debugger.debug("No JavaFX window found - sleeping for " + sleepTime / 1000 + " seconds");
-                }
+                Logger.print("No JavaFX window found - sleeping for " + sleepTime / 1000 + " seconds");
                 Thread.sleep(sleepTime);
                 if (maxWaitTime != -1) {
                     currentWait += sleepTime;
@@ -67,7 +61,7 @@ public abstract class WindowChecker extends WorkerThread {
                 }
             } catch (final InterruptedException ex) {
                 if (running) {
-                    ScenicViewExceptionLogger.submitException(ex);
+                    ExceptionLogger.submitException(ex);
                 }
             }
 

@@ -47,7 +47,8 @@ import org.fxconnector.details.DetailPaneType;
 import org.fxconnector.event.FXConnectorEvent;
 import org.fxconnector.event.FXConnectorEventDispatcher;
 import org.fxconnector.node.SVNode;
-import org.fxconnector.remote.util.ScenicViewExceptionLogger;
+import org.scenicview.utils.ExceptionLogger;
+import org.scenicview.utils.Logger;
 
 import com.sun.javafx.Utils;
 import com.sun.tools.attach.AttachNotSupportedException;
@@ -96,7 +97,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
     }
 
     @Override public void onAgentStarted(final int port) {
-        org.fxconnector.Debugger.debug("Remote agent started on port:" + port);
+        Logger.print("Remote agent started on port:" + port);
         RMIUtils.findApplication(port, application -> {
             applications.put(vmInfo.get(port), application);
             try {
@@ -104,7 +105,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                 final StageID[] ids = application.getStageIDs();
                 addStages(appsID, ids, application);
             } catch (final RemoteException e) {
-                ScenicViewExceptionLogger.submitException(e);
+                ExceptionLogger.submitException(e);
             }
             count.decrementAndGet();
         });
@@ -123,7 +124,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
         };
         
         for (int i = 0; i < ids.length; i++) {
-            org.fxconnector.Debugger.debug("RemoteApp connected on:" + port + " stageID:" + ids[i]);
+            Logger.print("RemoteApp connected on:" + port + " stageID:" + ids[i]);
             final int cont = i;
             impl.getStages().add(new StageController() {
 
@@ -141,7 +142,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                     try {
                         application.update(getID());
                     } catch (final RemoteException e) {
-                        ScenicViewExceptionLogger.submitException(e);
+                        ExceptionLogger.submitException(e);
                     }
                 }
 
@@ -149,7 +150,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                     try {
                         application.configurationUpdated(getID(), configuration);
                     } catch (final RemoteException e) {
-                        ScenicViewExceptionLogger.submitException(e);
+                        ExceptionLogger.submitException(e);
                     }
                 }
 
@@ -160,7 +161,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                     } catch (final ConnectException e2) {
                         // Nothing to do
                     } catch (final Exception e) {
-                        ScenicViewExceptionLogger.submitException(e);
+                        ExceptionLogger.submitException(e);
                     }
 
                 }
@@ -176,7 +177,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                         application.setEventDispatcher(getID(), null);
                     } catch (final RemoteException e) {
                         // TODO Auto-generated catch block
-                        ScenicViewExceptionLogger.submitException(e);
+                        ExceptionLogger.submitException(e);
                     }
                 }
 
@@ -184,7 +185,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                     try {
                         application.setSelectedNode(getID(), value);
                     } catch (final RemoteException e) {
-                        ScenicViewExceptionLogger.submitException(e);
+                        ExceptionLogger.submitException(e);
                     }
                 }
 
@@ -192,7 +193,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                     try {
                         application.removeSelectedNode(getID());
                     } catch (final RemoteException e) {
-                        ScenicViewExceptionLogger.submitException(e);
+                        ExceptionLogger.submitException(e);
                     }
                 }
 
@@ -204,7 +205,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                     try {
                         application.setDetail(getID(), detailType, detailID, value);
                     } catch (final RemoteException e) {
-                        ScenicViewExceptionLogger.submitException(e);
+                        ExceptionLogger.submitException(e);
                     }
                 }
 
@@ -212,7 +213,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                     try {
                         application.animationsEnabled(getID(), enabled);
                     } catch (final RemoteException e) {
-                        ScenicViewExceptionLogger.submitException(e);
+                        ExceptionLogger.submitException(e);
                     }
                 }
 
@@ -220,7 +221,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                     try {
                         application.updateAnimations(getID());
                     } catch (final RemoteException e) {
-                        ScenicViewExceptionLogger.submitException(e);
+                        ExceptionLogger.submitException(e);
                     }
                 }
 
@@ -228,7 +229,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                     try {
                         application.pauseAnimation(getID(), animationID);
                     } catch (final RemoteException e) {
-                        ScenicViewExceptionLogger.submitException(e);
+                        ExceptionLogger.submitException(e);
                     }
                 }
             });
@@ -249,7 +250,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
         apps = new ArrayList<>();
         vmInfo.clear();
         final List<VirtualMachine> machines = getRunningJavaFXApplications();
-        org.fxconnector.Debugger.debug(machines.size() + " JavaFX applications found");
+        Logger.print(machines.size() + " JavaFX applications found");
         count.set(machines.size());
         if (agentFile == null) {
             agentFile = findAgent();
@@ -270,7 +271,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                         connected = true;
                         count.decrementAndGet();
                     } catch (final Exception e) {
-                        ScenicViewExceptionLogger.submitException(e, "Failure connecting to machine.");
+                        ExceptionLogger.submitException(e, "Failure connecting to machine.");
                         applications.remove(temp.id());
                     }
                 }
@@ -292,7 +293,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                 }
             }
         } catch (final Exception e) {
-            ScenicViewExceptionLogger.submitException(e);
+            ExceptionLogger.submitException(e);
         }
         final long initial = System.currentTimeMillis();
         /**
@@ -306,7 +307,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                 // no-op
             }
         }
-        org.fxconnector.Debugger.setDebug(false);
+        Logger.setEnabled(false);
         return apps;
     }
 
@@ -314,7 +315,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
         try {
             RMIUtils.unbindScenicView(port);
         } catch (final Exception e) {
-            ScenicViewExceptionLogger.submitException(e);
+            ExceptionLogger.submitException(e);
         }
     }
 
@@ -340,12 +341,12 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
         try {
             final long start = System.currentTimeMillis();
             final int port = getValidPort();
-            org.fxconnector.Debugger.debug("Loading agent for:" + machine + " ID:" + machine.id() + " on port:" + port + " took:" + (System.currentTimeMillis() - start) + "ms using agent defined in " + agentFile.getAbsolutePath());
+            Logger.print("Loading agent for:" + machine + " ID:" + machine.id() + " on port:" + port + " took:" + (System.currentTimeMillis() - start) + "ms using agent defined in " + agentFile.getAbsolutePath());
             vmInfo.put(port, machine.id());
-            machine.loadAgent(agentFile.getAbsolutePath(), Integer.toString(port) + ":" + this.port + ":" + machine.id() + ":" + org.fxconnector.Debugger.isDebug());
+            machine.loadAgent(agentFile.getAbsolutePath(), Integer.toString(port) + ":" + this.port + ":" + machine.id() + ":" + Logger.isEnabled());
             machine.detach();
         } catch (final Exception e) {
-            ScenicViewExceptionLogger.submitException(e);
+            ExceptionLogger.submitException(e);
         }
     }
 
@@ -353,7 +354,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
 
     private List<VirtualMachine> getRunningJavaFXApplications() {
         final List<VirtualMachineDescriptor> machines = VirtualMachine.list();
-        org.fxconnector.Debugger.debug("Number of running Java applications found: " + machines.size());
+        Logger.print("Number of running Java applications found: " + machines.size());
         final List<VirtualMachine> javaFXMachines = new ArrayList<>();
 
         final Map<String, Properties> vmsProperties = new HashMap<>(machines.size());
@@ -361,7 +362,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
             final VirtualMachineDescriptor vmd = machines.get(i);
             try {
                 final VirtualMachine virtualMachine = VirtualMachine.attach(vmd);
-                org.fxconnector.Debugger.debug("Obtaining properties for Java application with PID:" + virtualMachine.id());
+                Logger.print("Obtaining properties for Java application with PID:" + virtualMachine.id());
                 final Properties sysPropertiesMap = virtualMachine.getSystemProperties();
                 vmsProperties.put(virtualMachine.id(), sysPropertiesMap);
                 if (sysPropertiesMap != null && sysPropertiesMap.containsKey(JAVAFX_SYSTEM_PROPERTIES_KEY)/* && !sysPropertiesMap.containsKey(SCENIC_VIEW_VM)*/) {
@@ -369,7 +370,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                 } else {
                     virtualMachine.detach();
                 }
-//                org.fxconnector.Debugger.debug("JVM:" + virtualMachine.id() + " detection finished");
+//                Logger.print("JVM:" + virtualMachine.id() + " detection finished");
             } catch (final AttachNotSupportedException ex) {
                 dumpAttachError(vmd, ex);
             } catch (final IOException ex) {
@@ -417,7 +418,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                 tempf = new File(new URL(fileUrl).toURI());
             }
         } catch (MalformedURLException | URISyntaxException e) {
-            ScenicViewExceptionLogger.submitException(e, "Attempting to get agent jar.");
+            ExceptionLogger.submitException(e, "Attempting to get agent jar.");
         }
 
         if (tempf == null || !tempf.exists()) {
@@ -454,7 +455,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
 
             // System.err.println("Cannot load the agent, ScenicView.jar not found here:" + tempf.getAbsolutePath());
         }
-        org.fxconnector.Debugger.debug("Loading agent from: " + (tempf == null ? "null" : tempf.getAbsolutePath()));
+        Logger.print("Loading agent from: " + (tempf == null ? "null" : tempf.getAbsolutePath()));
         return tempf;
     }
 

@@ -29,7 +29,8 @@ import org.fxconnector.event.FXConnectorEvent;
 import org.fxconnector.event.FXConnectorEventDispatcher;
 import org.fxconnector.details.DetailPaneType;
 import org.fxconnector.node.SVNode;
-import org.fxconnector.remote.util.ScenicViewExceptionLogger;
+import org.scenicview.utils.ExceptionLogger;
+import org.scenicview.utils.Logger;
 
 class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplication {
 
@@ -54,18 +55,18 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
             dispatcher = new RemoteDispatcher();
             dispatcher.start();
 
-            org.fxconnector.Debugger.debug("RemoteConnector found:" + scenicView);
+            Logger.print("RemoteConnector found:" + scenicView);
 
             try {
                 scenicView.onAgentStarted(port);
             } catch (final RemoteException e) {
-               ScenicViewExceptionLogger.submitException(e);
+                ExceptionLogger.submitException(e);
             }
             
             try {
                 Thread.sleep(3000);
             } catch (final InterruptedException e) {
-                ScenicViewExceptionLogger.submitException(e);
+                ExceptionLogger.submitException(e);
             }
         });
     }
@@ -78,9 +79,9 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
                 dispatcher.running = false;
             }
         } catch (final AccessException e) {
-           ScenicViewExceptionLogger.submitException(e);
+            ExceptionLogger.submitException(e);
         } catch (final RemoteException e) {
-           ScenicViewExceptionLogger.submitException(e);
+            ExceptionLogger.submitException(e);
         }
     }
 
@@ -93,12 +94,12 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
     }
 
     @Override public void setEventDispatcher(final StageID id, final FXConnectorEventDispatcher dispatcher) throws RemoteException {
-        org.fxconnector.Debugger.debug("Remote application setEventDispatcher!!!");
+        Logger.print("Remote application setEventDispatcher!!!");
         application.setEventDispatcher(id, appEvent -> {
             if (scenicView != null) {
                 RemoteApplicationImpl.this.dispatcher.addEvent(appEvent);
             } else {
-                org.fxconnector.Debugger.debug("Cannot dispatch event:" + appEvent);
+                Logger.print("Cannot dispatch event:" + appEvent);
             }
         });
     }
@@ -150,7 +151,7 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
                 try {
                     Thread.sleep(60); // roughly synced with pulse
                 } catch (final InterruptedException e) {
-                    ScenicViewExceptionLogger.submitException(e);
+                    ExceptionLogger.submitException(e);
                 }
 
                 FXConnectorEvent event = null;
@@ -163,7 +164,7 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
                             scenicView.dispatchEvent(event);
                         }
                     } catch (final RemoteException e) {
-                        ScenicViewExceptionLogger.submitException(e);
+                        ExceptionLogger.submitException(e);
                         try {
                             close(event.getStageID());
                             scenicView = null;
@@ -171,7 +172,7 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
                             RMIUtils.unbindApplication(port);
                             running = false;
                         } catch (final Exception e1) {
-                            ScenicViewExceptionLogger.submitException(e1);
+                            ExceptionLogger.submitException(e1);
                         }
                     }
                 }

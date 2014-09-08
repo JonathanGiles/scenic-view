@@ -17,7 +17,6 @@
  */
 package org.fxconnector;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -74,7 +73,8 @@ import org.fxconnector.node.NodeType;
 import org.fxconnector.node.SVDummyNode;
 import org.fxconnector.node.SVNode;
 import org.fxconnector.node.SVNodeFactory;
-import org.fxconnector.remote.util.ScenicViewExceptionLogger;
+import org.scenicview.utils.ExceptionLogger;
+import org.scenicview.utils.Logger;
 
 import com.sun.javafx.tk.quantum.MasterTimer;
 
@@ -122,7 +122,7 @@ public class StageControllerImpl implements StageController {
         try {
             highlightHovered(ev.getX(), ev.getY());
         } catch (final Exception e) {
-            ScenicViewExceptionLogger.submitException(e);
+            ExceptionLogger.submitException(e);
         }
     };
 
@@ -212,7 +212,7 @@ public class StageControllerImpl implements StageController {
                 }
             } catch (final Exception e) {
                 // Protect the application from ScenicView problems
-                ScenicViewExceptionLogger.submitException(e);
+                ExceptionLogger.submitException(e);
             }
         };
 
@@ -246,7 +246,7 @@ public class StageControllerImpl implements StageController {
                 }
             } catch (final Exception e) {
                 // Protect the application from ScenicView problems
-                ScenicViewExceptionLogger.submitException(e);
+                ExceptionLogger.submitException(e);
             }
         };
 
@@ -417,7 +417,7 @@ public class StageControllerImpl implements StageController {
         }
         overlayParent = SCUtils.findFertileParent(value);
         if (overlayParent == null) {
-            org.fxconnector.Debugger.debug("warning: could not find writable parent to add overlay nodes; overlays disabled.");
+            Logger.print("warning: could not find writable parent to add overlay nodes; overlays disabled.");
             /**
              * This should be improved
              */
@@ -700,7 +700,7 @@ public class StageControllerImpl implements StageController {
                     }
                 }
             } catch (final Exception e) {
-                ScenicViewExceptionLogger.submitException(e);
+                ExceptionLogger.submitException(e);
             }
         }
     }

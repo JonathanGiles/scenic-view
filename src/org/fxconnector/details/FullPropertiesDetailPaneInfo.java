@@ -36,6 +36,7 @@ import javafx.scene.paint.Color;
 
 import org.fxconnector.StageID;
 import org.fxconnector.event.FXConnectorEventDispatcher;
+import org.scenicview.utils.Logger;
 
 @SuppressWarnings("rawtypes")
 class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
@@ -145,7 +146,7 @@ class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
             if (observable instanceof ReadOnlyProperty) {
                 detail.unavailableEdition(Detail.STATUS_READ_ONLY);
             } else {
-                org.fxconnector.Debugger.debug("Strange Property:" + observable);
+                Logger.print("Strange Property:" + observable);
             }
         }
         if (!all)

@@ -36,7 +36,7 @@ import org.fxconnector.StageID;
 import org.fxconnector.details.DetailPaneType;
 import org.fxconnector.event.FXConnectorEventDispatcher;
 import org.fxconnector.node.SVNode;
-import org.fxconnector.remote.util.ScenicViewExceptionLogger;
+import org.scenicview.utils.ExceptionLogger;
 
 public class RuntimeAttach {
     
@@ -186,7 +186,7 @@ public class RuntimeAttach {
             debug = false;
             RuntimeAttach.application = new RemoteApplicationImpl(application, port, serverPort);
         } catch (final RemoteException e) {
-            ScenicViewExceptionLogger.submitException(e);
+            ExceptionLogger.submitException(e);
         }
     }
     
