@@ -271,7 +271,7 @@ public class ScenicViewGui {
         
         // right side
         detailsTab = new DetailsTab(this, new Consumer<String>() {
-            public void accept(String property) {
+            @Override public void accept(String property) {
                 ScenicViewGui.this.loadAPI(property);
             }
         });

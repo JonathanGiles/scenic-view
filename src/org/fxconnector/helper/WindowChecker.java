@@ -67,7 +67,6 @@ public abstract class WindowChecker extends WorkerThread {
 
             windows = getValidWindows(filter);
         }
-
     }
 
     protected abstract void onWindowsFound(List<Window> windows);
