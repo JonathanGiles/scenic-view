@@ -26,7 +26,7 @@ public abstract class WorkerThread extends Thread {
 
     public WorkerThread(final String name, final int sleepTime) {
         super(name);
-        setDaemon(false);
+        setDaemon(true);
         this.sleepTime = sleepTime;
     }
 

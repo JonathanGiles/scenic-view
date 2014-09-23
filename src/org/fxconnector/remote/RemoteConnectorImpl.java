@@ -127,9 +127,9 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
             Logger.print("RemoteApp connected on:" + port + " stageID:" + ids[i]);
             final int cont = i;
             impl.getStages().add(new StageController() {
-
                 StageID id = new StageID(appsID, ids[cont].getStageID());
                 private boolean isOpened;
+                
                 {
                     id.setName(ids[cont].getName());
                 }
@@ -234,6 +234,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                 }
             });
         }
+        
         if (!impl.getStages().isEmpty()) {
             apps.add(impl);
         } else {
@@ -276,11 +277,16 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                     }
                 }
                 if (!connected) {
-                    new Thread() {
+                    Thread agentThread = new Thread() {
+                        {
+                            setDaemon(true);
+                        }
+                        
                         @Override public void run() {
                             loadAgent(temp, agentFile);
                         }
-                    }.start();
+                    };
+                    agentThread.start();
                 }
             }
             /**
