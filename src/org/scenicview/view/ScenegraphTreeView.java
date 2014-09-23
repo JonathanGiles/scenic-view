@@ -198,7 +198,6 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
     }
 
     protected void setSelectedNode(final TreeItem<SVNode> item) {
-        // TODO Auto-generated method stub
         if (item != null) {
             TreeItem<SVNode> stageItem = findStageForNode(item);
             if (stageItem == null) return;

@@ -19,6 +19,7 @@ package org.scenicview.view.tabs.details;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -59,7 +60,7 @@ public class GDetail {
     private double max;
     private String realValue;
     private EditionType editionType;
-    private APILoader loader;
+    private Consumer<String> loader;
 
     public GDetail(ScenicViewGui scenicView, final Label label, final Node value) {
         this.label = label;
@@ -237,7 +238,7 @@ public class GDetail {
         if (detail.getDetailType() == DetailPaneType.FULL) {
             label.setOnMouseClicked(ev -> {
                 if (ev.getClickCount() == 2) {
-                    loader.loadAPI(detail.getProperty());
+                    loader.accept(detail.getProperty());
                 }
             });
         }
@@ -274,7 +275,7 @@ public class GDetail {
         }
     }
 
-    public void setAPILoader(final APILoader loader) {
+    public void setAPILoader(final Consumer<String> loader) {
         this.loader = loader;
     }
 

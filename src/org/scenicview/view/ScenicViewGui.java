@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -82,7 +83,6 @@ import org.scenicview.view.tabs.AnimationsTab;
 import org.scenicview.view.tabs.DetailsTab;
 import org.scenicview.view.tabs.EventLogTab;
 import org.scenicview.view.tabs.JavaDocTab;
-import org.scenicview.view.tabs.details.APILoader;
 import org.scenicview.model.Persistence;
 import org.scenicview.model.update.AppsRepository;
 import org.scenicview.model.update.UpdateStrategy;
@@ -270,8 +270,8 @@ public class ScenicViewGui {
         treeView.setMaxHeight(Double.MAX_VALUE);
         
         // right side
-        detailsTab = new DetailsTab(this, new APILoader() {
-            @Override public void loadAPI(final String property) {
+        detailsTab = new DetailsTab(this, new Consumer<String>() {
+            public void accept(String property) {
                 ScenicViewGui.this.loadAPI(property);
             }
         });

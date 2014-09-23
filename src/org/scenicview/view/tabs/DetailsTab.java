@@ -20,6 +20,7 @@ package org.scenicview.view.tabs;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -40,7 +41,6 @@ import org.fxconnector.node.SVNode;
 import org.scenicview.view.ContextMenuContainer;
 import org.scenicview.view.DisplayUtils;
 import org.scenicview.view.ScenicViewGui;
-import org.scenicview.view.tabs.details.APILoader;
 import org.scenicview.view.tabs.details.GDetailPane;
 import org.scenicview.view.tabs.details.GDetailPane.RemotePropertySetter;
 
@@ -55,7 +55,7 @@ public class DetailsTab extends Tab implements ContextMenuContainer {
 
     public static boolean showDefaultProperties = true;
     
-    private final APILoader loader;
+    private final Consumer<String> loader;
     private final ScenicViewGui scenicView;
 
     VBox vbox;
@@ -64,7 +64,7 @@ public class DetailsTab extends Tab implements ContextMenuContainer {
 
     MenuItem dumpDetails;
     
-    public DetailsTab(final ScenicViewGui view, final APILoader loader) {
+    public DetailsTab(final ScenicViewGui view, final Consumer<String> loader) {
         super(TAB_NAME);
         this.scenicView = view;
         this.loader = loader;

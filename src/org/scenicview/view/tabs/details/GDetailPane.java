@@ -25,6 +25,7 @@ import org.fxconnector.details.DetailPaneType;
 
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.function.Consumer;
 
 import javafx.beans.value.WritableValue;
 import javafx.geometry.*;
@@ -57,9 +58,9 @@ public class GDetailPane extends TitledPane {
     static GDetail activeDetail;
     List<Node> paneNodes = new ArrayList<>();
     List<GDetail> details = new ArrayList<>();
-    APILoader loader;
+    Consumer<String> loader;
 
-    public GDetailPane(ScenicViewGui scenicView, final DetailPaneType type, final String name, final APILoader loader) {
+    public GDetailPane(ScenicViewGui scenicView, final DetailPaneType type, final String name, final Consumer<String> loader) {
         this.scenicView = scenicView;
         this.type = type;
         this.loader = loader;
