@@ -606,11 +606,11 @@ public class ScenicViewGui {
         final Menu displayOptionsMenu = new Menu("Display Options");
 
 //        final Menu ruler = new Menu("Ruler");
-        final CheckMenuItem showRuler = buildCheckMenuItem("Show Ruler", "Show ruler in the scene for alignment purposes", "", null, null);
-        showRuler.selectedProperty().addListener((ChangeListener<Boolean>) (o, oldValue, newValue) -> {
-            configuration.setShowRuler(newValue.booleanValue());
-            configurationUpdated();
-        });
+//        final CheckMenuItem showRuler = buildCheckMenuItem("Show Ruler", "Show ruler in the scene for alignment purposes", "", null, null);
+//        showRuler.selectedProperty().addListener((ChangeListener<Boolean>) (o, oldValue, newValue) -> {
+//            configuration.setShowRuler(newValue.booleanValue());
+//            configurationUpdated();
+//        });
 //
 //        final RulerConfigurationMenuItem rulerConfig = new RulerConfigurationMenuItem();
 //        rulerConfig.colorProperty().addListener(new ChangeListener<Color>() {
@@ -636,7 +636,7 @@ public class ScenicViewGui {
 
         displayOptionsMenu.getItems().addAll(showBoundsCheckbox, 
                                              showBaselineCheckbox, 
-                                             showRuler,
+//                                             showRuler,
                                              showSearchBar, 
                                              showFilteredNodesInTree, 
                                              showInvisibleNodes, 
