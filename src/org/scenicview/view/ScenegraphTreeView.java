@@ -47,6 +47,7 @@ import org.scenicview.utils.Logger;
 import org.scenicview.view.tabs.DetailsTab;
 import org.scenicview.view.tabs.EventLogTab;
 import org.scenicview.view.tabs.JavaDocTab;
+import org.scenicview.view.tabs.ThreeDOMTab;
 
 public class ScenegraphTreeView extends TreeView<SVNode> {
 
@@ -121,6 +122,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
                 showContextMenu(ev);
             }
         });
+        
     }
 
     private void showContextMenu(final MouseEvent ev) {
@@ -161,7 +163,8 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
             goTo.getItems().addAll(
                     goToTab(DetailsTab.TAB_NAME), 
                     goToTab(EventLogTab.TAB_NAME), 
-                    goToTab(JavaDocTab.TAB_NAME));
+                    goToTab(JavaDocTab.TAB_NAME),
+                    goToTab(ThreeDOMTab.TAB_NAME));
 
             final MenuItem close = new MenuItem("Close");
             close.setOnAction(e -> selectedCM.hide());
@@ -219,7 +222,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         }
     }
 
-    void nodeSelected(final SVNode nodeData) {
+    public void nodeSelected(final SVNode nodeData) {
         if (nodeData != null && treeViewData.containsKey(nodeData)) {
             final TreeItem<SVNode> item = treeViewData.get(nodeData);
             getSelectionModel().select(item);

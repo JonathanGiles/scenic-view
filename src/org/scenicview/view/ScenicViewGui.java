@@ -88,6 +88,7 @@ import org.scenicview.model.update.AppsRepository;
 import org.scenicview.model.update.UpdateStrategy;
 import org.scenicview.utils.ExceptionLogger;
 import org.scenicview.utils.Logger;
+import org.scenicview.view.tabs.ThreeDOMTab;
 
 /**
  * The base UI
@@ -202,6 +203,7 @@ public class ScenicViewGui {
     private EventLogTab eventsTab;
     private AnimationsTab animationsTab;
     private JavaDocTab javadocTab;
+    private ThreeDOMTab threeDOMTab;
 
     public ScenicViewGui(final UpdateStrategy updateStrategy, final Stage scenicViewStage) {
         this.scenicViewStage = scenicViewStage;
@@ -289,7 +291,11 @@ public class ScenicViewGui {
             configurationUpdated();
         });
         
-        tabPane.getTabs().addAll(detailsTab, eventsTab, /*animationsTab,*/ javadocTab);
+        // 3Dom
+        threeDOMTab = new ThreeDOMTab(this); 
+        
+        tabPane.getTabs().addAll(detailsTab, eventsTab, /*animationsTab,*/ javadocTab, threeDOMTab);
+        // /3Dom
         
         Persistence.loadProperty("splitPaneDividerPosition", splitPane, 0.3);
 
@@ -845,6 +851,7 @@ public class ScenicViewGui {
             propertyFilterField.setText("");
             propertyFilterField.setDisable(value == null);
             filterProperties(propertyFilterField.getText());
+            threeDOMTab.setSelectedNode(value); // 3D addition
         }
     }
 
@@ -1056,6 +1063,7 @@ public class ScenicViewGui {
                                          ((NodeAddRemoveEvent) appEvent).getNode(), 
                                          showNodesIdInTree.isSelected(),
                                          showFilteredNodesInTree.isSelected());
+                threeDOMTab.placeNewRoot(((NodeAddRemoveEvent) appEvent).getNode());
                 break;
             }
             case NODE_ADDED: {
@@ -1065,19 +1073,21 @@ public class ScenicViewGui {
                 final int removedPos = indexOfNode(((NodeAddRemoveEvent) appEvent).getNode(), true);
                 if (removedPos == -1) {
                     treeView.addNewNode(((NodeAddRemoveEvent) appEvent).getNode(), showNodesIdInTree.isSelected(), showFilteredNodesInTree.isSelected());
+                    threeDOMTab.reload();   // 3D addition
                 } else {
                     eventQueue.remove(removedPos);
                 }
+               
                 break;
             }
             case NODE_REMOVED: {
                 final int addedPos = indexOfNode(((NodeAddRemoveEvent) appEvent).getNode(), false);
                 if (addedPos == -1) {
                     treeView.removeNode(((NodeAddRemoveEvent) appEvent).getNode());
+                    threeDOMTab.removeNode(((NodeAddRemoveEvent) appEvent).getNode());   // 3D addition
                 } else {
                     eventQueue.remove(addedPos);
                 }
-
                 break;
             }
             case DETAILS: {
@@ -1119,5 +1129,11 @@ public class ScenicViewGui {
     private boolean isActive(final StageID stageID) {
         return activeStage.getID().equals(stageID);
     }
-
+    /**
+     * 3D additions
+     * @return scene graph treeview
+     */
+    public ScenegraphTreeView getTreeView(){
+         return treeView;
+     }
 }
