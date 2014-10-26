@@ -57,17 +57,21 @@ import org.fxconnector.ConnectorUtils;
 import org.fxconnector.node.SVNode;
 
 /**
- * 2D to 3D
- * Miss: a snapshot parameter to only capture container and not its descendant
- * Mapping on only one face of 3D
+ * 2D to 3D Miss: a snapshot parameter to only capture container and not
+ * descendants Replace Tile3D by a box with only one textured face
  */
 public class ThreeDOM implements ITile3DListener {
+
+    static final double FACTOR2D3D      = 1;
+    static final double CONTROL_HEIGHT  = 200;
+    static final double AXES_SIZE       = 400;
 
     public boolean onlyOnce = false;
 
     double translateRootX;
     double translateRootY;
     ParallelTransition depthTransition;
+
     double maxDepth = 0;
     Slider slider;
     CheckBox checkBoxAxes;
@@ -83,8 +87,7 @@ public class ThreeDOM implements ITile3DListener {
     IThreeDOM iThreeDOM;
     Tile3D currentSelectedNode;
     Translate translateCamera;
-    double factor2d3d = 1;
-    double CONTROL_HEIGHT = 200;
+
     RotateTransition rotateTransition;
 
     public void setHolder(IThreeDOM h) {
@@ -228,10 +231,9 @@ public class ThreeDOM implements ITile3DListener {
 
     private Node from2Dto3D(SVNode root2D, Group root3D, double depth) {
         // Parent3D
-        Node node3D = nodeToTile3D(root2D, factor2d3d, depth);
+        Node node3D = nodeToTile3D(root2D, FACTOR2D3D, depth);
         root3D.getChildren().add(node3D);
         depth += 3;
-        //  ObservableList<Node> childrenUnmodifiable = root2D.getChildrenUnmodifiable();
         List<SVNode> childrenUnmodifiable = root2D.getChildren();
         for (SVNode svnode : childrenUnmodifiable) {
 
@@ -242,7 +244,7 @@ public class ThreeDOM implements ITile3DListener {
             if (node.isVisible() && node instanceof Parent) {
                 from2Dto3D(svnode, root3D, depth);
             } else if (node.isVisible()) {
-                node3D = nodeToTile3D(svnode, factor2d3d, depth);
+                node3D = nodeToTile3D(svnode, FACTOR2D3D, depth);
                 root3D.getChildren().add(node3D);
             }
         }
@@ -341,13 +343,13 @@ public class ThreeDOM implements ITile3DListener {
         blueMaterial.setDiffuseColor(Color.DARKBLUE);
         blueMaterial.setSpecularColor(Color.BLUE);
 
-        Box xAxis = new Box(350, 1, 1);
+        Box xAxis = new Box(AXES_SIZE, 1, 1);
         xAxis.setMaterial(redMaterial);
-        Box yAxis = new Box(1, 350, 1);
+        Box yAxis = new Box(1, AXES_SIZE, 1);
         yAxis.setMaterial(greenMaterial);
-        Box zAxis = new Box(1, 1, 350);
+        Box zAxis = new Box(1, 1, AXES_SIZE);
         zAxis.setMaterial(blueMaterial);
-        
+
         Group group = new Group();
         group.getChildren().addAll(xAxis, yAxis, zAxis);
         group.setVisible(true);
