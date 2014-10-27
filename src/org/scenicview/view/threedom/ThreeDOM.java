@@ -26,16 +26,18 @@ import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point3D;
-import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
+import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -43,13 +45,11 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.TitledPane;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.TilePane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import javafx.util.Duration;
@@ -62,9 +62,23 @@ import org.fxconnector.node.SVNode;
  */
 public class ThreeDOM implements ITile3DListener {
 
-    static final double FACTOR2D3D      = 1;
-    static final double CONTROL_HEIGHT  = 200;
-    static final double AXES_SIZE       = 400;
+    @FXML
+    Slider slider;
+    @FXML
+    CheckBox checkBoxAxes;
+    @FXML
+    Label overTileText;
+    @FXML
+    Button reload;
+    @FXML
+    TitledPane controls;
+    @FXML
+    Accordion accordion;
+    @FXML
+    BorderPane subSceneContainer;
+
+    static final double FACTOR2D3D = 1;
+    static final double AXES_SIZE = 400;
 
     public boolean onlyOnce = false;
 
@@ -73,16 +87,9 @@ public class ThreeDOM implements ITile3DListener {
     ParallelTransition depthTransition;
 
     double maxDepth = 0;
-    Slider slider;
-    CheckBox checkBoxAxes;
-    Label overTileText;
-    Button reload;
-    Button update;
-    private static final String OVER = "Node under cursor is: ";
 
     double THICKNESS = 10;
     Group root3D;
-    Text tooltip;
     SVNode currentRoot2D;
     IThreeDOM iThreeDOM;
     Tile3D currentSelectedNode;
@@ -94,9 +101,19 @@ public class ThreeDOM implements ITile3DListener {
         iThreeDOM = h;
     }
 
-    public Parent createContent(SVNode root2D, boolean remote) throws Exception {
+    public Parent createContent(SVNode root2D) throws Exception {
         currentRoot2D = root2D;
         // Build the Scene Graph
+        Pane root = null;
+        // UI part of the decoration
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("threedom.fxml"));
+            fxmlLoader.setController(this);
+            root = (BorderPane) fxmlLoader.load();
+        } catch (Exception ex) {
+            System.err.println(ex);
+        }
+
         Group world = new Group();
         // Create and position camera
         PerspectiveCamera camera = new PerspectiveCamera(true);
@@ -133,13 +150,9 @@ public class ThreeDOM implements ITile3DListener {
         DragSupport dragSupport2 = new DragSupport(subScene, null, Orientation.VERTICAL, rotateX.angleProperty());
         ZoomSupport zoomSupport = new ZoomSupport(subScene, null, MouseButton.NONE, Orientation.VERTICAL, translateCamera.zProperty(), translateCamera.xProperty(), 1);
 
-        VBox hbox = new VBox();
-
-        checkBoxAxes = new CheckBox();
-        overTileText = new Label(OVER);
-
+        controls.setExpanded(true);
+        accordion.setExpandedPane(controls);
         //
-        slider = new Slider(1, 30, 30);
         slider.setShowTickMarks(true);
         slider.setShowTickLabels(true);
         slider.setBlockIncrement(2);
@@ -153,43 +166,16 @@ public class ThreeDOM implements ITile3DListener {
             setDepth(slider.getValue(), root3D);
         });
         //
-        reload = new Button("Refresh");
         reload.setOnAction((ActionEvent event) -> {
             _reload();
         });
 
-        Label sliderLabel = new Label("Select depth:");
-        Label label = new Label("Show 3D axes:");
-        Label label2 = new Label("Click to refresh the 3D view:");
-        label.setTextAlignment(TextAlignment.LEFT);
-        label2.setTextAlignment(TextAlignment.LEFT);
-        TilePane tilePane = new TilePane(
-                label, checkBoxAxes,
-                new Label(OVER), overTileText,
-                sliderLabel, slider,
-                label2, reload);
-        tilePane.setPrefColumns(2); //preferred columns
-        tilePane.setPrefRows(4);
-        tilePane.setAlignment(Pos.CENTER_LEFT);
-        tilePane.setPrefWidth(300);
-        tilePane.setMinWidth(300);
-        tilePane.setMaxWidth(500);
-        tilePane.setMaxHeight(200);
+        subSceneContainer.setPrefSize(600, 500);
+        subSceneContainer.setMinSize(60, 50);
+        subSceneContainer.setCenter(subScene);
+        subScene.heightProperty().bind(subSceneContainer.heightProperty());
+        subScene.widthProperty().bind(subSceneContainer.widthProperty());
 
-        BorderPane stackPane = new BorderPane();
-        stackPane.setPrefSize(600, 500);
-        stackPane.setMinSize(60, 50);
-        stackPane.setCenter(subScene);
-        subScene.heightProperty().bind(stackPane.heightProperty());
-        subScene.widthProperty().bind(stackPane.widthProperty());
-
-        TitledPane titledPane = new TitledPane("Controls", tilePane);
-        titledPane.setCollapsible(false);
-        if (remote) {
-            hbox.getChildren().addAll(stackPane, titledPane);
-        } else {
-            hbox.getChildren().addAll(stackPane, titledPane, root2D.getImpl());
-        }
         buildAxes(axes3DRoot);        // Axes
 
         if (!onlyOnce) {
@@ -203,7 +189,7 @@ public class ThreeDOM implements ITile3DListener {
             translateCamera.setZ(-zoom);
         }
 
-        return hbox;
+        return root;
     }
 
     void init3D(boolean animate) {

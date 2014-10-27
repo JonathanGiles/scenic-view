@@ -68,7 +68,7 @@ public class ThreeDOMTab extends Tab implements ContextMenuContainer, IThreeDOM 
             Parent threeDOMPanel = null;
             try {
                 if (root2D != null) {
-                    threeDOMPanel = threeDOM.createContent(root2D.getChildren().get(0), true);
+                    threeDOMPanel = threeDOM.createContent(root2D.getChildren().get(0));
                 }
                 super.setContent(threeDOMPanel);
             } catch (Exception ex) {
