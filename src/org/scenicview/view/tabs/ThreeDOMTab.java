@@ -37,7 +37,7 @@ public class ThreeDOMTab extends Tab implements ContextMenuContainer, IThreeDOM 
     private final ScenicViewGui scenicView;
 
     public static final String TAB_NAME = "ThreeDOM";
-//    TreeItem<SVNode> root2D;
+
     SVNode root2D;
     ThreeDOM threeDOM;
     SVNode selectedNode;
@@ -46,7 +46,7 @@ public class ThreeDOMTab extends Tab implements ContextMenuContainer, IThreeDOM 
         super(TAB_NAME);
         this.scenicView = view;
 
-        setGraphic(new ImageView(DisplayUtils.getUIImage("cinema.png")));
+        setGraphic(new ImageView(DisplayUtils.getUIImage("globe.png")));
         setClosable(false);
         selectedProperty().addListener((final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) -> {
             if (newValue) {

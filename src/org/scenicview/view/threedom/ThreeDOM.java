@@ -29,6 +29,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
@@ -40,16 +41,19 @@ import javafx.scene.SubScene;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TitledPane;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
-import javafx.scene.text.Text;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import javafx.util.Duration;
@@ -57,8 +61,9 @@ import org.fxconnector.ConnectorUtils;
 import org.fxconnector.node.SVNode;
 
 /**
- * 2D to 3D Miss: a snapshot parameter to only capture container and not
- * descendants Replace Tile3D by a box with only one textured face
+ * Main class for 3D display TODO: 2D to 3D Miss: a snapshot parameter to only
+ * capture container and not descendants. Replace Tile3D by a box with only one
+ * textured face. Save background color
  */
 public class ThreeDOM implements ITile3DListener {
 
@@ -76,6 +81,12 @@ public class ThreeDOM implements ITile3DListener {
     Accordion accordion;
     @FXML
     BorderPane subSceneContainer;
+    @FXML
+    ColorPicker colorPicker;
+    @FXML
+    Button defaultBackgroundColor;
+
+    private static final String STYLESHEETS = ThreeDOM.class.getResource("threedom.css").toExternalForm();
 
     static final double FACTOR2D3D = 1;
     static final double AXES_SIZE = 400;
@@ -84,18 +95,15 @@ public class ThreeDOM implements ITile3DListener {
 
     double translateRootX;
     double translateRootY;
-    ParallelTransition depthTransition;
-
     double maxDepth = 0;
-
     double THICKNESS = 10;
     Group root3D;
     SVNode currentRoot2D;
     IThreeDOM iThreeDOM;
     Tile3D currentSelectedNode;
     Translate translateCamera;
-
     RotateTransition rotateTransition;
+    ParallelTransition depthParallelTransition;
 
     public void setHolder(IThreeDOM h) {
         iThreeDOM = h;
@@ -103,6 +111,7 @@ public class ThreeDOM implements ITile3DListener {
 
     public Parent createContent(SVNode root2D) throws Exception {
         currentRoot2D = root2D;
+
         // Build the Scene Graph
         Pane root = null;
         // UI part of the decoration
@@ -110,6 +119,7 @@ public class ThreeDOM implements ITile3DListener {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("threedom.fxml"));
             fxmlLoader.setController(this);
             root = (BorderPane) fxmlLoader.load();
+            root.getStylesheets().addAll(STYLESHEETS);
         } catch (Exception ex) {
             System.err.println(ex);
         }
@@ -142,7 +152,7 @@ public class ThreeDOM implements ITile3DListener {
 
         // Use a SubScene       
         SubScene subScene = new SubScene(world, 1024, 768, true, SceneAntialiasing.BALANCED);
-        subScene.setFill(Color.WHITE);
+        subScene.setFill(Color.TRANSPARENT);
         subScene.setCamera(camera);
 
         // Mouse
@@ -196,11 +206,11 @@ public class ThreeDOM implements ITile3DListener {
         onlyOnce = true;
         maxDepth = 0;
         if (animate) {
-            depthTransition = new ParallelTransition();
-            depthTransition.setDelay(Duration.seconds(1));
-            depthTransition.setInterpolator(Interpolator.EASE_OUT);
+            depthParallelTransition = new ParallelTransition();
+            depthParallelTransition.setDelay(Duration.seconds(1));
+            depthParallelTransition.setInterpolator(Interpolator.EASE_OUT);
         } else {
-            depthTransition = null;
+            depthParallelTransition = null;
         }
 
         from2Dto3D(currentRoot2D, root3D, 0);
@@ -209,9 +219,9 @@ public class ThreeDOM implements ITile3DListener {
         slider.setValue(maxDepth);
         if (animate) {
             if (rotateTransition != null) {
-                depthTransition.getChildren().add(rotateTransition);
+                depthParallelTransition.getChildren().add(rotateTransition);
             }
-            depthTransition.play();
+            depthParallelTransition.play();
         }
     }
 
@@ -244,13 +254,12 @@ public class ThreeDOM implements ITile3DListener {
 
         Tile3D tile = new Tile3D(currentRoot2D, factor2d3d, node2D, depth, THICKNESS, this, iThreeDOM);
 
-        if (depthTransition != null && depth > 1) {
+        if (depthParallelTransition != null && depth > 1) {
             TranslateTransition translateTransition = new TranslateTransition(Duration.seconds(2));
             translateTransition.setInterpolator(Interpolator.EASE_OUT);
             translateTransition.setNode(tile);
-            translateTransition.setDelay(Duration.seconds(2));
             translateTransition.setToZ(-depth * THICKNESS);
-            depthTransition.getChildren().add(translateTransition);
+            depthParallelTransition.getChildren().add(translateTransition);
         } else {
             tile.setTranslateZ(-depth * THICKNESS);
         }
@@ -359,4 +368,14 @@ public class ThreeDOM implements ITile3DListener {
         return null;
     }
 
+    @FXML
+    public void onDefaultBackgroundColor(ActionEvent ae) {
+        subSceneContainer.getStyleClass().set(0, "subSceneBackground");
+    }
+
+    @FXML
+    public void onColorPicker(ActionEvent ae) {
+        Color newColor = colorPicker.getValue();
+        subSceneContainer.setBackground(new Background(new BackgroundFill(newColor, CornerRadii.EMPTY, Insets.EMPTY)));
+    }
 }

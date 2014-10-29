@@ -54,8 +54,7 @@ public class Tile3D extends Box {
         material = new PhongMaterial();
         material.setDiffuseColor(Color.WHITE);
         material.setSpecularColor(Color.TRANSPARENT);
-        //
-//            Bounds bounds2D = node2D.localToScene(node2D.getLayoutBounds());
+
         Bounds bounds2D = localetoRoot(node2D);
         //
         Bounds bounds3D = new BoundingBox(bounds2D.getMinX() * factor2d3d,
@@ -66,7 +65,7 @@ public class Tile3D extends Box {
         super.setWidth(bounds3D.getWidth());
         super.setHeight(bounds3D.getHeight());
 
-        // Place object as 0,0 , that is curently in the middle of 3D universe
+        // Place object as 0,0 that is curently in the middle of 3D universe
         getTransforms().add(new Translate(bounds3D.getMinX() + bounds3D.getWidth() / 2,
                 bounds3D.getMinY() + bounds3D.getHeight() / 2,
                 0));
