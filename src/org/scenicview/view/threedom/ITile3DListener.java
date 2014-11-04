@@ -17,7 +17,10 @@
  */
 package org.scenicview.view.threedom;
 
+import javafx.scene.input.MouseEvent;
+
 public interface ITile3DListener {
     public void onMouseMovedOnTile(String l);
     public void onMouseClickedOnTile(Tile3D tile);
+    public void onMouseRightClickedOnTile(MouseEvent evt);
 }

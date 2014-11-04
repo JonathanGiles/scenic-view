@@ -36,6 +36,7 @@ import javafx.scene.control.TreeView;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.stage.WindowEvent;
 
 import org.fxconnector.AppController;
 import org.fxconnector.ConnectorUtils;
@@ -125,7 +126,7 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         
     }
 
-    private void showContextMenu(final MouseEvent ev) {
+    public void showContextMenu(final MouseEvent ev) {
         if (getSelectionModel().getSelectedItem() != null && selectedCM == null) {
             final TreeItem<SVNode> node = getSelectionModel().getSelectedItem();
             final int hash = node.getValue().hashCode();
@@ -140,6 +141,10 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
             final Menu forcedCollapse = new Menu("Forced Collapse");
             forcedCollapse.setDisable(expanded || expandedClass);
             selectedCM = new ContextMenu();
+            // When invoked from outside (e.g. 3D view)
+            selectedCM.setOnHidden((WindowEvent event) -> {
+                selectedCM=null;
+            });
             final CheckMenuItem collapseNode = new CheckMenuItem("For this node");
             collapseNode.setOnAction(forceExpandCollapse(node, forcedCollapsedItems, hash, collapsed, true));
             collapseNode.setSelected(collapsed);

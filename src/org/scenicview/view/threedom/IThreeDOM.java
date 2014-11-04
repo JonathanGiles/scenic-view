@@ -17,9 +17,10 @@
  */
 package org.scenicview.view.threedom;
 
+import javafx.scene.input.MouseEvent;
 import org.fxconnector.node.SVNode;
 
 public interface IThreeDOM {
     public void clickOnTile(SVNode node);
-    
+    public void rightClickOnTile(MouseEvent evt);
 }

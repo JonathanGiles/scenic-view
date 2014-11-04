@@ -23,6 +23,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Menu;
 import javafx.scene.control.Tab;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 
 import org.fxconnector.node.SVNode;
 import org.scenicview.view.threedom.ThreeDOM;
@@ -79,9 +80,7 @@ public class ThreeDOMTab extends Tab implements ContextMenuContainer, IThreeDOM 
                 Platform.runLater(() -> {
                     setSelectedNode(selectedNode);
                 });
-
             }
-
         }
     }
 
@@ -122,16 +121,22 @@ public class ThreeDOMTab extends Tab implements ContextMenuContainer, IThreeDOM 
 
     public void removeNode(SVNode node) {
         if (threeDOM != null) {
-            threeDOM.removeNode(node);
+            threeDOM.reload();
         }
     }
 
     /**
      * User clicked on a 3D box
+     *
      * @param node
      */
     @Override
     public void clickOnTile(SVNode node) {
         scenicView.getTreeView().nodeSelected(node);        // Simulate classic click on tree
+    }
+
+    @Override
+    public void rightClickOnTile(MouseEvent evt) {
+        scenicView.getTreeView().showContextMenu(evt);        // Simulate classic click on tree
     }
 }

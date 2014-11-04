@@ -22,6 +22,7 @@
                       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
                         <Label fx:id="label" styleClass="controlslabel" text="Show 3D axes:" />
@@ -40,7 +41,7 @@
                         </Label>
                         <Slider fx:id="slider" GridPane.columnIndex="1" GridPane.rowIndex="2">
                            <padding>
-                              <Insets left="10.0" right="10.0" />
+                              <Insets left="5.0" right="10.0" />
                            </padding>
                         </Slider>
                         <Button fx:id="reload" mnemonicParsing="false" text="Refresh" GridPane.columnIndex="1" GridPane.rowIndex="3">
@@ -59,6 +60,15 @@
                               <Insets left="125.0" />
                            </GridPane.margin>
                         </Button>
+                        <Slider fx:id="spaceSlider" blockIncrement="1.0" max="15.0" value="10.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                           <GridPane.margin>
+                              <Insets />
+                           </GridPane.margin>
+                           <padding>
+                              <Insets left="5.0" right="10.0" />
+                           </padding>
+                        </Slider>
+                        <Label styleClass="controlslabel" text="Space between boxes:" GridPane.rowIndex="5" />
                      </children>
                      <opaqueInsets>
                         <Insets />

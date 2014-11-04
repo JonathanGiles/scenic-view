@@ -17,6 +17,7 @@
  */
 package org.scenicview.view.threedom;
 
+import java.util.ArrayList;
 import javafx.collections.ObservableList;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
@@ -42,6 +43,7 @@ public class Tile3D extends Box {
     double factor2d3d;
     ITile3DListener iTile3DListener;
     IThreeDOM iThreeDOM;
+    ArrayList<Tile3D> children;
 
     public Tile3D(SVNode currentRoot2D, double factor2d3d, SVNode node2D, double depth, double thickness, ITile3DListener l, IThreeDOM i) {
         this.depth = depth;
@@ -77,9 +79,14 @@ public class Tile3D extends Box {
             String mouseOverTileText = node2D.getImpl().getClass().getSimpleName();
             iTile3DListener.onMouseMovedOnTile(mouseOverTileText);
         });
-        super.setOnMouseClicked((MouseEvent event) -> {
+//        super.setOnMouseClicked((MouseEvent event) -> {
+        super.setOnMousePressed((MouseEvent event) -> {
+           
             // Selection
             iTile3DListener.onMouseClickedOnTile(Tile3D.this);
+             if(event.isSecondaryButtonDown()){
+                  iTile3DListener.onMouseRightClickedOnTile(event);
+            }
         });
 
     }
@@ -92,6 +99,7 @@ public class Tile3D extends Box {
         return depth;
     }
 
+    @SuppressWarnings("CallToPrintStackTrace")
     public final void snapshot() {
         Bounds layoutBounds = node2d.getImpl().getLayoutBounds();
         if (layoutBounds.getWidth() > 0 && layoutBounds.getHeight() > 0) {
@@ -110,9 +118,13 @@ public class Tile3D extends Box {
                     }
                 });
             }
-            node2d.getImpl().snapshot(snapshotParameters, writableImage);
-            material.setDiffuseMap(writableImage);
-
+            try {
+                node2d.getImpl().snapshot(snapshotParameters, writableImage);
+                material.setDiffuseMap(writableImage);
+            } catch (Throwable t) {
+                // Sometimes the snapshot hangs (e.g. webview)
+                t.printStackTrace();
+            }
             // Show children
             if (node2d.getImpl() instanceof Parent) {
                 ObservableList<Node> childrenUnmodifiable = ((Parent) node2d.getImpl()).getChildrenUnmodifiable();
@@ -136,5 +148,16 @@ public class Tile3D extends Box {
         Bounds node = n.localToScene(n.getLayoutBounds());
         Bounds root = currentRoot2D.getImpl().localToScene(currentRoot2D.getImpl().getLayoutBounds());
         return new BoundingBox(node.getMinX() - root.getMinX(), node.getMinY() - root.getMinY(), node.getWidth(), node.getHeight());
+    }
+
+    public void addChildrenTile(Tile3D child) {
+        if (children == null) {
+            children = new ArrayList(5);
+        }
+        children.add(child);
+    }
+
+    public ArrayList<Tile3D> getChildrenTile() {
+        return children;
     }
 }

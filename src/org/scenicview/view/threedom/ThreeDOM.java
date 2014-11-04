@@ -17,7 +17,9 @@
  */
 package org.scenicview.view.threedom;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import javafx.animation.Interpolator;
 import javafx.animation.ParallelTransition;
 import javafx.animation.RotateTransition;
@@ -32,6 +34,7 @@ import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point3D;
+import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -46,6 +49,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TitledPane;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
@@ -59,13 +63,17 @@ import javafx.scene.transform.Translate;
 import javafx.util.Duration;
 import org.fxconnector.ConnectorUtils;
 import org.fxconnector.node.SVNode;
+import org.scenicview.utils.PropertiesUtils;
 
 /**
  * Main class for 3D display TODO: 2D to 3D Miss: a snapshot parameter to only
  * capture container and not descendants. Replace Tile3D by a box with only one
- * textured face. Save background color
+ * textured face. Save background color in app prefs. Keep hierarchy reference
+ * to delete child nodes when a parent is removed.
  */
 public class ThreeDOM implements ITile3DListener {
+
+    private static final String THREEDOM_BACKGROUNDCOLOR = "threedom.backgroundcolor";
 
     @FXML
     Slider slider;
@@ -85,6 +93,8 @@ public class ThreeDOM implements ITile3DListener {
     ColorPicker colorPicker;
     @FXML
     Button defaultBackgroundColor;
+    @FXML
+    Slider spaceSlider;
 
     private static final String STYLESHEETS = ThreeDOM.class.getResource("threedom.css").toExternalForm();
 
@@ -103,7 +113,7 @@ public class ThreeDOM implements ITile3DListener {
     Tile3D currentSelectedNode;
     Translate translateCamera;
     RotateTransition rotateTransition;
-    ParallelTransition depthParallelTransition;
+    ParallelTransition initialParallelTransition;
 
     public void setHolder(IThreeDOM h) {
         iThreeDOM = h;
@@ -140,14 +150,24 @@ public class ThreeDOM implements ITile3DListener {
 
         world.getChildren().add(camera);
         rotateTransition = new RotateTransition(Duration.seconds(2));
-        rotateTransition.setDelay(Duration.seconds(1));
         rotateTransition.setNode(camera);
         rotateTransition.setAxis(new Point3D(0, 1, 0));
         rotateTransition.setByAngle(30);
 
         Group axes3DRoot = new Group();
 
-        root3D = new Group();
+        root3D = new Group() {
+
+            @Override
+            protected void layoutChildren() {
+                super.layoutChildren();
+                if (initialParallelTransition != null & !onlyOnce) {
+                    initialParallelTransition.play();
+                    onlyOnce = true;
+                }
+            }
+
+        };
         world.getChildren().addAll(axes3DRoot, root3D);
 
         // Use a SubScene       
@@ -162,6 +182,14 @@ public class ThreeDOM implements ITile3DListener {
 
         controls.setExpanded(true);
         accordion.setExpandedPane(controls);
+        //
+        spaceSlider.valueProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
+            ObservableList<Node> childrenUnmodifiable = root3D.getChildrenUnmodifiable();
+            childrenUnmodifiable.stream().forEach((n) -> {
+                double z = ((Tile3D) n).getTranslateZ();
+                ((Tile3D) n).setTranslateZ(((Tile3D) n).get3Depth() * -newValue.doubleValue());
+            });
+        });
         //
         slider.setShowTickMarks(true);
         slider.setShowTickLabels(true);
@@ -179,7 +207,7 @@ public class ThreeDOM implements ITile3DListener {
         reload.setOnAction((ActionEvent event) -> {
             _reload();
         });
-
+        subScene.setCursor(Cursor.HAND);
         subSceneContainer.setPrefSize(600, 500);
         subSceneContainer.setMinSize(60, 50);
         subSceneContainer.setCenter(subScene);
@@ -188,29 +216,34 @@ public class ThreeDOM implements ITile3DListener {
 
         buildAxes(axes3DRoot);        // Axes
 
-        if (!onlyOnce) {
-            init3D(true);
-            Bounds layoutBounds = root3D.getLayoutBounds();
-            translateRootX = -layoutBounds.getWidth() / 2;
-            translateRootY = -layoutBounds.getHeight() / 2;
-            root3D.getTransforms().add(new Translate(translateRootX, translateRootY));
-            // Scale to Scene's size
-            double zoom = 600 * (layoutBounds.getWidth() / 600);
-            translateCamera.setZ(-zoom);
-        }
+        init3D(true);
+        Bounds layoutBounds = root3D.getLayoutBounds();
+        translateRootX = -layoutBounds.getWidth() / 2;
+        translateRootY = -layoutBounds.getHeight() / 2;
+        root3D.getTransforms().add(new Translate(translateRootX, translateRootY));
+        // Scale to Scene's size
+        double zoom = 600 * (layoutBounds.getWidth() / 600);
+        translateCamera.setZ(-zoom);
 
+        // Prefs
+        final Properties properties = PropertiesUtils.getProperties();
+        String color = properties.getProperty(THREEDOM_BACKGROUNDCOLOR);
+        if (color != null) {
+            Color c = Color.web(color);
+            colorPicker.setValue(c);
+            applyColor(c);
+        }
         return root;
     }
 
     void init3D(boolean animate) {
-        onlyOnce = true;
         maxDepth = 0;
         if (animate) {
-            depthParallelTransition = new ParallelTransition();
-            depthParallelTransition.setDelay(Duration.seconds(1));
-            depthParallelTransition.setInterpolator(Interpolator.EASE_OUT);
+            initialParallelTransition = new ParallelTransition();
+            initialParallelTransition.setDelay(Duration.seconds(1));
+            initialParallelTransition.setInterpolator(Interpolator.EASE_OUT);
         } else {
-            depthParallelTransition = null;
+            initialParallelTransition = null;
         }
 
         from2Dto3D(currentRoot2D, root3D, 0);
@@ -219,15 +252,14 @@ public class ThreeDOM implements ITile3DListener {
         slider.setValue(maxDepth);
         if (animate) {
             if (rotateTransition != null) {
-                depthParallelTransition.getChildren().add(rotateTransition);
+                initialParallelTransition.getChildren().add(rotateTransition);
             }
-            depthParallelTransition.play();
         }
     }
 
-    private Node from2Dto3D(SVNode root2D, Group root3D, double depth) {
-        // Parent3D
-        Node node3D = nodeToTile3D(root2D, FACTOR2D3D, depth);
+    private Tile3D from2Dto3D(SVNode root2D, Group root3D, double depth) {
+        Tile3D childNode3D = null;
+        Tile3D node3D = nodeToTile3D(root2D, FACTOR2D3D, depth);
         root3D.getChildren().add(node3D);
         depth += 3;
         List<SVNode> childrenUnmodifiable = root2D.getChildren();
@@ -238,10 +270,15 @@ public class ThreeDOM implements ITile3DListener {
             }
             Node node = svnode.getImpl();
             if (node.isVisible() && node instanceof Parent) {
-                from2Dto3D(svnode, root3D, depth);
+                childNode3D = from2Dto3D(svnode, root3D, depth);
             } else if (node.isVisible()) {
-                node3D = nodeToTile3D(svnode, FACTOR2D3D, depth);
-                root3D.getChildren().add(node3D);
+                childNode3D = nodeToTile3D(svnode, FACTOR2D3D, depth);
+                root3D.getChildren().add(childNode3D);
+
+            }
+            // Since 3D model is flat, keep "hierarchy" to child nodes
+            if (childNode3D != null) {
+                node3D.addChildrenTile(childNode3D);
             }
         }
         if (depth > maxDepth) {
@@ -250,28 +287,47 @@ public class ThreeDOM implements ITile3DListener {
         return node3D;
     }
 
-    private Node nodeToTile3D(SVNode node2D, double factor2d3d, double depth) {
+    private Tile3D nodeToTile3D(SVNode node2D, double factor2d3d, double depth) {
 
         Tile3D tile = new Tile3D(currentRoot2D, factor2d3d, node2D, depth, THICKNESS, this, iThreeDOM);
 
-        if (depthParallelTransition != null && depth > 1) {
+        if (initialParallelTransition != null && depth > 1) {
             TranslateTransition translateTransition = new TranslateTransition(Duration.seconds(2));
             translateTransition.setInterpolator(Interpolator.EASE_OUT);
             translateTransition.setNode(tile);
-            translateTransition.setToZ(-depth * THICKNESS);
-            depthParallelTransition.getChildren().add(translateTransition);
+            // Take into account slider's value
+            translateTransition.setToZ(-depth * spaceSlider.getValue());
+            initialParallelTransition.getChildren().add(translateTransition);
         } else {
-            tile.setTranslateZ(-depth * THICKNESS);
+            tile.setTranslateZ(-depth * spaceSlider.getValue());
         }
 
         return tile;
     }
 
+    /**
+     * Remove a node and its children . Issue: Do not update the depth slider
+     *
+     * @param node
+     */
     public void removeNode(SVNode node) {
         Tile3D found = find(node);
         if (found != null) {
+            ArrayList<Tile3D> childrenTile = found.getChildrenTile();
+            hideChildren(childrenTile);
             root3D.getChildren().remove(found);
         }
+        reload();
+    }
+
+    private void hideChildren(ArrayList<Tile3D> childrenTile) {
+        if (childrenTile == null || childrenTile.isEmpty()) {
+            return;
+        }
+        childrenTile.stream().forEach((tile) -> {
+            tile.setVisible(false);
+            hideChildren(tile.getChildrenTile());
+        });
     }
 
     public void reload() {
@@ -303,6 +359,11 @@ public class ThreeDOM implements ITile3DListener {
     @Override
     public void onMouseClickedOnTile(Tile3D tile) {
         iThreeDOM.clickOnTile(tile.getSVNode());
+    }
+
+    @Override
+    public void onMouseRightClickedOnTile(MouseEvent evt) {
+        iThreeDOM.rightClickOnTile(evt);
     }
 
     public void clearSelection() {
@@ -370,12 +431,25 @@ public class ThreeDOM implements ITile3DListener {
 
     @FXML
     public void onDefaultBackgroundColor(ActionEvent ae) {
-        subSceneContainer.getStyleClass().set(0, "subSceneBackground");
+        subSceneContainer.getStyleClass().add("subSceneBackground");
+         // Prefs 
+        final Properties properties = PropertiesUtils.getProperties();
+        properties.remove(THREEDOM_BACKGROUNDCOLOR);
     }
 
     @FXML
     public void onColorPicker(ActionEvent ae) {
         Color newColor = colorPicker.getValue();
-        subSceneContainer.setBackground(new Background(new BackgroundFill(newColor, CornerRadii.EMPTY, Insets.EMPTY)));
+        applyColor(newColor);
+        // Prefs 
+        final Properties properties = PropertiesUtils.getProperties();
+        properties.put(THREEDOM_BACKGROUNDCOLOR, newColor.toString());
+    }
+
+    void applyColor(Color color) {
+//        Platform.runLater(() -> {
+                  subSceneContainer.getStyleClass().remove("subSceneBackground");
+            subSceneContainer.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
+//        });
     }
 }
