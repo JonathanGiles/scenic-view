@@ -36,6 +36,9 @@ import org.fxconnector.StageID;
 import org.fxconnector.details.DetailPaneType;
 import org.fxconnector.event.FXConnectorEventDispatcher;
 import org.fxconnector.node.SVNode;
+import org.fxmisc.cssfx.impl.log.CSSFXLogger;
+import org.fxmisc.cssfx.impl.log.CSSFXLogger.LogLevel;
+import org.fxmisc.cssfx.impl.log.CSSFXLogger.Logger;
 import org.scenicview.utils.ExceptionLogger;
 
 public class RuntimeAttach {
@@ -54,6 +57,12 @@ public class RuntimeAttach {
          */
         debug = agentArgs.indexOf("true") != -1;
         debug("Launching agent server on:" + agentArgs);
+        
+        if (debug) {
+            CSSFXLogger.console();
+            CSSFXLogger.setLogLevel(LogLevel.INFO);
+        }
+        
         try {
             final String[] args = agentArgs.split(":");
 
