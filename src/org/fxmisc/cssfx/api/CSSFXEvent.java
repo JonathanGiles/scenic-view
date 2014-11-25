@@ -1,4 +1,4 @@
-package org.fxmisc.cssfx.impl.events;
+package org.fxmisc.cssfx.api;
 
 /*
  * #%L
@@ -34,6 +34,8 @@ public final class CSSFXEvent<T> {
         , SCENE_REMOVED
         , STAGE_ADDED
         , STAGE_REMOVED
+        , STYLESHEET_REPLACED
+        , STYLESHEET_MONITORED
     }
     
     private  CSSFXEvent(EventType type, T data) {

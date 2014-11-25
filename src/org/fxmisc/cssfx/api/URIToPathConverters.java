@@ -1,4 +1,4 @@
-package org.fxmisc.cssfx.impl;
+package org.fxmisc.cssfx.api;
 
 /*
  * #%L
@@ -30,8 +30,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.fxmisc.cssfx.api.URIToPathConverter;
 
 public class URIToPathConverters {
     private static final URIToPathConverter MAVEN_RESOURCE = new URIToPathConverter() {

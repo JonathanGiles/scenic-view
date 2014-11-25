@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.scenicview.view.cssfx.CSSFXTabContentController">
+   <top>
+      <GridPane styleClass="cssfx-tab-filter" BorderPane.alignment="CENTER">
+        <columnConstraints>
+          <ColumnConstraints halignment="LEFT" hgrow="NEVER" minWidth="10.0" />
+          <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <CheckBox fx:id="cbNonMapped" alignment="BOTTOM_LEFT" mnemonicParsing="false" prefHeight="17.0" prefWidth="127.0" text="Non mapped CSS" GridPane.columnSpan="2147483647" />
+            <TextField fx:id="tfFilter" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS" />
+            <Label text="CSS filter:" GridPane.rowIndex="1" />
+         </children>
+      </GridPane>
+   </top>
+   <center>
+      <TableView fx:id="items" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <columns>
+          <TableColumn fx:id="cssColumn" maxWidth="1.7976931348623157E308" prefWidth="114.0" text="CSS resource" />
+          <TableColumn fx:id="mappedByColumn" maxWidth="1.7976931348623157E308" prefWidth="111.0" text="File mapped" />
+        </columns>
+      </TableView>
+   </center>
+</BorderPane>

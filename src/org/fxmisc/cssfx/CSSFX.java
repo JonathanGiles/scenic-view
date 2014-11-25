@@ -22,6 +22,8 @@ package org.fxmisc.cssfx;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -31,10 +33,12 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import org.fxmisc.cssfx.api.CSSFXEvent;
+import org.fxmisc.cssfx.api.CSSFXEventListener;
 import org.fxmisc.cssfx.api.URIToPathConverter;
+import org.fxmisc.cssfx.api.URIToPathConverters;
 import org.fxmisc.cssfx.impl.ApplicationStages;
 import org.fxmisc.cssfx.impl.CSSFXMonitor;
-import org.fxmisc.cssfx.impl.URIToPathConverters;
 import org.fxmisc.cssfx.impl.log.CSSFXLogger;
 import org.fxmisc.cssfx.impl.log.CSSFXLogger.LogLevel;
 
@@ -95,6 +99,17 @@ public class CSSFX {
         cfg.setRestrictedToNode(node);
         return cfg.start();
     }
+    
+    /**
+     * Register an event listener that will receive {@link CSSFXEvent} events.
+     * @param listener the listener to register, ignored if null
+     * @return a {@link CSSFXConfig} object as a builder to allow further configuration
+     */
+    public static CSSFXConfig listening(CSSFXEventListener listener) {
+        CSSFXConfig cfg = new CSSFXConfig();
+        cfg.addListener(listener);
+        return cfg;
+    }
 
     /**
      * Restrict the source file detection for graphical sub-tree of the given {@link Stage}
@@ -147,12 +162,14 @@ public class CSSFX {
     public static class CSSFXConfig {
         // LinkedHashSet will preserve ordering
         private final Set<URIToPathConverter> converters = new LinkedHashSet<URIToPathConverter>(Arrays.asList(URIToPathConverters.DEFAULT_CONVERTERS));
+        private final List<CSSFXEventListener> listeners = new LinkedList<>();
         private Stage restrictedToStage = null;
         private Scene restrictedToScene = null;
         private Node restrictedToNode = null;
         
         CSSFXConfig() {
         }
+
 
         void setRestrictedToStage(Stage restrictedToStage) {
             this.restrictedToStage = restrictedToStage;
@@ -164,6 +181,18 @@ public class CSSFX {
 
         void setRestrictedToNode(Node restrictedToNode) {
             this.restrictedToNode = restrictedToNode;
+        }
+        
+        /**
+         * Registers the given listener as an additional {@link CSSFXEventListener}/ 
+         * @param listener the listener to register, ignored if null
+         * @return a {@link CSSFXConfig} object as a builder to allow further configuration
+         */
+        public CSSFXConfig addListener(CSSFXEventListener listener) {
+            if (listener != null) {
+                listeners.add(listener);
+            }
+            return this;
         }
         
         /**
@@ -223,6 +252,10 @@ public class CSSFX {
             }
             
             CSSFXMonitor m = new CSSFXMonitor();
+            
+            for (CSSFXEventListener listener : listeners) {
+                m.addEventListener(listener);
+            }
             
             if (restrictedToStage != null) {
                 m.setStages(FXCollections.singletonObservableList(restrictedToStage));

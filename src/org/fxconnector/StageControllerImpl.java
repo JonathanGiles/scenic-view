@@ -54,6 +54,7 @@ import javafx.stage.Window;
 import org.fxconnector.details.AllDetails;
 import org.fxconnector.details.DetailPaneType;
 import org.fxconnector.event.AnimationsCountEvent;
+import org.fxconnector.event.EvCSSFXEvent;
 import org.fxconnector.event.EvLogEvent;
 import org.fxconnector.event.FXConnectorEvent;
 import org.fxconnector.event.FXConnectorEvent.SVEventType;
@@ -74,6 +75,10 @@ import org.fxconnector.node.NodeType;
 import org.fxconnector.node.SVDummyNode;
 import org.fxconnector.node.SVNode;
 import org.fxconnector.node.SVNodeFactory;
+import org.fxmisc.cssfx.api.CSSFXEvent;
+import org.fxmisc.cssfx.api.CSSFXEvent.EventType;
+import org.fxmisc.cssfx.api.CSSFXEventListener;
+import org.fxmisc.cssfx.api.MonitoredStylesheet;
 import org.scenicview.utils.ExceptionLogger;
 import org.scenicview.utils.Logger;
 
@@ -304,6 +309,8 @@ public class StageControllerImpl implements StageController {
         details = new AllDetails(model2gui, getID());
         setTarget(target);
         update();
+        
+        
     }
 
     @Override public boolean isOpened() {
@@ -819,4 +826,60 @@ public class StageControllerImpl implements StageController {
         }
     }
 
+    public CSSFXEventListener getCSSFXEventListener() {
+        CSSFXEventListener eventTranslator = new CSSFXEventListener() {
+            @Override
+            public void onEvent(CSSFXEvent<?> event) {
+                if (dispatcher == null) {
+                    return;
+                }
+                
+                EventType et = event.getEventType();
+                
+                switch (et) {
+                case STYLESHEET_MONITORED:
+                case STYLESHEET_REMOVED:
+                case STYLESHEET_REPLACED:
+                    MonitoredStylesheet ms = (MonitoredStylesheet) event.getEventData();
+                    SVEventType type = fromCSSEvent(et);
+                    SVNode node = fromCSSEventOrigin(ms);
+                    EvCSSFXEvent e = new EvCSSFXEvent(type, getID(), node, ms.getOriginalURI(), (ms.getSource() == null)?null:ms.getSource().toString());
+                    dispatcher.dispatchEvent(e);
+                    break;
+                default:
+                    break;
+                }
+            }
+
+            private SVNode fromCSSEventOrigin(MonitoredStylesheet ms) {
+                if (ms.getScene() != null) {
+                    Scene s = ms.getScene();
+                    Window w = s.getWindow();
+                    String title = String.format("Window[%d]", System.identityHashCode(w));
+                    if (w instanceof Stage) {
+                        title = ((Stage) w).getTitle();
+                    }
+                    return new SVDummyNode(title, "Stage", getID().getStageID(), NodeType.STAGE);
+                } 
+                
+                return createNode(ms.getParent());
+            }
+
+            private SVEventType fromCSSEvent(EventType et) {
+                switch (et) {
+                case STYLESHEET_MONITORED:
+                    return SVEventType.CSS_ADDED;
+                case STYLESHEET_REMOVED:
+                    return SVEventType.CSS_ADDED;
+                case STYLESHEET_REPLACED:
+                    return SVEventType.CSS_ADDED;
+                default:
+                    break;
+                }
+                return null;
+            }
+        };   
+        
+        return eventTranslator;
+    }
 }

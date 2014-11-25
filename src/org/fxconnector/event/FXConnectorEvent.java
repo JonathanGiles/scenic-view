@@ -37,7 +37,10 @@ public class FXConnectorEvent implements Serializable {
         DETAILS, 
         DETAIL_UPDATED, 
         ANIMATIONS_UPDATED, 
-        SHORTCUT
+        SHORTCUT,
+        CSS_ADDED, 
+        CSS_REMOVED, 
+        CSS_REPLACED 
     }
 
     /**

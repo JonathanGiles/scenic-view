@@ -76,18 +76,19 @@ import org.fxconnector.event.SceneDetailsEvent;
 import org.fxconnector.event.ShortcutEvent;
 import org.fxconnector.event.WindowDetailsEvent;
 import org.fxconnector.node.SVNode;
-import org.scenicview.view.control.FilterTextField;
-import org.scenicview.view.dialog.AboutBox;
-import org.scenicview.view.dialog.HelpBox;
-import org.scenicview.view.tabs.AnimationsTab;
-import org.scenicview.view.tabs.DetailsTab;
-import org.scenicview.view.tabs.EventLogTab;
-import org.scenicview.view.tabs.JavaDocTab;
 import org.scenicview.model.Persistence;
 import org.scenicview.model.update.AppsRepository;
 import org.scenicview.model.update.UpdateStrategy;
 import org.scenicview.utils.ExceptionLogger;
 import org.scenicview.utils.Logger;
+import org.scenicview.view.control.FilterTextField;
+import org.scenicview.view.dialog.AboutBox;
+import org.scenicview.view.dialog.HelpBox;
+import org.scenicview.view.tabs.AnimationsTab;
+import org.scenicview.view.tabs.CSSFXTab;
+import org.scenicview.view.tabs.DetailsTab;
+import org.scenicview.view.tabs.EventLogTab;
+import org.scenicview.view.tabs.JavaDocTab;
 import org.scenicview.view.tabs.ThreeDOMTab;
 
 /**
@@ -204,6 +205,7 @@ public class ScenicViewGui {
     private AnimationsTab animationsTab;
     private JavaDocTab javadocTab;
     private ThreeDOMTab threeDOMTab;
+    private CSSFXTab cssfxTab;
 
     public ScenicViewGui(final UpdateStrategy updateStrategy, final Stage scenicViewStage) {
         this.scenicViewStage = scenicViewStage;
@@ -294,7 +296,10 @@ public class ScenicViewGui {
         // 3Dom
         threeDOMTab = new ThreeDOMTab(this); 
         
-        tabPane.getTabs().addAll(detailsTab, eventsTab, /*animationsTab,*/ javadocTab, threeDOMTab);
+        // CSSFX
+        cssfxTab = new CSSFXTab(this);
+        
+        tabPane.getTabs().addAll(detailsTab, eventsTab, /*animationsTab,*/ javadocTab, threeDOMTab, cssfxTab);
         // /3Dom
         
         Persistence.loadProperty("splitPaneDividerPosition", splitPane, 0.3);
@@ -852,6 +857,7 @@ public class ScenicViewGui {
             propertyFilterField.setDisable(value == null);
             filterProperties(propertyFilterField.getText());
             threeDOMTab.setSelectedNode(value); // 3D addition
+            cssfxTab.stageSelected((controller==null)?null:controller.getID());
         }
     }
 
@@ -1044,6 +1050,8 @@ public class ScenicViewGui {
             case NODE_SELECTED: {
                 componentSelectOnClick.setSelected(false);
                 treeView.nodeSelected(((NodeSelectedEvent) appEvent).getNode());
+                cssfxTab.stageSelected(appEvent.getStageID());
+
                 scenicViewStage.toFront();
                 break;
             }
@@ -1064,6 +1072,7 @@ public class ScenicViewGui {
                                          showNodesIdInTree.isSelected(),
                                          showFilteredNodesInTree.isSelected());
                 threeDOMTab.placeNewRoot(((NodeAddRemoveEvent) appEvent).getNode());
+                cssfxTab.registerStage(appEvent.getStageID());
                 break;
             }
             case NODE_ADDED: {
@@ -1106,6 +1115,11 @@ public class ScenicViewGui {
                 animationsTab.update(appEvent.getStageID(), ((AnimationsCountEvent) appEvent).getAnimations());
                 break;
             }
+            case CSS_ADDED: 
+            case CSS_REMOVED: 
+            case CSS_REPLACED: 
+                cssfxTab.handleEvent(appEvent);
+                break;
             default: {
                 Logger.print("Unused event for type " + appEvent);
                 break;

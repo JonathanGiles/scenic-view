@@ -25,11 +25,17 @@ import java.util.List;
 
 import org.fxconnector.Configuration;
 import org.fxconnector.StageID;
+import org.fxconnector.event.EvCSSFXEvent;
 import org.fxconnector.event.FXConnectorEvent;
+import org.fxconnector.event.FXConnectorEvent.SVEventType;
 import org.fxconnector.event.FXConnectorEventDispatcher;
 import org.fxconnector.details.DetailPaneType;
 import org.fxconnector.node.SVNode;
 import org.fxmisc.cssfx.CSSFX;
+import org.fxmisc.cssfx.api.CSSFXEvent;
+import org.fxmisc.cssfx.api.CSSFXEvent.EventType;
+import org.fxmisc.cssfx.api.CSSFXEventListener;
+import org.fxmisc.cssfx.api.MonitoredStylesheet;
 import org.scenicview.utils.ExceptionLogger;
 import org.scenicview.utils.Logger;
 
@@ -72,7 +78,7 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
             }
         });
         
-        cssfxStopper = CSSFX.start();
+//        cssfxStopper = CSSFX.start();
     }
 
     @Override public void close() {

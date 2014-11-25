@@ -1,4 +1,4 @@
-package org.fxmisc.cssfx.impl.events;
+package org.fxmisc.cssfx.api;
 
 /*
  * #%L
