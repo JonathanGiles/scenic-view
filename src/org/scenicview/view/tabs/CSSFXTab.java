@@ -87,22 +87,19 @@ public class CSSFXTab extends Tab {
         }
     }
 
-    public void registerStage(StageID stageID) {
-        ObservableList<MonitoredCSS> stageCSS = cssByStage.computeIfAbsent(stageID, sid -> FXCollections.observableArrayList());
-        if (cssfxTabContentController.getMonitoredCSS() != null) {
-            cssfxTabContentController.setMonitoredCSS(stageCSS);
-        }
-    }
-
-    public void stageSelected(StageID stageID) {
+    public void setActiveStage(StageID stageID) {
         if (stageID == null) {
-            cssfxTabContentController.setMonitoredCSS(FXCollections.emptyObservableList());
+            cssfxTabContentController.setMonitoredCSS(null);
         } else {
             ObservableList<MonitoredCSS> stageCSS = cssByStage.computeIfAbsent(stageID, sid -> FXCollections.observableArrayList());
             cssfxTabContentController.setMonitoredCSS(stageCSS);
         }
     }
     
+    public void registerStage(StageID stageID) {
+        cssByStage.computeIfAbsent(stageID, sid -> FXCollections.observableArrayList());
+    }
+
     public void addCSS(StageID stageID, String uri, String source) {
         replaceCSS(stageID, uri, source);
     }
@@ -128,4 +125,5 @@ public class CSSFXTab extends Tab {
             }
         }
     }
+
 }

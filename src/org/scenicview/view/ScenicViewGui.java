@@ -733,6 +733,7 @@ public class ScenicViewGui {
     
     public void setActiveStage(final StageController activeStage) {
         this.activeStage = activeStage;
+        cssfxTab.setActiveStage(activeStage.getID());
     }
     
     public FXConnectorEventDispatcher getStageModelListener() {
@@ -857,7 +858,7 @@ public class ScenicViewGui {
             propertyFilterField.setDisable(value == null);
             filterProperties(propertyFilterField.getText());
             threeDOMTab.setSelectedNode(value); // 3D addition
-            cssfxTab.stageSelected((controller==null)?null:controller.getID());
+            cssfxTab.setActiveStage((controller==null)?null:controller.getID());
         }
     }
 
@@ -1050,7 +1051,7 @@ public class ScenicViewGui {
             case NODE_SELECTED: {
                 componentSelectOnClick.setSelected(false);
                 treeView.nodeSelected(((NodeSelectedEvent) appEvent).getNode());
-                cssfxTab.stageSelected(appEvent.getStageID());
+                cssfxTab.setActiveStage(appEvent.getStageID());
 
                 scenicViewStage.toFront();
                 break;
