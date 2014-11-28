@@ -434,17 +434,23 @@ public class CSSFXMonitor implements CSSFXEventNotifer {
             while (c.next()) {
                 if (c.wasRemoved()) {
                     for (String removedURI : c.getRemoved()) {
-                        registrar.unregister(origin, removedURI);
+                        if (!isAManagedSourceURI(removedURI)) {
+                            registrar.unregister(origin, removedURI);
+                        }
                     }
                 }
                 if (c.wasAdded()) {
                     for (String newURI : c.getAddedSubList()) {
-                        if (!allKnownStylesheets().stream().anyMatch(ms -> newURI.equals(ms.getSource().toUri().toString()))) {
+                        if (!isAManagedSourceURI(newURI)) {
                             registrar.register(origin, newURI, c.getList());
                         }
                     }
                 }
             }
+        }
+
+        private boolean isAManagedSourceURI(String uri) {
+            return allKnownStylesheets().stream().anyMatch(ms -> uri.equals(ms.getSource().toUri().toString()));
         }
     }
 
