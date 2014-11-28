@@ -1,4 +1,4 @@
-package org.fxmisc.cssfx.impl.log;
+package org.scenicview.extensions.cssfx.module.impl.log;
 
 /*
  * #%L

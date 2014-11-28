@@ -1,4 +1,4 @@
-package org.fxmisc.cssfx.api;
+package org.scenicview.extensions.cssfx.module.api;
 
 import java.nio.file.Path;
 

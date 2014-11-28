@@ -1,4 +1,4 @@
-package org.fxmisc.cssfx.impl;
+package org.scenicview.extensions.cssfx.module.impl;
 
 /*
  * #%L
@@ -21,7 +21,7 @@ package org.fxmisc.cssfx.impl;
  */
 
 
-import static org.fxmisc.cssfx.impl.log.CSSFXLogger.logger;
+import static org.scenicview.extensions.cssfx.module.impl.log.CSSFXLogger.logger;
 
 import java.lang.reflect.Method;
 

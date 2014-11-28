@@ -31,11 +31,11 @@ import org.fxconnector.event.FXConnectorEvent.SVEventType;
 import org.fxconnector.event.FXConnectorEventDispatcher;
 import org.fxconnector.details.DetailPaneType;
 import org.fxconnector.node.SVNode;
-import org.fxmisc.cssfx.CSSFX;
-import org.fxmisc.cssfx.api.CSSFXEvent;
-import org.fxmisc.cssfx.api.CSSFXEvent.EventType;
-import org.fxmisc.cssfx.api.CSSFXEventListener;
-import org.fxmisc.cssfx.api.MonitoredStylesheet;
+import org.scenicview.extensions.cssfx.module.CSSFX;
+import org.scenicview.extensions.cssfx.module.api.CSSFXEvent;
+import org.scenicview.extensions.cssfx.module.api.CSSFXEventListener;
+import org.scenicview.extensions.cssfx.module.api.MonitoredStylesheet;
+import org.scenicview.extensions.cssfx.module.api.CSSFXEvent.EventType;
 import org.scenicview.utils.ExceptionLogger;
 import org.scenicview.utils.Logger;
 

@@ -1,4 +1,4 @@
-package org.fxmisc.cssfx.api;
+package org.scenicview.extensions.cssfx.module.api;
 
 /*
  * #%L
@@ -21,7 +21,7 @@ package org.fxmisc.cssfx.api;
  */
 
 
-import static org.fxmisc.cssfx.impl.log.CSSFXLogger.logger;
+import static org.scenicview.extensions.cssfx.module.impl.log.CSSFXLogger.logger;
 
 import java.net.URI;
 import java.net.URISyntaxException;

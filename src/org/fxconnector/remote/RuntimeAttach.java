@@ -40,13 +40,13 @@ import org.fxconnector.details.DetailPaneType;
 import org.fxconnector.event.FXConnectorEventDispatcher;
 import org.fxconnector.helper.FXUtils;
 import org.fxconnector.node.SVNode;
-import org.fxmisc.cssfx.api.CSSFXEvent;
-import org.fxmisc.cssfx.api.CSSFXEvent.EventType;
-import org.fxmisc.cssfx.api.CSSFXEventListener;
-import org.fxmisc.cssfx.api.URIToPathConverters;
-import org.fxmisc.cssfx.impl.CSSFXMonitor;
-import org.fxmisc.cssfx.impl.log.CSSFXLogger;
-import org.fxmisc.cssfx.impl.log.CSSFXLogger.LogLevel;
+import org.scenicview.extensions.cssfx.module.api.CSSFXEvent;
+import org.scenicview.extensions.cssfx.module.api.CSSFXEventListener;
+import org.scenicview.extensions.cssfx.module.api.URIToPathConverters;
+import org.scenicview.extensions.cssfx.module.api.CSSFXEvent.EventType;
+import org.scenicview.extensions.cssfx.module.impl.CSSFXMonitor;
+import org.scenicview.extensions.cssfx.module.impl.log.CSSFXLogger;
+import org.scenicview.extensions.cssfx.module.impl.log.CSSFXLogger.LogLevel;
 import org.scenicview.utils.ExceptionLogger;
 
 public class RuntimeAttach {

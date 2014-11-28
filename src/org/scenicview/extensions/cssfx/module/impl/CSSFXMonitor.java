@@ -1,4 +1,4 @@
-package org.fxmisc.cssfx.impl;
+package org.scenicview.extensions.cssfx.module.impl;
 
 /*
  * #%L
@@ -21,7 +21,7 @@ package org.fxmisc.cssfx.impl;
  */
 
 
-import static org.fxmisc.cssfx.impl.log.CSSFXLogger.logger;
+import static org.scenicview.extensions.cssfx.module.impl.log.CSSFXLogger.logger;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -51,12 +51,12 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
-import org.fxmisc.cssfx.api.CSSFXEvent;
-import org.fxmisc.cssfx.api.CSSFXEventListener;
-import org.fxmisc.cssfx.api.MonitoredStylesheet;
-import org.fxmisc.cssfx.api.URIToPathConverter;
-import org.fxmisc.cssfx.api.CSSFXEvent.EventType;
-import org.fxmisc.cssfx.impl.monitoring.PathsWatcher;
+import org.scenicview.extensions.cssfx.module.api.CSSFXEvent;
+import org.scenicview.extensions.cssfx.module.api.CSSFXEventListener;
+import org.scenicview.extensions.cssfx.module.api.MonitoredStylesheet;
+import org.scenicview.extensions.cssfx.module.api.URIToPathConverter;
+import org.scenicview.extensions.cssfx.module.api.CSSFXEvent.EventType;
+import org.scenicview.extensions.cssfx.module.impl.monitoring.PathsWatcher;
 
 /**
  * CSSFXMonitor is the central controller of the CSS monitoring feature.   
@@ -317,7 +317,7 @@ public class CSSFXMonitor implements CSSFXEventNotifer {
     }
 
     /* (non-Javadoc)
-     * @see org.fxmisc.cssfx.impl.CSSFXEventNotifer#eventNotify(org.fxmisc.cssfx.impl.events.CSSFXEvent)
+     * @see org.scenicview.extensions.cssfx.module.impl.CSSFXEventNotifer#eventNotify(org.scenicview.extensions.cssfx.module.impl.events.CSSFXEvent)
      */
     @Override
     public void eventNotify(CSSFXEvent<?> e) {

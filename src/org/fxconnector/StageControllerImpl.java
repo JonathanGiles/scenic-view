@@ -75,10 +75,10 @@ import org.fxconnector.node.NodeType;
 import org.fxconnector.node.SVDummyNode;
 import org.fxconnector.node.SVNode;
 import org.fxconnector.node.SVNodeFactory;
-import org.fxmisc.cssfx.api.CSSFXEvent;
-import org.fxmisc.cssfx.api.CSSFXEvent.EventType;
-import org.fxmisc.cssfx.api.CSSFXEventListener;
-import org.fxmisc.cssfx.api.MonitoredStylesheet;
+import org.scenicview.extensions.cssfx.module.api.CSSFXEvent;
+import org.scenicview.extensions.cssfx.module.api.CSSFXEventListener;
+import org.scenicview.extensions.cssfx.module.api.MonitoredStylesheet;
+import org.scenicview.extensions.cssfx.module.api.CSSFXEvent.EventType;
 import org.scenicview.utils.ExceptionLogger;
 import org.scenicview.utils.Logger;
 

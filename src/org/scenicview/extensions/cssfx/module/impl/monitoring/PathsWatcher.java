@@ -1,4 +1,4 @@
-package org.fxmisc.cssfx.impl.monitoring;
+package org.scenicview.extensions.cssfx.module.impl.monitoring;
 
 /*
  * #%L
@@ -20,7 +20,7 @@ package org.fxmisc.cssfx.impl.monitoring;
  * #L%
  */
 
-import static org.fxmisc.cssfx.impl.log.CSSFXLogger.logger;
+import static org.scenicview.extensions.cssfx.module.impl.log.CSSFXLogger.logger;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;

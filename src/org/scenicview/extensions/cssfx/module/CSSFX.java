@@ -1,4 +1,4 @@
-package org.fxmisc.cssfx;
+package org.scenicview.extensions.cssfx.module;
 
 /*
  * #%L
@@ -33,14 +33,14 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import org.fxmisc.cssfx.api.CSSFXEvent;
-import org.fxmisc.cssfx.api.CSSFXEventListener;
-import org.fxmisc.cssfx.api.URIToPathConverter;
-import org.fxmisc.cssfx.api.URIToPathConverters;
-import org.fxmisc.cssfx.impl.ApplicationStages;
-import org.fxmisc.cssfx.impl.CSSFXMonitor;
-import org.fxmisc.cssfx.impl.log.CSSFXLogger;
-import org.fxmisc.cssfx.impl.log.CSSFXLogger.LogLevel;
+import org.scenicview.extensions.cssfx.module.api.CSSFXEvent;
+import org.scenicview.extensions.cssfx.module.api.CSSFXEventListener;
+import org.scenicview.extensions.cssfx.module.api.URIToPathConverter;
+import org.scenicview.extensions.cssfx.module.api.URIToPathConverters;
+import org.scenicview.extensions.cssfx.module.impl.ApplicationStages;
+import org.scenicview.extensions.cssfx.module.impl.CSSFXMonitor;
+import org.scenicview.extensions.cssfx.module.impl.log.CSSFXLogger;
+import org.scenicview.extensions.cssfx.module.impl.log.CSSFXLogger.LogLevel;
 
 public class CSSFX {
     /**
