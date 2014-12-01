@@ -91,5 +91,4 @@ public class SubWindowChecker extends WindowChecker {
         }
         return null;
     }
-
 }

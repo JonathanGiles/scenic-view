@@ -1,6 +1,6 @@
 /*
  * Scenic View, 
- * Copyright (C) 2012 Jonathan Giles, Ander Ruiz, Amy Fowler 
+ * Copyright (C) 2012 Jonathan Giles, Ander Ruiz, Amy Fowler, Matthieu Brouillard
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -91,18 +91,15 @@ public class RuntimeAttach {
                 final List<StageControllerImpl> finded = new ArrayList<>();
                 final List<StageControllerImpl> controller = new ArrayList<>();
 
-                @Override
-                public void update(final StageID id) {
+                @Override public void update(final StageID id) {
                     Platform.runLater(() -> getSC(id).update());
                 }
 
-                @Override
-                public void configurationUpdated(final StageID id, final Configuration configuration) throws RemoteException {
+                @Override public void configurationUpdated(final StageID id, final Configuration configuration) throws RemoteException {
                     Platform.runLater(() -> getSC(id).configurationUpdated(configuration));
                 }
 
-                @Override
-                public void setEventDispatcher(final StageID id, final FXConnectorEventDispatcher dispatcher) throws RemoteException {
+                @Override public void setEventDispatcher(final StageID id, final FXConnectorEventDispatcher dispatcher) throws RemoteException {
                     Platform.runLater(() -> {
                         /**
                          * Move from finded to controllers
@@ -135,8 +132,7 @@ public class RuntimeAttach {
                     });
                 }
 
-                @Override
-                public StageID[] getStageIDs() throws RemoteException {
+                @Override public StageID[] getStageIDs() throws RemoteException {
                     finded.clear();
                     @SuppressWarnings("deprecation")
                     final Iterator<Window> it = Window.impl_getWindows();
@@ -162,21 +158,23 @@ public class RuntimeAttach {
                     return ids;
                 }
 
-                @Override
-                public void close(final StageID id) throws RemoteException {
+                @Override public void close(final StageID id) throws RemoteException {
                     Platform.runLater(() -> {
-                        cssMonitor.stop();
-
                         /**
                          * Special for closing the server
                          */
                         if (id == null) {
+                            cssMonitor.stop();
                             for (int i = 0; i < controller.size(); i++) {
                                 controller.get(i).close();
                             }
                             controller.clear();
                         } else {
                             final StageController c = getSC(id, true);
+                            if (c instanceof StageControllerImpl) {
+                                StageControllerImpl sci = (StageControllerImpl) c;
+                                cssMonitor.removeEventListener(sci.getCSSFXEventListener());
+                            }
                             if (c != null) {
                                 c.close();
                             }
@@ -184,8 +182,7 @@ public class RuntimeAttach {
                     });
                 }
 
-                @Override
-                public void setSelectedNode(final StageID id, final SVNode value) throws RemoteException {
+                @Override public void setSelectedNode(final StageID id, final SVNode value) throws RemoteException {
                     Platform.runLater(() -> {
                         debug("Setting selected node:" + (value != null ? (" id:" + value.getNodeId() + " class:" + value.getClass()) : ""));
                         final StageController sc = getSC(id);
@@ -194,8 +191,7 @@ public class RuntimeAttach {
                     });
                 }
 
-                @Override
-                public void removeSelectedNode(final StageID id) throws RemoteException {
+                @Override public void removeSelectedNode(final StageID id) throws RemoteException {
                     Platform.runLater(() -> {
                         final StageController sc = getSC(id);
                         if (sc != null)
@@ -203,23 +199,19 @@ public class RuntimeAttach {
                     });
                 }
 
-                @Override
-                public void setDetail(final StageID id, final DetailPaneType detailType, final int detailID, final String value) {
+                @Override public void setDetail(final StageID id, final DetailPaneType detailType, final int detailID, final String value) {
                     Platform.runLater(() -> getSC(id).setDetail(detailType, detailID, value));
                 }
 
-                @Override
-                public void animationsEnabled(final StageID id, final boolean enabled) throws RemoteException {
+                @Override public void animationsEnabled(final StageID id, final boolean enabled) throws RemoteException {
                     Platform.runLater(() -> getSC(id).animationsEnabled(enabled));
                 }
 
-                @Override
-                public void updateAnimations(final StageID id) throws RemoteException {
+                @Override public void updateAnimations(final StageID id) throws RemoteException {
                     Platform.runLater(() -> getSC(id).updateAnimations());
                 }
 
-                @Override
-                public void pauseAnimation(final StageID id, final int animationID) throws RemoteException {
+                @Override public void pauseAnimation(final StageID id, final int animationID) throws RemoteException {
                     Platform.runLater(() -> getSC(id).pauseAnimation(animationID));
                 }
 

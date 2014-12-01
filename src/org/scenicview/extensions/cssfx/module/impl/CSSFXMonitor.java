@@ -1,25 +1,21 @@
-package org.scenicview.extensions.cssfx.module.impl;
-
 /*
- * #%L
- * CSSFX
- * %%
- * Copyright (C) 2014 CSSFX by Matthieu Brouillard
- * %%
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * #L%
+ * Scenic View, 
+ * Copyright (C) 2012 Jonathan Giles, Ander Ruiz, Amy Fowler, Matthieu Brouillard
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+package org.scenicview.extensions.cssfx.module.impl;
 
 import static org.scenicview.extensions.cssfx.module.impl.log.CSSFXLogger.logger;
 
@@ -34,7 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Stream;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
@@ -52,10 +49,9 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 
 import org.scenicview.extensions.cssfx.module.api.CSSFXEvent;
+import org.scenicview.extensions.cssfx.module.api.CSSFXEvent.EventType;
 import org.scenicview.extensions.cssfx.module.api.CSSFXEventListener;
 import org.scenicview.extensions.cssfx.module.api.MonitoredStylesheet;
-import org.scenicview.extensions.cssfx.module.api.URIToPathConverter;
-import org.scenicview.extensions.cssfx.module.api.CSSFXEvent.EventType;
 import org.scenicview.extensions.cssfx.module.impl.monitoring.PathsWatcher;
 
 /**
@@ -63,11 +59,11 @@ import org.scenicview.extensions.cssfx.module.impl.monitoring.PathsWatcher;
  *   
  * @author Matthieu Brouillard
  */
-public class CSSFXMonitor implements CSSFXEventNotifer {
+public class CSSFXMonitor implements Consumer<CSSFXEvent<?>> {
     private PathsWatcher pw;
 
     // keep insertion order
-    private List<URIToPathConverter> knownConverters = new CopyOnWriteArrayList<>();
+    private List<Function<String, Path>> knownConverters = new CopyOnWriteArrayList<>();
     private ObservableList<Window> windows;
     private ObservableList<Stage> stages;
     private ObservableList<Scene> scenes;
@@ -96,19 +92,20 @@ public class CSSFXMonitor implements CSSFXEventNotifer {
         this.nodes = nodes;
     }
 
-    public void addAllConverters(Collection<URIToPathConverter> converters) {
+    public void addAllConverters(Collection<Function<String, Path>> converters) {
         knownConverters.addAll(converters);
     }
 
-    public void addAllConverters(URIToPathConverter... converters) {
+    @SuppressWarnings("unchecked")
+    public void addAllConverters(Function<String, Path> ... converters) {
         knownConverters.addAll(Arrays.asList(converters));
     }
 
-    public void addConverter(URIToPathConverter newConverter) {
+    public void addConverter(Function<String, Path> newConverter) {
         knownConverters.add(newConverter);
     }
 
-    public void removeConverter(URIToPathConverter converter) {
+    public void removeConverter(Function<String, Path> converter) {
         knownConverters.remove(converter);
     }
 
@@ -217,7 +214,7 @@ public class CSSFXMonitor implements CSSFXEventNotifer {
     }
 
     private void unregisterNode(Node removedNode) {
-        eventNotify(CSSFXEvent.newEvent(EventType.NODE_REMOVED, removedNode));
+        accept(CSSFXEvent.newEvent(EventType.NODE_REMOVED, removedNode));
     }
 
     private void registerNode(Node node) {
@@ -226,7 +223,7 @@ public class CSSFXMonitor implements CSSFXEventNotifer {
             monitorStylesheets(p, p.getStylesheets());
             monitorChildren(p.getChildrenUnmodifiable());
         }
-        eventNotify(CSSFXEvent.newEvent(EventType.NODE_ADDED, node));
+        accept(CSSFXEvent.newEvent(EventType.NODE_ADDED, node));
     }
     
     private void monitorScenes(ObservableList<Scene> observableScenes) {
@@ -294,33 +291,33 @@ public class CSSFXMonitor implements CSSFXEventNotifer {
     }
 
     private void registerScene(Scene scene) {
-        eventNotify(CSSFXEvent.newEvent(EventType.SCENE_ADDED, scene));
+        accept(CSSFXEvent.newEvent(EventType.SCENE_ADDED, scene));
 
         monitorStylesheets(scene, scene.getStylesheets());
         monitorRoot(scene.rootProperty());
     }
 
     private void unregisterScene(Scene removedScene) {
-        eventNotify(CSSFXEvent.newEvent(EventType.SCENE_REMOVED, removedScene));
+        accept(CSSFXEvent.newEvent(EventType.SCENE_REMOVED, removedScene));
     }
 
     private void registerStage(Window stage) {
-        eventNotify(CSSFXEvent.newEvent(EventType.STAGE_ADDED, stage));
+        accept(CSSFXEvent.newEvent(EventType.STAGE_ADDED, stage));
         monitorStageScene(stage.sceneProperty());
     }
 
     private void unregisterStage(Window removedStage) {
         if (removedStage.getScene() != null) {
-            eventNotify(CSSFXEvent.newEvent(EventType.SCENE_REMOVED, removedStage.getScene()));
+            accept(CSSFXEvent.newEvent(EventType.SCENE_REMOVED, removedStage.getScene()));
         }
-        eventNotify(CSSFXEvent.newEvent(EventType.STAGE_REMOVED, removedStage));
+        accept(CSSFXEvent.newEvent(EventType.STAGE_REMOVED, removedStage));
     }
 
     /* (non-Javadoc)
      * @see org.scenicview.extensions.cssfx.module.impl.CSSFXEventNotifer#eventNotify(org.scenicview.extensions.cssfx.module.impl.events.CSSFXEvent)
      */
     @Override
-    public void eventNotify(CSSFXEvent<?> e) {
+    public void accept(CSSFXEvent<?> e) {
         for (CSSFXEventListener listener : eventListeners) {
             listener.onEvent(e);
         }
@@ -329,11 +326,11 @@ public class CSSFXMonitor implements CSSFXEventNotifer {
     private class URIRegistrar {
         final Map<String, Set<ObservableList<? extends String>>> stylesheetsContainingURI = new HashMap<>();
         final Map<String, Path> sourceURIs = new HashMap<>();
-        final List<URIToPathConverter> converters;
+        final List<Function<String, Path>> converters;
         private PathsWatcher wp;
-        private CSSFXEventNotifer notifier;
+        private Consumer<CSSFXEvent<?>> notifier;
 
-        URIRegistrar(List<URIToPathConverter> c, PathsWatcher wp, CSSFXEventNotifer notifier) {
+        URIRegistrar(List<Function<String, Path>> c, PathsWatcher wp, Consumer<CSSFXEvent<?>> notifier) {
             converters = c;
             this.wp = wp;
             this.notifier = notifier;
@@ -368,8 +365,8 @@ public class CSSFXMonitor implements CSSFXEventNotifer {
         }
 
         private void evaluateSourceMappingForURI(Object origin, String uri) {
-            for (URIToPathConverter c : converters) {
-                Path sourceFile = c.convert(uri);
+            for (Function<String, Path> c : converters) {
+                Path sourceFile = c.apply(uri);
 
                 if (sourceFile != null) {
                     logger(CSSFXMonitor.class).info("css[%s] will be mapped to source[%s] for [%s]", uri, sourceFile, origin);
@@ -386,7 +383,7 @@ public class CSSFXMonitor implements CSSFXEventNotifer {
                             registered.add(ms);
                         }
                         
-                        notifier.eventNotify(CSSFXEvent.newEvent(EventType.STYLESHEET_MONITORED, ms));
+                        notifier.accept(CSSFXEvent.newEvent(EventType.STYLESHEET_MONITORED, ms));
                     } 
                     
                     break;
@@ -401,7 +398,7 @@ public class CSSFXMonitor implements CSSFXEventNotifer {
             List<MonitoredStylesheet> monitored = monitoredByURI.get(uri);
             for (MonitoredStylesheet ms : monitored) {
                 if (origin.equals(ms.getParent()) || origin.equals(ms.getScene())) {
-                    notifier.eventNotify(CSSFXEvent.newEvent(EventType.STYLESHEET_REMOVED, ms));
+                    notifier.accept(CSSFXEvent.newEvent(EventType.STYLESHEET_REMOVED, ms));
                 }
             }
         }
@@ -457,9 +454,9 @@ public class CSSFXMonitor implements CSSFXEventNotifer {
     private static class MonitoredStylesheetUpdater implements Runnable {
         private MonitoredStylesheet ms;
         private ObservableList<String> cssURIs;
-        private CSSFXEventNotifer notifier;
+        private Consumer<CSSFXEvent<?>> notifier;
 
-        MonitoredStylesheetUpdater(MonitoredStylesheet ms, CSSFXEventNotifer notifier) {
+        MonitoredStylesheetUpdater(MonitoredStylesheet ms, Consumer<CSSFXEvent<?>> notifier) {
             this.ms = ms;
             this.notifier = notifier;
             if (ms.getParent() != null) {
@@ -491,43 +488,8 @@ public class CSSFXMonitor implements CSSFXEventNotifer {
                 } else {
                     cssURIs.add(sourceURI);
                 }
-                notifier.eventNotify(CSSFXEvent.newEvent(EventType.STYLESHEET_REPLACED, ms));
+                notifier.accept(CSSFXEvent.newEvent(EventType.STYLESHEET_REPLACED, ms));
             });            
         }
     }
-    
-//    private static class URIStyleUpdater implements Runnable {
-//        private final String sourceURI;
-//        private final String originalURI;
-//        private final ObservableList<String> cssURIs;
-//
-//        URIStyleUpdater(String originalURI, String sourceURI, ObservableList<String> cssURIs) {
-//            this.originalURI = originalURI;
-//            this.sourceURI = sourceURI;
-//            this.cssURIs = cssURIs;
-//        }
-//
-//        @Override
-//        public void run() {
-//            IntegerProperty positionIndex = new SimpleIntegerProperty();
-//
-//            Platform.runLater(() -> {
-//                positionIndex.set(cssURIs.indexOf(originalURI));
-//                if (positionIndex.get() != -1) {
-//                    cssURIs.remove(originalURI);
-//                }
-//                if (positionIndex.get() == -1) {
-//                    positionIndex.set(cssURIs.indexOf(sourceURI));
-//                }
-//                cssURIs.remove(sourceURI);
-//            });
-//            Platform.runLater(() -> {
-//                if (positionIndex.get() >= 0) {
-//                    cssURIs.add(positionIndex.get(), sourceURI);
-//                } else {
-//                    cssURIs.add(sourceURI);
-//                }
-//            });
-//        }
-//    }
 }

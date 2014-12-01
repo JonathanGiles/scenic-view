@@ -1,6 +1,6 @@
 /*
  * Scenic View, 
- * Copyright (C) 2012 Jonathan Giles, Ander Ruiz, Amy Fowler 
+ * Copyright (C) 2012 Jonathan Giles, Ander Ruiz, Amy Fowler, Matthieu Brouillard 
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -826,60 +826,60 @@ public class StageControllerImpl implements StageController {
         }
     }
 
-    public CSSFXEventListener getCSSFXEventListener() {
-        CSSFXEventListener eventTranslator = new CSSFXEventListener() {
-            @Override
-            public void onEvent(CSSFXEvent<?> event) {
-                if (dispatcher == null) {
-                    return;
-                }
-                
-                EventType et = event.getEventType();
-                
-                switch (et) {
-                case STYLESHEET_MONITORED:
-                case STYLESHEET_REMOVED:
-                case STYLESHEET_REPLACED:
-                    MonitoredStylesheet ms = (MonitoredStylesheet) event.getEventData();
-                    SVEventType type = fromCSSEvent(et);
-                    SVNode node = fromCSSEventOrigin(ms);
-                    EvCSSFXEvent e = new EvCSSFXEvent(type, getID(), node, ms.getOriginalURI(), (ms.getSource() == null)?null:ms.getSource().toString());
-                    dispatcher.dispatchEvent(e);
-                    break;
-                default:
-                    break;
-                }
+    private CSSFXEventListener eventTranslator = new CSSFXEventListener() {
+        @Override
+        public void onEvent(CSSFXEvent<?> event) {
+            if (dispatcher == null) {
+                return;
             }
-
-            private SVNode fromCSSEventOrigin(MonitoredStylesheet ms) {
-                if (ms.getScene() != null) {
-                    Scene s = ms.getScene();
-                    Window w = s.getWindow();
-                    String title = String.format("Window[%d]", System.identityHashCode(w));
-                    if (w instanceof Stage) {
-                        title = ((Stage) w).getTitle();
-                    }
-                    return new SVDummyNode(title, "Stage", getID().getStageID(), NodeType.STAGE);
-                } 
-                
-                return createNode(ms.getParent());
+            
+            EventType et = event.getEventType();
+            
+            switch (et) {
+            case STYLESHEET_MONITORED:
+            case STYLESHEET_REMOVED:
+            case STYLESHEET_REPLACED:
+                MonitoredStylesheet ms = (MonitoredStylesheet) event.getEventData();
+                SVEventType type = fromCSSEvent(et);
+                SVNode node = fromCSSEventOrigin(ms);
+                EvCSSFXEvent e = new EvCSSFXEvent(type, getID(), node, ms.getOriginalURI(), (ms.getSource() == null)?null:ms.getSource().toString());
+                dispatcher.dispatchEvent(e);
+                break;
+            default:
+                break;
             }
-
-            private SVEventType fromCSSEvent(EventType et) {
-                switch (et) {
-                case STYLESHEET_MONITORED:
-                    return SVEventType.CSS_ADDED;
-                case STYLESHEET_REMOVED:
-                    return SVEventType.CSS_ADDED;
-                case STYLESHEET_REPLACED:
-                    return SVEventType.CSS_ADDED;
-                default:
-                    break;
-                }
-                return null;
-            }
-        };   
+        }
         
+        private SVNode fromCSSEventOrigin(MonitoredStylesheet ms) {
+            if (ms.getScene() != null) {
+                Scene s = ms.getScene();
+                Window w = s.getWindow();
+                String title = String.format("Window[%d]", System.identityHashCode(w));
+                if (w instanceof Stage) {
+                    title = ((Stage) w).getTitle();
+                }
+                return new SVDummyNode(title, "Stage", getID().getStageID(), NodeType.STAGE);
+            } 
+            
+            return createNode(ms.getParent());
+        }
+        
+        private SVEventType fromCSSEvent(EventType et) {
+            switch (et) {
+            case STYLESHEET_MONITORED:
+                return SVEventType.CSS_ADDED;
+            case STYLESHEET_REMOVED:
+                return SVEventType.CSS_ADDED;
+            case STYLESHEET_REPLACED:
+                return SVEventType.CSS_ADDED;
+            default:
+                break;
+            }
+            return null;
+        }
+    };
+    
+    public CSSFXEventListener getCSSFXEventListener() {
         return eventTranslator;
     }
 }

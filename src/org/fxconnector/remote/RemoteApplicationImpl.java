@@ -25,17 +25,10 @@ import java.util.List;
 
 import org.fxconnector.Configuration;
 import org.fxconnector.StageID;
-import org.fxconnector.event.EvCSSFXEvent;
-import org.fxconnector.event.FXConnectorEvent;
-import org.fxconnector.event.FXConnectorEvent.SVEventType;
-import org.fxconnector.event.FXConnectorEventDispatcher;
 import org.fxconnector.details.DetailPaneType;
+import org.fxconnector.event.FXConnectorEvent;
+import org.fxconnector.event.FXConnectorEventDispatcher;
 import org.fxconnector.node.SVNode;
-import org.scenicview.extensions.cssfx.module.CSSFX;
-import org.scenicview.extensions.cssfx.module.api.CSSFXEvent;
-import org.scenicview.extensions.cssfx.module.api.CSSFXEventListener;
-import org.scenicview.extensions.cssfx.module.api.MonitoredStylesheet;
-import org.scenicview.extensions.cssfx.module.api.CSSFXEvent.EventType;
 import org.scenicview.utils.ExceptionLogger;
 import org.scenicview.utils.Logger;
 
@@ -46,7 +39,6 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
     private RemoteConnector scenicView;
     private final int port;
     RemoteDispatcher dispatcher;
-    private Runnable cssfxStopper;
 
     RemoteApplicationImpl(final RemoteApplication application, final int port, final int serverPort) throws RemoteException {
         this.application = application;
@@ -77,8 +69,6 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
                 ExceptionLogger.submitException(e);
             }
         });
-        
-//        cssfxStopper = CSSFX.start();
     }
 
     @Override public void close() {
@@ -92,10 +82,6 @@ class RemoteApplicationImpl extends UnicastRemoteObject implements RemoteApplica
             ExceptionLogger.submitException(e);
         } catch (final RemoteException e) {
             ExceptionLogger.submitException(e);
-        }
-        
-        if (cssfxStopper != null) {
-            cssfxStopper.run();
         }
     }
 
