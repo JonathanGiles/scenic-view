@@ -50,7 +50,6 @@ import javafx.stage.Window;
 
 import org.scenicview.extensions.cssfx.module.api.CSSFXEvent;
 import org.scenicview.extensions.cssfx.module.api.CSSFXEvent.EventType;
-import org.scenicview.extensions.cssfx.module.api.CSSFXEventListener;
 import org.scenicview.extensions.cssfx.module.api.MonitoredStylesheet;
 import org.scenicview.extensions.cssfx.module.impl.monitoring.PathsWatcher;
 
@@ -68,7 +67,7 @@ public class CSSFXMonitor implements Consumer<CSSFXEvent<?>> {
     private ObservableList<Stage> stages;
     private ObservableList<Scene> scenes;
     private ObservableList<Node> nodes;
-    private List<CSSFXEventListener> eventListeners = new CopyOnWriteArrayList<>();
+    private List<Consumer<CSSFXEvent<?>>> eventListeners = new CopyOnWriteArrayList<>();
     private URIRegistrar registrar;
     final Map<String, List<MonitoredStylesheet>> monitoredByURI = new HashMap<>();
     final List<MonitoredStylesheet> registered = new LinkedList<>();
@@ -109,11 +108,11 @@ public class CSSFXMonitor implements Consumer<CSSFXEvent<?>> {
         knownConverters.remove(converter);
     }
 
-    public void addEventListener(CSSFXEventListener listener) {
+    public void addEventListener(Consumer<CSSFXEvent<?>> listener) {
         eventListeners.add(listener);
     }
 
-    public void removeEventListener(CSSFXEventListener listener) {
+    public void removeEventListener(Consumer<CSSFXEvent<?>> listener) {
         eventListeners.remove(listener);
     }
     
@@ -318,8 +317,8 @@ public class CSSFXMonitor implements Consumer<CSSFXEvent<?>> {
      */
     @Override
     public void accept(CSSFXEvent<?> e) {
-        for (CSSFXEventListener listener : eventListeners) {
-            listener.onEvent(e);
+        for (Consumer<CSSFXEvent<?>> listener : eventListeners) {
+            listener.accept(e);
         }
     }
 

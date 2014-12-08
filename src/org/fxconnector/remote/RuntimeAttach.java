@@ -22,6 +22,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -41,9 +42,8 @@ import org.fxconnector.event.FXConnectorEventDispatcher;
 import org.fxconnector.helper.FXUtils;
 import org.fxconnector.node.SVNode;
 import org.scenicview.extensions.cssfx.module.api.CSSFXEvent;
-import org.scenicview.extensions.cssfx.module.api.CSSFXEventListener;
-import org.scenicview.extensions.cssfx.module.api.URIToPathConverters;
 import org.scenicview.extensions.cssfx.module.api.CSSFXEvent.EventType;
+import org.scenicview.extensions.cssfx.module.api.URIToPathConverters;
 import org.scenicview.extensions.cssfx.module.impl.CSSFXMonitor;
 import org.scenicview.extensions.cssfx.module.impl.log.CSSFXLogger;
 import org.scenicview.extensions.cssfx.module.impl.log.CSSFXLogger.LogLevel;
@@ -116,7 +116,7 @@ public class RuntimeAttach {
                             // Now there is a dispatcher, we can notify existing monitored CSS
                             StageControllerImpl sci = (StageControllerImpl) getSC(id);
 
-                            CSSFXEventListener sciEventListener = sci.getCSSFXEventListener();
+                            Consumer<CSSFXEvent<?>> sciEventListener = sci.getCSSFXEventListener();
                             cssMonitor.allKnownStylesheets().stream().filter(t -> {
                                 Parent p = FXUtils.parentOf(t.getParent());
                                 if (p == null && t.getScene() != null) {
@@ -127,7 +127,7 @@ public class RuntimeAttach {
                                 final int hashCode = p.hashCode();
                                 // TODO weakness: stages/window are identified with root of scene (that can change)
                                 return (stageRootID == hashCode);
-                            }).forEach(ms -> sciEventListener.onEvent(CSSFXEvent.newEvent(EventType.STYLESHEET_MONITORED, ms)));
+                            }).forEach(ms -> sciEventListener.accept(CSSFXEvent.newEvent(EventType.STYLESHEET_MONITORED, ms)));
                         }
                     });
                 }
@@ -144,7 +144,7 @@ public class RuntimeAttach {
                             scontroller.setRemote(true);
                             finded.add(scontroller);
                             if (!applicationWindows.contains(window)) {
-                                final CSSFXEventListener cssfxEventListener = scontroller.getCSSFXEventListener();
+                                final Consumer<CSSFXEvent<?>> cssfxEventListener = scontroller.getCSSFXEventListener();
                                 cssMonitor.addEventListener(cssfxEventListener);
                                 applicationWindows.add(window);
                             }

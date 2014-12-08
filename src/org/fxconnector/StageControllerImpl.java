@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import javafx.animation.Animation;
 import javafx.beans.InvalidationListener;
@@ -76,9 +77,8 @@ import org.fxconnector.node.SVDummyNode;
 import org.fxconnector.node.SVNode;
 import org.fxconnector.node.SVNodeFactory;
 import org.scenicview.extensions.cssfx.module.api.CSSFXEvent;
-import org.scenicview.extensions.cssfx.module.api.CSSFXEventListener;
-import org.scenicview.extensions.cssfx.module.api.MonitoredStylesheet;
 import org.scenicview.extensions.cssfx.module.api.CSSFXEvent.EventType;
+import org.scenicview.extensions.cssfx.module.api.MonitoredStylesheet;
 import org.scenicview.utils.ExceptionLogger;
 import org.scenicview.utils.Logger;
 
@@ -826,9 +826,9 @@ public class StageControllerImpl implements StageController {
         }
     }
 
-    private CSSFXEventListener eventTranslator = new CSSFXEventListener() {
+    private Consumer<CSSFXEvent<?>> eventTranslator = new Consumer<CSSFXEvent<?>>() {
         @Override
-        public void onEvent(CSSFXEvent<?> event) {
+        public void accept(CSSFXEvent<?> event) {
             if (dispatcher == null) {
                 return;
             }
@@ -879,7 +879,7 @@ public class StageControllerImpl implements StageController {
         }
     };
     
-    public CSSFXEventListener getCSSFXEventListener() {
+    public Consumer<CSSFXEvent<?>> getCSSFXEventListener() {
         return eventTranslator;
     }
 }
