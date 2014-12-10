@@ -1,6 +1,6 @@
 /*
  * Scenic View, 
- * Copyright (C) 2012 Jonathan Giles, Ander Ruiz, Amy Fowler 
+ * Copyright (C) 2012 Jonathan Giles, Ander Ruiz, Amy Fowler, Matthieu Brouillard 
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,10 @@ public class FXConnectorEvent implements Serializable {
         DETAILS, 
         DETAIL_UPDATED, 
         ANIMATIONS_UPDATED, 
-        SHORTCUT
+        SHORTCUT,
+        CSS_ADDED, 
+        CSS_REMOVED, 
+        CSS_REPLACED 
     }
 
     /**

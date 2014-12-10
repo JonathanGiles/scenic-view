@@ -25,9 +25,9 @@ import java.util.List;
 
 import org.fxconnector.Configuration;
 import org.fxconnector.StageID;
+import org.fxconnector.details.DetailPaneType;
 import org.fxconnector.event.FXConnectorEvent;
 import org.fxconnector.event.FXConnectorEventDispatcher;
-import org.fxconnector.details.DetailPaneType;
 import org.fxconnector.node.SVNode;
 import org.scenicview.utils.ExceptionLogger;
 import org.scenicview.utils.Logger;

@@ -1,6 +1,6 @@
 /*
  * Scenic View, 
- * Copyright (C) 2012 Jonathan Giles, Ander Ruiz, Amy Fowler, Matthieu Brouillard 
+ * Copyright (C) 2012 Jonathan Giles, Ander Ruiz, Amy Fowler, Matthieu Brouillard
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.fxconnector.node;
+package org.scenicview.view.cssfx;
 
-public enum NodeType {
-    VMS_ROOT, VM, STAGE, SUBWINDOWS_ROOT, SUBWINDOW, REAL_NODE, REMOTE_NODE, SCENE
+public class MonitoredCSSGlobalModel {
 }
