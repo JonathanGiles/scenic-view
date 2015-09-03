@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import javafx.application.Platform;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
@@ -37,6 +36,7 @@ import org.scenicview.utils.ExceptionLogger;
 import org.scenicview.utils.PropertiesUtils;
 import org.scenicview.utils.Logger;
 import org.scenicview.utils.Utils;
+import org.scenicview.utils.Platform;
 
 /**
  *
@@ -112,7 +112,7 @@ public class AttachHandlerFactory {
             }
 
 //            final String _attachPath = jdkHome;
-            if (com.sun.javafx.Utils.isMac()) {
+            if (Platform.getCurrent() == Platform.OSX) {
                 System.setProperty("javafx.macosx.embedded", "true");
             }
 
@@ -125,7 +125,7 @@ public class AttachHandlerFactory {
             if (jdkPathFile != null) {
                 String jdkPath = jdkPathFile.getAbsolutePath();
                 if (jdkPath == null || jdkPath.isEmpty()) {
-                    Platform.exit();
+                    javafx.application.Platform.exit();
                 }
                 jdkHome = new JDKToolsJarPair(jdkPath);
                 addToolsJarToClasspath(jdkHome);
@@ -159,11 +159,11 @@ public class AttachHandlerFactory {
 
     private static AttachHandler getAttachHandler() {
         if (attachHandler == null) {
-            if (com.sun.javafx.Utils.isWindows()) {
+            if (Platform.getCurrent() == Platform.WINDOWS) {
                 attachHandler = new WindowsAttachHandler();
-            } else if (com.sun.javafx.Utils.isMac()) {
+            } else if (Platform.getCurrent() == Platform.OSX) {
                 attachHandler = new MacAttachHandler();
-            } else if (com.sun.javafx.Utils.isUnix()) {
+            } else if (Platform.getCurrent() == Platform.UNIX) {
                 attachHandler = new LinuxAttachHandler();
             } else {
                 // TODO handle alternate operating systems like Linux, etc

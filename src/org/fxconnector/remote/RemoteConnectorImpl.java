@@ -36,8 +36,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javafx.application.Platform;
-
 import org.fxconnector.AppController;
 import org.fxconnector.AppControllerImpl;
 import org.fxconnector.Configuration;
@@ -49,8 +47,8 @@ import org.fxconnector.event.FXConnectorEventDispatcher;
 import org.fxconnector.node.SVNode;
 import org.scenicview.utils.ExceptionLogger;
 import org.scenicview.utils.Logger;
+import org.scenicview.utils.Platform;
 
-import com.sun.javafx.Utils;
 import com.sun.tools.attach.AttachNotSupportedException;
 import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
@@ -78,7 +76,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
 
     @Override public void dispatchEvent(final FXConnectorEvent event) {
         if (dispatcher != null) {
-            Platform.runLater(() -> {
+            javafx.application.Platform.runLater(() -> {
                 synchronized (previous) {
                     if (!previous.isEmpty()) {
                         for (int i = 0; i < previous.size(); i++) {
@@ -305,7 +303,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
         /**
          * MAC Seems to be slower using attach API
          */
-        final long timeout = Utils.isMac() ? 30000 : 10000;
+        final long timeout = Platform.getCurrent() == Platform.OSX ? 30000 : 10000;
         while (count.get() != 0 && System.currentTimeMillis() - initial < timeout) {
             try {
                 Thread.sleep(50);
