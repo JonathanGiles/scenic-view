@@ -67,9 +67,8 @@ import org.scenicview.utils.PropertiesUtils;
 
 /**
  * Main class for 3D display TODO: 2D to 3D Miss: a snapshot parameter to only
- * capture container and not descendants. Replace Tile3D by a box with only one
- * textured face. Save background color in app prefs. Keep hierarchy reference
- * to delete child nodes when a parent is removed.
+ * capture container and not descendants (RFE for JDK9). Replace Tile3D by a
+ * Mesh with only one textured face.
  */
 public class ThreeDOM implements ITile3DListener {
 
@@ -317,7 +316,7 @@ public class ThreeDOM implements ITile3DListener {
             hideChildren(childrenTile);
             root3D.getChildren().remove(found);
         }
-        reload();
+        reload(currentRoot2D);
     }
 
     private void hideChildren(ArrayList<Tile3D> childrenTile) {
@@ -330,7 +329,8 @@ public class ThreeDOM implements ITile3DListener {
         });
     }
 
-    public void reload() {
+    public void reload(SVNode root2D) {
+        currentRoot2D=root2D;
         _reload();
     }
 
@@ -432,7 +432,7 @@ public class ThreeDOM implements ITile3DListener {
     @FXML
     public void onDefaultBackgroundColor(ActionEvent ae) {
         subSceneContainer.getStyleClass().add("subSceneBackground");
-         // Prefs 
+        // Prefs 
         final Properties properties = PropertiesUtils.getProperties();
         properties.remove(THREEDOM_BACKGROUNDCOLOR);
     }
@@ -447,9 +447,7 @@ public class ThreeDOM implements ITile3DListener {
     }
 
     void applyColor(Color color) {
-//        Platform.runLater(() -> {
-                  subSceneContainer.getStyleClass().remove("subSceneBackground");
-            subSceneContainer.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
-//        });
+        subSceneContainer.getStyleClass().remove("subSceneBackground");
+        subSceneContainer.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
     }
 }

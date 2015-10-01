@@ -17,9 +17,11 @@
  */
 package org.scenicview.view.tabs;
 
+import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Parent;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.Tab;
 import javafx.scene.image.ImageView;
@@ -51,7 +53,13 @@ public class ThreeDOMTab extends Tab implements ContextMenuContainer, IThreeDOM 
         setClosable(false);
         selectedProperty().addListener((final ObservableValue<? extends Boolean> arg0, final Boolean arg1, final Boolean newValue) -> {
             if (newValue) {
-                init();
+                if (!Platform.isSupported(ConditionalFeature.SCENE3D)) {
+                    Label label = new Label("System can't support ConditionalFeature.SCENE3D");
+                    label.setStyle("-fx-text-fill: #ff0000; -fx-font-size: 18pt;");
+                    super.setContent(label);
+                } else {
+                    init();
+                }
             }
         });
     }
@@ -107,7 +115,7 @@ public class ThreeDOMTab extends Tab implements ContextMenuContainer, IThreeDOM 
      */
     public void reload() {
         if (threeDOM != null) {
-            threeDOM.reload();
+            threeDOM.reload(root2D.getChildren().get(0));
         }
     }
 
@@ -121,7 +129,7 @@ public class ThreeDOMTab extends Tab implements ContextMenuContainer, IThreeDOM 
 
     public void removeNode(SVNode node) {
         if (threeDOM != null) {
-            threeDOM.reload();
+            threeDOM.reload(root2D);
         }
     }
 
