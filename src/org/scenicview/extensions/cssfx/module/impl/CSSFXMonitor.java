@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
@@ -283,7 +284,7 @@ public class CSSFXMonitor implements Consumer<CSSFXEvent<?>> {
         // then look already set stylesheets uris
         for (String uri : stylesheets) {
             // we register the stylesheet only if it is not one that CSSFX added in replacement of a monitored one
-            if (!allKnownStylesheets().stream().anyMatch(ms -> uri.equals(ms.getSource().toUri().toString()))) {
+            if (!isAManagedSourceURI(uri)) {
                 registrar.register(origin, uri, stylesheets);
             }
         }
@@ -320,6 +321,10 @@ public class CSSFXMonitor implements Consumer<CSSFXEvent<?>> {
         for (Consumer<CSSFXEvent<?>> listener : eventListeners) {
             listener.accept(e);
         }
+    }
+    
+    private boolean isAManagedSourceURI(String uri) {
+        return allKnownStylesheets().stream().anyMatch(ms -> (ms.getSource()==null)?false:uri.equals(ms.getSource().toUri().toString()));
     }
 
     private class URIRegistrar {
@@ -443,10 +448,6 @@ public class CSSFXMonitor implements Consumer<CSSFXEvent<?>> {
                     }
                 }
             }
-        }
-
-        private boolean isAManagedSourceURI(String uri) {
-            return allKnownStylesheets().stream().anyMatch(ms -> uri.equals(ms.getSource().toUri().toString()));
         }
     }
 
