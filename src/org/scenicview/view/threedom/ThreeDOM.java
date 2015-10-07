@@ -66,9 +66,8 @@ import org.fxconnector.node.SVNode;
 import org.scenicview.utils.PropertiesUtils;
 
 /**
- * Main class for 3D display TODO: 2D to 3D Miss: a snapshot parameter to only
- * capture container and not descendants (RFE for JDK9). Replace Tile3D by a
- * Mesh with only one textured face.
+ * Main class for 3D display TODO: 2D to 3D Miss: a snapshot parameter to only capture container and not descendants
+ * (RFE for JDK9). Replace Tile3D by a Mesh with only one textured face.
  */
 public class ThreeDOM implements ITile3DListener {
 
@@ -258,6 +257,17 @@ public class ThreeDOM implements ITile3DListener {
 
     private Tile3D from2Dto3D(SVNode root2D, Group root3D, double depth) {
         Tile3D childNode3D = null;
+        // Currently, only work with internal usage. Remote is not yet possible, mainly due to the node.snapshot() calls
+        if (ConnectorUtils.nodeClass(root2D).contains("SVRemoteNodeAdapter")) {
+            Label label = new Label("The 3D view of ScenicView is only accessible when you invoke the tool from your source code. Remote access is not yet available.");
+            label.setStyle("-fx-text-fill: #ff0000; -fx-font-size: 16pt;");
+            label.setWrapText(true);
+            label.setPadding(new Insets(10,10,10,10));
+            controls.setExpanded(false);
+            accordion.setExpandedPane(null);
+            subSceneContainer.setCenter(label);
+            return null;
+        }
         Tile3D node3D = nodeToTile3D(root2D, FACTOR2D3D, depth);
         root3D.getChildren().add(node3D);
         depth += 3;
@@ -330,12 +340,14 @@ public class ThreeDOM implements ITile3DListener {
     }
 
     public void reload(SVNode root2D) {
-        currentRoot2D=root2D;
+        currentRoot2D = root2D;
         _reload();
     }
 
     void _reload() {
-        root3D.getChildren().clear();
+        if (root3D != null) {
+            root3D.getChildren().clear();
+        }
         init3D(false);
     }
 
