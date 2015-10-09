@@ -26,6 +26,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,89 +36,43 @@ public class URIToPathConverters {
     private static final Function<String, Path> MAVEN_RESOURCE = new Function<String, Path>() {
         @Override
         public Path apply(String uri) {
-            if (uri != null && uri.startsWith("file:")) {
-                if (uri.contains("target/classes")) {
-                    String[] classesTransform = {
-                            "src/main/java", "src/main/resources" };
-                    for (String ct : classesTransform) {
-                        String potentialSourceURI = uri.replace("target/classes", ct);
-                        try {
-                            Path p = Paths.get(new URI(potentialSourceURI));
-                            if (Files.exists(p)) {
-                                return p;
-                            }
-                        } catch (URISyntaxException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                } else if (uri.contains("target/test-classes")) {
-                    String[] testClassesTransform = {
-                            "src/test/java", "src/test/resources" };
-                    for (String tct : testClassesTransform) {
-                        String potentialSourceURI = uri.replace("target/test-classes", tct);
-                        try {
-                            Path p = Paths.get(new URI(potentialSourceURI));
-                            if (Files.exists(p)) {
-                                return p;
-                            }
-                        } catch (URISyntaxException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
+            Path p = new SubstringFileMapper(uri)
+                    .addEntry("target/classes", "src/main/java")
+                    .addEntry("target/classes", "src/main/resources")
+                    .addEntry("target/test-classes", "src/test/java")
+                    .addEntry("target/test-classes", "src/test/resources")
+                    .resolve();
+            if (p == null) {
+                logger(URIToPathConverters.class).debug("MAVEN converter failed to map css[%s] to a source file", uri);
             }
-            logger(URIToPathConverters.class).debug("MAVEN converter failed to map css[%s] to a source file", uri);
 
-            return null;
+            return p;
         }
     };
 
     private static final Function<String, Path> GRADLE_RESOURCE = new Function<String, Path>() {
         @Override
         public Path apply(String uri) {
-            if (uri != null && uri.startsWith("file:")) {
-                if (uri.contains("build/classes/main")) {
-                    String[] classesTransform = {
-                            "src/main/java", "src/main/resources" };
-                    for (String ct : classesTransform) {
-                        String potentialSourceURI = uri.replace("target/classes", ct);
-                        try {
-                            Path p = Paths.get(new URI(potentialSourceURI));
-                            if (Files.exists(p)) {
-                                return p;
-                            }
-                        } catch (URISyntaxException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                } else if (uri.contains("build/classes/test")) {
-                    String[] testClassesTransform = {
-                            "src/test/java", "src/test/resources" };
-                    for (String tct : testClassesTransform) {
-                        String potentialSourceURI = uri.replace("target/test-classes", tct);
-                        try {
-                            Path p = Paths.get(new URI(potentialSourceURI));
-                            if (Files.exists(p)) {
-                                return p;
-                            }
-                        } catch (URISyntaxException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
+            Path p = new SubstringFileMapper(uri)
+                    .addEntry("build/classes/main", "src/main/java")
+                    .addEntry("build/resources/main", "src/main/resources")
+                    .addEntry("build/classes/test", "src/test/java")
+                    .addEntry("build/resources/test", "src/test/resources")
+                    .resolve();
+
+            if (p == null) {
+                logger(URIToPathConverters.class).debug("GRADLE converter failed to map css[%s] to a source file", uri);
             }
 
-            logger(URIToPathConverters.class).debug("GRADLE converter failed to map css[%s] to a source file", uri);
-            return null;
+            return p;
         }
     };
 
-    private static Pattern[] JAR_PATTERNS = {
+    private static Pattern[] JAR_PATTERNS = { 
             Pattern.compile("jar:file:/(.*)/target/(.*)\\.jar!/(.*\\.css)") // resource from maven jar in target directory
             , Pattern.compile("jar:file:/(.*)/build/(.*)\\.jar!/(.*\\.css)") // resource from gradle jar in target directory
     };
-    private static String[] JAR_SOURCES_REPLACEMENTS = {
-            "src/main/java", "src/main/resources", "src/test/java", "src/test/resources" };
+    private static String[] JAR_SOURCES_REPLACEMENTS = { "src/main/java", "src/main/resources", "src/test/java", "src/test/resources" };
 
     private static final Function<String, Path> JAR_RESOURCE = new Function<String, Path>() {
         @Override
@@ -142,16 +98,44 @@ public class URIToPathConverters {
             logger(URIToPathConverters.class).debug("JAR converter failed to map css[%s] to a source file", uri);
             return null;
         }
-    }; 
+    };
 
-//    public static Function<String, Path>[] DEFAULT_CONVERTERS = {
-//            MAVEN_RESOURCE
-//            , GRADLE_RESOURCE
-//            , JAR_RESOURCE
-//    };
+    private static class SubstringFileMapper {
+        private final String uri;
+        private final Map<String, String> entries;
+
+        public SubstringFileMapper(String uri) {
+            this.uri = uri;
+            this.entries = new TreeMap<>(); // keep insertion order
+        }
+
+        public SubstringFileMapper addEntry(String toFind, String toReplace) {
+            entries.put(toFind, toReplace);
+            return this;
+        }
+
+        public Path resolve() {
+            if (uri != null && uri.startsWith("file:")) {
+                for (Map.Entry<String, String> entry : entries.entrySet()) {
+                    String potentialSourceURI = uri.replace(entry.getKey(), entry.getValue());
+                    try {
+                        Path p = Paths.get(new URI(potentialSourceURI));
+                        if (Files.exists(p)) {
+                            return p;
+                        }
+                    } catch (URISyntaxException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            return null;
+        }
+    }
+
     public static Collection<Function<String, Path>> DEFAULT_CONVERTERS = Arrays.asList(
-        MAVEN_RESOURCE
-        , GRADLE_RESOURCE
-        , JAR_RESOURCE
-    );
+            MAVEN_RESOURCE, 
+            GRADLE_RESOURCE, 
+            JAR_RESOURCE
+            );
 }
