@@ -64,7 +64,8 @@ public class LinuxAttachHandler extends AttachHandlerBase {
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
             if (br.ready()) {
-                String path = br.readLine().replaceAll("/bin/javac$", "");
+                // resolve symbolic links
+                File path = Paths.get(br.readLine().replaceAll("/bin/javac$", "")).toRealPath().toFile();
                 jdkPaths.add(new JDKToolsJarPair(path));
             }
         } catch(Exception e) {
