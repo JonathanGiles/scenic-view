@@ -106,7 +106,11 @@ public class ConnectorUtils {
         if (value == null) {
             @SuppressWarnings("rawtypes") Class cls = node.getClass();
             String name = cls.getSimpleName();
-            while (name.isEmpty()) {
+            while (name.isEmpty()
+                    || name.contains("anon$")) { // getSimpleName for anonymous classes in Scala does not return empty
+                                                 // string, instead it will contain some encoded name. Check it here.
+                                                 // Also see https://github.com/scala/scala/blob/2.11.x/test/files/jvm/javaReflection/Test.scala
+                                                 // for some information about Java reflection applied to Scala classes.
                 cls = cls.getSuperclass();
                 name = cls.getSimpleName();
             }
