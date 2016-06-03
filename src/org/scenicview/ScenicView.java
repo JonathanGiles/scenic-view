@@ -39,8 +39,6 @@ import org.scenicview.utils.ExceptionLogger;
 import org.scenicview.utils.Logger;
 import org.scenicview.view.ScenicViewGui;
 
-import com.sun.javafx.tk.Toolkit;
-
 /**
  * This is the entry point for all different versions of Scenic View.
  */
@@ -118,14 +116,23 @@ public class ScenicView extends Application {
         // so that we don't block the loading of the actual application.
         @SuppressWarnings("unused")
         Thread scenicViewBootThread = new Thread(() -> {
-            Toolkit tk = Toolkit.getToolkit();   
-            Platform.runLater(() -> {
+            while (true) {
                 try {
-                    new ScenicView().start(new Stage());
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    Platform.runLater(() -> {
+                        try {
+                            new ScenicView().start(new Stage());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                    break;
+                } catch (IllegalStateException e) {
+                    // FX runtime hasn't been initialized yet. Actual initialization occurs in method LauncherImpl.startup()
+                    // which must be called only once and under normal circumstances called as result of launching instrumented
+                    // application, so we have to wait while FX runtime will be initialized.
+                    try { Thread.sleep(500); } catch (InterruptedException ex) {}
                 }
-            });
+            }
         }, "scenic-view-boot");
         scenicViewBootThread.setDaemon(true);
         scenicViewBootThread.start();
