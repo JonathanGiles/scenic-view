@@ -8,3 +8,4 @@ scenicView.properties
 .gradle/*
 license.key
 license.txt
+gradle.properties
