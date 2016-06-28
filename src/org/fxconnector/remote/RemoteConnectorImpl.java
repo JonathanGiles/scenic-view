@@ -459,7 +459,13 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
 
             // System.err.println("Cannot load the agent, ScenicView.jar not found here:" + tempf.getAbsolutePath());
         }
-        Logger.print("Loading agent from: " + (tempf == null ? "null" : tempf.getAbsolutePath()));
+
+        if (tempf == null) {
+            Logger.print("Error: Unable to find agent jar file. Exiting Scenic View.");
+            System.exit(-1);
+        } else {
+            Logger.print("Loading agent from: " + tempf.getAbsolutePath());
+        }
         return tempf;
     }
 
