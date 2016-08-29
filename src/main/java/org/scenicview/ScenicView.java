@@ -97,6 +97,7 @@ public class ScenicView extends Application {
         final boolean sceneRoot = target.getScene().getRoot() == target;
         final StageControllerImpl sController = new StageControllerImpl(target, aController, sceneRoot);
 
+        System.out.println("aController = " + aController);
         aController.getStages().add(sController);
         controllers.add(aController);
         

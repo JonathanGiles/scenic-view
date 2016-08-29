@@ -9,3 +9,5 @@ scenicView.properties
 license.key
 license.txt
 gradle.properties
+.DS_Store
+.idea/*

@@ -26,18 +26,9 @@ dependencies {
     }
 }
 
+
 sourceSets {
     main {
-        java {
-            srcDir 'src'
-            include '**/*.java'
-            exclude 'deploy/**'
-        }
-        resources {
-            srcDir 'src'
-            exclude '**/*.java'
-            exclude 'deploy/**'
-        }
         compileClasspath += configurations.jdk
     }
 }
@@ -55,24 +46,3 @@ jar {
 artifacts {
     archives(jar)
 }
-
-/*
-uploadArchives() {
-    repositories {
-        mavenDeployer {
-            repository(url: bintray_api_base_url + '/maven/' + bintray_orgname + '/' + bintray_repo + '/' + bintray_package + '/',
-                    id: 'bintray'
-            ) {
-                try {
-                    authentication(
-                            userName: bintray_username,
-                            password: bintray_api_key
-                    )
-                } catch (MissingPropertyException pne) {
-                    // ignore, don't authenticate
-                }
-            }
-        }
-    }
-}
-*/
