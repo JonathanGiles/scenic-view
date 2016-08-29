@@ -124,7 +124,7 @@ class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
         final ObservableValue observable = orderedProperties.get(propertyName);
         final Object value = observable.getValue();
         if (value instanceof Image) {
-            detail.setValue("Image (" + ((Image) value).impl_getUrl() + ")");
+            detail.setValue("Image (" + ((Image) value).getUrl() + ")");
         } else {
             detail.setValue(value == null ? Detail.EMPTY_DETAIL : value.toString());
             detail.setDefault(value == null);

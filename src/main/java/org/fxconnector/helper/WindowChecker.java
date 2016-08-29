@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import javafx.collections.ObservableList;
 import javafx.stage.Window;
 
 import org.fxconnector.StageController;
@@ -72,17 +73,18 @@ public abstract class WindowChecker extends WorkerThread {
     protected abstract void onWindowsFound(List<Window> windows);
 
     public static List<Window> getValidWindows(final WindowFilter filter) {
-        @SuppressWarnings("deprecation") final Iterator<Window> windows = Window.impl_getWindows();
-        if (!windows.hasNext())
+        ObservableList<Window> windows = Window.getWindows();
+        if (windows.isEmpty()) {
             return Collections.emptyList();
-        final List<Window> list = new ArrayList<>();
-        while (windows.hasNext()) {
-            final Window window = windows.next();
+        }
+
+        final List<Window> validWindows = new ArrayList<>();
+        for (Window window : windows) {
             if (filter.accept(window)) {
-                list.add(window);
+                validWindows.add(window);
             }
         }
-        return list;
+        return validWindows;
     }
 
     public void setMaxWaitTime(final long maxWaitTime) {

@@ -134,10 +134,9 @@ public class RuntimeAttach {
 
                 @Override public StageID[] getStageIDs() throws RemoteException {
                     finded.clear();
-                    @SuppressWarnings("deprecation")
-                    final Iterator<Window> it = Window.impl_getWindows();
-                    while (it.hasNext()) {
-                        final Window window = it.next();
+
+                    ObservableList<Window> windows = Window.getWindows();
+                    for (Window window : windows) {
                         if (ConnectorUtils.acceptWindow(window)) {
                             debug("Local JavaFX Stage found:" + ((Stage) window).getTitle());
                             final StageControllerImpl scontroller = new StageControllerImpl((Stage) window, acontroller);
