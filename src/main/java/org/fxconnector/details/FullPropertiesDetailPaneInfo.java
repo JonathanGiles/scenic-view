@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
@@ -32,6 +33,11 @@ import javafx.css.CssMetaData;
 import javafx.css.Styleable;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundSize;
 import javafx.scene.paint.Color;
 
 import org.fxconnector.StageID;
@@ -125,6 +131,21 @@ class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
         final Object value = observable.getValue();
         if (value instanceof Image) {
             detail.setValue("Image (" + ((Image) value).impl_getUrl() + ")");
+        } else if (value instanceof Background) {
+            StringBuilder detailString = new StringBuilder("Background (");
+            Background background = (Background)value;
+            if (!background.getFills().isEmpty()) {
+                detailString.append("fills=[");
+                detailString.append(background.getFills().stream().map(FullPropertiesDetailPaneInfo::backgroundFillToString).collect(Collectors.joining(",\n  ")));
+                detailString.append("]");
+            }
+            if (!background.getImages().isEmpty()) {
+                detailString.append("images=[");
+                detailString.append(background.getImages().stream().map(FullPropertiesDetailPaneInfo::backgroundImageToString).collect(Collectors.joining(",\n  ")));
+                detailString.append("]");
+            }
+            
+            detail.setValue(detailString.append(")").toString());
         } else {
             detail.setValue(value == null ? Detail.EMPTY_DETAIL : value.toString());
             detail.setDefault(value == null);
@@ -151,6 +172,37 @@ class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
         }
         if (!all)
             detail.updated();
+    }
+
+    private static String backgroundFillToString(BackgroundFill backgroundFill) {
+        return "paint=" + backgroundFill.getFill() 
+            + " insets=" + backgroundFill.getInsets()
+            + " radii=" + backgroundFill.getRadii();
+    }
+
+    private static String backgroundImageToString(BackgroundImage backgroundImage) {
+        return "image=" + backgroundImage.getImage()
+            + " position=" + backgroundPositionToString(backgroundImage.getPosition())
+            + " repeatX=" + backgroundImage.getRepeatX()
+            + " repeatY=" + backgroundImage.getRepeatY()
+            + " size=" + backgroundSizeToString(backgroundImage.getSize());
+    }
+
+    private static String backgroundSizeToString(BackgroundSize size) {
+        String width = size.getWidth() == BackgroundSize.AUTO ? "AUTO" : 
+            size.getWidth() + (size.isWidthAsPercentage() ? "%" : "");
+        String height = size.getHeight() == BackgroundSize.AUTO ? "AUTO" :
+                size.getHeight() + (size.isHeightAsPercentage() ? "%" : "");
+        return width + " x " + height
+            + (size.isContain() ? " contain" : "")
+            + (size.isCover() ? " cover" : "");
+    }
+
+    private static String backgroundPositionToString(BackgroundPosition position) {
+        String horizPos = position.getHorizontalPosition() + (position.isHorizontalAsPercentage() ? "%" : "");
+        String vertPos = position.getVerticalPosition() + (position.isVerticalAsPercentage() ? "%" : "");
+        return position.getHorizontalSide() + " " + horizPos
+                + " " + position.getVerticalSide() + " " + vertPos;
     }
 
     @Override void setShowCSSProperties(final boolean show) {
