@@ -78,7 +78,6 @@ public abstract class PropertyTracker {
             if (ov != null && propListener != null) {
                 ov.addListener(propListener);
             }
-
         }
     }
 
