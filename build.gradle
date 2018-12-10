@@ -10,6 +10,9 @@ version = '11.0.1'
 
 defaultTasks 'install'
 
+sourceCompatibility = '1.9'
+targetCompatibility = '1.9'
+
 repositories {
     mavenCentral()
 }
