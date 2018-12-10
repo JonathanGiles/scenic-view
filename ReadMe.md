@@ -30,11 +30,11 @@ You can also create a zipped version of that image for distribution:
 
 	./gradlew jlinkZip
 
-## Use of ScenicView
+## Use of Scenic View
 
 ### Stand-alone application
 
-You can run ScenicView as stand-alone application from this project:
+You can run Scenic View as stand-alone application from this project:
 
 	./gradlew run
 
