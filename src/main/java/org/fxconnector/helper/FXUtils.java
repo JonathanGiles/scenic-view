@@ -19,6 +19,7 @@ package org.fxconnector.helper;
 
 import java.util.Iterator;
 
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -65,8 +66,8 @@ public class FXUtils {
         if (n instanceof Parent) {
             Parent container = (Parent) n;
 
-            for (Iterator<Window> it = Window.impl_getWindows(); it.hasNext();) {
-                Window w = it.next();
+            ObservableList<Window> windows = Window.getWindows();
+            for (Window w : windows) {
                 if (w.getScene() != null) {
                     if (container == w.getScene().getRoot()) {
                         return w;
@@ -89,8 +90,8 @@ public class FXUtils {
             return null;
         }
 
-        for (Iterator<Window> it = Window.impl_getWindows(); it.hasNext();) {
-            Window w = it.next();
+        ObservableList<Window> windows = Window.getWindows();
+        for (Window w : windows) {
             if (s == w.getScene()) {
                 return w;
             }

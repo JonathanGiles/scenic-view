@@ -245,7 +245,13 @@ public class GDetailPane extends TitledPane {
                 }
                 case COLOR: {
                     final Label valueLabel = new Label();
-                    Color c = Color.valueOf(d.getValue());
+                    Color c;
+                    try {
+                        c = Color.valueOf(d.getValue());
+                    } catch (IllegalArgumentException e) {
+                        Logger.print("Error for color: " + d.getValue());
+                        c = Color.BLACK;
+                    }
                     Rectangle rect = new Rectangle(10, 10, c);
                     HBox hbox = new HBox(5, graphic, rect);
                     hbox.setAlignment(Pos.CENTER_LEFT);

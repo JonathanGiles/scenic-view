@@ -24,6 +24,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.image.ImageView;
 
 import org.fxconnector.node.SVNode;
+import org.scenicview.utils.ExceptionLogger;
 import org.scenicview.view.control.ProgressWebView;
 import org.scenicview.view.ContextMenuContainer;
 import org.scenicview.view.DisplayUtils;
@@ -68,13 +69,20 @@ public class JavaDocTab extends Tab implements ContextMenuContainer {
         SVNode selectedNode = scenicView.getSelectedNode();
         
         if (selectedNode == null || selectedNode.getNodeClassName() == null || !selectedNode.getNodeClassName().startsWith("javafx.")) {
-            webView.doLoad("http://docs.oracle.com/javase/8/javafx/api/overview-summary.html");
+            webView.doLoad("https://openjfx.io/javadoc/11/index.html");
         } else {
             String baseClass = selectedNode.getNodeClassName();
+            String baseModule;
+            try {
+                baseModule = Class.forName(baseClass).getModule().getName();
+            } catch (ClassNotFoundException e) {
+                ExceptionLogger.submitException(e);
+                return;
+            }
             if (property != null) {
                 baseClass = scenicView.findProperty(baseClass, property);
             }
-            final String page = "http://docs.oracle.com/javase/8/javafx/api/" + baseClass.replace('.', '/') + ".html"
+            final String page = "https://openjfx.io/javadoc/11/" + baseModule + "/" + baseClass.replace('.', '/') + ".html"
                     + (property != null ? ("#" + property + "Property") : "");
             webView.doLoad(page);
         }
