@@ -1,10 +1,19 @@
 Scenic View
 ===========
 
-Scenic View is a JavaFX application designed to make it simple to understand the current state of your application scenegraph, 
-and to also easily manipulate properties of the scenegraph without having to keep editing your code. 
+Scenic View is a JavaFX application designed to make it simple to understand the current state of your application scenegraph, and to also easily manipulate properties of the scenegraph without having to keep editing your code. 
 This lets you find bugs, and get things pixel perfect without having to do the compile-check-compile dance. 
 You can [learn more about Scenic View on its website](http://www.scenic-view.org).
+
+## Build status
+
+Builds for Windows, Linux, and MacOS are built by Azure Pipelines. The status of these builds is shown below:
+
+| Platform | Status |
+|----------|--------|
+| Windows  | [![Build Status](https://jonathangiles.visualstudio.com/Scenic%20View/_apis/build/status/Scenic%20View%20-%20JDK%2011%20-%20Windows)](https://jonathangiles.visualstudio.com/Scenic%20View/_build/latest?definitionId=5) |
+| MacOS  | [![Build Status](https://jonathangiles.visualstudio.com/Scenic%20View/_apis/build/status/Scenic%20View%20-%20JDK%2011%20-%20macOS)](https://jonathangiles.visualstudio.com/Scenic%20View/_build/latest?definitionId=7) |
+| Linux  | [![Build Status](https://jonathangiles.visualstudio.com/Scenic%20View/_apis/build/status/Scenic%20View%20-%20JDK%2011%20-%20Linux)](https://jonathangiles.visualstudio.com/Scenic%20View/_build/latest?definitionId=6) |
 
 ## Java Version
 
