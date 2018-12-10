@@ -51,7 +51,7 @@ public abstract class WindowChecker extends WorkerThread {
         while (running) {
             onWindowsFound(windows);
             try {
-                Logger.print("No JavaFX window found - sleeping for " + sleepTime / 1000 + " seconds");
+                // Logger.print("No JavaFX window found - sleeping for " + sleepTime / 1000 + " seconds");
                 Thread.sleep(sleepTime);
                 if (maxWaitTime != -1) {
                     currentWait += sleepTime;

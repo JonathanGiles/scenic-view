@@ -45,7 +45,9 @@ public abstract class PropertyTracker {
 
     public void clear() {
         for (final ObservableValue ov : properties.keySet()) {
-            ov.removeListener(propListener);
+            if (ov != null && propListener != null) {
+                ov.removeListener(propListener);
+            }
         }
         properties.clear();
     }
@@ -73,7 +75,9 @@ public abstract class PropertyTracker {
         }
 
         for (final ObservableValue ov : properties.keySet()) {
-            ov.addListener(propListener);
+            if (ov != null && propListener != null) {
+                ov.addListener(propListener);
+            }
         }
     }
 

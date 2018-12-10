@@ -21,7 +21,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
@@ -31,7 +33,17 @@ import javafx.beans.value.WritableValue;
 import javafx.css.CssMetaData;
 import javafx.css.Styleable;
 import javafx.scene.Node;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderImage;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderWidths;
 import javafx.scene.paint.Color;
 
 import org.fxconnector.StageID;
@@ -122,9 +134,45 @@ class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
     @SuppressWarnings({ "unchecked", "deprecation" }) protected void updateDetail(final String propertyName, final boolean all) {
         final Detail detail = fullPropertiesDetails.get(propertyName);
         final ObservableValue observable = orderedProperties.get(propertyName);
+        if (observable == null) {
+            Logger.print("null PropertyName for:" + propertyName);
+            return;
+        }
         final Object value = observable.getValue();
         if (value instanceof Image) {
             detail.setValue("Image (" + ((Image) value).getUrl() + ")");
+        } else if (value instanceof Background) {
+            StringBuilder detailString = new StringBuilder("Background (");
+            Background background = (Background)value;
+            if (!background.getFills().isEmpty()) {
+                detailString.append("fills=[");
+                detailString.append(background.getFills().stream().map(FullPropertiesDetailPaneInfo::backgroundFillToString).collect(Collectors.joining(",\n  ")));
+                detailString.append("]");
+            }
+            if (!background.getImages().isEmpty()) {
+                detailString.append("images=[");
+                detailString.append(background.getImages().stream().map(FullPropertiesDetailPaneInfo::backgroundImageToString).collect(Collectors.joining(",\n  ")));
+                detailString.append("]");
+            }
+
+            detail.setValue(detailString.append(")").toString());
+        } else if (value instanceof Border) {
+            StringBuilder detailString = new StringBuilder("Border (");
+            Border border = (Border) value;
+            if (!border.getStrokes().isEmpty()) {
+                detailString.append("strokes=[\n  ");
+                detailString.append(border.getStrokes().stream().map(FullPropertiesDetailPaneInfo::borderStrokeToString).collect(Collectors.joining(",\n  ")));
+                detailString.append("]");
+            }
+            if (!border.getImages().isEmpty()) {
+                detailString.append("images=[\n  ");
+                detailString.append(border.getImages().stream().map(FullPropertiesDetailPaneInfo::borderImageToString).collect(Collectors.joining(",\n  ")));
+                detailString.append("]");
+            }
+
+            detail.setValue(detailString.append(")").toString());
+        } else if (value instanceof Tooltip) {
+            detail.setValue("Tooltip [text=\"" + ((Tooltip)value).getText() + "\"]");
         } else {
             detail.setValue(value == null ? Detail.EMPTY_DETAIL : value.toString());
             detail.setDefault(value == null);
@@ -151,6 +199,81 @@ class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
         }
         if (!all)
             detail.updated();
+    }
+    
+    private static String borderStrokeToString(BorderStroke borderStroke) {
+        return "paint=" + topRightBottomLeft(borderStroke.getTopStroke(), borderStroke.getRightStroke(), borderStroke.getBottomStroke(), borderStroke.getLeftStroke())
+            + "\n    style=" + topRightBottomLeft(borderStroke.getTopStyle(), borderStroke.getRightStyle(), borderStroke.getBottomStyle(), borderStroke.getLeftStyle())
+            + "\n    widths=" + borderWidthsToString(borderStroke.getWidths())
+            + " insets=" + borderStroke.getInsets()
+            + " radii=" + borderStroke.getRadii();
+    }
+    
+    private static String borderImageToString(BorderImage borderImage) {
+        return "image=" + borderImage.getImage()
+            + "\n    widths=" + borderWidthsToString(borderImage.getWidths())
+            + "\n    slices=" + borderWidthsToString(borderImage.getSlices())
+            + "\n    insets=" + borderImage.getInsets()
+            + " repeatX=" + borderImage.getRepeatX()
+            + " repeatY=" + borderImage.getRepeatY()
+            + " filled=" + borderImage.isFilled();
+    }
+
+    private static String borderWidthsToString(BorderWidths widths) {
+        if (widths == null) {
+            return "null";
+        }
+        return topRightBottomLeft(
+            individualBorderWidthToString(widths.getTop(), widths.isTopAsPercentage()),
+            individualBorderWidthToString(widths.getRight(), widths.isRightAsPercentage()),
+            individualBorderWidthToString(widths.getBottom(), widths.isBottomAsPercentage()),
+            individualBorderWidthToString(widths.getLeft(), widths.isLeftAsPercentage())
+        );
+    }
+
+    // If they are all the same according to .equals(), prints one value, else prints all four.
+    private static <T> String topRightBottomLeft(T top, T right, T bottom, T left)
+    {
+        if (Objects.equals(top, right) && Objects.equals(top, bottom) && Objects.equals(top, left)) {
+            return top.toString();
+        } else {
+            return top.toString() + " " + right.toString() + " " + bottom.toString() + " " + left.toString();
+        }
+    }
+
+    private static String individualBorderWidthToString(double value, boolean percentage) {
+        return value == BorderWidths.AUTO ? "AUTO" : value + (percentage ? "%" : "");
+    }
+
+    private static String backgroundFillToString(BackgroundFill backgroundFill) {
+        return "paint=" + backgroundFill.getFill() 
+            + " insets=" + backgroundFill.getInsets()
+            + " radii=" + backgroundFill.getRadii();
+    }
+
+    private static String backgroundImageToString(BackgroundImage backgroundImage) {
+        return "image=" + backgroundImage.getImage()
+            + " position=" + backgroundPositionToString(backgroundImage.getPosition())
+            + " repeatX=" + backgroundImage.getRepeatX()
+            + " repeatY=" + backgroundImage.getRepeatY()
+            + " size=" + backgroundSizeToString(backgroundImage.getSize());
+    }
+
+    private static String backgroundSizeToString(BackgroundSize size) {
+        String width = size.getWidth() == BackgroundSize.AUTO ? "AUTO" : 
+            size.getWidth() + (size.isWidthAsPercentage() ? "%" : "");
+        String height = size.getHeight() == BackgroundSize.AUTO ? "AUTO" :
+                size.getHeight() + (size.isHeightAsPercentage() ? "%" : "");
+        return width + " x " + height
+            + (size.isContain() ? " contain" : "")
+            + (size.isCover() ? " cover" : "");
+    }
+
+    private static String backgroundPositionToString(BackgroundPosition position) {
+        String horizPos = position.getHorizontalPosition() + (position.isHorizontalAsPercentage() ? "%" : "");
+        String vertPos = position.getVerticalPosition() + (position.isVerticalAsPercentage() ? "%" : "");
+        return position.getHorizontalSide() + " " + horizPos
+                + " " + position.getVerticalSide() + " " + vertPos;
     }
 
     @Override void setShowCSSProperties(final boolean show) {

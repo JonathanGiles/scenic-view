@@ -420,6 +420,11 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                 String urlFile = url.getFile();
                 String fileUrl = urlFile.substring(0, urlFile.indexOf('!'));
                 tempf = new File(new URL(fileUrl).toURI());
+            } else if (url.getProtocol().equals("jrt")) {
+                /**
+                 * Find jar distributed in custom image
+                 */
+                tempf = new File(new URL("file://" + System.getProperty("java.home") + "/lib/scenicview.jar").toURI());
             }
         } catch (MalformedURLException | URISyntaxException e) {
             ExceptionLogger.submitException(e, "Attempting to get agent jar.");
@@ -431,11 +436,29 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
              */
             final String classPath = System.getProperty("java.class.path");
             final String pathSeparator = System.getProperty("path.separator");
-            final String[] files = classPath.split(pathSeparator);
-            for (int i = 0; i < files.length; i++) {
-                if (files[i].toLowerCase().indexOf("scenicview.jar") != -1) {
-                    tempf = new File(files[i]);
-                    break;
+            if (classPath != null && ! classPath.isEmpty()) {
+                final String[] files = classPath.split(pathSeparator);
+                for (int i = 0; i < files.length; i++) {
+                    if (files[i].toLowerCase().indexOf("scenicview.jar") != -1) {
+                        tempf = new File(files[i]);
+                        break;
+                    }
+                }
+            }
+        }
+        if (tempf == null || !tempf.exists()) {
+            /**
+             * Find jar file in the modulepath
+             */
+            final String modulePath = System.getProperty("jdk.module.path");
+            final String pathSeparator = System.getProperty("path.separator");
+            if (modulePath != null && ! modulePath.isEmpty()) {
+                final String[] files = modulePath.split(pathSeparator);
+                for (int i = 0; i < files.length; i++) {
+                    if (files[i].toLowerCase().indexOf("scenicview.jar") != -1) {
+                        tempf = new File(files[i]);
+                        break;
+                    }
                 }
             }
         }
