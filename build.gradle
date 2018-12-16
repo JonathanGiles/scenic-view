@@ -51,19 +51,18 @@ artifacts {
 ext.platform = osdetector.os == 'osx' ? 'mac' : osdetector.os == 'windows' ? 'win' : osdetector.os
 
 jlink {
-    imageDir.set(project.layout.buildDirectory.dir('scenicview'))
-    imageZip.set(project.layout.buildDirectory.file('scenicview.zip'))
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
     launcher {
         name = 'scenicView'
     }
-    imageZip = project.file("${buildDir}/dist/scenicView-${platform}.zip")
+    imageDir = file("${buildDir}/scenicview")
+    imageZip = file("${buildDir}/dist/scenicview-${platform}.zip")
 }
 
 tasks.jlink.doLast {
     // Copy scenicView.jar to lib, it is required as loading Agent
     copy {
         from "${buildDir}/libs/scenicview.jar"
-        into "${buildDir}/image/lib"
+        into "${buildDir}/scenicview/lib"
     }
 }
