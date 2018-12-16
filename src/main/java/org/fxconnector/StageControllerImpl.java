@@ -82,8 +82,6 @@ import org.scenicview.extensions.cssfx.module.api.MonitoredStylesheet;
 import org.scenicview.utils.ExceptionLogger;
 import org.scenicview.utils.Logger;
 
-import com.sun.javafx.tk.quantum.MasterTimer;
-
 public class StageControllerImpl implements StageController {
 
     public final StageID stageID;
@@ -792,11 +790,12 @@ public class StageControllerImpl implements StageController {
     }
 
     @Override public void animationsEnabled(final boolean enabled) {
-        if (enabled) {
-            MasterTimer.getInstance().resume();
-        } else {
-            MasterTimer.getInstance().pause();
-        }
+//        if (enabled) {
+//            MasterTimer.getInstance().resume();
+//        } else {
+//            MasterTimer.getInstance().pause();
+//        }
+        throw new RuntimeException("MasterTimer is not available in JDK");
     }
 
     @Override public void updateAnimations() {

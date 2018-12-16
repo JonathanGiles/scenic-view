@@ -134,9 +134,13 @@ class FullPropertiesDetailPaneInfo extends DetailPaneInfo {
     @SuppressWarnings({ "unchecked", "deprecation" }) protected void updateDetail(final String propertyName, final boolean all) {
         final Detail detail = fullPropertiesDetails.get(propertyName);
         final ObservableValue observable = orderedProperties.get(propertyName);
+        if (observable == null) {
+            Logger.print("null PropertyName for:" + propertyName);
+            return;
+        }
         final Object value = observable.getValue();
         if (value instanceof Image) {
-            detail.setValue("Image (" + ((Image) value).impl_getUrl() + ")");
+            detail.setValue("Image (" + ((Image) value).getUrl() + ")");
         } else if (value instanceof Background) {
             StringBuilder detailString = new StringBuilder("Background (");
             Background background = (Background)value;

@@ -23,6 +23,7 @@ import javafx.scene.shape.Shape;
 import org.fxconnector.StageID;
 import org.fxconnector.details.Detail.ValueType;
 import org.fxconnector.event.FXConnectorEventDispatcher;
+import org.scenicview.utils.Logger;
 
 /**
  * 
@@ -52,7 +53,10 @@ class ShapeDetailPaneInfo extends DetailPaneInfo {
 
         final Shape shapeNode = (Shape) getTarget();
         if (all || propertyName.equals("fill")) {
-            fillDetail.setValue(shapeNode != null ? shapeNode.getFill().toString() : "-");
+            if (shapeNode != null && shapeNode.getFill() == null) {
+                Logger.print("Error: null shape fill for property " + propertyName);
+            }
+            fillDetail.setValue(shapeNode != null && shapeNode.getFill() != null ? shapeNode.getFill().toString() : "-");
             fillDetail.setIsDefault(shapeNode == null || shapeNode.getFill() == null);
             fillDetail.setSimpleProperty((shapeNode != null) ? shapeNode.fillProperty() : null);
             if (!all)

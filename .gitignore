@@ -1,0 +1,6 @@
+build/
+.gradle/
+.nb-gradle/
+app/.gradle/
+scenicView.properties
+.DS_Store

@@ -100,8 +100,8 @@ public class ScenicViewGui {
     public static final String STYLESHEETS = ScenicViewGui.class.getResource("scenicview.css").toExternalForm();
     public static final Image APP_ICON = DisplayUtils.getUIImage("mglass.png");
 
-    public static final String VERSION = "8.7.0";
-    
+    public static final String VERSION = "11.0.1";
+
     private final Thread shutdownHook = new Thread() {
         @Override public void run() {
             // We can't use close() because we are not in FXThread
