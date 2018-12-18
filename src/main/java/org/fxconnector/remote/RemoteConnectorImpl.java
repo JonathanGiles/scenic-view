@@ -424,7 +424,7 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
                 /**
                  * Find jar distributed in custom image
                  */
-                tempf = new File(new URL("file://" + System.getProperty("java.home") + "/lib/scenicview.jar").toURI());
+                tempf = new File(new URL("file:///" + System.getProperty("java.home") + "/lib/scenicview.jar").toURI());
             }
         } catch (MalformedURLException | URISyntaxException e) {
             ExceptionLogger.submitException(e, "Attempting to get agent jar.");
