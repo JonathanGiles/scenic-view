@@ -9,11 +9,11 @@ You can [learn more about Scenic View on its website](http://www.scenic-view.org
 
 Builds for Windows, Linux, and MacOS are built by Azure Pipelines. The status of these builds is shown below:
 
-| Platform | Status |
-|----------|--------|
-| Windows  | [![Build Status](https://jonathangiles.visualstudio.com/Scenic%20View/_apis/build/status/Scenic%20View%20-%20JDK%2011%20-%20Windows)](https://jonathangiles.visualstudio.com/Scenic%20View/_build/latest?definitionId=5) |
-| MacOS  | [![Build Status](https://jonathangiles.visualstudio.com/Scenic%20View/_apis/build/status/Scenic%20View%20-%20JDK%2011%20-%20macOS)](https://jonathangiles.visualstudio.com/Scenic%20View/_build/latest?definitionId=7) |
-| Linux  | [![Build Status](https://jonathangiles.visualstudio.com/Scenic%20View/_apis/build/status/Scenic%20View%20-%20JDK%2011%20-%20Linux)](https://jonathangiles.visualstudio.com/Scenic%20View/_build/latest?definitionId=6) |
+| Platform | Status | Download |
+|----------|--------|----------|
+| Windows  | [![Build Status](https://jonathangiles.visualstudio.com/Scenic%20View/_apis/build/status/Scenic%20View%20-%20JDK%2011%20-%20Windows)](https://jonathangiles.visualstudio.com/Scenic%20View/_build/latest?definitionId=5) | [Download](https://jogiles.blob.core.windows.net/scenic-view/scenicview-win.zip) |
+| MacOS  | [![Build Status](https://jonathangiles.visualstudio.com/Scenic%20View/_apis/build/status/Scenic%20View%20-%20JDK%2011%20-%20macOS)](https://jonathangiles.visualstudio.com/Scenic%20View/_build/latest?definitionId=7) | [Download](https://jogiles.blob.core.windows.net/scenic-view/scenicview-mac.zip) |
+| Linux  | [![Build Status](https://jonathangiles.visualstudio.com/Scenic%20View/_apis/build/status/Scenic%20View%20-%20JDK%2011%20-%20Linux)](https://jonathangiles.visualstudio.com/Scenic%20View/_build/latest?definitionId=6) | [Download](https://jogiles.blob.core.windows.net/scenic-view/scenicview-linux.zip) |
 
 ## Java Version
 
