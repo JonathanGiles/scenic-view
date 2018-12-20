@@ -43,29 +43,41 @@ You can also create a zipped version of that image for distribution:
 
 ### Stand-alone application
 
-You can run Scenic View as stand-alone application from this project:
+Download the Scenic View custom image for your platform from the above links. Unzip and then run: 
+
+	cd scenicview/bin
+	./scenicView
+
+Also, you can clone or download this project, and run Scenic View as stand-alone application:
 
 	./gradlew run
 
-or if you have the custom image:
+or if you build a custom image:
 
-	cd build/image/bin
+	cd build/scenicview/bin
 	./scenicView
 
-Then run a JavaFX 11 application and it will be detected by ScenicView.
+Then run a JavaFX application and it will be detected by Scenic View.
 
-#### From the jar
+Alternatively, you can also run the `scenicview.jar` in any platform, providing that JDK 11 and JavaFX SDK 11 are installed:
 
-You can also run the `scenicview.jar` in any platform, providing a JDK 11 and JavaFX SDK 11 are installed:
-
+	cd build/libs/
 	java --module-path /path-to/javafx-11-sdk/lib --add-modules javafx.web,javafx.fxml,javafx.swing -jar scenicview.jar
+
+#### Notes
+
+- Scenic View will detect JavaFX applications running on Java 9, 10 or 11. 
+
+- If the JavaFX application runs from a custom image (created via `link` or `jpackage`), it won't
+have access to some required tools that are available when it runs from a regular JDK, and Scenic View won't be
+able to find it.
 
 ### As a dependency
 
-You can add `scenicview.jar` as a dependency to your JavaFX 11 application. Since this jar doesn't include 
+You can add `scenicview.jar` as a dependency to your JavaFX application. Since this jar doesn't include 
 the JavaFX dependencies, you should add them to your project, in case these weren't included yet.
 
-For instance, if you are running a gradle project, add the jar to a `libs` folder, then add it to the build.gradle file:
+For instance, if you are running a gradle project, add the jar to a `libs` folder, then add it to the `build.gradle` file, like:
 
         plugins {
             id 'application'
@@ -100,3 +112,22 @@ Finally, you can run it from the application class:
         stage.show();
         
         ScenicView.show(scene);
+
+## Java 8 version
+
+There is a [jdk-8](https://github.com/JonathanGiles/scenic-view/tree/jdk-8) branch if you still 
+need Scenic View to run with Java 8.
+
+You can also find the old distributions [here](http://fxexperience.com/scenic-view/).
+
+## License
+
+GNU General Public License v3.0-or-later
+
+## Contributing
+
+This project welcomes all types of contributions and suggestions. 
+We encourage you to report issues, create suggestions and submit pull requests.
+
+Please go through the [list of issues](https://github.com/JonathanGiles/scenic-view/issues) 
+to make sure that you are not duplicating an issue.
