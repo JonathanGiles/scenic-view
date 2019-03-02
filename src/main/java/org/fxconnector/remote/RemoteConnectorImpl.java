@@ -362,8 +362,13 @@ class RemoteConnectorImpl extends UnicastRemoteObject implements RemoteConnector
         final List<VirtualMachine> javaFXMachines = new ArrayList<>();
 
         final Map<String, Properties> vmsProperties = new HashMap<>(machines.size());
+
+        String currentPid = String.valueOf(ProcessHandle.current().pid());
         for (int i = 0; i < machines.size(); i++) {
             final VirtualMachineDescriptor vmd = machines.get(i);
+            if (vmd != null && currentPid.equals(vmd.id())) {
+                continue;
+            }
             try {
                 final VirtualMachine virtualMachine = VirtualMachine.attach(vmd);
                 Logger.print("Obtaining properties for Java application with PID:" + virtualMachine.id());
