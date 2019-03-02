@@ -100,7 +100,7 @@ public class ScenicViewGui {
     public static final String STYLESHEETS = ScenicViewGui.class.getResource("scenicview.css").toExternalForm();
     public static final Image APP_ICON = DisplayUtils.getUIImage("mglass.png");
 
-    public static final String VERSION = "11.0.1";
+    public static final String VERSION = "11.0.2";
 
     private final Thread shutdownHook = new Thread() {
         @Override public void run() {
