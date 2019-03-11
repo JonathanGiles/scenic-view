@@ -12,11 +12,11 @@ Builds for JDK 11 for Windows, Linux, and MacOS are built by Azure Pipelines. Th
 
 | Platform | Status | Download for JDK 11 |
 |----------|--------|---------------------|
-| Windows  | [![Build Status](https://jonathangiles.visualstudio.com/Scenic%20View/_apis/build/status/Scenic%20View%20-%20JDK%2011%20-%20Windows)](https://jonathangiles.visualstudio.com/Scenic%20View/_build/latest?definitionId=5) | [Download](https://jogiles.blob.core.windows.net/scenic-view/scenicview-win.zip) 
-| MacOS  | [![Build Status](https://jonathangiles.visualstudio.com/Scenic%20View/_apis/build/status/Scenic%20View%20-%20JDK%2011%20-%20macOS)](https://jonathangiles.visualstudio.com/Scenic%20View/_build/latest?definitionId=7) | [Download](https://jogiles.blob.core.windows.net/scenic-view/scenicview-mac.zip) |
-| Linux  | [![Build Status](https://jonathangiles.visualstudio.com/Scenic%20View/_apis/build/status/Scenic%20View%20-%20JDK%2011%20-%20Linux)](https://jonathangiles.visualstudio.com/Scenic%20View/_build/latest?definitionId=6) | [Download](https://jogiles.blob.core.windows.net/scenic-view/scenicview-linux.zip) |
+| Windows  | [![Build Status](https://jonathangiles.visualstudio.com/Scenic%20View/_apis/build/status/Scenic%20View%20-%20JDK%2011%20-%20Windows)](https://jonathangiles.visualstudio.com/Scenic%20View/_build/latest?definitionId=5) | [Download](https://jgilesoss.blob.core.windows.net/scenic-view/scenicview-win.zip) 
+| MacOS  | [![Build Status](https://jonathangiles.visualstudio.com/Scenic%20View/_apis/build/status/Scenic%20View%20-%20JDK%2011%20-%20macOS)](https://jonathangiles.visualstudio.com/Scenic%20View/_build/latest?definitionId=7) | [Download](https://jgilesoss.blob.core.windows.net/scenic-view/scenicview-mac.zip) |
+| Linux  | [![Build Status](https://jonathangiles.visualstudio.com/Scenic%20View/_apis/build/status/Scenic%20View%20-%20JDK%2011%20-%20Linux)](https://jonathangiles.visualstudio.com/Scenic%20View/_build/latest?definitionId=6) | [Download](https://jgilesoss.blob.core.windows.net/scenic-view/scenicview-linux.zip) |
 
-You can also download platform-independent releases [JDK 8](http://fxexperience.com/downloads/scenic-view-8-7-0/) and [JDK 9](http://fxexperience.com/downloads/scenic-view-9-0-0/).
+You can also download platform-independent releases [JDK 8](https://jgilesoss.blob.core.windows.net/scenic-view/scenic-view-8.7.0.zip) and [JDK 9](https://jgilesoss.blob.core.windows.net/scenic-view/scenic-view-9.0.0.zip).
 
 ## Java Version
 
@@ -90,7 +90,7 @@ For instance, if you are running a gradle project, add the jar to a `libs` folde
 
         plugins {
             id 'application'
-            id 'org.openjfx.javafxplugin' version '0.0.5'
+            id 'org.openjfx.javafxplugin' version '0.0.7'
         }
 
         repositories {
@@ -98,7 +98,7 @@ For instance, if you are running a gradle project, add the jar to a `libs` folde
         }
 
         dependencies {
-            compile files('libs/scenicview.jar')
+            implementation files('libs/scenicview.jar')
         }
 
         javafx {
