@@ -70,7 +70,7 @@ public class DetailsTab extends Tab implements ContextMenuContainer {
         this.loader = loader;
 
         ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.setFitToWidth(true);
         vbox = new VBox();
         vbox.setFillWidth(true);

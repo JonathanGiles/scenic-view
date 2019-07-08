@@ -44,6 +44,7 @@ import org.fxconnector.event.FXConnectorEventDispatcher;
 class NodeDetailPaneInfo extends DetailPaneInfo {
 
     Detail nodeClassName;
+    Detail nodeToString;
     Detail pseudoClassStateDetail;
     Detail styleClassDetail;
     Detail managedDetail;
@@ -88,6 +89,7 @@ class NodeDetailPaneInfo extends DetailPaneInfo {
 
     @Override protected void createDetails() {
         nodeClassName = addDetail("className", "className:");
+        nodeToString = addDetail("toString", "toString:");
         styleClassDetail = addDetail("styleClass", "styleClass:");
         pseudoClassStateDetail = addDetail(null, "pseudoClassState:");
         visibleDetail = addDetail("visible", "visible:");
@@ -249,8 +251,10 @@ class NodeDetailPaneInfo extends DetailPaneInfo {
         final boolean all = propertyName.equals("*") ? true : false;
 
         final Node node = (Node) getTarget();
+
         if (all && node != null) {
             nodeClassName.setValue(node.getClass().getName());
+            nodeToString.setValue(node.toString());
         }
 
         if (node != null) {
