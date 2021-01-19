@@ -44,6 +44,10 @@ jar {
     archiveName = 'scenicview.jar'
 }
 
+run {
+	dependsOn jar
+}
+
 artifacts {
     archives(jar)
 }
