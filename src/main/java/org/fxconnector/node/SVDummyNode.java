@@ -50,7 +50,7 @@ public class SVDummyNode extends SVNodeImpl implements SVNode, Serializable {
     }
 
     public SVDummyNode(final String name, final String nodeClass, final int nodeID, final NodeType nodeType) {
-        super(nodeClass, null);
+        super(nodeClass, null, null);
         this.name = name;
         this.nodeID = nodeID;
         this.nodeType = nodeType;

@@ -32,14 +32,16 @@ abstract class SVNodeImpl implements SVNode, Serializable {
     boolean expanded;
     protected String nodeClass;
     protected String nodeClassName;
+    protected String nodeIdentityCode;
 
     protected SVNodeImpl() {
 
     }
 
-    protected SVNodeImpl(final String nodeClass, final String nodeClassName) {
+    protected SVNodeImpl(final String nodeClass, final String nodeClassName, final String nodeIdentityCode) {
         this.nodeClass = nodeClass;
         this.nodeClassName = nodeClassName;
+        this.nodeIdentityCode = nodeIdentityCode;
     }
 
     @Override public final void setInvalidForFilter(final boolean invalid) {
@@ -74,4 +76,7 @@ abstract class SVNodeImpl implements SVNode, Serializable {
         return nodeClassName;
     }
 
+    public String getNodeIdentityCode() {
+        return nodeIdentityCode;
+    }
 }

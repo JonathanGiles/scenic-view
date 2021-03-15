@@ -46,7 +46,7 @@ class SVRealNodeAdapter extends SVNodeImpl implements SVNode {
     }
 
     public SVRealNodeAdapter(final Node node, final boolean collapseControls, final boolean collapseContentControls) {
-        super(ConnectorUtils.nodeClass(node), node.getClass().getName());
+        super(ConnectorUtils.nodeClass(node), node.getClass().getName(), ConnectorUtils.nodeIdentityCode(node));
         this.node = node;
         this.collapseControls = collapseControls;
         this.collapseContentControls = collapseContentControls;
