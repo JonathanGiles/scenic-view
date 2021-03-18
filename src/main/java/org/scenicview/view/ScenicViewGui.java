@@ -33,6 +33,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
@@ -47,6 +48,7 @@ import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -75,6 +77,7 @@ import org.fxconnector.event.NodeSelectedEvent;
 import org.fxconnector.event.SceneDetailsEvent;
 import org.fxconnector.event.ShortcutEvent;
 import org.fxconnector.event.WindowDetailsEvent;
+import org.fxconnector.helper.WorkerThread;
 import org.fxconnector.node.SVNode;
 import org.scenicview.model.Persistence;
 import org.scenicview.model.update.AppsRepository;
@@ -140,7 +143,8 @@ public class ScenicViewGui {
     
     private VBox bottomVBox;
 
-    
+    private ProgressIndicator progressScanning = new ProgressIndicator();
+    private Label labelScanning = new Label("Scanning for JavaFX applications");
 
     public final Configuration configuration = new Configuration();
     private final List<FXConnectorEvent> eventQueue = new LinkedList<>();
@@ -211,11 +215,11 @@ public class ScenicViewGui {
         this.scenicViewStage = scenicViewStage;
         Persistence.loadProperties();
         Runtime.getRuntime().addShutdownHook(shutdownHook);
+        this.updateStrategy = updateStrategy;
         buildUI();
 //        checkNewVersion(false);
         
         this.appRepository = new AppsRepository(this);
-        this.updateStrategy = updateStrategy;
         this.updateStrategy.start(appRepository);
         
         // we update Scenic View on a separate thread, based on events coming
@@ -254,11 +258,10 @@ public class ScenicViewGui {
         treeView = new ScenegraphTreeView(activeNodeFilters, this);
         treeViewScanningPlaceholder = new VBox(10) {
             {
-                ProgressIndicator progress = new ProgressIndicator();
-                Label label = new Label("Scanning for JavaFX applications");
-                label.getStyleClass().add("scanning-label");
-                getChildren().addAll(progress, label);
-                
+
+                labelScanning.getStyleClass().add("scanning-label");
+                getChildren().addAll(progressScanning, labelScanning);
+
                 setAlignment(Pos.CENTER);
                 
                 treeView.expandedItemCountProperty().addListener(o -> {
@@ -663,7 +666,31 @@ public class ScenicViewGui {
 
         menuBar.getMenus().addAll(fileMenu, displayOptionsMenu, scenegraphMenu, aboutMenu);
 
-        rootBorderPane.setTop(menuBar);
+        CheckBox btnSearchRemoteJVM = new CheckBox("Search remote FX JVM");
+        btnSearchRemoteJVM.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (updateStrategy instanceof WorkerThread) {
+                WorkerThread wt = (WorkerThread) updateStrategy;
+                wt.setEnabled(newValue);
+                progressScanning.setVisible(newValue);
+                labelScanning.setText(newValue ? "Scanning for JavaFX applications" : "Scanner is paused");
+            }
+        });
+        if (updateStrategy instanceof WorkerThread) {
+            WorkerThread wt = (WorkerThread) updateStrategy;
+            btnSearchRemoteJVM.setSelected(wt.isEnabled());
+            btnSearchRemoteJVM.setVisible(true);
+        } else {
+            btnSearchRemoteJVM.setVisible(false);
+        }
+        AnchorPane pane = new AnchorPane( menuBar, btnSearchRemoteJVM);
+        AnchorPane.setTopAnchor(menuBar, 0.0);
+        AnchorPane.setRightAnchor(menuBar, 0.0);
+        AnchorPane.setBottomAnchor(menuBar, 0.0);
+        AnchorPane.setLeftAnchor(menuBar, 0.0);
+        AnchorPane.setTopAnchor(btnSearchRemoteJVM,0.0);
+        AnchorPane.setRightAnchor(btnSearchRemoteJVM,10.0);
+        AnchorPane.setBottomAnchor(btnSearchRemoteJVM,0.0);
+        rootBorderPane.setTop(pane);
     }
     
     private void updateMenuBar(final Tab oldValue, final Tab newValue) {
