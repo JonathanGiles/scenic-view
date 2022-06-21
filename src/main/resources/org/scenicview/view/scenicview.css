@@ -123,10 +123,17 @@
      -fx-alignment: BASELINE_RIGHT;
  }
 
+.text {
+    -fx-fill: #000000;
+}
 
+.textIdentityCode {
+    -fx-fill: #AA4400;
+}
 
-
-
+.tree-view .tree-cell:filled:selected {
+    -fx-background-color: #9AD5FF;
+}
 
 .tab-pane > .tab-header-area > .tab-header-background {
     -fx-effect: null;

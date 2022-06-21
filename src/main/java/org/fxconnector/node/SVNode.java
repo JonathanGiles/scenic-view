@@ -30,6 +30,8 @@ public interface SVNode {
 
     String getNodeClass();
 
+    String getNodeIdentityCode();
+
     String getExtendedId();
 
     SVNode getParent();

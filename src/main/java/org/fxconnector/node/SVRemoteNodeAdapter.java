@@ -48,7 +48,7 @@ class SVRemoteNodeAdapter extends SVNodeImpl implements Serializable {
     }
 
     public SVRemoteNodeAdapter(final Node node, final boolean collapseControls, final boolean collapseContentControls, final boolean fillChildren, final SVRemoteNodeAdapter parent) {
-        super(ConnectorUtils.nodeClass(node), node.getClass().getName());
+        super(ConnectorUtils.nodeClass(node), node.getClass().getName(), ConnectorUtils.nodeIdentityCode(node));
         boolean mustBeExpanded = !(node instanceof Control) || !collapseControls;
         if (!mustBeExpanded && !collapseContentControls) {
             mustBeExpanded = node instanceof TabPane || node instanceof SplitPane || node instanceof ScrollPane || node instanceof Accordion || node instanceof TitledPane;

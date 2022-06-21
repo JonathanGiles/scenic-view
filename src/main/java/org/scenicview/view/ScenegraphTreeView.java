@@ -35,7 +35,9 @@ import javafx.scene.control.TreeItem.TreeModificationEvent;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.WindowEvent;
 
 import org.fxconnector.AppController;
@@ -86,11 +88,24 @@ public class ScenegraphTreeView extends TreeView<SVNode> {
         setCellFactory(node -> new TreeCell<SVNode>() {
             @Override public void updateItem(final SVNode item, final boolean empty) {
                 super.updateItem(item, empty);
-
-                TreeItem<SVNode> treeItem = getTreeItem();
-                setGraphic(treeItem == null ? null : treeItem.getGraphic());
-
-                setText(item == null ? null : item.toString());
+                if (item != null) {
+                    Text txtName = new Text(item.toString());
+                    txtName.getStyleClass().add("text");
+                    Text txtCode = new Text(item.getNodeIdentityCode());
+                    txtCode.getStyleClass().add("text");
+                    txtCode.getStyleClass().add("textIdentityCode");
+                    HBox hbox = new HBox(5.0);
+                    if (getTreeItem() != null) {
+                        hbox.getChildren().add(getTreeItem().getGraphic());
+                    }
+                    hbox.getChildren().add(txtName);
+                    hbox.getChildren().add(txtCode);
+                    setGraphic(hbox);
+                } else {
+                    setGraphic(null);
+                }
+                //setText(item == null ? null : item.toString());
+                setText(null);
                 setOpacity(1);
 
                 if (item == null) return;

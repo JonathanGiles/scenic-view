@@ -101,6 +101,10 @@ public class ConnectorUtils {
         return DFMT.format(size);
     }
 
+    public static String nodeIdentityCode(final  Object node) {
+        return Integer.toHexString(System.identityHashCode(node));
+    }
+
     public static String nodeClass(final Object node) {
         final String value = classNames.get(node.getClass());
         if (value == null) {

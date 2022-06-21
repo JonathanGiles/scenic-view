@@ -19,10 +19,13 @@ package org.fxconnector.helper;
 
 import org.scenicview.utils.ExceptionLogger;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public abstract class WorkerThread extends Thread {
 
     protected boolean running = true;
     protected final int sleepTime;
+    protected AtomicBoolean workEnabled = new AtomicBoolean(true);
 
     public WorkerThread(final String name, final int sleepTime) {
         super(name);
@@ -40,7 +43,9 @@ public abstract class WorkerThread extends Thread {
         while (running) {
             try {
                 Thread.sleep(sleepTime);
-                work();
+                if (isEnabled()) {
+                    work();
+                }
             } catch (final Exception e) {
                 if (running) {
                     ExceptionLogger.submitException(e);
@@ -48,6 +53,14 @@ public abstract class WorkerThread extends Thread {
             }
             sleepTime = this.sleepTime;
         }
+    }
+
+    public void setEnabled(Boolean enabled) {
+        workEnabled.set(enabled);
+    }
+
+    public boolean isEnabled() {
+        return workEnabled.get();
     }
 
     protected abstract void work();
