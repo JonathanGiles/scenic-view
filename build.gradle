@@ -1,17 +1,21 @@
 plugins {
     id 'application'
-    id 'org.openjfx.javafxplugin' version '0.0.7'
-    id 'org.beryx.jlink' version '2.6.5'
+    id 'org.openjfx.javafxplugin' version '0.0.13'
+    id 'org.beryx.jlink' version '2.26.0'
 }
 
-mainClassName = "org.scenicview.scenicview/org.scenicview.ScenicView"
+application {
+  mainClass.set("org.scenicview.ScenicView")
+  mainModule.set("org.scenicview.scenicview")
+}
+
 group = 'org.scenic-view'
 version = '11.0.2'
 
 defaultTasks 'install'
 
-sourceCompatibility = '1.9'
-targetCompatibility = '1.9'
+sourceCompatibility = '17'
+targetCompatibility = '17'
 
 repositories {
     mavenCentral()
@@ -29,6 +33,7 @@ sourceSets {
 }
 
 javafx {
+    version = "19"
     modules = ['javafx.web', 'javafx.fxml', 'javafx.swing']
 }
 
