@@ -90,7 +90,7 @@ For instance, if you are running a gradle project, add the jar to a `libs` folde
 
         plugins {
             id 'application'
-            id 'org.openjfx.javafxplugin' version '0.0.7'
+            id 'org.openjfx.javafxplugin' version '0.1.0'
         }
 
         repositories {
