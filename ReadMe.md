@@ -28,13 +28,13 @@ Scenic View has releases for JDK 8, JDK 9, and JDK 11:
 
 For more information about JavaFX 11, see https://openjfx.io/openjfx-docs/.
 
-## Scenic View for JDK 11+
+## Scenic View for JDK 21+
 
 ### How to build
 
-Install a valid Java 11 version, and set `JAVA_HOME` accordingly.
+Install a valid Java 21.0.1 version, and set `JAVA_HOME` accordingly.
 
-The project is managed by gradle, so is not necessary to download the JavaFX 11 SDK. 
+The project is managed by gradle, so is not necessary to download the JavaFX 21.0.1 SDK. 
 
 To build the project, type:
 
@@ -54,7 +54,7 @@ You can also create a zipped version of that image for distribution:
 
 Download the Scenic View custom image for your platform from the above links. Unzip and then run: 
 
-	cd scenicview/bin
+	cd build/scenicview/bin
 	./scenicView
 
 Also, you can clone or download this project, and run Scenic View as stand-alone application:
@@ -71,7 +71,7 @@ Then run a JavaFX application and it will be detected by Scenic View.
 Alternatively, you can also run the `scenicview.jar` in any platform, providing that JDK 11 and JavaFX SDK 11 are installed:
 
 	cd build/libs/
-	java --module-path /path-to/javafx-11-sdk/lib --add-modules javafx.web,javafx.fxml,javafx.swing -jar scenicview.jar
+	java --module-path /path-to/javafx-21.0.1-sdk/lib --add-modules javafx.web,javafx.fxml,javafx.swing -jar scenicview.jar
 
 ##### Notes
 
@@ -102,6 +102,7 @@ For instance, if you are running a gradle project, add the jar to a `libs` folde
         }
 
         javafx {
+            version = '21.0.1'
             modules = ['javafx.web', 'javafx.fxml', 'javafx.swing']
         }
 

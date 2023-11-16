@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
-        java: [11.0.15]
+        java: [21.0.1]
       fail-fast: false
       max-parallel: 4
     name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}

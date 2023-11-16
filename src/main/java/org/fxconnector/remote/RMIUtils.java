@@ -36,13 +36,13 @@ class RMIUtils {
     }
 
     private static final RemoteConnector findScenicView(final String serverAdress, final int serverPort) throws Exception {
-        final Registry registry = LocateRegistry.getRegistry(serverAdress, (new Integer(serverPort)).intValue());
+        final Registry registry = LocateRegistry.getRegistry(serverAdress, serverPort);
         // look up the remote object
         return (RemoteConnector) (registry.lookup(REMOTE_CONNECTOR));
     }
 
     private static final RemoteApplication findApplication(final String serverAdress, final int serverPort) throws Exception {
-        final Registry registry = LocateRegistry.getRegistry(serverAdress, (new Integer(serverPort)).intValue());
+        final Registry registry = LocateRegistry.getRegistry(serverAdress, serverPort);
         // look up the remote object
         return (RemoteApplication) (registry.lookup(REMOTE_AGENT));
     }
