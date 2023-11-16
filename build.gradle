@@ -29,6 +29,7 @@ sourceSets {
 }
 
 javafx {
+    version = '21.0.1'
     modules = ['javafx.web', 'javafx.fxml', 'javafx.swing']
 }
 
