@@ -28,13 +28,13 @@ Scenic View has releases for JDK 8, JDK 9, and JDK 11:
 
 For more information about JavaFX 11, see https://openjfx.io/openjfx-docs/.
 
-## Scenic View for JDK 21+
+## Scenic View for JDK 11+
 
 ### How to build
 
-Install a valid Java 21.0.1 version, and set `JAVA_HOME` accordingly.
+Install a valid Java 17+ version, and set `JAVA_HOME` accordingly.
 
-The project is managed by gradle, so is not necessary to download the JavaFX 21.0.1 SDK. 
+The project is managed by gradle, so is not necessary to download the JavaFX 21.0.1 SDK.
 
 To build the project, type:
 

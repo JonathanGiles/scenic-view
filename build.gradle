@@ -13,8 +13,10 @@ version = '21.0.1'
 
 defaultTasks 'install'
 
-sourceCompatibility = '21'
-targetCompatibility = '21'
+java {
+    sourceCompatibility = '11'
+    targetCompatibility = '11'
+}
 
 repositories {
     mavenCentral()
