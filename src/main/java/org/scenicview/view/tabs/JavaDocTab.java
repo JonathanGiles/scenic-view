@@ -69,7 +69,7 @@ public class JavaDocTab extends Tab implements ContextMenuContainer {
         SVNode selectedNode = scenicView.getSelectedNode();
         
         if (selectedNode == null || selectedNode.getNodeClassName() == null || !selectedNode.getNodeClassName().startsWith("javafx.")) {
-            webView.doLoad("https://openjfx.io/javadoc/11/index.html");
+            webView.doLoad("https://openjfx.io/javadoc/21/index.html");
         } else {
             String baseClass = selectedNode.getNodeClassName();
             String baseModule;
@@ -82,7 +82,7 @@ public class JavaDocTab extends Tab implements ContextMenuContainer {
             if (property != null) {
                 baseClass = scenicView.findProperty(baseClass, property);
             }
-            final String page = "https://openjfx.io/javadoc/11/" + baseModule + "/" + baseClass.replace('.', '/') + ".html"
+            final String page = "https://openjfx.io/javadoc/21/" + baseModule + "/" + baseClass.replace('.', '/') + ".html"
                     + (property != null ? ("#" + property + "Property") : "");
             webView.doLoad(page);
         }

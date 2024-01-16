@@ -69,8 +69,8 @@ public enum Platform {
         if ( osName.startsWith("Mac") )     return OSX;
         if ( osName.startsWith("SunOS") )   return UNIX;
         if ( osName.startsWith("Linux") ) {
-          String javafxPlatform = AccessController.doPrivileged((PrivilegedAction<String>) () -> System.getProperty("javafx.platform"));
-          if (! ( "android".equals(javafxPlatform) || "Dalvik".equals(System.getProperty("java.vm.name")) ) ) // if not Android
+//          String javafxPlatform = AccessController.doPrivileged((PrivilegedAction<String>) () -> System.getProperty("javafx.platform"));
+//          if (! ( "android".equals(javafxPlatform) || "Dalvik".equals(System.getProperty("java.vm.name")) ) ) // if not Android
             return UNIX;
         }
         return UNKNOWN;
