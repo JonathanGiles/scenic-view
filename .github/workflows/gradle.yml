@@ -40,14 +40,22 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew jlinkZip
 
-      - name: Upload to Azure Blob Storage
-        uses: bacongobbler/azure-blob-storage-upload@v3.0.0
+      # - name: Upload to Azure Blob Storage
+      #   uses: bacongobbler/azure-blob-storage-upload@v3.0.0
+      #   with:
+      #     source_dir: 'build/dist'
+      #     container_name: 'downloads'
+      #     extra_args: '--destination-path scenic-view'
+      #     connection_string: ${{ secrets.ConnectionString }}
+      #     overwrite: 'true'
+      - uses: LanceMcCarthy/Action-AzureBlobUpload@v2
+        name: Azure Blob Upload
         with:
-          source_dir: 'build/dist'
-          container_name: 'downloads'
-          extra_args: '--destination-path scenic-view'
           connection_string: ${{ secrets.ConnectionString }}
-          overwrite: 'true'
+          container_name: downloads
+          source_folder: build/dist
+          destination_folder: scenic-view
+          delete_if_exists: true
   
       # - name: Purge Azure CDN
       #   uses: svanboxel/azure-purge-cdn@main
