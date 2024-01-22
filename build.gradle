@@ -1,7 +1,12 @@
 plugins {
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.1.0'
-    id 'org.beryx.jlink' version '3.0.1'
+    
+    if (JavaVersion.current() < 17) {
+      id 'org.beryx.jlink' version '2.2.6'
+    } else if (JavaVersion.current() >= 17) {
+      id 'org.beryx.jlink' version '3.0.1'
+    }
 }
 
 application {
