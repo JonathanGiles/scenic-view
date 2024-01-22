@@ -8,25 +8,25 @@ This lets you find bugs, and get things pixel perfect without having to do the c
 
 ## Build status
 
-Builds for JDK 11 for Windows, Linux, and MacOS are built by Azure Pipelines. The status of these builds is shown below:
+Builds for JDK 11 and JDK 21 for Windows, Linux, and MacOS are built by GitHub Actinos. The status of these builds is shown below:
 
-| Platform | Status | Download for JDK 11 |
-|----------|--------|---------------------|
-| Windows  | [![Build Status](https://jonathangiles.visualstudio.com/Scenic%20View/_apis/build/status/Scenic%20View%20-%20JDK%2011%20-%20Windows)](https://jonathangiles.visualstudio.com/Scenic%20View/_build/latest?definitionId=5) | [Download](https://download.jonathangiles.net/downloads/scenic-view/scenicview-win.zip) 
-| MacOS  | [![Build Status](https://jonathangiles.visualstudio.com/Scenic%20View/_apis/build/status/Scenic%20View%20-%20JDK%2011%20-%20macOS)](https://jonathangiles.visualstudio.com/Scenic%20View/_build/latest?definitionId=7) | [Download](https://download.jonathangiles.net/downloads/scenic-view/scenicview-mac.zip) |
-| Linux  | [![Build Status](https://jonathangiles.visualstudio.com/Scenic%20View/_apis/build/status/Scenic%20View%20-%20JDK%2011%20-%20Linux)](https://jonathangiles.visualstudio.com/Scenic%20View/_build/latest?definitionId=6) | [Download](https://download.jonathangiles.net/downloads/scenic-view/scenicview-linux.zip) |
+| Platform | Download for Java 11                                                                         | Download for JDK 21                                                                          |
+|----------|----------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
+| Windows  | [Download](https://download.jonathangiles.net/downloads/scenic-view/scenicview-11-win.zip)   | [Download](https://download.jonathangiles.net/downloads/scenic-view/scenicview-21-win.zip)   |
+| MacOS    | [Download](https://download.jonathangiles.net/downloads/scenic-view/scenicview-11-mac.zip)   | [Download](https://download.jonathangiles.net/downloads/scenic-view/scenicview-21-mac.zip)   |
+| Linux    | [Download](https://download.jonathangiles.net/downloads/scenic-view/scenicview-11-linux.zip) | [Download](https://download.jonathangiles.net/downloads/scenic-view/scenicview-21-linux.zip) |                                                                                                  |
 
 You can also download platform-independent releases [JDK 8](https://download.jonathangiles.net/downloads/scenic-view/scenic-view-8.7.0.zip) and [JDK 9](https://download.jonathangiles.net/downloads/scenic-view/scenic-view-9.0.0.zip).
 
 ## Java Version
 
-Scenic View has releases for JDK 8, JDK 9, and JDK 11:
+Scenic View has releases for JDK 8, JDK 9, JDK 11, and JDK 21:
 
 - The JDK 8 release is in maintenance mode. No active development is ongoing, and the code exists in the jdk8 branch.
 - The JDK 9 release is deprecated, and developers are encouraged to use either the JDK 8 release or the JDK 11 release.
-- The JDK 11 release is the actively developed branch, and the code exists in the master branch.
+- The JDK 11 and 21 releases are the actively developed branch, and the code exists in the master branch.
 
-For more information about JavaFX 11, see https://openjfx.io/openjfx-docs/.
+For more information about JavaFX, see https://openjfx.io/openjfx-docs/.
 
 ## Scenic View for JDK 11+
 

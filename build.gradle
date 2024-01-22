@@ -66,7 +66,7 @@ jlink {
         name = 'scenicView'
     }
     imageDir = layout.buildDirectory.dir("scenicview")
-    imageZip = layout.buildDirectory.file("dist/scenicview-${platform}.zip")
+    imageZip = layout.buildDirectory.file("dist/scenicview-${JavaVersion.current()}-${platform}.zip")
 }
 
 tasks.jlink.doLast {
