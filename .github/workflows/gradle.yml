@@ -45,7 +45,7 @@ jobs:
         with:
           source_dir: 'build/dist'
           container_name: 'downloads'
-          extra_args: '--destintion-path scenic-view'
+          extra_args: '--destination-path scenic-view'
           connection_string: ${{ secrets.ConnectionString }}
           overwrite: 'true'
   
