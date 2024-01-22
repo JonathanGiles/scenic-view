@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
-        java: ['17.0.9', '21.0.1']
+        java: ['11', '17', '21']
       fail-fast: false
       max-parallel: 4
     name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}
@@ -23,12 +23,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      # # Based on https://medium.com/@shilyndon/purging-azure-cdn-with-github-actions-1c18e2adaf18
-      # - name: Azure service principal login
-      #   uses: azure/login@v1
-      #   with:
-      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
-      
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
@@ -40,14 +34,6 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew jlinkZip
 
-      # - name: Upload to Azure Blob Storage
-      #   uses: bacongobbler/azure-blob-storage-upload@v3.0.0
-      #   with:
-      #     source_dir: 'build/dist'
-      #     container_name: 'downloads'
-      #     extra_args: '--destination-path scenic-view'
-      #     connection_string: ${{ secrets.ConnectionString }}
-      #     overwrite: 'true'
       - uses: LanceMcCarthy/Action-AzureBlobUpload@v2
         name: Azure Blob Upload
         with:
@@ -56,14 +42,3 @@ jobs:
           source_folder: build/dist
           destination_folder: scenic-view
           delete_if_exists: true
-  
-      # - name: Purge Azure CDN
-      #   uses: svanboxel/azure-purge-cdn@main
-      #   with:
-      #     cdn_endpoint: Jonathangiles
-      #     cdn_profile_name: ${{ secrets.AZURE_CDN_PROFILE_NAME }}
-      #     resource_group: ${{ secrets.AZURE_RESOURCE_GROUP }}  
-      
-      # - name: Azure service principal logout
-      #   run: |
-      #     az logout
