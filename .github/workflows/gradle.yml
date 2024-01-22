@@ -22,11 +22,40 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
+      # # Based on https://medium.com/@shilyndon/purging-azure-cdn-with-github-actions-1c18e2adaf18
+      # - name: Azure service principal login
+      #   uses: azure/login@v1
+      #   with:
+      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java }}
+      
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+      
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew jlinkZip
+
+      - name: Upload to Azure Blob Storage
+        uses: bacongobbler/azure-blob-storage-upload@v3.0.0
+        with:
+          source_dir: 'build/dist'
+          container_name: 'downloads'
+          extra_args: '--destintion-path scenic-view'
+          connection_string: ${{ secrets.ConnectionString }}
+          overwrite: 'true'
+  
+      # - name: Purge Azure CDN
+      #   uses: svanboxel/azure-purge-cdn@main
+      #   with:
+      #     cdn_endpoint: Jonathangiles
+      #     cdn_profile_name: ${{ secrets.AZURE_CDN_PROFILE_NAME }}
+      #     resource_group: ${{ secrets.AZURE_RESOURCE_GROUP }}  
+      
+      # - name: Azure service principal logout
+      #   run: |
+      #     az logout
