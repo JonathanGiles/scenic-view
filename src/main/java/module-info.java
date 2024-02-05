@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-module org.scenicview.scenicview {
+open module org.scenicview.scenicview {
     requires transitive javafx.fxml;
     requires transitive javafx.web;
     requires transitive javafx.swing;
@@ -26,14 +26,6 @@ module org.scenicview.scenicview {
     requires jdk.attach;
     requires java.desktop;
 
-    opens org.scenicview.view.cssfx to javafx.fxml;
-    opens org.scenicview.view.threedom to javafx.fxml;
-    opens org.fxconnector.remote to java.instrument, java.rmi;
-
-    exports org.scenicview.view.cssfx to javafx.fxml;
-    exports org.scenicview.view.threedom to javafx.fxml;
-    exports org.fxconnector.remote to java.instrument;
-
+    exports org.fxconnector.remote to java.instrument, java.rmi;
     exports org.fxconnector;
-    exports org.scenicview;
 }
